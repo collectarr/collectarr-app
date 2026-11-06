@@ -25,6 +25,7 @@ class UiPreferences {
   const UiPreferences({
     this.animationsEnabled = true,
     this.forcePhoneLayout = false,
+    this.shakeToShuffle = true,
     this.showCardPillLetters = false,
     this.latestFolderImages = false,
     this.disableLibrarySwitchAnimation = false,
@@ -64,6 +65,9 @@ class UiPreferences {
 
   /// Keeps a tablet on the phone's single pane, as in the reference.
   final bool forcePhoneLayout;
+
+  /// Shaking the phone opens a random item of the current list.
+  final bool shakeToShuffle;
 
   /// Card pills show a raw grade's letters, such as NM, instead of 9.4.
   final bool showCardPillLetters;
@@ -127,6 +131,7 @@ class UiPreferences {
   UiPreferences copyWith({
     bool? animationsEnabled,
     bool? forcePhoneLayout,
+    bool? shakeToShuffle,
     bool? showCardPillLetters,
     bool? latestFolderImages,
     bool? disableLibrarySwitchAnimation,
@@ -164,6 +169,7 @@ class UiPreferences {
     return UiPreferences(
       animationsEnabled: animationsEnabled ?? this.animationsEnabled,
       forcePhoneLayout: forcePhoneLayout ?? this.forcePhoneLayout,
+      shakeToShuffle: shakeToShuffle ?? this.shakeToShuffle,
       showCardPillLetters: showCardPillLetters ?? this.showCardPillLetters,
       latestFolderImages: latestFolderImages ?? this.latestFolderImages,
       disableLibrarySwitchAnimation:
@@ -219,6 +225,7 @@ class UiPreferencesStore {
   static const _prefix = 'collectarr.ui';
   static const animationsEnabledKey = '$_prefix.animations_enabled';
   static const forcePhoneLayoutKey = '$_prefix.force_phone_layout';
+  static const shakeToShuffleKey = '$_prefix.shake_to_shuffle';
   static const showCardPillLettersKey = '$_prefix.show_card_pill_letters';
   static const latestFolderImagesKey = '$_prefix.latest_folder_images';
   static const disableLibrarySwitchAnimationKey =
@@ -280,6 +287,7 @@ class UiPreferencesStore {
     return UiPreferences(
       animationsEnabled: prefs.getBool(animationsEnabledKey) ?? true,
       forcePhoneLayout: prefs.getBool(forcePhoneLayoutKey) ?? false,
+      shakeToShuffle: prefs.getBool(shakeToShuffleKey) ?? true,
       showCardPillLetters: prefs.getBool(showCardPillLettersKey) ?? false,
       latestFolderImages: prefs.getBool(latestFolderImagesKey) ?? false,
       disableLibrarySwitchAnimation:
@@ -352,6 +360,7 @@ class UiPreferencesStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(animationsEnabledKey, preferences.animationsEnabled);
     await prefs.setBool(forcePhoneLayoutKey, preferences.forcePhoneLayout);
+    await prefs.setBool(shakeToShuffleKey, preferences.shakeToShuffle);
     await prefs.setBool(showCardPillLettersKey, preferences.showCardPillLetters);
     await prefs.setBool(latestFolderImagesKey, preferences.latestFolderImages);
     await prefs.setBool(
@@ -434,6 +443,9 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setShowCardPillLetters(bool enabled) =>
       _update((s) => s.copyWith(showCardPillLetters: enabled));
+
+  Future<void> setShakeToShuffle(bool enabled) =>
+      _update((s) => s.copyWith(shakeToShuffle: enabled));
 
   Future<void> setForcePhoneLayout(bool enabled) =>
       _update((s) => s.copyWith(forcePhoneLayout: enabled));

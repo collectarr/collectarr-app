@@ -152,6 +152,12 @@ class _SettingsAppearanceSectionState
               onChanged: controller.setLatestFolderImages),
           if (appPresentationPlatform.isNativeMobile) ...[
             const SizedBox(height: 10),
+            const SettingsLegend('Behaviour'),
+            SettingsCheck(
+                label: 'Shake to Shuffle (shake to pick a random item)',
+                value: preferences.shakeToShuffle,
+                onChanged: controller.setShakeToShuffle),
+            const SizedBox(height: 10),
             const SettingsLegend('Tablet'),
             SettingsCheck(
                 label: 'Force Phone Layout (single panel on larger screens)',

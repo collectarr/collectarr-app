@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/mobile/mobile_layout.dart';
 import 'package:collectarr_app/features/library/workspace/mobile/mobile_workspace.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/shake_to_shuffle.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
@@ -147,24 +148,42 @@ class LibraryWorkspace extends ConsumerWidget {
     };
   }
 
+  /// Another item of the current list, opened as a tap would.
+  void _openRandomItem(bool tabletPanes) {
+    final others = items.where((item) => item.target.id != selectedId).toList();
+    if (others.isEmpty) return;
+    final item = others[math.Random().nextInt(others.length)];
+    if (tabletPanes) {
+      onActivateItem(item.target.id);
+    } else {
+      onOpenItem(item);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (appPresentationPlatform.isNativeMobile) {
-      return LibraryMobileWorkspace(
-        tabletPanes: libraryUsesTabletPanes(context,
-            forcePhoneLayout: ref.watch(uiPreferencesProvider
-                .select((value) => value.forcePhoneLayout))),
-        selectedId: selectedId,
-        onActivateItem: onActivateItem,
-        type: type,
-        items: items,
-        viewState: viewState,
-        selectionEnabled: selectionEnabled,
-        selectedIds: selectedIds,
-        onOpenItem: onOpenItem,
-        onToggleSelectionItem: onToggleSelectionItem,
-        emptyBuilder: _emptyBuilder,
-      );
+      final tabletPanes = libraryUsesTabletPanes(context,
+          forcePhoneLayout: ref.watch(
+              uiPreferencesProvider.select((value) => value.forcePhoneLayout)));
+      return LibraryShakeToShuffle(
+          enabled: !selectionEnabled &&
+              ref.watch(uiPreferencesProvider
+                  .select((value) => value.shakeToShuffle)),
+          onShake: () => _openRandomItem(tabletPanes),
+          child: LibraryMobileWorkspace(
+            tabletPanes: tabletPanes,
+            selectedId: selectedId,
+            onActivateItem: onActivateItem,
+            type: type,
+            items: items,
+            viewState: viewState,
+            selectionEnabled: selectionEnabled,
+            selectedIds: selectedIds,
+            onOpenItem: onOpenItem,
+            onToggleSelectionItem: onToggleSelectionItem,
+            emptyBuilder: _emptyBuilder,
+          ));
     }
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
