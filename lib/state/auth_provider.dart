@@ -47,6 +47,13 @@ class AuthState {
   bool get isExpired =>
       expiresAt != null && !expiresAt!.isAfter(DateTime.now().toUtc());
 
+  /// The account this session belongs to. Null when signed out, expired, or in
+  /// the debug web preview, whose token names nobody.
+  String? get accountId => isAuthenticated ? _jwtSubject(token!) : null;
+
+  /// The token that proves [accountId] to other services.
+  String? get accountToken => accountId == null ? null : token;
+
   AuthState copyWith({
     String? token,
     String? userId,
@@ -351,6 +358,28 @@ class AuthController extends Notifier<AuthState> {
       );
       return null;
     }
+  }
+}
+
+String? _jwtSubject(String token) {
+  final parts = token.split('.');
+  if (parts.length != 3) {
+    return null;
+  }
+  try {
+    final payload = jsonDecode(
+      utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+    );
+    final subject = payload is Map<String, dynamic> ? payload['sub'] : null;
+    return subject is String && subject.isNotEmpty ? subject : null;
+  } catch (error, stackTrace) {
+    logRecoverableError(
+      source: 'auth',
+      message: 'Failed to parse JWT subject.',
+      error: error,
+      stackTrace: stackTrace,
+    );
+    return null;
   }
 }
 

@@ -6,13 +6,16 @@ class CollectarrSyncClient {
   CollectarrSyncClient({
     required String baseUrl,
     required String syncKey,
+    String? accountToken,
     SyncRetryPolicy retryPolicy = const SyncRetryPolicy(),
   })  : _syncKey = syncKey,
+        _accountToken = accountToken,
         _retryPolicy = retryPolicy,
         _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
   final Dio _dio;
   final String _syncKey;
+  final String? _accountToken;
   final SyncRetryPolicy _retryPolicy;
 
   Future<Map<String, dynamic>> push({
@@ -65,6 +68,21 @@ class CollectarrSyncClient {
     });
   }
 
+  /// Moves the shared key's library into the signed-in account. A key this
+  /// server does not know gives no access to that library, so nothing moves.
+  Future<void> claimSharedLibrary() async {
+    await _retryPolicy.run(() async {
+      try {
+        await _dio.post<Map<String, dynamic>>(
+          '/sync/claim-shared',
+          options: _options(),
+        );
+      } on DioException catch (error) {
+        if (error.response?.statusCode != 403) rethrow;
+      }
+    });
+  }
+
   Future<List<Map<String, dynamic>>> devices() async {
     final response = await _dio.get<List<dynamic>>(
       '/sync/devices',
@@ -78,7 +96,11 @@ class CollectarrSyncClient {
   }
 
   Options _options() {
-    return Options(headers: {'X-Collectarr-Sync-Key': _syncKey});
+    final accountToken = _accountToken;
+    return Options(headers: {
+      if (_syncKey.isNotEmpty) 'X-Collectarr-Sync-Key': _syncKey,
+      if (accountToken != null) 'Authorization': 'Bearer $accountToken',
+    });
   }
 
   Map<String, dynamic> _responseData(

@@ -26,6 +26,7 @@
 - Shake to Shuffle: shaking a phone opens a random item of the current list; it can be turned off in Settings.
 - Phones have Sync with Cloud in the menu, where they had no way to start a sync.
 - Sync conflicts can be reviewed on any device, comparing the fields that differ and choosing which version to keep.
+- Sync follows the signed-in account: each account has its own library, and signing in moves an existing shared library into it once.
 - Comics Pre-fill sets Raw / Slabbed, Grade, Grading Company and Label Type, and can fill Purchase Price with each comic's cover price less a discount.
 - Add Games' Platform tab lists each game of a platform once as soon as it opens, loads more while you scroll, shows the total, filters as you type, narrows to games in or not in your collection and remembers the platform.
 - Game details show a trailer's thumbnail with a play mark, and the Personal table lists purchase, condition, quantity, owner, tags and notes.

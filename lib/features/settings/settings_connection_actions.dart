@@ -174,6 +174,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
     final result = await const SettingsConnectionDiagnosticsService().checkSync(
       baseUrl: _syncController.text,
       syncKey: _syncKeyController.text,
+      accountToken: ref.read(authControllerProvider).accountToken,
     );
     if (!mounted) return;
     _updateConnectionState(() {

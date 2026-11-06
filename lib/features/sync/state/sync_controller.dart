@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_provider_invalidation_registry.dart';
 import 'package:collectarr_app/features/sync/data/sync_repository.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -62,9 +63,8 @@ class SyncController extends Notifier<SyncState> {
 
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
-      final since = await _repo.getLastSyncedAt();
       final result = await const SyncRetryPolicy().run(
-        () => _repo.performSync(deviceId, since),
+        () => _repo.performSync(deviceId),
       );
       await _repo.saveLastSyncedAt(result.serverTime);
       final conflicts = _conflictsAfter(result);
@@ -148,7 +148,8 @@ class SyncController extends Notifier<SyncState> {
   }
 
   Future<void> syncOnlineFirstIfEnabled() async {
-    if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider))) {
+    if (!_shouldUseOnlineFirstSync(ref.read(connectionSettingsProvider)) ||
+        await _repo.isWaitingForSignIn()) {
       return;
     }
     _onlineFirstSyncQueued = true;
@@ -289,6 +290,7 @@ class SyncController extends Notifier<SyncState> {
       return false;
     }
     return settings.syncBaseUrl.trim().isNotEmpty &&
-        settings.syncKey.trim().isNotEmpty;
+        (settings.syncKey.trim().isNotEmpty ||
+            ref.read(authControllerProvider).accountId != null);
   }
 }

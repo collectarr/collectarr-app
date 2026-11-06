@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/settings/settings_connection_diagnostics
 import 'package:collectarr_app/features/settings/settings_proposal_history.dart';
 import 'package:collectarr_app/features/library/metadata/proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
@@ -417,6 +418,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Sync key',
+                  helperText:
+                      'Signed-in accounts sync their own library. The key is for '
+                      'servers without accounts, and moves a shared library into '
+                      'your account once.',
+                  helperMaxLines: 3,
                   border: OutlineInputBorder(),
                 ),
               ),

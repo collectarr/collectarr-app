@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/sync/sync_account.dart';
 import 'package:collectarr_app/core/sync/sync_conflict_store.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:drift/drift.dart';
@@ -280,8 +281,10 @@ class DatabaseBackup {
   /// Clear all rows from every table.
   Future<void> clearAll() async {
     // Clear removes the local queue with the rest of the tables. Resetting the
-    // cursor makes the next sync pull a complete remote snapshot.
+    // cursor makes the next sync pull a complete remote snapshot. An empty
+    // library belongs to nobody, so any account can sync it next.
     await SyncCursorStore().clear();
+    await SyncAccountStore().clear();
     await SyncConflictStore().clear();
     await db.transaction(() async {
       for (final table in db.allTables) {

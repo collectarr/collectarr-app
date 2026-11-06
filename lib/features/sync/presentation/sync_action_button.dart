@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +12,13 @@ class SyncActionButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Catalog sign-in does not authenticate the separate personal sync service.
+    // A signed-in account can sync without the shared key.
+    final signedIn = ref
+        .watch(authControllerProvider.select((auth) => auth.accountId != null));
     final configured = ref.watch(connectionSettingsProvider.select((settings) =>
         settings.isLoaded &&
         settings.syncBaseUrl.trim().isNotEmpty &&
-        settings.syncKey.trim().isNotEmpty));
+        (settings.syncKey.trim().isNotEmpty || signedIn)));
     if (!configured) return const SizedBox.shrink();
     final sync = ref.watch(syncControllerProvider);
     return IconButton(

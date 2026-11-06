@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/sharing/collection_publication.dart';
-import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:dio/dio.dart';
@@ -37,7 +37,7 @@ class _CollectionCloudSharingPageState
 
   Dio _client() {
     final settings = ref.read(connectionSettingsProvider);
-    final token = ref.read(apiAuthTokenProvider);
+    final token = ref.read(authControllerProvider).accountToken;
     return Dio(BaseOptions(
         baseUrl: settings.syncBaseUrl,
         connectTimeout: const Duration(seconds: 15),

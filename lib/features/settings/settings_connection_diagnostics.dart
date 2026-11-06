@@ -51,12 +51,22 @@ final class SettingsConnectionDiagnosticsService {
   Future<SettingsSyncDiagnosticResult> checkSync({
     required String baseUrl,
     required String syncKey,
+    String? accountToken,
   }) async {
     try {
-      final client = CollectarrSyncClient(
+      final sharedKeyClient = CollectarrSyncClient(
         baseUrl: baseUrl,
         syncKey: syncKey,
       );
+      final health = await sharedKeyClient.health();
+      // Report the library this device syncs with, not the shared one.
+      final client = health['account_auth'] == true && accountToken != null
+          ? CollectarrSyncClient(
+              baseUrl: baseUrl,
+              syncKey: syncKey,
+              accountToken: accountToken,
+            )
+          : sharedKeyClient;
       final data = await client.status();
       final devices = await client.devices();
       final protocol = data['protocol_version']?.toString() ?? 'unknown';
