@@ -93,6 +93,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Settings > Updates credits Google for the Android platform icon and links to its license, as that license requires.
 - Import sources no longer ship other companies' logos without a license, and the Vertical Cards icon has its own artwork.
 - Platforms without a logo, such as Game Boy, show an icon that fits its tile instead of being cut off on the right, and all platform icons are the same size.
 - Flow Carousel no longer offers an Item Spacing slider that had no effect.

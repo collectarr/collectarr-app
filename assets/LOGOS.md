@@ -10,8 +10,8 @@ These files come unchanged from [Simple Icons](https://simpleicons.org)
   Entertainment); Steam and Steam Deck (Valve Corporation); Sega (Sega
   Corporation); Atari (Atari Interactive); Apple (Apple Inc.); Linux (Linus
   Torvalds; the drawing is Tux); Android (Google LLC; the robot is licensed
-  under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), so
-  redistributions must credit Google, not CC0). PlayStation
+  under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), not CC0, and
+  credited in Settings > Updates > Credits). PlayStation
   generations are the PlayStation symbol followed by the number as text.
 
 The marks belong to their owners. Collectarr shows them only to identify an

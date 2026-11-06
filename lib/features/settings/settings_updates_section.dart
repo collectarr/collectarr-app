@@ -4,8 +4,71 @@ import 'package:collectarr_app/features/settings/settings_reference_controls.dar
 import 'package:collectarr_app/features/updater/app_update_service.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+/// The credit the Android platform icon's CC BY 3.0 license requires, in the
+/// words of Google's brand guidelines.
+const androidRobotCredit =
+    'Android is a trademark of Google LLC. The Android robot is reproduced or '
+    'modified from work created and shared by Google and used according to '
+    'terms described in the ';
+const androidRobotLicense = 'Creative Commons 3.0 Attribution License';
+final androidRobotLicenseUri =
+    Uri.parse('https://creativecommons.org/licenses/by/3.0/');
+
+class _CreditsPanel extends StatefulWidget {
+  const _CreditsPanel();
+
+  @override
+  State<_CreditsPanel> createState() => _CreditsPanelState();
+}
+
+class _CreditsPanelState extends State<_CreditsPanel> {
+  late final _openLicense = TapGestureRecognizer()..onTap = _launchLicense;
+
+  @override
+  void dispose() {
+    _openLicense.dispose();
+    super.dispose();
+  }
+
+  Future<void> _launchLicense() async {
+    var opened = false;
+    try {
+      opened = await launchUrl(androidRobotLicenseUri,
+          mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // Keep Settings usable if the OS cannot launch a browser.
+    }
+    if (opened || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Could not open the license in your browser.'),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) => SettingsPanel(
+        icon: Icons.info_outline,
+        title: 'Credits',
+        child: Text.rich(TextSpan(children: [
+          const TextSpan(text: androidRobotCredit),
+          TextSpan(
+            text: androidRobotLicense,
+            style: TextStyle(
+              color: appPalette(context).link,
+              decoration: TextDecoration.underline,
+              decorationColor: appPalette(context).link,
+            ),
+            mouseCursor: SystemMouseCursors.click,
+            recognizer: _openLicense,
+          ),
+          const TextSpan(text: '.'),
+        ])),
+      );
+}
 
 /// Settings > Updates: the installed version, the newest release on the
 /// chosen channel, and downloading and installing it.
@@ -22,6 +85,7 @@ class SettingsUpdatesSection extends ConsumerWidget {
           title: 'Updates',
           child: Text('The web app updates when the page is reloaded.'),
         ),
+        _CreditsPanel(),
       ]);
     }
     final update = ref.watch(appUpdateProvider);
@@ -57,6 +121,7 @@ class SettingsUpdatesSection extends ConsumerWidget {
           ),
         ]),
       ),
+      const _CreditsPanel(),
     ]);
   }
 }
