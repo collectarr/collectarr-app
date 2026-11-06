@@ -24,7 +24,10 @@ abstract final class GameToyVocabularies {
       valuesFrom:
           TypedVocabularyProjector<GameToyCatalogMetadata>(_seriesValues));
   static const condition = VocabularyDefinition<String>(
-      id: VocabularyId('game_toy.condition'), label: 'Condition');
+      id: VocabularyId('game_toy.condition'),
+      label: 'Condition',
+      // Conditions are filed by their name.
+      hasSortName: false);
   static const all = <VocabularyDefinition<dynamic>>[
     toyType,
     toySubtype,

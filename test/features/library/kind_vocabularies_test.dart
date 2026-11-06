@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/vocabulary/game_hardware_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/vocabulary/game_toy_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
@@ -36,6 +38,23 @@ void main() {
       expect(ComicVocabularies.language.hasSortName, isFalse);
       expect(ComicVocabularies.publicationAge.hasSortName, isFalse);
       expect(ComicVocabularies.seriesGroup.hasSortName, isTrue);
+    });
+
+    test(
+        'Games platforms, regions, formats, conditions, ratings and genres are filed by name, without a Sort Name',
+        () {
+      expect(GameVocabularies.platform.hasSortName, isFalse);
+      expect(GameVocabularies.region.hasSortName, isFalse);
+      expect(GameVocabularies.format.hasSortName, isFalse);
+      expect(GameVocabularies.condition.hasSortName, isFalse);
+      expect(GameVocabularies.audienceRating.hasSortName, isFalse);
+      expect(GameVocabularies.genre.hasSortName, isFalse);
+      expect(GameVocabularies.series.hasSortName, isTrue);
+      expect(GameHardwareVocabularies.platform.hasSortName, isFalse);
+      expect(GameHardwareVocabularies.condition.hasSortName, isFalse);
+      expect(GameHardwareVocabularies.series.hasSortName, isTrue);
+      expect(GameToyVocabularies.condition.hasSortName, isFalse);
+      expect(GameToyVocabularies.series.hasSortName, isTrue);
     });
 
     test('Game vocabularies cover the reference Main, Value and Personal lists',

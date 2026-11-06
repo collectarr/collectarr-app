@@ -151,6 +151,8 @@ abstract final class GameVocabularies {
     label: 'Platform',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_platformCatalogValues),
+    // Platforms are filed by their name.
+    hasSortName: false,
   );
 
   static const region = VocabularyDefinition<String>(
@@ -158,11 +160,15 @@ abstract final class GameVocabularies {
     label: 'Region',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_regionCatalogValues),
+    // Regions are filed by their name.
+    hasSortName: false,
   );
 
   static const condition = VocabularyDefinition<String>(
     id: GameVocabularyIds.condition,
     label: 'Condition',
+    // Conditions are filed by their name.
+    hasSortName: false,
   );
 
   static const audienceRating = VocabularyDefinition<String>(
@@ -170,6 +176,8 @@ abstract final class GameVocabularies {
     label: 'Audience Rating',
     valuesFrom: TypedVocabularyProjector<GameCatalogMetadata>(
         _audienceRatingCatalogValues),
+    // Audience ratings are filed by their name.
+    hasSortName: false,
   );
 
   static const series = VocabularyDefinition<String>(
@@ -198,6 +206,8 @@ abstract final class GameVocabularies {
     label: 'Genre',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_genreCatalogValues),
+    // Genres are filed by their name.
+    hasSortName: false,
   );
 
   static const format = VocabularyDefinition<String>(
@@ -205,6 +215,8 @@ abstract final class GameVocabularies {
     label: 'Format',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_formatCatalogValues),
+    // Formats are filed by their name.
+    hasSortName: false,
   );
 
   static const storageDevice = VocabularyDefinition<String>(

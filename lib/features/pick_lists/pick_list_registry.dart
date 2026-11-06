@@ -48,6 +48,8 @@ class PickListRegistry {
       label: 'Purchase Store',
       scope: PickListScope.libraryEntry,
       valueMode: PickListValueMode.single,
+      // Stores are filed by their name.
+      hasSortName: false,
     ),
     PickListDefinition(
       id: 'sold_to',

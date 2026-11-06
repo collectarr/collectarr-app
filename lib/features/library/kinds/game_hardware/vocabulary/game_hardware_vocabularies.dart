@@ -11,14 +11,19 @@ abstract final class GameHardwareVocabularies {
       id: VocabularyId('game_hardware.platform'),
       label: 'Platform',
       valuesFrom: TypedVocabularyProjector<GameHardwareCatalogMetadata>(
-          _platformValues));
+          _platformValues),
+      // Platforms are filed by their name.
+      hasSortName: false);
   static const series = VocabularyDefinition<String>(
       id: VocabularyId('game_hardware.series'),
       label: 'Series',
       valuesFrom:
           TypedVocabularyProjector<GameHardwareCatalogMetadata>(_seriesValues));
   static const condition = VocabularyDefinition<String>(
-      id: VocabularyId('game_hardware.condition'), label: 'Condition');
+      id: VocabularyId('game_hardware.condition'),
+      label: 'Condition',
+      // Conditions are filed by their name.
+      hasSortName: false);
   static const all = <VocabularyDefinition<dynamic>>[
     platform,
     series,
