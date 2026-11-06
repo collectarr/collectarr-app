@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 /// The reference's custom select: the value in a 34 px field beside a 34 px
 /// caret button, opening its menu under the field at the field's width.
-class LibraryMenuSelectField<T> extends StatelessWidget {
+class LibraryMenuSelectField<T> extends StatefulWidget {
   const LibraryMenuSelectField({
     super.key,
     required this.label,
@@ -33,15 +33,30 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
   final bool hasValue;
 
   @override
+  State<LibraryMenuSelectField<T>> createState() =>
+      _LibraryMenuSelectFieldState<T>();
+}
+
+class _LibraryMenuSelectFieldState<T> extends State<LibraryMenuSelectField<T>> {
+  bool _open = false;
+
+  void _setOpen(bool open) => setState(() => _open = open);
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final menu = AppDropdownMenuStyle.of(context);
+    final background = widget.background;
+    final display = widget.display;
     final native =
         LibraryMobileEditFormScope.active(context) && background == null;
+    // While its menu is open the field reads as focused, like the reference:
+    // a blue frame, with the caret button flat and set off by a blue rule.
+    final highlighted = _open && background == null;
     final control = LayoutBuilder(
       builder: (context, constraints) => PopupMenuButton<T>(
         popUpAnimationStyle: AnimationStyle.noAnimation,
-        tooltip: tooltip,
+        tooltip: widget.tooltip,
         position: PopupMenuPosition.under,
         color: menu.background,
         shape: menu.shape,
@@ -52,13 +67,18 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
             minWidth: constraints.maxWidth,
             maxWidth: constraints.maxWidth,
             maxHeight: 300),
-        itemBuilder: itemBuilder,
-        onSelected: onSelected,
+        itemBuilder: widget.itemBuilder,
+        onOpened: () => _setOpen(true),
+        onCanceled: () => _setOpen(false),
+        onSelected: (value) {
+          _setOpen(false);
+          widget.onSelected(value);
+        },
         child: native
             ? InputDecorator(
-                isEmpty: !hasValue,
+                isEmpty: !widget.hasValue,
                 decoration: InputDecoration(
-                  labelText: label,
+                  labelText: widget.label,
                   labelStyle: const TextStyle(fontSize: 16),
                   floatingLabelStyle: const TextStyle(fontSize: 12),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -106,7 +126,9 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
                         border: Border.all(
                             color: background != null
                                 ? Colors.transparent
-                                : palette.divider),
+                                : highlighted
+                                    ? palette.utilityAction
+                                    : palette.divider),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(children: [
@@ -115,10 +137,16 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 7),
                           child: display,
                         )),
-                        ColoredBox(
-                            color: background != null
-                                ? Colors.transparent
-                                : palette.divider,
+                        DecoratedBox(
+                            decoration: BoxDecoration(
+                                color: background != null || highlighted
+                                    ? Colors.transparent
+                                    : palette.divider,
+                                border: highlighted
+                                    ? Border(
+                                        left: BorderSide(
+                                            color: palette.utilityAction))
+                                    : null),
                             child: SizedBox(
                                 width: 34,
                                 height: 34,
@@ -135,7 +163,9 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
               ),
       ),
     );
-    return native ? control : LibraryFormField(label: label, child: control);
+    return native
+        ? control
+        : LibraryFormField(label: widget.label, child: control);
   }
 }
 
