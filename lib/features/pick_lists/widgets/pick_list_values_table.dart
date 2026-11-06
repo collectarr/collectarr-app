@@ -66,6 +66,13 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
     final palette = appPalette(context);
     final selecting = widget.mode != PickListTableMode.manage;
     final values = [...widget.values]..sort((a, b) {
+        // A single choice lists the current value first, whatever the sort.
+        if (widget.mode == PickListTableMode.singleSelect) {
+          final aSelected = widget.selectedIds.contains(a.id);
+          if (aSelected != widget.selectedIds.contains(b.id)) {
+            return aSelected ? -1 : 1;
+          }
+        }
         final comparison = switch (_sort) {
           PickListTableSort.name => a.effectiveLabel
               .toLowerCase()
