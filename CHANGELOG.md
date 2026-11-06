@@ -17,6 +17,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Comics Pre-fill sets Raw / Slabbed, Grade, Grading Company and Label Type.
 - Add Games' Platform tab lists each game of a platform once as soon as it opens, loads more while you scroll, shows the total, filters as you type, narrows to games in or not in your collection and remembers the platform.
 - Game details show a trailer's thumbnail with a play mark, and the Personal table lists purchase, condition, quantity, owner, tags and notes.
 - Add dialogs with grouped results, such as Add Games, let you drag the divider between the list and the editions to resize it.

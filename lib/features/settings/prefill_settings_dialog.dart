@@ -364,8 +364,9 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           ? null
           : libraryEditPresentationForKind(draft.record.kind).prefillFields;
 
-  /// Reference Games pre-fill: the kind's completeness controls, Location
-  /// and Owner, purchase facts, Quantity and Tags; no Condition.
+  /// Reference pre-fill of a kind with its own controls, such as Games'
+  /// completeness or Comics' grading: those, Location and Owner, purchase
+  /// facts, Quantity and Tags; no Condition.
   Widget _kindPrefillFields(LibraryEntryEditDraft draft,
           List<Widget> Function(LibraryEntryEditDraft) kindFields) =>
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

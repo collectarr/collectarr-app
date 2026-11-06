@@ -1,5 +1,6 @@
 import '../comic_module_dependencies.dart';
 import '../entries/comic_transfer_library_entry.dart';
+import 'prefill_fields.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryTargetEditRegistry(
@@ -12,6 +13,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     ComicLibraryEntry item => item.personal.grade,
     _ => null,
   },
+  prefillFields: comicPrefillFields,
   defaultCondition: 'Near Mint',
   defaultCollectionValue: '',
   editChrome: const LibraryEditChromeConfig(
