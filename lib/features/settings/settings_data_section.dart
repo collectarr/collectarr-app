@@ -223,7 +223,7 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
       '2. Copy collectarr-sync.db plus -wal/-shm sidecars if present.',
       '3. Store the backup with the SYNC_API_KEY used by your devices.',
       '4. Restore while collectarr-sync is stopped, then run Check sync service.',
-      '5. If conflicts appear after restore, choose Keep service or Keep local in Settings.',
+      '5. If conflicts appear after restore, choose Keep other version or Keep this device in Settings.',
       '',
       'Docker:',
       'docker compose --profile sync stop sync',

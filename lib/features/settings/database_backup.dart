@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/sync/sync_conflict_store.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:drift/drift.dart';
 
@@ -50,6 +51,7 @@ class DatabaseBackup {
     // A restore has no trustworthy incremental-sync cursor. If the database
     // transaction later rolls back, a full pull is still the safe fallback.
     await SyncCursorStore().clear();
+    await SyncConflictStore().clear();
     await _replaceWith(backup);
   }
 
@@ -280,6 +282,7 @@ class DatabaseBackup {
     // Clear removes the local queue with the rest of the tables. Resetting the
     // cursor makes the next sync pull a complete remote snapshot.
     await SyncCursorStore().clear();
+    await SyncConflictStore().clear();
     await db.transaction(() async {
       for (final table in db.allTables) {
         await db.customStatement(

@@ -10,7 +10,6 @@ import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
@@ -465,14 +464,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               if (sync.rejectedChanges.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 SettingsSyncConflictSummary(
-                  changes: sync.rejectedChanges,
-                  onKeepLocal: _keepLocalConflict,
-                  onDismiss: (change) => ref
-                      .read(syncControllerProvider.notifier)
-                      .dismissRejectedChange(change.key),
-                  onDismissAll: () => ref
-                      .read(syncControllerProvider.notifier)
-                      .dismissAllRejectedChanges(),
+                  count: sync.rejectedChanges.length,
                 ),
               ],
               const SizedBox(height: 12),

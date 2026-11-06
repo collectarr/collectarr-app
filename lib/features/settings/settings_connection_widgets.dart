@@ -1,11 +1,7 @@
-import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'dart:convert';
 
-import 'package:collectarr_app/core/sync/sync_change.dart';
-import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
-import 'package:collectarr_app/features/settings/settings_formatting.dart';
+import 'package:collectarr_app/features/sync/presentation/sync_conflict_review.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -294,18 +290,9 @@ class SettingsSyncServiceSummary extends StatelessWidget {
 }
 
 class SettingsSyncConflictSummary extends StatelessWidget {
-  const SettingsSyncConflictSummary({
-    super.key,
-    required this.changes,
-    required this.onKeepLocal,
-    required this.onDismiss,
-    required this.onDismissAll,
-  });
+  const SettingsSyncConflictSummary({super.key, required this.count});
 
-  final List<SyncRejectedChange> changes;
-  final Future<void> Function(SyncRejectedChange change) onKeepLocal;
-  final ValueChanged<SyncRejectedChange> onDismiss;
-  final VoidCallback onDismissAll;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
@@ -318,84 +305,22 @@ class SettingsSyncConflictSummary extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
           children: [
-            Row(
-              children: [
-                Icon(Icons.sync_problem_outlined, color: colorScheme.error),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Sync conflict review',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: onDismissAll,
-                  icon: const Icon(Icons.done_all_outlined),
-                  label: const Text('Keep service'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Use Keep local when this device should overwrite the service on the next sync. Use Keep service when the service version is correct.',
-            ),
-            const SizedBox(height: 8),
-            for (final change in changes.take(5))
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 3),
-                child: Row(
-                  children: [
-                    const Icon(Icons.rule_folder_outlined, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${change.entityType}:${_shortSyncId(change.entityId)}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        _conflictLabel(change),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'View payload diff',
-                      onPressed: () => showAppDialog<void>(
-                        context: context,
-                        builder: (context) =>
-                            _SyncConflictDiffDialog(change: change),
-                      ),
-                      icon: const Icon(Icons.difference_outlined, size: 18),
-                    ),
-                    IconButton(
-                      tooltip: 'Copy conflict id',
-                      onPressed: () => Clipboard.setData(
-                        ClipboardData(text: change.key),
-                      ),
-                      icon: const Icon(Icons.copy_outlined, size: 18),
-                    ),
-                    IconButton(
-                      tooltip: 'Keep local version',
-                      onPressed: () => onKeepLocal(change),
-                      icon: const Icon(Icons.cloud_upload_outlined, size: 18),
-                    ),
-                    IconButton(
-                      tooltip: 'Keep service version',
-                      onPressed: () => onDismiss(change),
-                      icon: const Icon(Icons.check_outlined, size: 18),
-                    ),
-                  ],
-                ),
+            Icon(Icons.sync_problem_outlined, color: colorScheme.error),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                count == 1
+                    ? '1 sync conflict needs a decision'
+                    : '$count sync conflicts need a decision',
+                style: Theme.of(context).textTheme.titleSmall,
               ),
-            if (changes.length > 5)
-              Text('+${changes.length - 5} older rejected changes'),
+            ),
+            TextButton(
+              onPressed: () => showSyncConflictReview(context),
+              child: const Text('Review'),
+            ),
           ],
         ),
       ),
@@ -432,165 +357,4 @@ class _DiagnosticPill extends StatelessWidget {
       ],
     );
   }
-}
-
-class _SyncConflictDiffDialog extends StatelessWidget {
-  const _SyncConflictDiffDialog({required this.change});
-
-  final SyncRejectedChange change;
-
-  @override
-  Widget build(BuildContext context) {
-    final localPayload = change.localPayload ?? const <String, dynamic>{};
-    final servicePayload = change.servicePayload ?? const <String, dynamic>{};
-    return AccentAlertDialog(
-      headerIcon: AppIcons.sync,
-      title: const Text('Sync conflict diff'),
-      content: SizedBox(
-        width: 860,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _ConflictDiffChip(label: change.entityType),
-                  _ConflictDiffChip(label: _shortSyncId(change.entityId)),
-                  _ConflictDiffChip(label: change.reason),
-                  if (change.localAction != null)
-                    _ConflictDiffChip(label: 'local ${change.localAction}'),
-                  if (change.serviceAction != null)
-                    _ConflictDiffChip(
-                      label: 'service ${change.serviceAction}',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final panels = [
-                    _PayloadPanel(
-                      title: 'Local rejected payload',
-                      timestamp: change.localClientChangedAt,
-                      data: localPayload,
-                    ),
-                    _PayloadPanel(
-                      title: 'Service kept payload',
-                      timestamp: change.currentClientChangedAt,
-                      data: servicePayload,
-                    ),
-                  ];
-                  if (constraints.maxWidth < 720) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        panels[0],
-                        const SizedBox(height: 12),
-                        panels[1],
-                      ],
-                    );
-                  }
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: panels[0]),
-                      const SizedBox(width: 12),
-                      Expanded(child: panels[1]),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    );
-  }
-}
-
-class _PayloadPanel extends StatelessWidget {
-  const _PayloadPanel({
-    required this.title,
-    required this.data,
-    this.timestamp,
-  });
-
-  final String title;
-  final DateTime? timestamp;
-  final Map<String, dynamic> data;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final encoded = JsonEncoder.withIndent('  ').convert(data);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleSmall),
-            if (timestamp != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                formatSettingsDateTime(timestamp!),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-            const SizedBox(height: 8),
-            SelectableText(
-              encoded,
-              style: const TextStyle(
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ConflictDiffChip extends StatelessWidget {
-  const _ConflictDiffChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      label: Text(label),
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-}
-
-String _shortSyncId(String id) {
-  if (id.length <= 8) {
-    return id;
-  }
-  return id.substring(0, 8);
-}
-
-String _conflictLabel(SyncRejectedChange change) {
-  final label = SyncWarningFormatter.reasonLabel(change.reason);
-  final current = change.currentClientChangedAt;
-  if (current == null) {
-    return label;
-  }
-  return '$label, service kept ${formatSettingsDateTime(current)}';
 }

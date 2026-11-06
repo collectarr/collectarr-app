@@ -192,29 +192,6 @@ extension _SettingsConnectionActions on _SettingsPageState {
     showSettingsToast(_syncResultMessage(sync), tone: _syncResultTone(sync));
   }
 
-  Future<void> _keepLocalConflict(SyncRejectedChange change) async {
-    final queued = await ref
-        .read(syncControllerProvider.notifier)
-        .keepLocalRejectedChange(change);
-    if (!mounted) {
-      return;
-    }
-    final pendingCount = ref.read(syncControllerProvider).pendingCount;
-    showSettingsToast(
-      queued
-          ? 'Local version queued for the next sync. ${_pendingSyncLabel(pendingCount)} ready to upload.'
-          : 'Local version is no longer available for that conflict.',
-      tone: queued ? AppToastTone.success : AppToastTone.error,
-    );
-  }
-
-  String _pendingSyncLabel(int count) {
-    if (count == 1) {
-      return '1 pending change is';
-    }
-    return '$count pending changes are';
-  }
-
   String _syncResultMessage(SyncState sync) {
     if (sync.errorMessage != null) {
       return 'Personal sync unavailable: ${sync.errorMessage}';

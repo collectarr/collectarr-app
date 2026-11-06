@@ -21,6 +21,7 @@ final syncControllerProvider =
 class SyncController extends Notifier<SyncState> {
   @override
   SyncState build() {
+    unawaited(_restoreConflicts());
     unawaited(refreshPendingCount());
     return SyncIdle();
   }
@@ -56,7 +57,6 @@ class SyncController extends Notifier<SyncState> {
       state.snapshot.copyWith(
         isOffline: false,
         clearWarning: true,
-        clearRejectedChanges: true,
       ),
     );
 
@@ -67,6 +67,8 @@ class SyncController extends Notifier<SyncState> {
         () => _repo.performSync(deviceId, since),
       );
       await _repo.saveLastSyncedAt(result.serverTime);
+      final conflicts = _conflictsAfter(result);
+      await _repo.saveConflicts(conflicts);
 
       ref.invalidate(collectionProvider);
       ref.invalidate(collectionSummariesProvider);
@@ -94,9 +96,8 @@ class SyncController extends Notifier<SyncState> {
       state = SyncIdle(
         pendingCount: count,
         lastSyncedAt: result.serverTime,
-        warningMessage:
-            SyncWarningFormatter.rejectedChanges(result.rejectedChanges),
-        rejectedChanges: result.rejectedChanges,
+        warningMessage: SyncWarningFormatter.rejectedChanges(conflicts),
+        rejectedChanges: conflicts,
         syncLog: log,
       );
     } catch (error, stackTrace) {
@@ -137,6 +138,9 @@ class SyncController extends Notifier<SyncState> {
         pendingCount: count,
         isOffline: isOfflineSyncError(error),
         lastSyncedAt: state.lastSyncedAt,
+        warningMessage: SyncWarningFormatter.rejectedChanges(
+          state.rejectedChanges,
+        ),
         rejectedChanges: state.rejectedChanges,
         syncLog: log,
       );
@@ -189,22 +193,13 @@ class SyncController extends Notifier<SyncState> {
     final rejectedChanges = state.rejectedChanges
         .where((change) => change.key != key)
         .toList(growable: false);
-    state = _withSnapshot(
-      state.snapshot.copyWith(
-        rejectedChanges: rejectedChanges,
-        warningMessage: SyncWarningFormatter.rejectedChanges(rejectedChanges),
-        clearWarning: rejectedChanges.isEmpty,
-      ),
-    );
+    _showConflicts(rejectedChanges);
+    unawaited(_repo.saveConflicts(rejectedChanges));
   }
 
   void dismissAllRejectedChanges() {
-    state = _withSnapshot(
-      state.snapshot.copyWith(
-        clearRejectedChanges: true,
-        clearWarning: true,
-      ),
-    );
+    _showConflicts(const []);
+    unawaited(_repo.saveConflicts(const []));
   }
 
   Future<bool> keepLocalRejectedChange(SyncRejectedChange change) async {
@@ -214,12 +209,39 @@ class SyncController extends Notifier<SyncState> {
     }
     dismissRejectedChange(change.key);
     await refreshPendingCount();
+    await syncNow();
     return true;
   }
 
   // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
+
+  Future<void> _restoreConflicts() async {
+    final conflicts = await _repo.readConflicts();
+    if (conflicts.isEmpty || !ref.mounted) return;
+    _showConflicts(conflicts);
+  }
+
+  /// Open conflicts stay until the user decides or this device's version wins.
+  List<SyncRejectedChange> _conflictsAfter(SyncResult result) {
+    final conflicts = {
+      for (final change in state.rejectedChanges)
+        if (!result.acceptedKeys.contains(change.key)) change.key: change,
+      for (final change in result.rejectedChanges) change.key: change,
+    };
+    return conflicts.values.toList(growable: false);
+  }
+
+  void _showConflicts(List<SyncRejectedChange> conflicts) {
+    state = _withSnapshot(
+      state.snapshot.copyWith(
+        rejectedChanges: conflicts,
+        warningMessage: SyncWarningFormatter.rejectedChanges(conflicts),
+        clearWarning: conflicts.isEmpty,
+      ),
+    );
+  }
 
   /// Rebuild the current state class with an updated [SyncSnapshot].
   SyncState _withSnapshot(SyncSnapshot s) {

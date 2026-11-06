@@ -35,10 +35,14 @@ class SyncResult {
   const SyncResult({
     required this.serverTime,
     this.rejectedChanges = const [],
+    this.acceptedKeys = const {},
   });
 
   final DateTime serverTime;
   final List<SyncRejectedChange> rejectedChanges;
+
+  /// Entities the server took from this device in this round-trip.
+  final Set<String> acceptedKeys;
 
   int get rejectedCount => rejectedChanges.length;
   bool get hasRejectedChanges => rejectedChanges.isNotEmpty;
@@ -69,7 +73,7 @@ class SyncRejectedChange {
   final DateTime? localClientChangedAt;
 
   String get key => '$entityType:$entityId';
-  bool get hasDiffPayload => servicePayload != null || localPayload != null;
+  bool get canKeepLocal => localAction != null && localPayload != null;
 
   factory SyncRejectedChange.fromJson(
     Map<String, dynamic> json, {
@@ -91,5 +95,41 @@ class SyncRejectedChange {
       localPayload: localChange?.payload,
       localClientChangedAt: localChange?.clientChangedAt,
     );
+  }
+
+  /// Restores a conflict that is still waiting for the user's decision.
+  factory SyncRejectedChange.fromStoredJson(Map<String, dynamic> json) {
+    final localAt = json['local_client_changed_at'];
+    final localPayload = json['local_payload'];
+    final wire = SyncRejectedChange.fromJson(json);
+    return SyncRejectedChange(
+      entityType: wire.entityType,
+      entityId: wire.entityId,
+      reason: wire.reason,
+      currentClientChangedAt: wire.currentClientChangedAt,
+      serviceAction: wire.serviceAction,
+      servicePayload: wire.servicePayload,
+      localAction: json['local_action'] as String?,
+      localPayload:
+          localPayload is Map ? localPayload.cast<String, dynamic>() : null,
+      localClientChangedAt:
+          localAt is String ? DateTime.parse(localAt).toUtc() : null,
+    );
+  }
+
+  Map<String, dynamic> toStoredJson() {
+    return {
+      'entity_type': entityType,
+      'entity_id': entityId,
+      'reason': reason,
+      'current_client_changed_at':
+          currentClientChangedAt?.toUtc().toIso8601String(),
+      'current_action': serviceAction,
+      'current_payload': servicePayload,
+      'local_action': localAction,
+      'local_payload': localPayload,
+      'local_client_changed_at':
+          localClientChangedAt?.toUtc().toIso8601String(),
+    };
   }
 }

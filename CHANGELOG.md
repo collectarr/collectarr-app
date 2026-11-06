@@ -25,6 +25,7 @@
 - Comics can show a raw grade as letters on cards, such as NM instead of 9.4.
 - Shake to Shuffle: shaking a phone opens a random item of the current list; it can be turned off in Settings.
 - Phones have Sync with Cloud in the menu, where they had no way to start a sync.
+- Sync conflicts can be reviewed on any device, comparing the fields that differ and choosing which version to keep.
 - Comics Pre-fill sets Raw / Slabbed, Grade, Grading Company and Label Type, and can fill Purchase Price with each comic's cover price less a discount.
 - Add Games' Platform tab lists each game of a platform once as soon as it opens, loads more while you scroll, shows the total, filters as you type, narrows to games in or not in your collection and remembers the platform.
 - Game details show a trailer's thumbnail with a play mark, and the Personal table lists purchase, condition, quantity, owner, tags and notes.
@@ -77,6 +78,8 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Keeping this device's version after a sync conflict sends that version, where it sent the other device's.
+- Unresolved sync conflicts are kept until you decide, where the next sync or a restart lost them with the rejected edit.
 - Missing Comics no longer overflows on phones.
 - Comics without their own title show their series and issue in dialogs instead of an empty name.
 - Add Games asks Core for the chosen platform, so results are no longer cut short by filtering after each page.

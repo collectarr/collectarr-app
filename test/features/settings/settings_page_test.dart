@@ -405,24 +405,19 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    await _scrollToText(tester, 'Sync conflict review');
+    await _scrollToText(tester, '1 sync conflict needs a decision');
+    await tester.tap(find.text('Review'));
+    await pumpUntilSettled(tester);
 
-    expect(find.text('Sync conflict review'), findsOneWidget);
-    expect(find.text('library_entry:entry-it'), findsOneWidget);
-    expect(
-      find.textContaining('This device is behind the service'),
-      findsOneWidget,
-    );
-    await _scrollToTooltip(tester, 'Copy conflict id');
-    await tester.tap(find.byTooltip('Copy conflict id'));
+    expect(find.text('Sync conflicts'), findsOneWidget);
+    await tester.tap(find.text('Keep other version'));
     await pumpUntilSettled(tester);
-    await _scrollToTooltip(tester, 'Keep service version');
-    await tester.tap(find.byTooltip('Keep service version'));
-    await pumpUntilSettled(tester);
-    expect(find.text('Sync conflict review'), findsNothing);
+
+    expect(find.text('Sync conflicts'), findsNothing);
+    expect(find.text('1 sync conflict needs a decision'), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
-  testWidgets('settings page explains keep local queues the next sync',
+  testWidgets('sync conflict review keeps this device\'s version',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1000, 1200);
@@ -443,6 +438,14 @@ void main() {
                     entityType: 'library_entry',
                     entityId: 'entry-item-123456',
                     reason: 'stale_client_change',
+                    localAction: 'upsert',
+                    localPayload: {
+                      'catalog_data': {'title': 'Saga', 'page_count': 208},
+                    },
+                    serviceAction: 'upsert',
+                    servicePayload: {
+                      'catalog_data': {'title': 'Saga', 'page_count': 209},
+                    },
                   ),
                 ],
               ),
@@ -456,17 +459,19 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    await _scrollToTooltip(tester, 'Keep local version');
-    await tester.tap(find.byTooltip('Keep local version'));
+    await _scrollToText(tester, '1 sync conflict needs a decision');
+    await tester.tap(find.text('Review'));
     await pumpUntilSettled(tester);
 
-    expect(
-      find.text(
-        'Local version queued for the next sync. 3 pending changes are ready to upload.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Sync conflict review'), findsNothing);
+    expect(find.text('Saga'), findsOneWidget);
+    expect(find.text('Page count'), findsOneWidget);
+    expect(find.text('This device: 208'), findsOneWidget);
+    expect(find.text('Other version: 209'), findsOneWidget);
+
+    await tester.tap(find.text('Keep this device'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Sync conflicts'), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page applies pasted pairing code', (tester) async {
@@ -582,15 +587,6 @@ void main() {
 Future<void> _scrollToText(WidgetTester tester, String text) async {
   await tester.scrollUntilVisible(
     find.text(text),
-    320,
-    scrollable: _verticalScrollable(),
-  );
-  await pumpUntilSettled(tester);
-}
-
-Future<void> _scrollToTooltip(WidgetTester tester, String tooltip) async {
-  await tester.scrollUntilVisible(
-    find.byTooltip(tooltip),
     320,
     scrollable: _verticalScrollable(),
   );

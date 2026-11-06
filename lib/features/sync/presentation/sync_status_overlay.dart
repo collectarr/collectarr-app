@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:collectarr_app/features/sync/presentation/sync_conflict_review.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -237,8 +238,20 @@ class SyncStatusOverlay extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
+                        if (sync.rejectedChanges.isNotEmpty)
+                          TextButton(
+                            key: const Key('sync.conflicts.review'),
+                            onPressed: () => showSyncConflictReview(context),
+                            style: TextButton.styleFrom(
+                              foregroundColor: palette.isDark
+                                  ? Colors.white
+                                  : Colors.orange.shade900,
+                            ),
+                            child: const Text('Review'),
+                          ),
                         IconButton(
                           icon: const Icon(Icons.close, size: 18),
+                          tooltip: 'Keep the other version',
                           color: palette.isDark
                               ? Colors.white70
                               : Colors.orange.shade800,

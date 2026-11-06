@@ -65,13 +65,14 @@ class SyncApplyService {
 
   Future<SyncResult> syncNow(String deviceId, {DateTime? since}) async {
     var rejectedChanges = const <SyncRejectedChange>[];
+    var acceptedKeys = const <String>{};
     final pending = await queue.listPending();
     if (pending.isNotEmpty) {
       final response = await client.push(deviceId: deviceId, changes: pending);
-      final acceptedIds = _acceptedKeys(response);
+      acceptedKeys = _acceptedKeys(response);
       rejectedChanges = _rejectedChanges(response, pending);
       final completedKeys = {
-        ...acceptedIds,
+        ...acceptedKeys,
         for (final rejected in rejectedChanges) rejected.key,
       };
       await queue.deleteMany(
@@ -86,6 +87,7 @@ class SyncApplyService {
     return SyncResult(
       serverTime: _serverTime(pull),
       rejectedChanges: rejectedChanges,
+      acceptedKeys: acceptedKeys,
     );
   }
 
