@@ -19,6 +19,6 @@ class GamePlatformTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(size * 0.18),
         ),
         child: PlatformIcon(platform,
-            size: size * 0.72, color: const Color(0xff222222)),
+            size: size * 0.86, color: const Color(0xff222222)),
       );
 }

@@ -20,7 +20,6 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/entry_schem
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/personal_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/groups.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -216,7 +215,7 @@ void main() {
     expect(resolvePlatformIcon('PC'), Icons.desktop_windows);
     expect(resolvePlatformIcon('Windows'), Icons.desktop_windows);
     expect(resolvePlatformIcon('Mobile'), Icons.smartphone);
-    expect(resolvePlatformIcon('Nintendo Switch'), AppIcons.gamepad);
+    expect(resolvePlatformIcon('Nintendo Switch'), Icons.sports_esports);
   });
 
   test('Games sorts include the reference sort fields', () {

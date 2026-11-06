@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -64,7 +63,8 @@ IconData resolvePlatformIcon(String platform) {
   if (lower.contains('mobile') || lower.contains('phone')) {
     return Icons.smartphone;
   }
-  return AppIcons.gamepad;
+  // Square, unlike the wide Font Awesome gamepad, which would overflow its box.
+  return Icons.sports_esports;
 }
 
 /// The icon the user loaded for the platform called [name], else its logo
@@ -138,7 +138,12 @@ class PlatformIcon extends ConsumerWidget {
                           color: ink)),
                 ]);
     }
-    return Tooltip(message: name, child: mark);
+    // Every mark fills the same square: a wordmark or a generation number
+    // scales down instead of running past the tile.
+    return Tooltip(
+        message: name,
+        child: SizedBox.square(
+            dimension: size, child: FittedBox(child: Center(child: mark))));
   }
 }
 

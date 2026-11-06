@@ -89,6 +89,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Platforms without a logo, such as Game Boy, show an icon that fits its tile instead of being cut off on the right, and all platform icons are the same size.
 - Flow Carousel no longer offers an Item Spacing slider that had no effect.
 - Shelves and Flow Carousel show the same Edit button at the top right of a hovered item as the other views.
 - CLZ XML imports keep barcodes and the Hardware category.
