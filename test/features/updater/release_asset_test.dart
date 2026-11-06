@@ -155,6 +155,66 @@ void main() {
       expect(resolved.downloadUrl, 'https://example.test/android.apk');
     });
 
+    group('Android builds', () {
+      ReleaseAsset apk(String name, String? architecture) => ReleaseAsset(
+            name: name,
+            downloadUrl: 'https://example.test/$name',
+            size: 1,
+            assetType: ReleaseAssetType.apk,
+            runtimePlatform: AppUpdatePlatform.android,
+            architecture: architecture,
+          );
+      final apks = [
+        apk('collectarr-1.6.0-android-armeabi-v7a.apk', 'arm'),
+        apk('collectarr-1.6.0-android-universal.apk', null),
+        apk('collectarr-1.6.0-android-arm64-v8a.apk', 'arm64'),
+      ];
+
+      test('prefers the build for the device architecture', () {
+        final resolved = resolver.resolve(
+          assets: [...apks],
+          targetPlatform: AppUpdatePlatform.android,
+          targetArchitecture: 'arm64',
+        );
+        expect(resolved?.name, 'collectarr-1.6.0-android-arm64-v8a.apk');
+      });
+
+      test('falls back to the universal build for another architecture', () {
+        final resolved = resolver.resolve(
+          assets: [...apks],
+          targetPlatform: AppUpdatePlatform.android,
+          targetArchitecture: 'x64',
+        );
+        expect(resolved?.name, 'collectarr-1.6.0-android-universal.apk');
+      });
+
+      test('uses the universal build when the architecture is unknown', () {
+        final resolved = resolver.resolve(
+          assets: [...apks],
+          targetPlatform: AppUpdatePlatform.android,
+        );
+        expect(resolved?.name, 'collectarr-1.6.0-android-universal.apk');
+      });
+    });
+
+    test('reads the architecture from release asset names', () {
+      String? architectureOf(String name) => ReleaseAsset.fromJson(
+            {'name': name, 'browser_download_url': 'https://example.test/a'},
+          ).architecture;
+      expect(architectureOf('collectarr-1.6.0-android-armeabi-v7a.apk'), 'arm');
+      expect(architectureOf('collectarr-1.6.0-android-universal.apk'), isNull);
+      expect(architectureOf('collectarr-1.6.0-windows-x64-setup.exe'), 'x64');
+    });
+
+    test('ignores the web bundle and checksums for every platform', () {
+      for (final name in ['collectarr-1.6.0-web.zip', 'SHA256SUMS.txt']) {
+        final asset = ReleaseAsset.fromJson(
+          {'name': name, 'browser_download_url': 'https://example.test/a'},
+        );
+        expect(asset.runtimePlatform, isNull);
+      }
+    });
+
     test('returns null when no matching platform assets are found', () {
       final resolved = resolver.resolve(
         assets: const [],

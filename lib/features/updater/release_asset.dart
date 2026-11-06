@@ -16,6 +16,16 @@ enum AppUpdatePlatform {
     if (Platform.isIOS) return AppUpdatePlatform.iOS;
     return AppUpdatePlatform.unknown;
   }
+
+  /// The architecture this process runs on, from a [Platform.version] that
+  /// ends in `on "android_arm64"`; null when it cannot be read.
+  static String? currentArchitecture() {
+    final match = RegExp(r'on "\w+?_(\w+)"').firstMatch(Platform.version);
+    return switch (match?.group(1)) {
+      'ia32' => 'x86',
+      final architecture => architecture,
+    };
+  }
 }
 
 enum ReleaseAssetType {
@@ -117,6 +127,8 @@ class ReleaseAsset {
       architecture = 'x64';
     } else if (lowerName.contains('arm64') || lowerName.contains('aarch64')) {
       architecture = 'arm64';
+    } else if (lowerName.contains('armeabi')) {
+      architecture = 'arm';
     } else if (lowerName.contains('x86') || lowerName.contains('i386')) {
       architecture = 'x86';
     }
@@ -143,6 +155,10 @@ class ReleaseAssetResolver {
   }) {
     if (assets.isEmpty) return null;
     final platform = targetPlatform ?? AppUpdatePlatform.current();
+    final architecture = targetArchitecture ??
+        (targetPlatform == null
+            ? AppUpdatePlatform.currentArchitecture()
+            : null);
 
     final platformAssets = assets.where((a) {
       if (a.runtimePlatform == null) return false;
@@ -156,10 +172,10 @@ class ReleaseAssetResolver {
 
     // Filter or sort by architecture if specified
     var candidates = platformAssets;
-    if (targetArchitecture != null) {
+    if (architecture != null) {
       final archMatches = platformAssets
-          .where((a) =>
-              a.architecture == null || a.architecture == targetArchitecture)
+          .where(
+              (a) => a.architecture == null || a.architecture == architecture)
           .toList();
       if (archMatches.isNotEmpty) {
         candidates = archMatches;
@@ -170,7 +186,14 @@ class ReleaseAssetResolver {
     candidates.sort((a, b) {
       final aPriority = _typePriority(platform, a.assetType);
       final bPriority = _typePriority(platform, b.assetType);
-      return aPriority.compareTo(bPriority);
+      if (aPriority != bPriority) return aPriority.compareTo(bPriority);
+      // A build for this architecture beats a universal one; with the
+      // architecture unknown, only a universal build is sure to run.
+      final aSpecific = a.architecture == null ? 1 : 0;
+      final bSpecific = b.architecture == null ? 1 : 0;
+      return architecture == null
+          ? bSpecific.compareTo(aSpecific)
+          : aSpecific.compareTo(bSpecific);
     });
 
     return candidates.first;
