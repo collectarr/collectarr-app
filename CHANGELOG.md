@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Docs
-- The CLZ parity guide lists how Add Hardware and Add Toys still differ from CLZ, led by the Toys type list.
+- The CLZ parity guide lists what is left to compare in the Add flows of Games, Hardware and Toys.
 - The CLZ parity guide records the remaining phone differences of the Action menu, Pre-fill, settings, sync and accounts.
 - The CLZ parity guide lists the remaining differences of Add Games' Platform tab and game cards.
 - The asset guide documents ignored local icon folders and loading their images through Games and Comics settings.

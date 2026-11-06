@@ -100,6 +100,9 @@ Keep these when matching the reference visually.
   CIB/New/Graded select both.
 - Hardware/Toys must not be inferred from collection names: a renamed
   collection retains its concrete type, and moves must preserve that type.
+- Add Toys' type tiles carry the type's name, as CLZ's logos are its licensors'
+  artwork; its toys show no price, as Collectarr does not fetch them. Add Manually
+  keeps Propose to Core beside Cancel and Add, as the editor does.
 - Platform category glyphs, the app identity, kind icons in headers, Flow
   Carousel and the extra search/tools controls are deliberate additions.
   Different cover content and persisted pane widths are not regressions.
@@ -260,14 +263,7 @@ navigation, larger system text and light appearance.
 | P2 | Platform vocabulary | CLZ offers about 225 platforms with short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2); Collectarr's Pick Platform uses its 27 built-in names (Nintendo Wii, PlayStation Portable, ...). Renaming them changes stored entry values and needs an ordered migration, so it is an owner decision |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |
 | P3 | Column chooser gaps | Games has no Back Cover image, Description, eBay, Core GameID/MediaID or Toy NFCID columns. Collectarr keeps its Status, Wishlist, Franchise and Box/Manual Only value columns |
-| P1 | Add Toys | CLZ opens on a List tab: toy type tiles (amiibo, Skylanders, Disney Infinity, LEGO Dimensions) with owned/total counts, then a tick-box grid grouped by series with type and series filters and a search. Collectarr offers only Title and Barcode search |
-| P2 | Add confirm sheet | For Hardware and Toys CLZ shows the compact sheet with cover, title, platform and year. Collectarr shows a tall generic panel with "Collectarr Core catalog item" and an empty Details heading (Games already matches) |
-| P2 | Add Hardware search | CLZ's platform pill has the platform tile and opened on PC, and Consoles/Controllers/Accessories sit on their own row before any search. Collectarr has a plain All platforms list and shows the types beside the result count only after searching |
-| P2 | Add Hardware and Toys results | CLZ rows show the platform and open the confirm sheet on click. Collectarr rows show no platform and add a tick box on the right |
-| P3 | Add Manually | CLZ titles it "Add hardware manually" or "Add toy manually", starts with an empty Title and has Cancel and Add. Collectarr's title and Title field follow the search text, and it has Propose and Add to Collection |
-| P3 | Add Hardware manual layout | CLZ: Title, Sort Title, Platform and Release Date, Barcode and Hardware Type on the left, Series and Serial No. on the right. Collectarr puts Barcode and Hardware Type at the top right |
 | P3 | Add manual tabs | CLZ lists Personal last; Collectarr lists it after Value |
-| P3 | Add Games platform | CLZ opened Add Games with PC chosen; Collectarr opens on All |
 
 ## Not yet compared live
 
