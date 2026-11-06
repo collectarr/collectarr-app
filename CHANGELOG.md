@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Docs
-- The CLZ parity guide records the remaining phone and tablet differences of the library, Action menu and settings.
+- The CLZ parity guide records the remaining phone differences of the Action menu, Pre-fill, settings, sync and accounts.
 - The CLZ parity guide lists the remaining differences of Add Games' Platform tab and game cards.
 - The asset guide documents ignored local icon folders and loading their images through Games and Comics settings.
 - The Android parity guide records the remaining sort defaults, font metrics, empty states and populated inspector and Action-menu differences.
