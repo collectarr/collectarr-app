@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -21,6 +22,8 @@ final class LibraryProjectionQuery {
     this.bucketScopeFilters = const [],
     this.filterSelection = LibraryFilterSelection.none,
     this.linkedMetadataFilters = const [],
+    this.selectedLetter,
+    this.alphabetField,
     this.constrainedItemIds,
     this.collectionEntryIds,
     this.sorting = const LibrarySortingOptions(),
@@ -38,6 +41,10 @@ final class LibraryProjectionQuery {
   final List<LibraryBucketScopeFilter> bucketScopeFilters;
   final LibraryFilterSelection filterSelection;
   final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
+
+  /// The alphabet bar's letter, read from [alphabetField].
+  final String? selectedLetter;
+  final LibraryAlphabetField? alphabetField;
   final Set<String>? constrainedItemIds;
   final Set<String>? collectionEntryIds;
   final LibrarySortingOptions sorting;

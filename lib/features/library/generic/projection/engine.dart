@@ -61,8 +61,8 @@ class LibraryProjectionEngine {
           !query.constrainedItemIds!.contains(item.target.id)) {
         continue;
       }
-      // Folder counts follow the Collection Status scope, as in the
-      // reference, and the value chips.
+      // Folder counts follow the Collection Status scope and the alphabet bar,
+      // as in the reference, and the value chips.
       var matchesScope = filterEngine.matchesCollectionStatusScope(
               item, query.collectionStatusScope) &&
           filterEngine.matchesLinkedMetadata(
@@ -86,6 +86,8 @@ class LibraryProjectionEngine {
         scopedBucketItems.add(item);
       }
     }
+
+    final folderItems = libraryItemsForQueryLetter(scopedBucketItems, query);
 
     final filteredItems = <LibraryProjectionItem>[];
     for (final item in scopedBucketItems) {
@@ -120,7 +122,7 @@ class LibraryProjectionEngine {
 
     final counts = statsCalculator.calculate(
       allItems: allItems,
-      shownCount: filteredItems.length,
+      shownCount: libraryItemsForQueryLetter(filteredItems, query).length,
       type: type,
     );
 
@@ -132,7 +134,7 @@ class LibraryProjectionEngine {
     }
     final buckets = overrideBuckets ??
         groupingEngine.buildBuckets(
-          scopedBucketItems,
+          folderItems,
           type,
           groupId,
           index: index,
@@ -141,6 +143,7 @@ class LibraryProjectionEngine {
 
     return LibraryProjection(
       allItems: allItems,
+      folderItems: folderItems,
       filteredItems: filteredItems,
       buckets: buckets,
       selectedItem: librarySelectedItem(filteredItems, query.selectedItemId),

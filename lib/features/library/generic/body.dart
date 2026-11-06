@@ -86,19 +86,6 @@ double resolveLibrarySidebarMinWidth(
 // Minimum available content width for the workspace side-by-side layout.
 const double _workspaceSplitMinWidth = 860;
 
-/// The items the views show once the alphabet bar's letter is applied.
-List<LibraryProjectionItem> libraryItemsForLetter(
-  List<LibraryProjectionItem> items,
-  LibraryAlphabetField field,
-  String? letter,
-) =>
-    letter == null
-        ? items
-        : items
-            .where((item) => field.values(item).any(
-                (value) => LibraryAlphaJumpBar.matchesLetter(value, letter)))
-            .toList();
-
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -565,7 +552,7 @@ class LibraryBody extends StatelessWidget {
                         folderDisplayMode != LibraryFolderDisplayMode.tree)
                 ? const <LibraryFolderTreeNode>[]
                 : libraryFolderTreeNodesForItems(
-                    projection.allItems,
+                    projection.folderItems,
                     type,
                     folderPreset!,
                     expandedNodeIds: folderTreeExpandedNodeIds,

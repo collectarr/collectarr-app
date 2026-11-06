@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -23,6 +24,8 @@ class LibraryProjectionRequest {
     required this.sortRules,
     required this.query,
     required this.linkedMetadataFilters,
+    required this.selectedLetter,
+    required this.alphabetField,
     required this.selectedBucket,
     required this.selectedItemId,
     required this.quickView,
@@ -48,6 +51,8 @@ class LibraryProjectionRequest {
   final List<LibrarySortRuleRuntime> sortRules;
   final String query;
   final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
+  final String? selectedLetter;
+  final LibraryAlphabetField alphabetField;
   final String? selectedBucket;
   final String? selectedItemId;
   final LibraryQuickView? quickView;
@@ -73,6 +78,8 @@ class LibraryProjectionRequest {
         listEquals(sortRules, other.sortRules) &&
         query == other.query &&
         listEquals(linkedMetadataFilters, other.linkedMetadataFilters) &&
+        selectedLetter == other.selectedLetter &&
+        alphabetField.id == other.alphabetField.id &&
         selectedBucket == other.selectedBucket &&
         selectedItemId == other.selectedItemId &&
         quickView == other.quickView &&
@@ -103,6 +110,8 @@ class LibraryProjectionRequest {
         Object.hashAll(sortRules),
         query,
         Object.hashAll(linkedMetadataFilters),
+        selectedLetter,
+        alphabetField.id,
         selectedBucket,
         selectedItemId,
         quickView,
@@ -210,6 +219,8 @@ final libraryProjectionProvider = Provider.autoDispose
     sortRules: request.sortRules,
     query: request.query,
     linkedMetadataFilters: request.linkedMetadataFilters,
+    selectedLetter: request.selectedLetter,
+    alphabetField: request.alphabetField,
     selectedBucket: request.selectedBucket,
     selectedItemId: request.selectedItemId,
     quickView: request.quickView,

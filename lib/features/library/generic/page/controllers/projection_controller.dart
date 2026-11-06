@@ -83,6 +83,8 @@ abstract final class _LibraryProjectionControllerOps {
           sortRules: viewState.sortRules,
           query: query,
           linkedMetadataFilters: linkedMetadataFilters,
+          selectedLetter: state._session.facets.selectedLetter,
+          alphabetField: state._alphabetField,
           selectedBucket: selectedBucket,
           selectedItemId: selectedItemId,
           quickView: quickView,

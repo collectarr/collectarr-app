@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/workspace/entry/shelf_entry.dart
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:flutter/material.dart';
 
@@ -368,12 +369,13 @@ String? libraryGroupModeFromStorageValue(String value,
 class LibraryProjection {
   const LibraryProjection({
     required this.allItems,
+    List<LibraryProjectionItem>? folderItems,
     required this.filteredItems,
     required this.buckets,
     required this.selectedItem,
     required this.counts,
     this.sorting = const LibrarySortingOptions(),
-  });
+  }) : folderItems = folderItems ?? allItems;
 
   factory LibraryProjection.forItem(LibraryProjectionView view) {
     final item = LibraryProjectionItem(
@@ -399,6 +401,8 @@ class LibraryProjection {
     required List<LibrarySortRuleRuntime> sortRules,
     required String query,
     List<LibraryLinkedMetadataFilter> linkedMetadataFilters = const [],
+    String? selectedLetter,
+    LibraryAlphabetField? alphabetField,
     required String? selectedBucket,
     required String? selectedItemId,
     required LibraryQuickView? quickView,
@@ -424,6 +428,8 @@ class LibraryProjection {
       sortRules: sortRules,
       query: query,
       linkedMetadataFilters: linkedMetadataFilters,
+      selectedLetter: selectedLetter,
+      alphabetField: alphabetField,
       selectedBucket: selectedBucket,
       selectedItemId: selectedItemId,
       quickView: quickView,
@@ -444,6 +450,10 @@ class LibraryProjection {
   }
 
   final List<LibraryProjectionItem> allItems;
+
+  /// The items the folder panel shows: those in the Collection Status scope,
+  /// the alphabet bar's letter and the value chips.
+  final List<LibraryProjectionItem> folderItems;
   final List<LibraryProjectionItem> filteredItems;
   final List<LibraryBucket> buckets;
   final LibraryProjectionItem? selectedItem;

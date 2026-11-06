@@ -101,9 +101,9 @@ abstract final class _LibraryScopeControllerOps {
       return;
     }
     mutateSidebarScope(state, () {
-      // Value chips accumulate with the folder.
+      // As in the reference, the alphabet bar's letter stays on; value chips
+      // accumulate with the folder too.
       state._session.facets.selectedBucket = bucket;
-      state._session.facets.selectedLetter = null;
       state._session.preferences.activeSmartListId = null;
       state._session.preferences.activeSmartListName = null;
     });

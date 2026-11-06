@@ -8,7 +8,33 @@ import 'package:collectarr_app/features/library/workspace/schema/identifier_type
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
+import 'package:collectarr_app/features/library/workspace/layout/alpha_jump_bar.dart';
+
+/// The items the views show once the alphabet bar's letter is applied.
+List<LibraryProjectionItem> libraryItemsForLetter(
+  List<LibraryProjectionItem> items,
+  LibraryAlphabetField field,
+  String? letter,
+) =>
+    letter == null
+        ? items
+        : items
+            .where((item) => field.values(item).any(
+                (value) => LibraryAlphaJumpBar.matchesLetter(value, letter)))
+            .toList();
+
+/// [items] narrowed to the letter of [query], if it has one.
+List<LibraryProjectionItem> libraryItemsForQueryLetter(
+  List<LibraryProjectionItem> items,
+  LibraryProjectionQuery query,
+) {
+  final field = query.alphabetField;
+  return field == null
+      ? items
+      : libraryItemsForLetter(items, field, query.selectedLetter);
+}
 
 /// Every value of [item] a value chip can filter by: the kind's named fields,
 /// then custom fields under their names, then what else search knows.
