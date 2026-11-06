@@ -14,6 +14,7 @@ Widget buildGamePlatformIconsSettings(
                 list: platformIconsList,
                 description:
                     'Load icons from your own files, each named after its platform, '
-                    'such as "Nintendo Switch.svg". They replace the built-in logo '
+                    'such as "Nintendo Switch.svg", or select them with an index.csv '
+                    'that has Name and File columns. They replace the built-in logo '
                     'wherever the platform shows.',
                 previewBuilder: (value) => PlatformIcon(value, size: 18))));

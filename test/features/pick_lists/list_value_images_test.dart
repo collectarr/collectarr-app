@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:drift/native.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -41,6 +42,38 @@ void main() {
     await validateListValueImage(svg);
     await expectLater(validateListValueImage(Uint8List.fromList([1, 2])),
         throwsFormatException);
+  });
+
+  test('an index names its images, one file serving several values', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final images = ListValueImages(db);
+    final svg = Uint8List.fromList(utf8.encode('<svg></svg>'));
+    XFile file(String name, List<int> bytes) =>
+        XFile.fromData(Uint8List.fromList(bytes), name: name);
+
+    final result = await images.loadPickedFiles('platform', [
+      file('ps5.svg', svg),
+      file('NDS3.SVG', svg),
+      file('Other Name.svg', svg),
+      file(
+          'index.csv',
+          utf8.encode('\ufeffName,ID,File,Source\r\n'
+              'PlayStation 5,,ps5.svg,https://example.test/ps5.svg\r\n'
+              'Nintendo 3DS,,nds3.svg,\r\n'
+              'New Nintendo 3DS,,nds3.svg,\r\n'
+              'Acetronic,,,\r\n')),
+      file('notes.csv', utf8.encode('a,b\n1,2\n')),
+    ]);
+
+    expect(result.loaded, 4);
+    expect(result.skipped, ['notes.csv']);
+    expect(await images.watchValues('platform').first, [
+      'New Nintendo 3DS',
+      'Nintendo 3DS',
+      'Other Name',
+      'PlayStation 5',
+    ]);
   });
 
   test('an all-black SVG can take the text colour, a coloured one keeps its',

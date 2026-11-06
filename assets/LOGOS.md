@@ -27,8 +27,10 @@ root. Git ignores `local-assets/`; these files are not bundled app assets.
 
 Each folder's `index.csv` maps the displayed names to the original filenames.
 Load images through Settings > Customization > Comics > Custom label icons or
-Games > Platform icons. The file's name must match the label or platform value;
-use the index when renaming downloaded originals for bulk loading.
+Games > Platform icons: select every file in the folder, including `index.csv`,
+and each image is stored under the names the index gives it. A file the index
+does not list, or one loaded without an index, must be named after its label or
+platform.
 
 Except for the import-source marks listed below, use a known free license for
 new logos. Sources and platforms without a logo here (Xbox, Nintendo and

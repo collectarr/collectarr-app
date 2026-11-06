@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/image_intake.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
@@ -21,6 +22,36 @@ const listValueImageFileTypes = [
   XTypeGroup(
       label: 'Images', extensions: ['svg', 'png', 'jpg', 'jpeg', 'webp', 'gif'])
 ];
+
+/// What a bulk load accepts: image files and the index naming them.
+const listValueImageLoadFileTypes = [
+  XTypeGroup(
+      label: 'Images and index',
+      extensions: ['svg', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'csv'])
+];
+
+/// The values an index file gives each image file, by lower-case file name.
+/// An index is a CSV with Name and File columns; one file can serve many
+/// values, and rows without a file are skipped.
+Map<String, List<String>> listValueImageIndex(String source) {
+  final rows = const CsvReader().read(source);
+  if (rows.isEmpty) throw const FormatException('The index is empty.');
+  final header = [for (final cell in rows.first) cell.trim().toLowerCase()];
+  final nameColumn = header.indexOf('name');
+  final fileColumn = header.indexOf('file');
+  if (nameColumn < 0 || fileColumn < 0) {
+    throw const FormatException('The index needs Name and File columns.');
+  }
+  final index = <String, List<String>>{};
+  for (final row in rows.skip(1)) {
+    if (row.length <= nameColumn || row.length <= fileColumn) continue;
+    final name = row[nameColumn].trim();
+    final file = row[fileColumn].trim().toLowerCase();
+    if (name.isEmpty || file.isEmpty) continue;
+    (index[file] ??= []).add(name);
+  }
+  return index;
+}
 
 /// Whether [bytes] hold an SVG document rather than a raster image.
 bool isSvgImage(Uint8List bytes) {
@@ -126,18 +157,41 @@ class ListValueImages {
     await (_db.delete(rows)..where((row) => row.listKey.equals(list))).go();
   }
 
-  /// Lets the user pick image files and stores each under the value it is
-  /// named after; returns how many loaded and the files skipped.
-  Future<({int loaded, List<String> skipped})> loadFiles(String list) async {
-    final files = await openFiles(acceptedTypeGroups: listValueImageFileTypes);
-    var loaded = 0;
+  /// Lets the user pick image files, and optionally their index, to load.
+  Future<({int loaded, List<String> skipped})> loadFiles(String list) async =>
+      loadPickedFiles(list,
+          await openFiles(acceptedTypeGroups: listValueImageLoadFileTypes));
+
+  /// Stores each image under the values an index among [files] gives it, else
+  /// under the value it is named after; returns how many values loaded and
+  /// the files skipped.
+  Future<({int loaded, List<String> skipped})> loadPickedFiles(
+      String list, List<XFile> files) async {
+    final index = <String, List<String>>{};
+    final images = <XFile>[];
     final skipped = <String>[];
     for (final file in files) {
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        images.add(file);
+        continue;
+      }
+      try {
+        index.addAll(listValueImageIndex(await file.readAsString()));
+      } catch (_) {
+        skipped.add(file.name);
+      }
+    }
+    var loaded = 0;
+    for (final file in images) {
       try {
         final bytes = await file.readAsBytes();
         await validateListValueImage(bytes);
-        await save(list, listValueFromFileName(file.name), bytes);
-        loaded++;
+        final values = index[file.name.toLowerCase()] ??
+            [listValueFromFileName(file.name)];
+        for (final value in values) {
+          await save(list, value, bytes);
+          loaded++;
+        }
       } catch (_) {
         skipped.add(file.name);
       }

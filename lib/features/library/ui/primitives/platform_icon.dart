@@ -84,12 +84,21 @@ class PlatformIcon extends ConsumerWidget {
         .value;
     final ink = color ?? DefaultTextStyle.of(context).style.color;
     if (loaded != null) {
+      // An image that keeps its own colours, often dark ones, stays legible
+      // on a white tile; every image fills the same square so names line up.
+      final tinted = ink != null && isBlackSvg(loaded);
       return Tooltip(
           message: name,
-          child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: size * 3, maxHeight: size),
-              child:
-                  ListValueImageView(loaded, height: size, blackSvgTint: ink)));
+          child: Container(
+              width: size,
+              height: size,
+              padding: EdgeInsets.all(tinted ? 0 : size * 0.06),
+              decoration: tinted
+                  ? null
+                  : BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(size * 0.18)),
+              child: ListValueImageView(loaded, blackSvgTint: ink)));
     }
     final logo = platformLogoFor(name);
     final Widget mark;

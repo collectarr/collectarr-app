@@ -14,5 +14,6 @@ Widget buildComicCustomLabelIconsSettings(
                 list: ComicVocabularyIds.customLabel.value,
                 description:
                     'Load icons from your own files, each named after its '
-                    'Custom Label, such as "Absolute Batman.png". Loaded icons '
+                    'Custom Label, such as "Absolute Batman.png", or select them '
+                    'with an index.csv that has Name and File columns. Loaded icons '
                     'appear beside labels in editors and on slabbed covers.')));
