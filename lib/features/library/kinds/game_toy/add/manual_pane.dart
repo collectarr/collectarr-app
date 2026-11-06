@@ -221,7 +221,7 @@ class _GameToyAddManualPaneState extends State<GameToyAddManualPane> {
                   LibraryExternalLinksDraftEditor(
                     links: draft.trailers,
                     accent: request.accent,
-                    addLabel: 'Add YouTube Trailer',
+                    addLabel: 'New Trailer',
                     emptyMessage: 'No YouTube trailers added.',
                     onChanged: request.onManualDraftChanged,
                   ),

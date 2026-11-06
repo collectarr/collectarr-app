@@ -223,8 +223,8 @@ void main() {
     await tester.ensureVisible(linksTab);
     await tester.tap(linksTab);
     await tester.pumpAndSettle();
-    expect(find.text('Add Link'), findsOneWidget);
-    await tester.tap(find.text('Add Link'));
+    expect(find.text('New Link'), findsOneWidget);
+    await tester.tap(find.text('New Link'));
     await tester.pumpAndSettle();
     expect(
       find.byWidgetPredicate(

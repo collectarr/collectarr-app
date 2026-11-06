@@ -108,7 +108,7 @@ final class LibraryEditLinksTabContribution {
     this.icon = AppIcons.tabLinks,
     this.svgAsset,
     this.afterTabId,
-    this.addLabel = 'Add Link',
+    this.addLabel = 'New Link',
     this.showTitleColumn = true,
     this.emptyMessage = 'No external links added.',
   }) : assert(icon != null || svgAsset != null);

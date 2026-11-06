@@ -35,7 +35,7 @@ final class _BookExternalLinksEditorState
             ),
         ],
         accent: widget.accent,
-        addLabel: 'Add Link',
+        addLabel: 'New Link',
         emptyMessage: 'No external links added.',
         showTitleColumn: true,
         onAdd: () => setState(() {

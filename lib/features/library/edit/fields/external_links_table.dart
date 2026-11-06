@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:flutter/material.dart';
@@ -197,10 +198,11 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
         const SizedBox(height: 8),
         Align(
           alignment: Alignment.centerRight,
-          child: OutlinedButton.icon(
+          child: FilledButton.icon(
             onPressed: _add,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, size: 14),
             label: Text(widget.addLabel),
+            style: dialogActionButtonStyle(context, width: 0),
           ),
         ),
       ],

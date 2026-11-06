@@ -46,7 +46,7 @@ final class LibraryEntryExternalLinksEditTab extends StatelessWidget {
             title: 'User links',
             accent: accent,
             child: LibraryExternalLinksEditor(
-              title: 'User links',
+              addLabel: 'New Link',
               items: userExternalLinks.userLinks,
               accent: accent,
               onAdd: () => userExternalLinks.add(kind: 'custom'),
@@ -57,7 +57,7 @@ final class LibraryEntryExternalLinksEditTab extends StatelessWidget {
             title: 'Trailers',
             accent: accent,
             child: LibraryExternalLinksEditor(
-              title: 'Trailers',
+              addLabel: 'New Trailer',
               items: userExternalLinks.trailers,
               accent: accent,
               onAdd: () => userExternalLinks.add(kind: 'trailer'),

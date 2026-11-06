@@ -22,7 +22,7 @@ final class LibraryExternalLinksEditSection extends StatefulWidget {
     required this.links,
     required this.accent,
     required this.onChanged,
-    this.addLabel = 'Add Link',
+    this.addLabel = 'New Link',
     this.showTitleColumn = true,
     this.emptyMessage = 'No external links added.',
   });
@@ -89,7 +89,7 @@ final class LibraryExternalLinksDraftEditor extends StatefulWidget {
     required this.links,
     required this.accent,
     this.onChanged,
-    this.addLabel = 'Add Link',
+    this.addLabel = 'New Link',
     this.showTitleColumn = true,
     this.emptyMessage = 'No external links added.',
   });

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 final class LibraryExternalLinksEditor extends StatefulWidget {
   const LibraryExternalLinksEditor({
     super.key,
-    required this.title,
+    required this.addLabel,
     required this.items,
     required this.onAdd,
     this.onChanged,
@@ -14,7 +14,7 @@ final class LibraryExternalLinksEditor extends StatefulWidget {
     this.accent,
   });
 
-  final String title;
+  final String addLabel;
   final List<EditableUserExternalLink> items;
   final VoidCallback onAdd;
   final VoidCallback? onChanged;
@@ -67,7 +67,7 @@ final class _LibraryExternalLinksEditorState
           ),
       ],
       accent: widget.accent ?? Theme.of(context).colorScheme.primary,
-      addLabel: 'Add ${widget.title}',
+      addLabel: widget.addLabel,
       emptyMessage: widget.emptyMessage,
       onAdd: _add,
       onReorder: _reorder,

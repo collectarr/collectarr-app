@@ -684,7 +684,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 ),
             ],
             accent: widget.accent,
-            addLabel: 'Add Link',
+            addLabel: 'New Link',
             emptyMessage: 'No links added.',
             onAdd: () {
               _linksEdited = true;
