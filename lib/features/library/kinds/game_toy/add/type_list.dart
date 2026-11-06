@@ -34,7 +34,7 @@ final gameToyAddTypes = LibraryAddBrowseCapability(
     for (final type in _toyTypes) _typeGroup(api, type),
   ]),
   loadItemRows: _loadTypeRows,
-  ownedGroupKey: (entry) => entry.catalogData['toy_type'] as String?,
+  ownedGroupKey: (entry) => _toyTypeKey(entry.catalogData['toy_type']),
   tiles: LibraryAddBrowseTiles(
     prompt: 'Choose your toy type',
     sectionLabel: 'Series',
@@ -44,6 +44,8 @@ final gameToyAddTypes = LibraryAddBrowseCapability(
         .trim(),
   ),
 );
+
+String? _toyTypeKey(Object? type) => (type as String?)?.trim().toLowerCase();
 
 Future<LibraryAddBrowseGroup> _typeGroup(ApiClient api, String type) async {
   final query = _typeQuery(type);
@@ -56,7 +58,7 @@ Future<LibraryAddBrowseGroup> _typeGroup(ApiClient api, String type) async {
     title: type,
     countLabel: '${page['total'] ?? 0}',
     query: query,
-    ownedKey: type,
+    ownedKey: _toyTypeKey(type),
   );
 }
 

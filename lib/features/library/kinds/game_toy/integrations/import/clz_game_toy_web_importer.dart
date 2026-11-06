@@ -28,7 +28,7 @@ final class ClzGameToyWebImporter implements LibraryGuidedImporter {
     final metadata = GameToyCatalogMetadata(
       title: title,
       sortKey: resolveSortTitle(title, raw.text('sorttitle')),
-      barcode: raw.text('barcode'),
+      barcode: raw.text('upc'),
       seriesTitle: raw.text('series'),
       releaseDateParts: raw.date('releasedate'),
       description: raw.text('description'),

@@ -28,13 +28,13 @@ final class ClzGameHardwareWebImporter implements LibraryGuidedImporter {
     final metadata = GameHardwareCatalogMetadata(
       title: title,
       sortKey: resolveSortTitle(title, raw.text('sorttitle')),
-      barcode: raw.text('barcode'),
+      barcode: raw.text('upc'),
       seriesTitle: raw.text('series'),
       releaseDateParts: raw.date('releasedate'),
       description: raw.text('description'),
       coverImageUrl: raw.text('coverfrontdefault'),
       platform: raw.text('platform'),
-      hardwareType: raw.text('hardwaretype'),
+      hardwareType: raw.text('hardwarecategory'),
     );
     final purchase = raw.date('purchasedate');
     final personal = GameHardwarePersonalData(
