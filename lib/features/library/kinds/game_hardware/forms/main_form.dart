@@ -79,10 +79,10 @@ LibraryFormSectionSpec<T> gameHardwareMainSection<T>(
           LibraryFormColumnSpec(rows: [
             [titleFieldId],
             ['sort_title'],
-            ['platform', 'release_date']
+            ['platform', 'release_date'],
+            ['barcode', 'hardware_type']
           ]),
           const LibraryFormColumnSpec(rows: [
-            ['barcode', 'hardware_type'],
             ['series'],
             ['serial_number']
           ]),

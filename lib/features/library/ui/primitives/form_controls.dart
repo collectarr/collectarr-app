@@ -102,6 +102,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.controller,
     this.initialValue,
     this.validator,
+    this.autovalidateMode,
     this.onChanged,
     this.decoration,
     this.minimumHeight = LibraryMetrics.defaultFieldHeight,
@@ -126,6 +127,7 @@ class LibraryTextFormControl extends StatelessWidget {
   final TextEditingController? controller;
   final String? initialValue;
   final String? Function(String?)? validator;
+  final AutovalidateMode? autovalidateMode;
   final ValueChanged<String>? onChanged;
   final InputDecoration? decoration;
   final double minimumHeight;
@@ -182,6 +184,7 @@ class LibraryTextFormControl extends StatelessWidget {
       focusNode: focusNode,
       autofocus: autofocus,
       validator: validator,
+      autovalidateMode: autovalidateMode,
       onChanged: onChanged,
       onFieldSubmitted: onFieldSubmitted,
       keyboardType: keyboardType,

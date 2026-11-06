@@ -82,6 +82,7 @@ final class LibraryTextFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
     this.obscureText = false,
     this.formatted = false,
     this.actions = const <LibraryTextFieldAction>[],
+    this.validatesWhileEditing = true,
   });
 
   final String Function(TDraft draft) value;
@@ -91,6 +92,10 @@ final class LibraryTextFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
 
   /// The value is light HTML, edited with the Rich and Raw modes.
   final bool formatted;
+
+  /// Whether a problem shows as soon as it exists; otherwise only once the
+  /// form is submitted.
+  final bool validatesWhileEditing;
   final List<LibraryTextFieldAction> actions;
 
   @override

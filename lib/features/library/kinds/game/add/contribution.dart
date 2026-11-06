@@ -96,7 +96,10 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   ),
   manualPaneBuilder: buildGameAddManualPane,
   previewPaneBuilder: buildGameAddPreview,
-  chrome: const LibraryAddChromeConfig(confirmSheetSize: Size(730, 369)),
+  chrome: const LibraryAddChromeConfig(
+      confirmSheetSize: Size(730, 369),
+      plainManualAdd: true,
+      resultTickBoxes: false),
   resultPolicy: LibraryAddResultPolicy(grouping: gameAddResultGrouping),
 );
 

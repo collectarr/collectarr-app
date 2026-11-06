@@ -166,8 +166,13 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       maxLines: field.maxLines,
       obscureText: field.obscureText,
       validator: (_) => field.validate(draft),
+      autovalidateMode: field.validatesWhileEditing
+          ? null
+          : AutovalidateMode.onUserInteraction,
       decoration: _controlDecoration(
-        InputDecoration(errorText: field.validate(draft)),
+        InputDecoration(
+            errorText:
+                field.validatesWhileEditing ? field.validate(draft) : null),
       ),
       onChanged: (value) {
         final text = _autocapWhileTyping(field, controller, value);

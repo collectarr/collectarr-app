@@ -6,7 +6,9 @@ import 'package:collectarr_app/features/library/add/models/common_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/copy.dart';
 import 'package:collectarr_app/features/library/add/models/target.dart';
+import 'package:collectarr_app/features/library/config/dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/action_footer.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -28,8 +30,11 @@ class LibraryAddManualActionBar extends StatelessWidget {
       request.isAdding
           ? null
           : () {
+              // The form first, so its errors show even when another tab's
+              // check also stops the action.
+              final formValid = formKey.currentState?.validate() ?? true;
               if (validateAdditionalFields?.call(context) != null) return;
-              if (!(formKey.currentState?.validate() ?? true)) return;
+              if (!formValid) return;
               action();
             };
 
@@ -67,6 +72,9 @@ class LibraryAddManualActionBar extends StatelessWidget {
           ],
         ),
       ]);
+    }
+    if (collectarrKindAdds[request.kind]?.chrome.plainManualAdd ?? false) {
+      return _plainFooter(context);
     }
     final actions = LayoutBuilder(
       builder: (context, constraints) {
@@ -149,6 +157,64 @@ class LibraryAddManualActionBar extends StatelessWidget {
       borderColor: palette.divider,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: actions,
+    );
+  }
+
+  /// Cancel and Add as in the reference, which follows the Collection Status
+  /// chosen in the form. Propose to Core stays beside them, as in the editor.
+  Widget _plainFooter(BuildContext context) {
+    final palette = appPalette(context);
+    final wishList = libraryCollectionStatusFromValue(
+            request.commonDraft?.collectionStatus) ==
+        LibraryCollectionStatusScope.wishList;
+    return LibraryActionFooter(
+      backgroundColor: palette.toolbar,
+      borderColor: Colors.transparent,
+      padding: const EdgeInsets.all(10),
+      child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        SizedBox(
+          height: kLibraryDialogFooterButtonHeight,
+          child: OutlinedButton.icon(
+            key: const Key('library.manual.propose'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: palette.utilityAction,
+              side: BorderSide(color: palette.utilityAction),
+              shape: kLibraryDialogFooterButtonShape,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: _validatedAction(context, request.onPropose),
+            icon: const Icon(Icons.cloud_upload_outlined, size: 17),
+            label: const Text('Propose to Core'),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          height: kLibraryDialogFooterButtonHeight,
+          width: 100,
+          child: OutlinedButton(
+            key: const Key('library.manual.cancel'),
+            style: dialogActionButtonStyle(context, width: 100)
+                .copyWith(side: const WidgetStatePropertyAll(BorderSide.none)),
+            onPressed:
+                request.isAdding ? null : () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+        ),
+        const SizedBox(width: 5),
+        SizedBox(
+          height: kLibraryDialogFooterButtonHeight,
+          width: 100,
+          child: FilledButton(
+            key: const Key('library.manual.add'),
+            style: dialogActionButtonStyle(context, primary: true, width: 100),
+            onPressed: _validatedAction(
+                context, wishList ? request.onAddWishlist : request.onAddEntry),
+            child: Text(request.isAdding ? 'Adding...' : 'Add'),
+          ),
+        ),
+      ]),
     );
   }
 }

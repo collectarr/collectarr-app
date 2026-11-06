@@ -9,7 +9,11 @@ final gameToyKindAdd = StandardLibraryAddCapability<GameToyAddDraft>(
     manualProposalBuilder: buildGameToyManualProposalData,
     manualPaneBuilder: buildGameToyAddManualPane,
     chrome: const LibraryAddChromeConfig(
-        supportsTracking: false, dialogTitle: 'Add Toys'),
+        supportsTracking: false,
+        dialogTitle: 'Add Toys',
+        confirmSheetSize: Size(670, 342),
+        plainManualAdd: true,
+        resultTickBoxes: false),
     search: LibraryAddSearchCapability(
         input: const LibraryAddSearchInputCapability(),
         core: LibraryAddCoreSearchCapability(

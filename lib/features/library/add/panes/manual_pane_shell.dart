@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/result_badge.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_add_registry.dart';
 import 'package:collectarr_app/features/library/add/panes/manual_action_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/manual_personal_tab.dart';
 import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
@@ -207,9 +208,14 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         ),
     ];
     final enteredTitle = request.manualDraft.catalogTitle.trim();
-    final headerTitle = enteredTitle.isEmpty
-        ? 'Add ${request.type.identity.singularLabel}'
-        : enteredTitle;
+    final headerTitle = (collectarrKindAdds[request.kind]
+                ?.chrome
+                .plainManualAdd ??
+            false)
+        ? 'Add ${request.type.identity.singularLabel.toLowerCase()} manually'
+        : enteredTitle.isEmpty
+            ? 'Add ${request.type.identity.singularLabel}'
+            : enteredTitle;
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,

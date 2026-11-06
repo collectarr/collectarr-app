@@ -14,6 +14,8 @@ LibraryTextFieldSpec<TDraft>
           value: (draft) => draft.catalogTitle,
           setValue: (draft, value) => draft.catalogTitle = value,
           actions: actions,
+          // An empty form is not yet wrong; Add reports a missing title.
+          validatesWhileEditing: false,
           validator: (draft) => required && draft.catalogTitle.trim().isEmpty
               ? 'Enter a title'
               : null,

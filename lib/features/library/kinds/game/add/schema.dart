@@ -19,7 +19,7 @@ final LibraryFormSchema<GameAddManualDraft> gameAddSchema = LibraryFormSchema(
       titleFieldId: 'catalog_title',
       fields: [
         libraryAddCatalogTitleField<GameAddManualDraft>(
-            actions: gameTitleActions, required: false),
+            actions: gameTitleActions),
         for (final field
             in gameMainFields<GameAddManualDraft>(values: (d) => d.values))
           if (field.id != GameMainFieldIds.title) field,
