@@ -12,7 +12,7 @@ class LibraryPageShellFrame extends StatelessWidget {
     required this.bottomBar,
     required this.accent,
     required this.showAddButton,
-    this.addButtonEndInset = 0,
+    this.addButtonInset = EdgeInsetsDirectional.zero,
     required this.isScanningCover,
     required this.onAdd,
     required this.onEscape,
@@ -30,8 +30,8 @@ class LibraryPageShellFrame extends StatelessWidget {
   final bool showAddButton;
 
   /// Keeps the button over the items when a tablet's details pane is beside
-  /// them, as in the reference.
-  final double addButtonEndInset;
+  /// or below them.
+  final EdgeInsetsDirectional addButtonInset;
   final bool isScanningCover;
   final VoidCallback onAdd;
   final VoidCallback onEscape;
@@ -55,7 +55,7 @@ class LibraryPageShellFrame extends StatelessWidget {
             bottomBar == null ? null : SafeArea(top: false, child: bottomBar!),
         floatingActionButton: showAddButton
             ? Padding(
-                padding: EdgeInsetsDirectional.only(end: addButtonEndInset),
+                padding: addButtonInset,
                 child: FloatingActionButton(
                   heroTag: null,
                   onPressed: onAdd,

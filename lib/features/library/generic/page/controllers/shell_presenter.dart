@@ -5,6 +5,23 @@ part of '../page.dart';
 final _lastSelectedItemByKind = <String, String>{};
 
 abstract final class LibraryPageShellPresenter {
+  /// Keeps Add over the items when a tablet's details pane shares the screen.
+  static EdgeInsetsDirectional _addButtonInset(
+    GenericLibraryPageState state,
+    LibraryWorkspaceViewState viewState,
+  ) {
+    if (!libraryUsesTabletPanes(state.context,
+        forcePhoneLayout: state.ref.watch(uiPreferencesProvider
+            .select((value) => value.forcePhoneLayout)))) {
+      return EdgeInsetsDirectional.zero;
+    }
+    final panes = LibraryTabletPanes.of(MediaQuery.sizeOf(state.context),
+        viewState: viewState, profile: state._viewProfile);
+    return panes.detailsLayout == LibraryDetailsLayout.right
+        ? EdgeInsetsDirectional.only(end: panes.detailsWidth)
+        : EdgeInsetsDirectional.only(bottom: panes.detailsHeight);
+  }
+
   static Widget build(
     GenericLibraryPageState state,
     BuildContext context,
@@ -77,11 +94,7 @@ abstract final class LibraryPageShellPresenter {
       loading: () => const SkeletonGrid(),
     );
     return LibraryPageShellFrame(
-      addButtonEndInset: libraryUsesTabletPanes(state.context,
-              forcePhoneLayout: state.ref.watch(uiPreferencesProvider
-                  .select((value) => value.forcePhoneLayout)))
-          ? viewState.detailsWidth
-          : 0,
+      addButtonInset: _addButtonInset(state, viewState),
       topBar: state.widget.topBar,
       toolbar: toolbar,
       content: content,

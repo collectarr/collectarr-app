@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_layout.dart';
 import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -278,7 +279,13 @@ class LibraryBody extends StatelessWidget {
           final compact = constraints.maxWidth < _workspaceSplitMinWidth;
           final phonePane =
               appPresentationPlatform.isNativeMobile && !tabletPanes;
-          final canShowSidebar = !phonePane && constraints.maxWidth >= 1000;
+          final canShowSidebar =
+              tabletPanes || (!phonePane && constraints.maxWidth >= 1000);
+          final panes = tabletPanes
+              ? LibraryTabletPanes.of(constraints.biggest,
+                  viewState: viewState,
+                  profile: libraryViewProfileForKind(type.kind))
+              : null;
           final showSidebar = canShowSidebar && viewState.isSidebarVisible;
           final workspaceMinWidth = resolveLibraryWorkspaceMinWidth(
             viewState: viewState,
@@ -292,8 +299,8 @@ class LibraryBody extends StatelessWidget {
             counts: projection.buckets.map((bucket) => bucket.count),
           );
           final registration = type;
-          final detailsLayout = tabletPanes
-              ? LibraryDetailsLayout.right
+          final detailsLayout = panes != null
+              ? panes.detailsLayout
               : (phonePane || narrow)
                   ? LibraryDetailsLayout.hidden
                   : resolveEffectiveLibraryDetailsLayout(
@@ -320,7 +327,7 @@ class LibraryBody extends StatelessWidget {
             minWidth: sidebarMinWidth,
           );
           final sidebarWidth = clampLibraryPaneWidth(
-            viewState.sidebarWidth,
+            panes?.sidebarWidth ?? viewState.sidebarWidth,
             minWidth: sidebarMinWidth,
             maxWidth: maxSidebarWidth,
           );
@@ -579,8 +586,8 @@ class LibraryBody extends StatelessWidget {
             detailsLayout: detailsLayout,
             inspector: details,
             frameInspector: false,
-            rightWidth: viewState.detailsWidth,
-            bottomHeight: viewState.detailsHeight,
+            rightWidth: panes?.detailsWidth ?? viewState.detailsWidth,
+            bottomHeight: panes?.detailsHeight ?? viewState.detailsHeight,
             maxRightWidth: maxDetailsWidth,
             maxBottomHeight: maxDetailsHeight,
             onRightWidthChanged: onDetailsWidthChanged,
