@@ -353,13 +353,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final template =
         detailsPanelPalette(context, preferences.detailsPanelTemplate)
             .copyWith(accent: widget.accent);
-    final mobileDetail =
-        widget.fullscreen && appPresentationPlatform.isNativeMobile;
+    // The native app's details, full screen or in a tablet's pane, keep Action
+    // and Edit at the bottom.
+    final mobileDetail = appPresentationPlatform.isNativeMobile;
     final toolbar = InspectorUnifiedToolbar(
       item: selected,
       contentMaxWidth: widget.fullscreen ? 960 : null,
-      includeLayoutControl:
-          !widget.fullscreen || widget.onDetailsLayoutChanged != null,
+      includeLayoutControl: !mobileDetail &&
+          (!widget.fullscreen || widget.onDetailsLayoutChanged != null),
       mobileBottomBar: mobileDetail,
       accent: widget.accent,
       onEdit: entityActions.onEdit,

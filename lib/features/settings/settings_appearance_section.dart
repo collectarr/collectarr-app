@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'kind_settings_controls.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/localization/app_languages.dart';
@@ -145,6 +146,14 @@ class _SettingsAppearanceSectionState
               label: 'Show pencil icons (for editing)',
               value: preferences.showEditIcons,
               onChanged: controller.setShowEditIcons),
+          if (appPresentationPlatform.isNativeMobile) ...[
+            const SizedBox(height: 10),
+            const SettingsLegend('Tablet'),
+            SettingsCheck(
+                label: 'Force Phone Layout (single panel on larger screens)',
+                value: preferences.forcePhoneLayout,
+                onChanged: controller.setForcePhoneLayout),
+          ],
           const SizedBox(height: 10),
           const SettingsLegend('Motion'),
           SettingsCheck(

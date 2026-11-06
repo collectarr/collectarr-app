@@ -88,12 +88,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.totalSelectableCount = 0,
     this.showBottomBorder = true,
     this.showMobileFolderRoot = false,
+    this.tabletPanes = false,
   });
 
   final double? currentSpacing;
   final ValueChanged<double>? onSpacingChanged;
   final LibraryKindRegistration type;
   final bool showMobileFolderRoot;
+
+  /// The folder panel names the folder, so the toolbar has no folder button.
+  final bool tabletPanes;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
@@ -365,7 +369,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         foreground: palette.textPrimary,
         actions: [
           if (onGroupModeChanged != null &&
-              (constraints.maxWidth < 1000 || !viewState.isSidebarVisible))
+              (!tabletPanes || !viewState.isSidebarVisible))
             Expanded(
                 child: LibraryGroupModeMenuButton(
               key: const Key('library.mobile-folder'),

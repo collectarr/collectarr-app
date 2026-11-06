@@ -24,6 +24,7 @@ AppThemePalette detailsPanelPalette(
 class UiPreferences {
   const UiPreferences({
     this.animationsEnabled = true,
+    this.forcePhoneLayout = false,
     this.disableLibrarySwitchAnimation = false,
     this.disableLibraryCoverPrewarm = false,
     this.gridSpacing = 10.0,
@@ -58,6 +59,9 @@ class UiPreferences {
   });
 
   final bool animationsEnabled;
+
+  /// Keeps a tablet on the phone's single pane, as in the reference.
+  final bool forcePhoneLayout;
   final bool disableLibrarySwitchAnimation;
   final bool disableLibraryCoverPrewarm;
 
@@ -114,6 +118,7 @@ class UiPreferences {
 
   UiPreferences copyWith({
     bool? animationsEnabled,
+    bool? forcePhoneLayout,
     bool? disableLibrarySwitchAnimation,
     bool? disableLibraryCoverPrewarm,
     double? gridSpacing,
@@ -148,6 +153,7 @@ class UiPreferences {
   }) {
     return UiPreferences(
       animationsEnabled: animationsEnabled ?? this.animationsEnabled,
+      forcePhoneLayout: forcePhoneLayout ?? this.forcePhoneLayout,
       disableLibrarySwitchAnimation:
           disableLibrarySwitchAnimation ?? this.disableLibrarySwitchAnimation,
       disableLibraryCoverPrewarm:
@@ -200,6 +206,7 @@ class UiPreferencesStore {
 
   static const _prefix = 'collectarr.ui';
   static const animationsEnabledKey = '$_prefix.animations_enabled';
+  static const forcePhoneLayoutKey = '$_prefix.force_phone_layout';
   static const disableLibrarySwitchAnimationKey =
       '$_prefix.disable_library_switch_animation';
   static const disableLibraryCoverPrewarmKey =
@@ -258,6 +265,7 @@ class UiPreferencesStore {
     final prefs = await SharedPreferences.getInstance();
     return UiPreferences(
       animationsEnabled: prefs.getBool(animationsEnabledKey) ?? true,
+      forcePhoneLayout: prefs.getBool(forcePhoneLayoutKey) ?? false,
       disableLibrarySwitchAnimation:
           prefs.getBool(disableLibrarySwitchAnimationKey) ?? false,
       disableLibraryCoverPrewarm:
@@ -327,6 +335,7 @@ class UiPreferencesStore {
   Future<void> write(UiPreferences preferences) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(animationsEnabledKey, preferences.animationsEnabled);
+    await prefs.setBool(forcePhoneLayoutKey, preferences.forcePhoneLayout);
     await prefs.setBool(
       disableLibrarySwitchAnimationKey,
       preferences.disableLibrarySwitchAnimation,
@@ -404,6 +413,9 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setAnimationsEnabled(bool enabled) =>
       _update((s) => s.copyWith(animationsEnabled: enabled));
+
+  Future<void> setForcePhoneLayout(bool enabled) =>
+      _update((s) => s.copyWith(forcePhoneLayout: enabled));
 
   Future<void> setGridSpacing(double spacing) =>
       _update((s) => s.copyWith(gridSpacing: spacing));

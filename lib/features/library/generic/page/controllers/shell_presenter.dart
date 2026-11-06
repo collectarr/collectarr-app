@@ -77,6 +77,11 @@ abstract final class LibraryPageShellPresenter {
       loading: () => const SkeletonGrid(),
     );
     return LibraryPageShellFrame(
+      addButtonEndInset: libraryUsesTabletPanes(state.context,
+              forcePhoneLayout: state.ref.watch(uiPreferencesProvider
+                  .select((value) => value.forcePhoneLayout)))
+          ? viewState.detailsWidth
+          : 0,
       topBar: state.widget.topBar,
       toolbar: toolbar,
       content: content,
@@ -143,7 +148,11 @@ abstract final class LibraryPageShellPresenter {
     }
     final searchState = state._searchControllerOps.state;
     final trimmedSearchQuery = searchState.query.trim();
-    final showFolderRoot = viewState.isSidebarVisible &&
+    final tabletPanes = libraryUsesTabletPanes(state.context,
+        forcePhoneLayout: state.ref.watch(
+            uiPreferencesProvider.select((value) => value.forcePhoneLayout)));
+    final showFolderRoot = !tabletPanes &&
+        viewState.isSidebarVisible &&
         state._session.facets.selectedBucket == null &&
         trimmedSearchQuery.isEmpty &&
         workspaceOverride == null;
@@ -201,6 +210,7 @@ abstract final class LibraryPageShellPresenter {
     return LibraryRevealScope(
       controller: state._revealController,
       child: LibraryBody(
+        tabletPanes: tabletPanes,
         type: state.widget.type,
         projection: projection,
         viewState: viewState,
@@ -360,6 +370,7 @@ abstract final class LibraryPageShellPresenter {
           counts: projection.counts,
           showMobileFolderRoot:
               appPresentationPlatform.isNativeMobile && showFolderRoot,
+          tabletPanes: tabletPanes,
           onEditColumns: state._dialogCoordinator.showColumnChooserFlow,
           columnFavoritePresets: state._columnFavoritePresets,
           activeColumnFavoriteLabel: state._activeColumnFavoriteLabel,

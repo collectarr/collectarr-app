@@ -93,6 +93,7 @@ import 'package:collectarr_app/features/library/generic/page/controllers/project
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

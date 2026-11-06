@@ -139,6 +139,7 @@ class LibraryBody extends StatelessWidget {
     this.bucketStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
     this.preferToolbarAlphabet = false,
+    this.tabletPanes = false,
     this.onCollectionStatusScopeChanged,
     this.onBucketCompletionScopeChanged,
     required this.onSortChanged,
@@ -219,6 +220,10 @@ class LibraryBody extends StatelessWidget {
   final LibraryBucketStatusSummary? bucketStatusSummary;
   final LibraryFilterSelection filterSelection;
   final bool preferToolbarAlphabet;
+
+  /// A tablet's folders, items and details side by side; a native app without
+  /// them has a phone's single pane.
+  final bool tabletPanes;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
   final ValueChanged<LibraryBucketCompletionScope>?
@@ -271,7 +276,9 @@ class LibraryBody extends StatelessWidget {
           final narrow = constraints.maxWidth < 1100;
           final selected = projection.selectedItem;
           final compact = constraints.maxWidth < _workspaceSplitMinWidth;
-          final canShowSidebar = constraints.maxWidth >= 1000;
+          final phonePane =
+              appPresentationPlatform.isNativeMobile && !tabletPanes;
+          final canShowSidebar = !phonePane && constraints.maxWidth >= 1000;
           final showSidebar = canShowSidebar && viewState.isSidebarVisible;
           final workspaceMinWidth = resolveLibraryWorkspaceMinWidth(
             viewState: viewState,
@@ -285,8 +292,9 @@ class LibraryBody extends StatelessWidget {
             counts: projection.buckets.map((bucket) => bucket.count),
           );
           final registration = type;
-          final detailsLayout =
-              (appPresentationPlatform.isNativeMobile || narrow)
+          final detailsLayout = tabletPanes
+              ? LibraryDetailsLayout.right
+              : (phonePane || narrow)
                   ? LibraryDetailsLayout.hidden
                   : resolveEffectiveLibraryDetailsLayout(
                       preferredLayout: viewState.detailsLayout,
@@ -487,7 +495,7 @@ class LibraryBody extends StatelessWidget {
                   onLetterSelected: onLetterSelected!,
                 ),
               Expanded(
-                child: appPresentationPlatform.isNativeMobile &&
+                child: phonePane &&
                         viewState.isSidebarVisible &&
                         selectedBucket == null &&
                         (searchQuery == null || searchQuery!.trim().isEmpty) &&
