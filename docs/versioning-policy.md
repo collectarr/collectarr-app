@@ -48,7 +48,7 @@ A release is one run of the **Release** workflow (`.github/workflows/release.yml
 1. **Version**: picked from the conventional commits since the last stable tag: a breaking change (`!` or `BREAKING CHANGE:`) raises MAJOR, `feat` raises MINOR, `fix`/`perf` raise PATCH; other types do not release. The *version* input overrides it and may be a prerelease such as `1.2.0-beta.1`.
 2. **Changelog and pubspec**: the "Unreleased" entries of `CHANGELOG.md` move under `## X.Y.Z - date`, and `pubspec.yaml` gets `version: X.Y.Z+N` with the build number raised. The workflow commits this as `chore(release): X.Y.Z` on `main` and tags it `vX.Y.Z`.
 3. **GitHub release**: created from the tag with the moved changelog entries as notes; prereleases are marked as such and never become *Latest*.
-4. **Downloads**: Windows (`.exe` / `.zip`), Linux (`.deb` / `.tar.gz`), Android (`.apk`), macOS (`.dmg` / `.zip`, when `COLLECTARR_ENABLE_MACOS_RELEASE` is `true`), a web bundle, and the `ghcr.io/collectarr/collectarr-app-web` image are built from the tag and attached.
+4. **Downloads**, named `collectarr-X.Y.Z-platform-architecture`: Windows (`.exe` / `.zip`), Linux (`.deb` / `.tar.gz`), Android (`.apk`), macOS (`.dmg` / `.zip`, when `COLLECTARR_ENABLE_MACOS_RELEASE` is `true`), a web bundle, a `SHA256SUMS.txt` covering them, and the `ghcr.io/collectarr/collectarr-app-web` image are built from the tag and attached.
 
 *Dry run* shows the version and notes in the run summary without committing. *Backfill version* rebuilds and attaches the downloads of an existing release.
 

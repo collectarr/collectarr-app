@@ -216,6 +216,7 @@
 - Release notes list the commits of each merged pull request under it instead of only its title.
 - Release banners count the issues open when the release was published instead of showing none.
 - Release banners are no longer listed among the release downloads.
+- Release downloads are named by version, platform and architecture, and come with a `SHA256SUMS.txt` checksum file.
 
 ## 1.5.0 - 2026-10-31
 

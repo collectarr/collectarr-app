@@ -171,7 +171,7 @@ See [open issues]({url}/issues) for reported problems and current progress.
 
 ## Installing & Updating
 
-Use the downloads attached to this release where available. Follow the [README]({url}/blob/{tag}/README.md) for component-specific setup and update instructions.
+Use the downloads attached to this release where available; `SHA256SUMS.txt` lists their checksums. Follow the [README]({url}/blob/{tag}/README.md) for component-specific setup and update instructions.
 
 ## About Collectarr
 

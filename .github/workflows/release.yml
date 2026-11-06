@@ -164,8 +164,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          (cd build/web && zip -r ../../dist/collectarr-web-v${RELEASE_VERSION}.zip .)
-          gh release upload "v${RELEASE_VERSION}" "dist/collectarr-web-v${RELEASE_VERSION}.zip" --clobber
+          (cd build/web && zip -r ../../dist/collectarr-${RELEASE_VERSION}-web.zip .)
+          gh release upload "v${RELEASE_VERSION}" "dist/collectarr-${RELEASE_VERSION}-web.zip" --clobber
 
   release-android:
     needs: prepare
@@ -204,8 +204,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk dist/collectarr-android-v${RELEASE_VERSION}.apk
-          gh release upload "v${RELEASE_VERSION}" dist/collectarr-android-v${RELEASE_VERSION}.apk --clobber
+          cp build/app/outputs/flutter-apk/app-release.apk dist/collectarr-${RELEASE_VERSION}-android-universal.apk
+          gh release upload "v${RELEASE_VERSION}" dist/collectarr-${RELEASE_VERSION}-android-universal.apk --clobber
 
   release-windows:
     needs: prepare
@@ -269,7 +269,7 @@ jobs:
           RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" -Force
+          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "dist/collectarr-$env:RELEASE_VERSION-windows-x64-portable.zip" -Force
 
       - name: Install Inno Setup
         shell: pwsh
@@ -288,7 +288,7 @@ jobs:
           DefaultDirName={autopf}\Collectarr
           DefaultGroupName=Collectarr
           OutputDir=dist
-          OutputBaseFilename=collectarr-windows-installer-v$env:RELEASE_VERSION
+          OutputBaseFilename=collectarr-$env:RELEASE_VERSION-windows-x64-setup
           Compression=lzma
           SolidCompression=yes
           WizardStyle=modern
@@ -315,8 +315,8 @@ jobs:
           RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           gh release upload "v$env:RELEASE_VERSION" `
-            "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" `
-            "dist/collectarr-windows-installer-v$env:RELEASE_VERSION.exe" `
+            "dist/collectarr-$env:RELEASE_VERSION-windows-x64-portable.zip" `
+            "dist/collectarr-$env:RELEASE_VERSION-windows-x64-setup.exe" `
             --clobber
 
   release-macos:
@@ -353,7 +353,7 @@ jobs:
             echo "::error title=Missing macOS app bundle::Could not find built .app in build/macos/Build/Products/Release"
             exit 1
           fi
-          ditto -c -k --keepParent "$app_path" "dist/collectarr-macos-portable-v${RELEASE_VERSION}.zip"
+          ditto -c -k --keepParent "$app_path" "dist/collectarr-${RELEASE_VERSION}-macos-universal-portable.zip"
 
       - name: Package macOS installer
         env:
@@ -365,7 +365,7 @@ jobs:
             echo "::error title=Missing macOS app bundle::Could not find built .app in build/macos/Build/Products/Release"
             exit 1
           fi
-          hdiutil create -volname "Collectarr" -srcfolder "$app_path" -ov -format UDZO "dist/collectarr-macos-installer-v${RELEASE_VERSION}.dmg"
+          hdiutil create -volname "Collectarr" -srcfolder "$app_path" -ov -format UDZO "dist/collectarr-${RELEASE_VERSION}-macos-universal.dmg"
 
       - name: Upload macOS asset
         env:
@@ -374,8 +374,8 @@ jobs:
         shell: bash
         run: |
           gh release upload "v${RELEASE_VERSION}" \
-            "dist/collectarr-macos-portable-v${RELEASE_VERSION}.zip" \
-            "dist/collectarr-macos-installer-v${RELEASE_VERSION}.dmg" \
+            "dist/collectarr-${RELEASE_VERSION}-macos-universal-portable.zip" \
+            "dist/collectarr-${RELEASE_VERSION}-macos-universal.dmg" \
             --clobber
 
   release-linux:
@@ -412,7 +412,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          tar -C build/linux/x64/release -czf "dist/collectarr-linux-portable-v${RELEASE_VERSION}.tar.gz" bundle
+          tar -C build/linux/x64/release -czf "dist/collectarr-${RELEASE_VERSION}-linux-x64-portable.tar.gz" bundle
 
       - name: Package Linux installer (.deb)
         env:
@@ -440,7 +440,7 @@ jobs:
           exec /usr/lib/collectarr-app/${executable} "\$@"
           EOF
           chmod 755 pkgroot/usr/bin/collectarr-app
-          dpkg-deb --build pkgroot "dist/collectarr-linux-installer-v${RELEASE_VERSION}.deb"
+          dpkg-deb --build pkgroot "dist/collectarr-${RELEASE_VERSION}-linux-x64.deb"
 
       - name: Upload Linux assets
         env:
@@ -449,6 +449,23 @@ jobs:
         shell: bash
         run: |
           gh release upload "v${RELEASE_VERSION}" \
-            "dist/collectarr-linux-portable-v${RELEASE_VERSION}.tar.gz" \
-            "dist/collectarr-linux-installer-v${RELEASE_VERSION}.deb" \
+            "dist/collectarr-${RELEASE_VERSION}-linux-x64-portable.tar.gz" \
+            "dist/collectarr-${RELEASE_VERSION}-linux-x64.deb" \
             --clobber
+
+  release-checksums:
+    needs: [prepare, release-web, release-android, release-windows, release-macos, release-linux]
+    # The macOS job is optional, so a skipped job must not skip the checksums.
+    if: ${{ !cancelled() && needs.prepare.outputs.publish == 'true' && !contains(needs.*.result, 'failure') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload checksums
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          mkdir -p dist
+          gh release download "v${RELEASE_VERSION}" --dir dist --pattern "collectarr-*"
+          (cd dist && sha256sum collectarr-* > SHA256SUMS.txt)
+          gh release upload "v${RELEASE_VERSION}" dist/SHA256SUMS.txt --clobber
