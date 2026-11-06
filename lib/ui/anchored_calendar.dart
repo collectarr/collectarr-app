@@ -15,8 +15,15 @@ Future<DateTime?> showAppAnchoredCalendar({
   required DateTime lastDate,
 }) {
   final box = context.findRenderObject() as RenderBox?;
-  final anchor =
-      box == null ? Rect.zero : box.localToGlobal(Offset.zero) & box.size;
+  // Measured in the overlay the popup is laid out in: app zoom scales that
+  // overlay, so global coordinates would place the calendar off its field.
+  final overlay = Navigator.of(context, rootNavigator: true)
+      .overlay
+      ?.context
+      .findRenderObject();
+  final anchor = box == null
+      ? Rect.zero
+      : box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
   return showAppDialog<DateTime>(
     context: context,
     barrierColor: Colors.transparent,
