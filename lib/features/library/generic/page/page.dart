@@ -744,6 +744,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _LibraryScopeControllerOps.navigateSidebarToAncestorScope(this, index);
   }
 
+  /// The native app's single pane, which shows either folders or items.
+  bool get _usesPhonePane =>
+      appPresentationPlatform.isNativeMobile &&
+      !libraryUsesTabletPanes(context,
+          forcePhoneLayout: ref.read(uiPreferencesProvider).forcePhoneLayout);
+
   void _setSelectedBucket(String? bucket) {
     _LibraryScopeControllerOps.setSelectedBucket(this, bucket);
   }

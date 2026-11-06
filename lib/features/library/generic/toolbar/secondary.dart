@@ -399,7 +399,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             ))
           else
             const Spacer(),
-          if (availableLetters.isNotEmpty && onLetterSelected != null)
+          if (!showMobileFolderRoot &&
+              availableLetters.isNotEmpty &&
+              onLetterSelected != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: LibraryMobileAlphabetButton(

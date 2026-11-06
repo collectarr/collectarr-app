@@ -89,6 +89,25 @@ abstract final class _LibraryPageLifecycleControllerOps {
           state.widget.type.kind != expectedKind) {
         return;
       }
+      // As in the reference, a phone opens where it was left, and on the whole
+      // collection the first time.
+      final savedFolder = await state._viewPrefs.readMobileFolder();
+      if (!state.mounted ||
+          loadToken != state._session.preferences.viewPreferenceLoadToken ||
+          state.widget.type.kind != expectedKind) {
+        return;
+      }
+      if (state._usesPhonePane &&
+          state._session.facets.selectedBucket == null &&
+          !LibraryRouteState.fromUri(state.widget.routeUri)
+              .hasExplicitViewState) {
+        state._mutateState(() => state._session.facets.selectedBucket =
+            savedFolder == null
+                ? genericAllBucketLabel(state.widget.type)
+                : savedFolder.isEmpty
+                    ? null
+                    : savedFolder);
+      }
       final validPinnedSortFavoriteIds = sanitizeLibraryPinnedSortFavoriteIds(
         state.widget.type,
         pinnedSortFavoriteIds,

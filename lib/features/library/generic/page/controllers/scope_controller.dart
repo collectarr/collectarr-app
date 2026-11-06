@@ -113,7 +113,11 @@ abstract final class _LibraryScopeControllerOps {
   static void setSelectedLetter(GenericLibraryPageState state, String? letter) {
     mutateSidebarScope(state, () {
       state._session.facets.selectedLetter = letter;
-      state._session.facets.selectedBucket = null;
+      // A phone has no folder panel beside the items, so its letters filter
+      // the open folder.
+      if (!state._usesPhonePane) {
+        state._session.facets.selectedBucket = null;
+      }
       state._session.facets.linkedMetadataFilter = null;
       state._session.preferences.activeSmartListId = null;
       state._session.preferences.activeSmartListName = null;
@@ -154,6 +158,10 @@ abstract final class _LibraryScopeControllerOps {
         next: next,
       );
     });
+    if (state._usesPhonePane &&
+        previous.selectedBucket != next.selectedBucket) {
+      unawaited(state._viewPrefs.writeMobileFolder(next.selectedBucket));
+    }
     state._syncRouteState();
   }
 

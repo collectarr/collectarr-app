@@ -43,6 +43,16 @@ class LibraryViewPreferenceStore {
         .setString(_key('alphabetField'), id);
   }
 
+  /// The folder a phone last showed: its name, '' for the folder list itself,
+  /// or null before anything was chosen.
+  Future<String?> readMobileFolder() async =>
+      (await SharedPreferences.getInstance()).getString(_key('mobileFolder'));
+
+  Future<void> writeMobileFolder(String? bucket) async {
+    await (await SharedPreferences.getInstance())
+        .setString(_key('mobileFolder'), bucket ?? '');
+  }
+
   LibraryQuickView? get cachedQuickView => _cachedQuickViews[_cacheKey];
 
   LibraryFolderPreset? get cachedFolderPreset =>
