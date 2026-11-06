@@ -190,6 +190,7 @@ class _GameAddManualPaneState extends State<GameAddManualPane> {
                 LibraryTextFieldSpec<GameAddManualDraft>(
                   id: 'description',
                   label: 'Description',
+                  formatted: true,
                   maxLines: 18,
                   value: (draft) => draft.values.description,
                   setValue: (draft, value) => draft.values.description = value,

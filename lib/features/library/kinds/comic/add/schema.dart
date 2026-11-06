@@ -2,7 +2,7 @@ import 'dart:async';
 import '../forms/catalog_form_layout.dart';
 
 import 'package:collectarr_app/features/library/forms/schema.dart';
-import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -66,7 +66,7 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
                 LibraryCustomFieldSpec<ComicAddManualDraft>(
                   id: 'comic.plot',
                   label: 'Plot',
-                  builder: (context, draft) => LibraryTextFormControl(
+                  builder: (context, draft) => LibraryFormattedTextFormControl(
                     initialValue: draft.values.description,
                     minLines: 4,
                     maxLines: 8,

@@ -16,6 +16,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -147,6 +148,18 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   @override
   Widget visitText(LibraryTextFieldSpec<TDraft> field) {
     final controller = controllerFor(field.id, field.value(draft));
+    if (field.formatted) {
+      return LibraryFormattedTextFormControl(
+        controller: controller,
+        focusNode: _focusNode(field.id),
+        minLines: field.maxLines,
+        maxLines: field.maxLines,
+        onChanged: (value) {
+          field.setValue(draft, value);
+          onChanged?.call();
+        },
+      );
+    }
     return LibraryTextFormControl(
       controller: controller,
       focusNode: _focusNode(field.id),

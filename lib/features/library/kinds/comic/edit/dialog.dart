@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/entry_personal_section.dart';
-import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
 import '../domain/comic_personal_data.dart';
 import 'entry_draft.dart';
 import 'covers_tab.dart';
@@ -231,7 +231,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
               id: 'plot',
               label: 'Plot',
               icon: AppIcons.tabPlot,
-              content: LibraryTextFormControl(
+              content: LibraryFormattedTextFormControl(
                 initialValue: _draft.description,
                 minLines: 18,
                 maxLines: 18,

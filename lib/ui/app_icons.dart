@@ -332,6 +332,16 @@ abstract final class AppIcons {
       IconData(0xf0c0, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabPlot =
       IconData(0xf15c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData formatBold =
+      IconData(0xf032, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData formatItalic =
+      IconData(0xf033, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData formatUnderline =
+      IconData(0xf0cd, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData formatBulletList =
+      IconData(0xf0ca, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData formatNumberedList =
+      IconData(0xf0cb, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData lock =
       IconData(0xf023, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData lockOpen =

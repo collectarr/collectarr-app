@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/add/panes/status_strip.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
 import '../edit/entry_draft.dart';
 import '../edit/covers_tab.dart';
 import 'draft.dart';
@@ -391,7 +391,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           id: 'plot',
           label: 'Plot',
           icon: AppIcons.tabPlot,
-          content: LibraryTextFormControl(
+          content: LibraryFormattedTextFormControl(
             initialValue: comicDraft.values.description,
             minLines: 18,
             maxLines: 18,

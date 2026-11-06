@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/config/field_identit
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_values.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
 import '../forms/catalog_form_layout.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -161,7 +161,7 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
             LibraryCustomFieldSpec<ComicCatalogItemFormValues>(
               id: 'comic.plot',
               label: 'Plot',
-              builder: (context, draft) => LibraryTextFormControl(
+              builder: (context, draft) => LibraryFormattedTextFormControl(
                 initialValue: draft.description,
                 minLines: 4,
                 maxLines: 8,

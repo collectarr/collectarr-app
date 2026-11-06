@@ -80,6 +80,7 @@ final class LibraryTextFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
     super.validator,
     this.maxLines = 1,
     this.obscureText = false,
+    this.formatted = false,
     this.actions = const <LibraryTextFieldAction>[],
   });
 
@@ -87,6 +88,9 @@ final class LibraryTextFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
   final void Function(TDraft draft, String value) setValue;
   final int maxLines;
   final bool obscureText;
+
+  /// The value is light HTML, edited with the Rich and Raw modes.
+  final bool formatted;
   final List<LibraryTextFieldAction> actions;
 
   @override

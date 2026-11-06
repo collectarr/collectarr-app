@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/game_toy/edit/schema.dart'
 import 'package:collectarr_app/features/library/kinds/game_toy/edit/personal_form_layout.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/edit/value_tab.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
@@ -156,7 +157,7 @@ final class _GameToyItemEditDialogState extends State<_GameToyItemEditDialog> {
             padding: const EdgeInsets.all(14),
             child: LibraryFormField(
               label: 'Description',
-              child: LibraryTextFormControl(
+              child: LibraryFormattedTextFormControl(
                 initialValue: _draft.values.description,
                 minLines: 18,
                 maxLines: 18,

@@ -87,8 +87,22 @@ final class AppFormattedBlock {
 }
 
 final _tag = RegExp(r'<\s*(/?)\s*([a-zA-Z][a-zA-Z0-9]*)[^>]*?(/?)\s*>');
-final _knownTag = RegExp(r'<\s*/?\s*(b|strong|i|em|u|br|p|ul|ol|li)\b[^>]*>',
+final _knownTag = RegExp(
+    r'<\s*/?\s*(b|strong|i|em|u|br|p|ul|ol|li|font)\b[^>]*>',
     caseSensitive: false);
+const _shownTags = {
+  'b',
+  'strong',
+  'i',
+  'em',
+  'u',
+  'br',
+  'p',
+  'ul',
+  'ol',
+  'li',
+  'font',
+};
 final _entity = RegExp(r'&(#x[0-9a-fA-F]+|#[0-9]+|[a-zA-Z]+);');
 const _entities = {
   'amp': '&',
@@ -106,6 +120,15 @@ const _entities = {
   'ldquo': '“',
   'bull': '•',
 };
+
+/// The tags in [source] that [AppFormattedText] drops, and that rewriting the
+/// source from its blocks would lose.
+Set<String> droppedAppFormattedTextTags(String source) {
+  if (!_knownTag.hasMatch(source)) return const {};
+  return {
+    for (final match in _tag.allMatches(source)) match.group(2)!.toLowerCase(),
+  }.difference(_shownTags);
+}
 
 /// The blocks of [source]; see [AppFormattedText] for what is understood.
 List<AppFormattedBlock> parseAppFormattedText(String source) {

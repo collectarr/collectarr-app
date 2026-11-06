@@ -57,6 +57,7 @@ Keep these when matching the reference visually.
 | Area | CLZ | Collectarr |
 | --- | --- | --- |
 | Data ownership | Cloud account is the source of truth | Offline-first local library; Core catalog and Sync are optional and self-hostable |
+| Description editing | The Description field edits raw HTML | Games, Hardware, Toys and Comics also offer a Rich mode with format buttons, next to Raw; Rich saves the same light HTML |
 | CSV import formats | Comma or semicolon delimiters and quoted fields | Also accepts tab and space delimiters and unquoted fields |
 | Format | One album-level Format pick list | Format is derived from discs; each disc has a format family with format-aware fields (vinyl weight/RPM/side matrices only where they apply) |
 | Recording | Album-level Recording Date | Recording data lives on discs, with explicit disc values taking precedence |
