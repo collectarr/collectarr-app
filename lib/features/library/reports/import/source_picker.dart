@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/config/import_capability.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ImportSourcePicker extends StatelessWidget {
@@ -88,7 +90,8 @@ class ImportSourcePicker extends StatelessWidget {
                 padding: const EdgeInsets.all(11),
                 child: Row(
                   children: [
-                    _buildSourceLogo(source, 45, palette.textPrimary),
+                    _SourceLogo(
+                        source: source, size: 45, ink: palette.textPrimary),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -118,12 +121,26 @@ class ImportSourcePicker extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildSourceLogo(
-    LibraryImportSourceDefinition source,
-    double size,
-    Color ink,
-  ) {
+/// The icon the user loaded for [source], else its bundled logo or generic icon.
+class _SourceLogo extends ConsumerWidget {
+  const _SourceLogo(
+      {required this.source, required this.size, required this.ink});
+
+  final LibraryImportSourceDefinition source;
+  final double size;
+  final Color ink;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loaded = ref
+        .watch(listValueImageProvider(
+            (list: importSourceIconsList, value: source.title)))
+        .value;
+    if (loaded != null) {
+      return ListValueImageView(loaded, width: size, height: size);
+    }
     if (source.assetLogoPath != null) {
       if (source.isSvg) {
         return SvgPicture.asset(
@@ -131,9 +148,7 @@ class ImportSourcePicker extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.contain,
-          colorFilter: source.svgMonochrome
-              ? ColorFilter.mode(ink, BlendMode.srcIn)
-              : null,
+          colorFilter: ColorFilter.mode(ink, BlendMode.srcIn),
         );
       } else {
         return Image.asset(

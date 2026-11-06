@@ -214,7 +214,6 @@ final gameKindImport = LibraryKindImportCapability(
       LibraryImportSourceDefinition(
           id: 'delicious',
           title: 'Delicious Library',
-          assetLogoPath: 'assets/import_logos/delicious-library.png',
           fallbackIcon: Icons.local_library_outlined,
           sourceType: LibraryImportSourceType.unavailable,
           fileExtensions: ['txt'],
@@ -228,7 +227,6 @@ final gameKindImport = LibraryKindImportCapability(
       LibraryImportSourceDefinition(
           id: 'game_collector',
           title: 'Game Collector',
-          assetLogoPath: 'assets/import_logos/game-collector.png',
           fallbackIcon: Icons.album_outlined,
           sourceType: LibraryImportSourceType.unavailable,
           description:
@@ -241,9 +239,6 @@ final gameKindImport = LibraryKindImportCapability(
       LibraryImportSourceDefinition(
           id: 'clz_game_web',
           title: 'CLZ Games Web',
-          assetLogoPath: 'assets/import_logos/clz-games.svg',
-          isSvg: true,
-          svgMonochrome: false,
           fallbackIcon: Icons.cloud_outlined,
           importer: ClzGameWebImporter(),
           fileExtensions: ['xml'],
@@ -260,7 +255,6 @@ final gameKindImport = LibraryKindImportCapability(
       LibraryImportSourceDefinition(
           id: 'pricecharting',
           title: 'PriceCharting',
-          assetLogoPath: 'assets/import_logos/pricecharting.png',
           fallbackIcon: Icons.show_chart,
           sourceType: LibraryImportSourceType.unavailable,
           fileExtensions: ['txt', 'csv'],
@@ -269,7 +263,6 @@ final gameKindImport = LibraryKindImportCapability(
       LibraryImportSourceDefinition(
           id: 'game_collector_fields',
           title: 'Import User Defined Fields from Game Collector',
-          assetLogoPath: 'assets/import_logos/game-collector.png',
           pageTitle: 'Import User Defined Fields from Game Collector',
           sectionTitle: 'Other imports',
           fallbackIcon: Icons.album_outlined,

@@ -26,16 +26,18 @@ root. Git ignores `local-assets/`; these files are not bundled app assets.
 
 - `comics-custom-labels/`: Custom Label images for Comics.
 - `games-platform-icons/`: platform images for Games.
+- `toy-type-logos/`: toy type logos for Add Toys.
+- `import-source-icons/`: icons for the sources of the Import page.
 
 Each folder's `index.csv` maps the displayed names to the original filenames.
-Load images through Settings > Customization > Comics > Custom label icons or
-Games > Platform icons: select every file in the folder, including `index.csv`,
+Load images through Settings > Customization > Comics > Custom label icons,
+Games > Platform icons or Toys > Toy type logos, or through Settings > Data >
+Import source icons: select every file in the folder, including `index.csv`,
 and each image is stored under the names the index gives it. A file the index
 does not list, or one loaded without an index, must be named after its label or
 platform.
 
-Except for the import-source marks listed below, use a known free license for
-new logos. Sources and platforms without a logo here (Xbox and Windows have
+Use a known free license for new logos. Sources and platforms without a logo here (Xbox and Windows have
 none with a free license) use a generic icon.
 
 ## Public-domain platform logos
@@ -78,23 +80,6 @@ are excluded because Microsoft requires a licence for them.
 | `wii.svg` | Wii | [Wii.svg](https://commons.wikimedia.org/wiki/File:Wii.svg) |
 | `wonderswan.svg` | WonderSwan | [WonderSwan logo.svg](https://commons.wikimedia.org/wiki/File:WonderSwan_logo.svg) |
 | `wonderswancolor.svg` | WonderSwan Color | [Wonderswan-Color-Logo.svg](https://commons.wikimedia.org/wiki/File:Wonderswan-Color-Logo.svg) |
-
-## Games and Comics import source marks
-
-The following marks are displayed only to identify the application or service
-whose export is being imported. They were requested for this purpose and are
-hosted by CLZ; a redistribution license has not been established. Their names
-and logos remain the property of their respective owners.
-
-| File | Source |
-| --- | --- |
-| `import_logos/delicious-library.png` | [Delicious Library](https://app-assets.clz.com/static/images/logos/import/delicious.png) |
-| `import_logos/game-collector.png` | [Game Collector](https://app-assets.clz.com/static/images/logos/game/logo-desktop.png) |
-| `import_logos/clz-games.svg` | [CLZ Games](https://app-assets.clz.com/static/images/logos/game/clz-games-icon.svg) |
-| `import_logos/pricecharting.png` | [PriceCharting](https://app-assets.clz.com/static/images/logos/import/pricecharting.png) |
-| `import_logos/comic-collector.png` | [Comic Collector](https://app-assets.clz.com/static/images/logos/comic/logo-desktop.png) |
-| `import_logos/clz-comics.svg` | [CLZ Comics](https://app-assets.clz.com/static/images/logos/comic/clz-comics-icon.svg) |
-| `import_logos/comic-collector-live.png` | [Comic Collector Live](https://app-assets.clz.com/static/images/logos/import/ccl.png) |
 
 ## Publisher logos
 

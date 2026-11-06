@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
+import 'package:collectarr_app/features/settings/list_value_images_panel.dart';
 import 'package:collectarr_app/features/settings/backups/automatic_backup.dart';
 import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
 import 'package:collectarr_app/features/settings/settings_backups_panel.dart';
@@ -81,6 +82,17 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
                 ],
               ),
             ],
+          ),
+        ),
+        SettingsPanel(
+          icon: Icons.image_outlined,
+          title: 'Import source icons',
+          child: const ListValueImagesPanel(
+            list: importSourceIconsList,
+            description: 'Load logos from your own files, each named after its '
+                'import source, such as "PriceCharting.png", or select them '
+                'with an index.csv that has Name and File columns. They '
+                'replace the generic icons on the Import page.',
           ),
         ),
         const SettingsAutomaticBackupsPanel(),

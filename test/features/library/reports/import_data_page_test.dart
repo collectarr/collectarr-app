@@ -1,6 +1,9 @@
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/import_data_page.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +11,10 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../support/builders/workspace_item_builder.dart';
 
 void main() {
+  late LocalDatabase db;
+  setUp(() => db = LocalDatabase(NativeDatabase.memory()));
+  tearDown(() => db.close());
+
   group('LibraryKindImportCapability & Contributors', () {
     test('music kind provides its supported file import sources', () {
       final capability = libraryImportForKind(CatalogMediaKind.music);
@@ -70,6 +77,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final type = defaultLibraryKindRegistry.require(CatalogMediaKind.comic);
       await tester.pumpWidget(ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
           child: MaterialApp(
               home: LibraryImportDataPage(
                   type: type, allShelfEntries: const []))));
@@ -99,6 +107,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final type = defaultLibraryKindRegistry.require(CatalogMediaKind.game);
       await tester.pumpWidget(ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
           child: MaterialApp(
               home: LibraryImportDataPage(
                   type: type, allShelfEntries: const []))));
@@ -139,6 +148,7 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
           child: MaterialApp(
             home: LibraryImportDataPage(
               type: musicType,
@@ -191,6 +201,7 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
           child: MaterialApp(
             home: LibraryImportDataPage(
               type: musicType,
@@ -263,6 +274,7 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
           child: MaterialApp(
             home: LibraryImportDataPage(
               type: musicType,

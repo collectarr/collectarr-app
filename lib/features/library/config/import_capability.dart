@@ -21,6 +21,9 @@ class KindMappableField {
   final bool isDefault;
 }
 
+/// The list of icons the user loads for import sources, by source title.
+const importSourceIconsList = 'import_source';
+
 class LibraryImportSourceDefinition {
   const LibraryImportSourceDefinition({
     required this.id,
@@ -31,7 +34,6 @@ class LibraryImportSourceDefinition {
     this.assetLogoPath,
     this.fallbackIcon = Icons.insert_drive_file_outlined,
     this.isSvg = false,
-    this.svgMonochrome = true,
     this.sourceType = LibraryImportSourceType.guidedFile,
     this.fileExtensions = const ['xml'],
     this.description = '',
@@ -55,8 +57,6 @@ class LibraryImportSourceDefinition {
   final IconData fallbackIcon;
   final bool isSvg;
 
-  /// Whether an SVG should be tinted to the current text color.
-  final bool svgMonochrome;
   final LibraryImportSourceType sourceType;
   final List<String> fileExtensions;
   final String description;

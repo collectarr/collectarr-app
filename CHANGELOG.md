@@ -19,6 +19,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Settings > Data can load icons for import sources from your own files; without them the sources show generic icons.
 - 23 more platforms show their own public-domain logo, such as Nintendo Switch, Wii, NES, Dreamcast, Game Boy Color and WonderSwan, without loading any files.
 - The library opens on the last one you used instead of always on Music.
 - The library switcher is a dropdown on the CLR title in the header, on every device, and replaces the separate button at the top right.
@@ -90,6 +91,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Import sources no longer ship other companies' logos without a license, and the Vertical Cards icon has its own artwork.
 - Platforms without a logo, such as Game Boy, show an icon that fits its tile instead of being cut off on the right, and all platform icons are the same size.
 - Flow Carousel no longer offers an Item Spacing slider that had no effect.
 - Shelves and Flow Carousel show the same Edit button at the top right of a hovered item as the other views.
