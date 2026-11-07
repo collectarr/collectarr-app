@@ -62,6 +62,34 @@ void main() {
     });
   }
 
+  testWidgets('dismissing the switcher with the mouse leaves the title unlit',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: MediaLibraryKindMenu(
+          types: [_type('game', 'Games'), _type('music', 'Albums')],
+          registry: defaultLibraryKindRegistry,
+          activeKind: CatalogMediaKind.music,
+          onSelected: (_) {},
+          trigger: const Text('CLR MUSIC'),
+        ),
+      ),
+    ));
+    bool titleFocused() => tester
+        .widget<InkWell>(find.byKey(const Key('nav.library-kind-picker')))
+        .focusNode!
+        .hasFocus;
+
+    await tester.tap(find.byTooltip('Switch library'));
+    await tester.pumpAndSettle();
+    expect(find.text('CLR Games'), findsOneWidget);
+    await tester.tapAt(const Offset(5, 500));
+    await tester.pumpAndSettle();
+
+    expect(find.text('CLR Games'), findsNothing);
+    expect(titleFocused(), isFalse);
+  });
+
   testWidgets('the library menu lists a collection family once',
       (tester) async {
     CatalogMediaType? selected;

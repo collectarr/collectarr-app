@@ -7,6 +7,7 @@
 
 ### Fixes
 - On Windows, Install in Settings > Updates starts the installer instead of staying on "Starting the installer...", and reports when it cannot start.
+- The library switcher in the header no longer stays highlighted after closing it by clicking elsewhere.
 
 ## 1.6.0 - 2026-11-07
 

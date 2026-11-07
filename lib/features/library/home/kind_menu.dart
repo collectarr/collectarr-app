@@ -39,6 +39,7 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
   double _menuWidth = _desktopMenuWidth;
   double _pointerOffset = _desktopMenuWidth / 2;
   bool _open = false;
+  bool _openedByPointer = false;
 
   static const _desktopMenuWidth = 240.0;
 
@@ -79,6 +80,14 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
     if (mounted) setState(() => _open = open);
   }
 
+  /// Opening moves focus to the title. Only keyboard users keep it on close,
+  /// or a mouse dismissal would leave the title lit by its focus color.
+  void _handleClose() {
+    _setOpen(false);
+    if (_openedByPointer) _buttonFocus.unfocus();
+    _openedByPointer = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MenuAnchor(
@@ -90,7 +99,7 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
       reservedPadding: EdgeInsets.zero,
       clipBehavior: Clip.none,
       onOpen: () => _setOpen(true),
-      onClose: () => _setOpen(false),
+      onClose: _handleClose,
       style: MenuStyle(
         backgroundColor: const WidgetStatePropertyAll(Colors.white),
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -131,6 +140,7 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
             borderRadius: BorderRadius.circular(4),
             hoverColor: Colors.white.withValues(alpha: .16),
             focusColor: Colors.white.withValues(alpha: .16),
+            onTapDown: (_) => _openedByPointer = true,
             onTap: _toggle,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
