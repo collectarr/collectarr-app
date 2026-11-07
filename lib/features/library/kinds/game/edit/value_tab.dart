@@ -92,9 +92,9 @@ Widget gameValueLayout(Map<String, Widget> fields, Widget? _) {
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      row(['completeness', 'market_value_cents']),
+      row(['completeness', 'pricecharting_id']),
       row(['box_manual', 'ebay_link']),
-      row(['condition', 'pricecharting_id']),
+      row(['condition', 'market_value_cents']),
       LibraryResponsiveFormRow(
         breakpoint: 560,
         horizontalGap: 14,

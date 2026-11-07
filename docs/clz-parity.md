@@ -57,6 +57,7 @@ Keep these when matching the reference visually.
 | Area | CLZ | Collectarr |
 | --- | --- | --- |
 | Data ownership | Cloud account is the source of truth | Offline-first local library; Core catalog and Sync are optional and self-hostable |
+| Value tab of Games, Hardware and Toys | Value beside Completeness, PriceCharting ID under the price chart | PriceCharting ID beside Completeness and Value beside Condition |
 | Hardware Type | A free text field | A pick list without Sort Names, starting with Console, Controller and Accessory, so types stay consistent and can be renamed or merged |
 | Description editing | The Description field edits raw HTML | Games, Hardware, Toys and Comics also offer a Rich mode with format buttons, next to Raw; Rich saves the same light HTML |
 | CSV import formats | Comma or semicolon delimiters and quoted fields | Also accepts tab and space delimiters and unquoted fields |
