@@ -94,6 +94,9 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- On phones and tablets, the library toolbar uses CLZ's compact band and small rounded buttons.
+- The details Action menu matches CLZ's panel with icons on the right, and Back closes only the menu.
+- Comics Edit on wide native screens uses CLZ's field rows, and empty field labels sit inside the field.
 - Installed apps use the metadata server of their release when only a local address, or the release's own, was saved in settings.
 - Settings > Updates credits Google for the Android platform icon and links to its license, as that license requires.
 - Import sources no longer ship other companies' logos without a license, and the Vertical Cards icon has its own artwork.

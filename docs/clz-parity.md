@@ -241,6 +241,8 @@ bundled slab fonts successfully.
 | P2 | Mobile Action menu | CLZ has Update from Core, Update Key Info, Update Values and Relink Core variant in Action. Collectarr's has Share, eBay, Duplicate, Remove, Loan, Move, Link to Core, Submit to Core and Details layout. Update from Core was not offered for the unlinked test record, so compare a linked one |
 | P3 | Mobile settings remainder | CLZ's Series Images is an Earliest/Latest control where Collectarr has one check. CLZ removes unused pick list values with a button; Collectarr removes them when Manage opens a list. Shake to Shuffle has no overlay and was not tried on a real device |
 | P3 | Mobile Pre-fill labels | CLZ says Storage Box and Owner where Collectarr says Location and Owner label, and places Purchase Price, Fill with Cover Price and Discount % on one row |
+| P2 | Native Edit remainder | On a 720 dp BlueStacks screen, the area below Comics Edit is darker than the form where CLZ keeps one background; CLZ's Genre is one outlined field with an Add chip and its Plot is a one-line labelled field, while Collectarr has a label, a list button and a rich text box; list fields use a small triangle where CLZ uses a chevron. Only Comics was compared |
+| P3 | Native panes | At 720 dp CLZ stayed on one pane in portrait and landscape; Collectarr shows the folder sidebar and panes, which the project keeps. CLZ's own tablet layout setting was not checked |
 | P3 | Mobile detail backdrop | CLZ shows a backdrop behind the list and details by default. Collectarr's test record showed a flat background; compare with a record that has a backdrop |
 
 Still to compare: linked Core records, real covers and several issues per series in
