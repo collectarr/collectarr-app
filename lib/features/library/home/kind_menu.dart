@@ -60,8 +60,9 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
     final bounds =
         anchor.localToGlobal(Offset.zero, ancestor: overlay) & anchor.size;
     final native = appPresentationPlatform.isNativeMobile;
-    final width =
-        native ? overlay.size.width : min(overlay.size.width, _desktopMenuWidth);
+    final width = native
+        ? overlay.size.width
+        : min(overlay.size.width, _desktopMenuWidth);
     final left = native ? 0.0 : min(bounds.left, overlay.size.width - width);
     setState(() {
       _menuWidth = width;
@@ -120,9 +121,8 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
         message: 'Switch library',
         child: Material(
           // Lit while open, like hovering, so the title reads as a button.
-          color: _open
-              ? Colors.white.withValues(alpha: .16)
-              : Colors.transparent,
+          color:
+              _open ? Colors.white.withValues(alpha: .16) : Colors.transparent,
           borderRadius: BorderRadius.circular(4),
           child: InkWell(
             key: const Key('nav.library-kind-picker'),

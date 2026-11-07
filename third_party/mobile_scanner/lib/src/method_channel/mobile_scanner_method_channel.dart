@@ -506,9 +506,7 @@ class MethodChannelMobileScanner extends MobileScannerPlatform {
   }
 
   @override
-  Future<Set<CameraLensType>> getSupportedLenses({
-    CameraFacing? facing,
-  }) async {
+  Future<Set<CameraLensType>> getSupportedLenses({CameraFacing? facing}) async {
     final lensTypes = await methodChannel.invokeListMethod<Object?>(
       kGetSupportedLensesMethodName,
       facing != null ? {'facing': facing.rawValue} : null,

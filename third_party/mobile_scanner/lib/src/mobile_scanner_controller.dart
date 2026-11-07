@@ -761,9 +761,7 @@ class MobileScannerController extends ValueNotifier<MobileScannerState> {
   ///   print('Available lenses: $supportedLenses');
   /// }
   /// ```
-  Future<Set<CameraLensType>> getSupportedLenses({
-    CameraFacing? facing,
-  }) async {
+  Future<Set<CameraLensType>> getSupportedLenses({CameraFacing? facing}) async {
     if (_isDisposed) {
       throw MobileScannerException(
         errorCode: MobileScannerErrorCode.controllerDisposed,

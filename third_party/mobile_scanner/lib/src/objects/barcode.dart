@@ -83,9 +83,7 @@ class Barcode {
           corners == null
               ? const <Offset>[]
               : List.unmodifiable(
-                corners.cast<Map<Object?, Object?>>().map((
-                  e,
-                ) {
+                corners.cast<Map<Object?, Object?>>().map((e) {
                   final x = e['x']! as double;
                   final y = e['y']! as double;
 
