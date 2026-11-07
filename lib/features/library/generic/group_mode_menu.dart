@@ -169,7 +169,10 @@ class _LibraryGroupModeMenuButtonState
                     ? Icons.arrow_back_ios_new
                     : Icons.folder_outlined,
                 label: nativeFolderOpen ? folderName : label,
-                chevron: !nativeFolderOpen)
+                chevron: !nativeFolderOpen,
+                iconBackground: nativeFolderOpen
+                    ? libraryMobileFolderButtonColor(context)
+                    : null)
             : widget.iconOnly
                 ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
                 : Container(
@@ -235,7 +238,9 @@ class _LibraryGroupModeMenuButtonState
               child: appPresentationPlatform.isNativeMobile
                   ? Ink(
                       decoration: BoxDecoration(
-                        color: libraryMobileFolderButtonColor(context),
+                        color: nativeFolderOpen
+                            ? null
+                            : libraryMobileFolderButtonColor(context),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: child,

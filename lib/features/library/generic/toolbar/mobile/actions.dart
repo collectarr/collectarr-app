@@ -27,11 +27,18 @@ class LibraryMobileToolbarActions extends StatelessWidget {
                       style: IconButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           foregroundColor: foreground,
-                          minimumSize: const Size.square(48),
-                          fixedSize: const Size.square(48))),
-                  child: Row(
-                      key: const Key('library.mobile-controls'),
-                      children: actions))),
+                          padding: EdgeInsets.zero,
+                          iconSize: 18,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          minimumSize: const Size.square(30),
+                          fixedSize: const Size.square(30))),
+                  child: SizedBox(
+                      height: 40,
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                              key: const Key('library.mobile-controls'),
+                              children: actions))))),
           if (coverSizeSlider != null) coverSizeSlider!,
           if (countLabel != null)
             Padding(

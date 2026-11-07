@@ -43,11 +43,12 @@ class LibraryMobileViewMenu extends StatelessWidget {
           ),
       ],
       child: Container(
-        width: 48,
-        height: 48,
+        width: 30,
+        height: 30,
+        margin: const EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
             color: background, borderRadius: BorderRadius.circular(5)),
-        child: Icon(current.icon, color: palette.textPrimary),
+        child: Icon(current.icon, size: 18, color: palette.textPrimary),
       ),
     );
   }
@@ -96,13 +97,15 @@ class LibraryMobileAlphabetButton extends StatelessWidget {
           ),
       ],
       child: Container(
-        width: 48,
-        height: 48,
+        width: 30,
+        height: 30,
+        margin: const EdgeInsets.symmetric(vertical: 5),
         alignment: Alignment.center,
         decoration: BoxDecoration(
             color: background, borderRadius: BorderRadius.circular(5)),
         child: selectedLetter == null
-            ? Icon(Icons.filter_alt_outlined, color: palette.textPrimary)
+            ? Icon(Icons.filter_alt_outlined,
+                size: 18, color: palette.textPrimary)
             : Text(selectedLetter!,
                 style: TextStyle(
                     fontWeight: FontWeight.w700, color: palette.utilityAction)),

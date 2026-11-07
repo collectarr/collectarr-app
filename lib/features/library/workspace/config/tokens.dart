@@ -28,7 +28,7 @@ Color libraryWorkspacePaneDividerColor(BuildContext context) =>
 
 Color libraryMobileToolbarButtonColor(BuildContext context) =>
     appPalette(context).isDark
-        ? const Color(0xFF50636A)
+        ? const Color(0xFF717F89)
         : appPalette(context).panelRaised;
 
 Color libraryMobileFolderButtonColor(BuildContext context) =>

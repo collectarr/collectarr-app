@@ -448,8 +448,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       backgroundColor: libraryMobileToolbarButtonColor(context),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
-                      minimumSize: const Size.square(48)),
-                  icon: const Icon(Icons.sort_by_alpha),
+                      minimumSize: const Size.square(30),
+                      fixedSize: const Size.square(30),
+                      padding: EdgeInsets.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  icon: const Icon(Icons.sort_by_alpha, size: 18),
                   onPressed: onEditSort),
             ),
           Padding(

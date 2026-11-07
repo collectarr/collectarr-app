@@ -49,7 +49,7 @@ void main() {
           find.ancestor(of: row, matching: find.byType(Material)).first);
       expect(material.color,
           palette.isDark ? const Color(0xff28454d) : const Color(0xffd8e8ee));
-      expect(tester.getSize(row).height, 48);
+      expect(tester.getSize(row).height, 40);
       await tester.tap(find.byKey(const Key('library.mobile-views')));
       await pumpUntilSettled(tester);
       for (final mode in LibraryMobileViewMode.values) {
