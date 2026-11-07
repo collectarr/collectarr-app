@@ -19,7 +19,9 @@ const Color kEditChartBar = kAppAccentLight;
 /// Saved CLZ editor surfaces, scoped to dialogs rather than the workspace.
 AppThemePalette libraryEditPalette(AppThemePalette palette) => palette.isDark
     ? palette.copyWith(
-        panel: const Color(0xFF262626),
+        panel: appPresentationPlatform.isNativeMobile
+            ? const Color(0xFF303030)
+            : const Color(0xFF262626),
         panelRaised: appPresentationPlatform.isNativeMobile
             ? const Color(0xFF303030)
             : const Color(0xFF383838),
