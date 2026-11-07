@@ -279,7 +279,7 @@ Widget buildStandardFlowContent(
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: kLibraryCardTitleColor,
               height: 1.2,
             ),
@@ -338,7 +338,7 @@ Widget buildStandardFlowFooter(BuildContext context, LibraryFlowFooterData data,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: kLibraryCardTitleColor,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                     if (meta.isNotEmpty) ...[

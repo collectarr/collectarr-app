@@ -65,7 +65,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
                         style: TextStyle(
                           color: palette.textPrimary,
                           fontSize: 20,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           height: 1.02,
                         ),
                       ),
@@ -75,7 +75,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
                         style: TextStyle(
                           color: request.accent,
                           fontSize: 12,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -130,7 +130,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
                     'Details',
                     style: TextStyle(
                       color: request.accent,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),

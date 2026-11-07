@@ -16,6 +16,7 @@
 
 ### Fixes
 - Without a local Gilroy font, the bundled font draws text at the size, width and weight of CLZ's instead of larger and heavier.
+- Headings and values that used an extra-heavy weight now use CLZ's bold, and no longer switch to the bundled font when a local Gilroy lacks its Black face.
 - Add Manually no longer offers Propose to Core; propose an item to Core from its details or editor after adding it.
 - Covers load faster: downloaded covers stay on disk, and zooming out reuses the ones already decoded.
 - The Comics details panel no longer overflows at its smallest size.

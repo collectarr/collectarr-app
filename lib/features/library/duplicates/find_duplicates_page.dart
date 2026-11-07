@@ -464,7 +464,7 @@ class _LibraryFindDuplicatesPageState
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
-                          fontWeight: FontWeight.w900)),
+                          fontWeight: FontWeight.w700)),
                 ),
                 actionSlot(FilledButton(
                   key: ValueKey('duplicates.keep.${group.key}'),

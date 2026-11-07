@@ -67,9 +67,9 @@ class AppMessageDialog extends StatelessWidget {
                   Icon(AppIcons.circleExclamation, size: 28, color: foreground),
                   const SizedBox(height: 20),
                   Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: appTitleBoldFontWeight,
                           height: 1.1)),
                   const SizedBox(height: 10),
                   Text(message),

@@ -59,7 +59,7 @@ class LibraryDetailFieldTable extends StatelessWidget {
                                 .labelSmall
                                 ?.copyWith(
                                   color: palette.textMuted,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
                                 ),
                           ),
@@ -73,7 +73,7 @@ class LibraryDetailFieldTable extends StatelessWidget {
                                 .labelSmall
                                 ?.copyWith(
                                   color: palette.textMuted,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
                                 ),
                           ),

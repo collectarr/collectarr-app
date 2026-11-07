@@ -236,7 +236,7 @@ class _DashboardSection extends StatelessWidget {
           title,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
               ),
         ),

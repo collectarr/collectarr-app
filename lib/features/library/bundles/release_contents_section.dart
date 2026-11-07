@@ -100,7 +100,7 @@ class _BundleReleaseContentsSectionState
               widget.title,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: widget.accent,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
             ),

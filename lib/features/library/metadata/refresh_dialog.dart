@@ -486,7 +486,7 @@ class _RefreshSourcePanel extends StatelessWidget {
                   Text(
                     'Source: Collectarr Core search',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
                   const SizedBox(height: 4),
@@ -613,7 +613,7 @@ class _RefreshStat extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 12,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],

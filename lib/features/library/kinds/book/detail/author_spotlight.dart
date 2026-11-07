@@ -111,7 +111,7 @@ class BookAuthorSpotlight extends StatelessWidget {
                     textAlign: centered ? TextAlign.center : TextAlign.start,
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: accent,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 0.4,
                     ),
                   ),
@@ -121,7 +121,7 @@ class BookAuthorSpotlight extends StatelessWidget {
                     textAlign: centered ? TextAlign.center : TextAlign.start,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: palette.textPrimary,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   if (description.isNotEmpty) ...[
@@ -184,7 +184,7 @@ class _AuthorAvatar extends StatelessWidget {
                     initials,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: palette.textPrimary,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
                 ),
@@ -205,7 +205,7 @@ class _AuthorAvatar extends StatelessWidget {
                       initials,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: palette.textPrimary,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ),

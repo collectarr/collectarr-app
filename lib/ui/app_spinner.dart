@@ -37,7 +37,7 @@ class AppLoadingPlaceholder extends StatelessWidget {
     super.key,
     required this.label,
     required this.color,
-    this.fontWeight = FontWeight.w900,
+    this.fontWeight = FontWeight.w700,
     this.spinnerHeight = 80,
     this.labelHeight = 40,
   });

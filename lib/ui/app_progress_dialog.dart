@@ -138,7 +138,7 @@ class AppBusyDialog extends StatelessWidget {
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           height: 1.1)),
                   const SizedBox(height: 10),
                 ],
@@ -186,7 +186,7 @@ class AppProgressDialog extends StatelessWidget {
                   Text(title,
                       style: const TextStyle(
                           fontSize: 24,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           height: 1.1)),
                   const SizedBox(height: 10),
                   Text(message, style: const TextStyle(height: 20 / 14)),

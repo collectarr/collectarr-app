@@ -37,7 +37,7 @@ class LibraryExternalLinksSection extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.libraryBody.copyWith(
                     color: accent,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             const SizedBox(height: 8),

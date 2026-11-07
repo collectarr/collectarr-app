@@ -102,7 +102,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
         Text(
           series['title']?.toString() ?? 'Series',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
         ),
         const SizedBox(height: 10),

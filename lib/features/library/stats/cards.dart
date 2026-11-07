@@ -43,7 +43,7 @@ class LibraryStatsTile extends StatelessWidget {
             style: TextStyle(
               color: colors.textPrimary,
               fontSize: 13,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -270,7 +270,7 @@ class _StatsPanel extends StatelessWidget {
             style: TextStyle(
               color: colors.accent,
               fontSize: 12,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 8),
