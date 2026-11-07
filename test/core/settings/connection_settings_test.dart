@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -111,6 +112,67 @@ void main() {
     expect(settings.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
     expect(settings.syncKey, ConnectionSettings.defaultSyncKey);
     expect(settings.isLoaded, isTrue);
+  });
+
+  group('server URL of the build', () {
+    const release = 'https://core.example.org';
+    const local = 'http://127.0.0.1:8010';
+
+    test('a release ignores a saved local address', () {
+      expect(
+        ConnectionSettingsStore.resolveBaseUrl(
+          stored: local,
+          buildDefault: release,
+          releaseBuild: true,
+        ),
+        release,
+      );
+    });
+
+    test('a release keeps a saved remote address', () {
+      expect(
+        ConnectionSettingsStore.resolveBaseUrl(
+          stored: 'https://paired.example.org',
+          buildDefault: release,
+          releaseBuild: true,
+        ),
+        'https://paired.example.org',
+      );
+    });
+
+    test('a development build keeps a saved local address', () {
+      expect(
+        ConnectionSettingsStore.resolveBaseUrl(
+          stored: local,
+          buildDefault: release,
+          releaseBuild: false,
+        ),
+        local,
+      );
+    });
+
+    test('a release without a real server keeps a saved local address', () {
+      expect(
+        ConnectionSettingsStore.resolveBaseUrl(
+          stored: 'http://localhost:8010',
+          buildDefault: local,
+          releaseBuild: true,
+        ),
+        'http://localhost:8010',
+      );
+    });
+
+    test('saving the default of the build stores nothing', () async {
+      SharedPreferences.setMockInitialValues({
+        'collectarr.settings.metadata_base_url': 'http://old.example.org',
+      });
+      FlutterSecureStorage.setMockInitialValues({});
+      await ConnectionSettingsStore().write(const ConnectionSettings(
+        metadataBaseUrl: '${ConnectionSettings.defaultMetadataBaseUrl}/',
+      ));
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('collectarr.settings.metadata_base_url'), isNull);
+    });
   });
 
   test('connection pairing code round trips endpoint settings', () {
