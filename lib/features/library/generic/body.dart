@@ -83,9 +83,6 @@ double resolveLibrarySidebarMinWidth(
       .toDouble();
 }
 
-// Minimum available content width for the workspace side-by-side layout.
-const double _workspaceSplitMinWidth = 860;
-
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -261,7 +258,7 @@ class LibraryBody extends StatelessWidget {
         builder: (context, constraints) {
           final narrow = constraints.maxWidth < 1100;
           final selected = projection.selectedItem;
-          final compact = constraints.maxWidth < _workspaceSplitMinWidth;
+          final compact = constraints.maxWidth < kLibraryWorkspaceSplitMinWidth;
           final phonePane =
               appPresentationPlatform.isNativeMobile && !tabletPanes;
           final canShowSidebar =

@@ -18,67 +18,74 @@ import 'package:flutter/material.dart';
 
 Widget buildStandardKindSettings(BuildContext context, CatalogMediaKind kind) {
   final type = libraryKindRegistrationForKind(kind);
-  return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    SettingsGroup(
-      legend: 'Main Screen Layout',
-      child: LibraryLayoutSetting(
-          key: ValueKey('settings.kind.layout.${type.kind.apiValue}'),
-          kind: type.kind),
-    ),
-    const SizedBox(height: 12),
-    const SettingsLegend('Adding and updating'),
-    SettingsBlockButton(
-      label: 'Add/Update from Core settings',
-      onPressed: () => showCoreDataSettingsDialog(
-          context: context,
-          accent: appPalette(context).utilityAction,
-          kind: type.kind),
-    ),
-    const SizedBox(height: 8),
-    SettingsBlockButton(
-      label: 'Pre-fill settings',
-      onPressed: () => showPrefillSettingsDialog(
-          context: context,
-          accent: appPalette(context).utilityAction,
-          kind: type.kind),
-    ),
-    const SizedBox(height: 6),
-    Text('Default location and tags are shared across libraries.',
-        style: TextStyle(fontSize: 12, color: appPalette(context).textMuted)),
-    if (appPresentationPlatform.isNativeMobile) ...[
-      const SizedBox(height: 8),
-      SettingsBlockButton(
-        label: 'Reset default Add method',
-        onPressed: () async {
-          final preferences = await SharedPreferences.getInstance();
-          await preferences
-              .remove(mobileAddDefaultMethodKey(type.kind.apiValue));
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Choose an Add method next time.')));
-          }
-        },
-      ),
-    ],
-    const SizedBox(height: 14),
-    const SettingsLegend('Custom fields'),
-    SettingsBlockButton(
-      label: 'Custom Fields tab settings',
-      onPressed: () async {
-        final container = ProviderScope.containerOf(context, listen: false);
-        final settings =
-            await CustomFieldsDisplaySettings.read(type.kind.apiValue);
-        if (!context.mounted) return;
-        final result = await showAppDialog<CustomFieldsDisplaySettings>(
-          context: context,
-          builder: (_) => CustomFieldsTabSettingsDialog(settings: settings),
-        );
-        if (result == null) return;
-        await result.save(type.kind.apiValue);
-        if (!context.mounted) return;
-        container.invalidate(libraryCustomFieldCacheProvider);
-        invalidateInspectorCustomFields(container);
-      },
-    ),
-  ]);
+  return Column(
+      key: ValueKey('settings.kind.section.${type.kind.apiValue}'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Phones show details full screen and tablets follow their orientation.
+        if (!appPresentationPlatform.isNativeMobile) ...[
+          SettingsGroup(
+            legend: 'Main Screen Layout',
+            child: LibraryLayoutSetting(
+                key: ValueKey('settings.kind.layout.${type.kind.apiValue}'),
+                kind: type.kind),
+          ),
+          const SizedBox(height: 12),
+        ],
+        const SettingsLegend('Adding and updating'),
+        SettingsBlockButton(
+          label: 'Add/Update from Core settings',
+          onPressed: () => showCoreDataSettingsDialog(
+              context: context,
+              accent: appPalette(context).utilityAction,
+              kind: type.kind),
+        ),
+        const SizedBox(height: 8),
+        SettingsBlockButton(
+          label: 'Pre-fill settings',
+          onPressed: () => showPrefillSettingsDialog(
+              context: context,
+              accent: appPalette(context).utilityAction,
+              kind: type.kind),
+        ),
+        const SizedBox(height: 6),
+        Text('Default location and tags are shared across libraries.',
+            style:
+                TextStyle(fontSize: 12, color: appPalette(context).textMuted)),
+        if (appPresentationPlatform.isNativeMobile) ...[
+          const SizedBox(height: 8),
+          SettingsBlockButton(
+            label: 'Reset default Add method',
+            onPressed: () async {
+              final preferences = await SharedPreferences.getInstance();
+              await preferences
+                  .remove(mobileAddDefaultMethodKey(type.kind.apiValue));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Choose an Add method next time.')));
+              }
+            },
+          ),
+        ],
+        const SizedBox(height: 14),
+        const SettingsLegend('Custom fields'),
+        SettingsBlockButton(
+          label: 'Custom Fields tab settings',
+          onPressed: () async {
+            final container = ProviderScope.containerOf(context, listen: false);
+            final settings =
+                await CustomFieldsDisplaySettings.read(type.kind.apiValue);
+            if (!context.mounted) return;
+            final result = await showAppDialog<CustomFieldsDisplaySettings>(
+              context: context,
+              builder: (_) => CustomFieldsTabSettingsDialog(settings: settings),
+            );
+            if (result == null) return;
+            await result.save(type.kind.apiValue);
+            if (!context.mounted) return;
+            container.invalidate(libraryCustomFieldCacheProvider);
+            invalidateInspectorCustomFields(container);
+          },
+        ),
+      ]);
 }

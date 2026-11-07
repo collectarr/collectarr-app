@@ -27,6 +27,9 @@ import 'package:collectarr_app/features/library/workspace/entry/personal_overlay
 import 'package:collectarr_app/features/library/workspace/entry/item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/layout/pane_widths.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,8 +72,8 @@ final _entry = ComicLibraryEntry(
 );
 
 /// Shows [entry]'s details panel; it starts on the loading spinner.
-Future<void> _pumpInspector(
-    WidgetTester tester, ComicLibraryEntry entry) async {
+Future<void> _pumpInspector(WidgetTester tester, ComicLibraryEntry entry,
+    {double width = 1000}) async {
   tester.view.physicalSize = const Size(1100, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -99,7 +102,7 @@ Future<void> _pumpInspector(
     child: MaterialApp(
       home: Scaffold(
         body: SizedBox(
-          width: 1000,
+          width: width,
           child: LibraryInspector(
             type: const ComicRegistration(),
             projection: LibraryProjection(
@@ -127,6 +130,50 @@ Future<void> _pumpInspector(
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+  for (final (platform, screenWidth, offered) in [
+    (TargetPlatform.windows, 1100.0, true),
+    (TargetPlatform.windows, 700.0, false),
+    (TargetPlatform.android, 1100.0, false),
+  ]) {
+    testWidgets(
+        'details offer a layout on ${platform.name} at $screenWidth: $offered',
+        (tester) async {
+      debugDefaultTargetPlatformOverride = platform;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await _pumpInspector(tester, _entry, width: screenWidth);
+      tester.view.physicalSize = Size(screenWidth, 1400);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      final found =
+          find.byType(LibraryDetailsLayoutDropdown).evaluate().isNotEmpty;
+      debugDefaultTargetPlatformOverride = null;
+      expect(found, offered);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 11));
+    });
+  }
+
+  for (final platform in [TargetPlatform.windows, TargetPlatform.android]) {
+    for (final width in [kLibraryDetailsMinWidth, 272.0, 340.0]) {
+      testWidgets('comic details fit a $width px panel on ${platform.name}',
+          (tester) async {
+        debugDefaultTargetPlatformOverride = platform;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        await _pumpInspector(tester, _entry, width: width);
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+
+        expect(find.text('Example Series'), findsOneWidget);
+        final problem = tester.takeException();
+        debugDefaultTargetPlatformOverride = null;
+        expect(problem, isNull);
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 11));
+      });
+    }
+  }
+
   testWidgets('comic details follow the reference layout', (tester) async {
     await _pumpInspector(tester, _entry);
     // The reference's spinner covers the panel until the entry has loaded.

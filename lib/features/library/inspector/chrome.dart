@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/library/workspace/chrome/view_controls.d
 import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/features/library/workspace/config/view_enums.dart';
+import 'package:collectarr_app/features/library/workspace/layout/pane_widths.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -403,82 +405,75 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
           top: false,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-            child: Row(children: [
-              TextButton.icon(
-                key: const Key('inspector.mobile-actions'),
-                onPressed: () => _showMobileActions(context, [
-                  if (onDuplicate != null)
-                    _MobileAction(
-                        'Duplicate', AppIcons.duplicateAction, onDuplicate),
-                  if (onToggleEntry != null)
-                    _MobileAction(
-                        item.source.isEntry ? 'Remove' : 'Collect',
-                        item.source.isEntry
-                            ? AppIcons.removeAction
-                            : AppIcons.collect,
-                        onToggleEntry),
-                  if (onRefreshMetadata != null)
-                    _MobileAction('Update from Core', AppIcons.updateFromCore,
-                        onRefreshMetadata),
-                  if (onUnlinkFromCore != null)
-                    _MobileAction(
-                        'Unlink from Core', AppIcons.unlink, onUnlinkFromCore),
-                  if (onLinkToCore != null)
-                    _MobileAction('Link to Core', AppIcons.link, onLinkToCore),
-                  if (onSubmitToCore != null)
-                    _MobileAction(
-                        'Submit to Core', AppIcons.upload, onSubmitToCore),
-                  if (ebayUri != null)
-                    _MobileAction('Find sold listings on eBay', AppIcons.search,
-                        () => launchUrl(ebayUri)),
-                  if (onShare != null)
-                    _MobileAction('Share', AppIcons.cloudSharing, onShare),
-                  _MobileAction('Loan', AppIcons.loanAction, onLoan),
-                  if (onMoveToCollection != null)
-                    _MobileAction('Move to other collection',
-                        AppIcons.moveCollection, onMoveToCollection),
-                  if (includeLayoutControl && onDetailsLayoutChanged != null)
-                    _MobileAction(
-                        'Details layout',
-                        Icons.view_agenda_outlined,
-                        () => _showMobileActions(context, [
-                              for (final layout in LibraryDetailsLayout.values)
-                                _MobileAction(
-                                    'Details ${layout.name}',
-                                    Icons.view_agenda_outlined,
-                                    () => onDetailsLayoutChanged?.call(layout)),
-                            ])),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                      child: TextButton.icon(
+                    key: const Key('inspector.mobile-actions'),
+                    onPressed: () => _showMobileActions(context, [
+                      if (onDuplicate != null)
+                        _MobileAction(
+                            'Duplicate', AppIcons.duplicateAction, onDuplicate),
+                      if (onToggleEntry != null)
+                        _MobileAction(
+                            item.source.isEntry ? 'Remove' : 'Collect',
+                            item.source.isEntry
+                                ? AppIcons.removeAction
+                                : AppIcons.collect,
+                            onToggleEntry),
+                      if (onRefreshMetadata != null)
+                        _MobileAction('Update from Core',
+                            AppIcons.updateFromCore, onRefreshMetadata),
+                      if (onUnlinkFromCore != null)
+                        _MobileAction('Unlink from Core', AppIcons.unlink,
+                            onUnlinkFromCore),
+                      if (onLinkToCore != null)
+                        _MobileAction(
+                            'Link to Core', AppIcons.link, onLinkToCore),
+                      if (onSubmitToCore != null)
+                        _MobileAction(
+                            'Submit to Core', AppIcons.upload, onSubmitToCore),
+                      if (ebayUri != null)
+                        _MobileAction('Find sold listings on eBay',
+                            AppIcons.search, () => launchUrl(ebayUri)),
+                      if (onShare != null)
+                        _MobileAction('Share', AppIcons.cloudSharing, onShare),
+                      _MobileAction('Loan', AppIcons.loanAction, onLoan),
+                      if (onMoveToCollection != null)
+                        _MobileAction('Move to other collection',
+                            AppIcons.moveCollection, onMoveToCollection),
+                    ]),
+                    style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFF8B8B8B),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(100, 28),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        textStyle: const TextStyle(fontSize: 13),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4))),
+                    icon: const Icon(Icons.menu, size: 18),
+                    label: const Text('Action'),
+                  )),
+                  if (onEdit != null)
+                    Flexible(
+                        child: FilledButton(
+                      key: const Key('inspector.mobile-edit'),
+                      onPressed: onEdit,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: palette.utilityAction,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(104, 28),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        textStyle: const TextStyle(fontSize: 13),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
+                      ),
+                      child: const Text('Edit'),
+                    )),
                 ]),
-                style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF8B8B8B),
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(100, 28),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    textStyle: const TextStyle(fontSize: 13),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4))),
-                icon: const Icon(Icons.menu, size: 18),
-                label: const Text('Action'),
-              ),
-              const Spacer(),
-              if (onEdit != null)
-                FilledButton(
-                  key: const Key('inspector.mobile-edit'),
-                  onPressed: onEdit,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: palette.utilityAction,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(104, 28),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    textStyle: const TextStyle(fontSize: 13),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                  ),
-                  child: const Text('Edit'),
-                ),
-            ]),
           ),
         ),
       );
@@ -492,122 +487,137 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (onEdit != null)
-                  _InspectorBarButton(
-                    tooltip: 'Edit',
-                    semanticsLabel: 'Edit',
-                    icon: AppIcons.inlineEdit,
-                    label: compactActions ? null : 'Edit',
-                    onPressed: onEdit,
-                  ),
-                if (onShare != null) ...[
-                  _inspectorToolbarSeparator(context),
-                  _InspectorBarButton(
-                    tooltip: 'Share',
-                    semanticsLabel: 'Share',
-                    icon: AppIcons.cloudSharing,
-                    label: compactActions ? null : 'Share',
-                    onPressed: onShare,
-                  ),
-                ],
-                if (ebayUri != null) ...[
-                  _inspectorToolbarSeparator(context),
-                  _InspectorBarButton(
-                    tooltip: 'Find sold listings on eBay',
-                    semanticsLabel: 'eBay',
-                    // The wordmark fills the middle band of its square: draw the
-                    // square 38 px wide, as the reference's wordmark, and
-                    // show only that band.
-                    labelContent: SizedBox(
-                      width: 38,
-                      height: 15,
-                      child: ClipRect(
-                        child: OverflowBox(
-                          maxWidth: 38,
-                          maxHeight: 38,
-                          child: SvgPicture.asset(
-                            'assets/logos/ebay.svg',
-                            width: 38,
-                            height: 38,
-                            // Resolved inside the toolbar, which stays dark
-                            // in both themes.
-                            colorFilter: ColorFilter.mode(
-                              appPalette(context).textPrimary,
-                              BlendMode.srcIn,
+            // In a narrow pane the actions scroll, so Layout stays reachable.
+            Flexible(
+                child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (onEdit != null)
+                          _InspectorBarButton(
+                            tooltip: 'Edit',
+                            semanticsLabel: 'Edit',
+                            icon: AppIcons.inlineEdit,
+                            label: compactActions ? null : 'Edit',
+                            onPressed: onEdit,
+                          ),
+                        if (onShare != null) ...[
+                          _inspectorToolbarSeparator(context),
+                          _InspectorBarButton(
+                            tooltip: 'Share',
+                            semanticsLabel: 'Share',
+                            icon: AppIcons.cloudSharing,
+                            label: compactActions ? null : 'Share',
+                            onPressed: onShare,
+                          ),
+                        ],
+                        if (ebayUri != null) ...[
+                          _inspectorToolbarSeparator(context),
+                          _InspectorBarButton(
+                            tooltip: 'Find sold listings on eBay',
+                            semanticsLabel: 'eBay',
+                            // The wordmark fills the middle band of its square: draw the
+                            // square 38 px wide, as the reference's wordmark, and
+                            // show only that band.
+                            labelContent: SizedBox(
+                              width: 38,
+                              height: 15,
+                              child: ClipRect(
+                                child: OverflowBox(
+                                  maxWidth: 38,
+                                  maxHeight: 38,
+                                  child: SvgPicture.asset(
+                                    'assets/logos/ebay.svg',
+                                    width: 38,
+                                    height: 38,
+                                    // Resolved inside the toolbar, which stays dark
+                                    // in both themes.
+                                    colorFilter: ColorFilter.mode(
+                                      appPalette(context).textPrimary,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
+                            onPressed: () => launchUrl(ebayUri),
+                          ),
+                        ],
+                        _inspectorToolbarSeparator(context),
+                        MenuAnchor(
+                          alignmentOffset: const Offset(-5, 4),
+                          style: MenuStyle(
+                            alignment: AlignmentDirectional.bottomStart,
+                            backgroundColor: WidgetStatePropertyAll(
+                                libraryToolbarMenuSurface(context)),
+                            surfaceTintColor: const WidgetStatePropertyAll(
+                                Colors.transparent),
+                            elevation: const WidgetStatePropertyAll(0),
+                            padding:
+                                const WidgetStatePropertyAll(EdgeInsets.zero),
+                            shape: WidgetStatePropertyAll(
+                                libraryToolbarDropdownMenuShape(context)),
+                          ),
+                          menuChildren: [
+                            if (onDuplicate != null)
+                              _inspectorMenuItem('Duplicate',
+                                  AppIcons.duplicateAction, onDuplicate),
+                            if (onToggleEntry != null)
+                              _inspectorMenuItem(
+                                  item.source.isEntry ? 'Remove' : 'Collect',
+                                  item.source.isEntry
+                                      ? AppIcons.removeAction
+                                      : AppIcons.collect,
+                                  onToggleEntry),
+                            _inspectorMenuItem(
+                                'Loan', AppIcons.loanAction, onLoan),
+                            if (onMoveToCollection != null)
+                              _inspectorMenuItem('Move to other collection',
+                                  AppIcons.moveCollection, onMoveToCollection),
+                            if (onRefreshMetadata != null) ...[
+                              Divider(
+                                  height: 1,
+                                  color: libraryToolbarMenuBorder(context)),
+                              _inspectorMenuItem('Update from Core',
+                                  AppIcons.updateFromCore, onRefreshMetadata),
+                            ],
+                            if (onUnlinkFromCore != null) ...[
+                              Divider(
+                                  height: 1,
+                                  color: libraryToolbarMenuBorder(context)),
+                              _inspectorMenuItem('Unlink from Core',
+                                  AppIcons.unlink, onUnlinkFromCore),
+                            ],
+                            if (onLinkToCore != null) ...[
+                              Divider(
+                                  height: 1,
+                                  color: libraryToolbarMenuBorder(context)),
+                              _inspectorMenuItem(
+                                  'Link to Core', AppIcons.link, onLinkToCore),
+                            ],
+                            if (onSubmitToCore != null)
+                              _inspectorMenuItem('Submit to Core',
+                                  AppIcons.upload, onSubmitToCore),
+                          ],
+                          builder: (context, controller, child) =>
+                              _InspectorBarButton(
+                            tooltip: 'More inspector actions',
+                            semanticsLabel: 'More inspector actions',
+                            icon: AppIcons.more,
+                            onPressed: () => controller.isOpen
+                                ? controller.close()
+                                : controller.open(),
                           ),
                         ),
-                      ),
-                    ),
-                    onPressed: () => launchUrl(ebayUri),
-                  ),
-                ],
-                _inspectorToolbarSeparator(context),
-                MenuAnchor(
-                  alignmentOffset: const Offset(-5, 4),
-                  style: MenuStyle(
-                    alignment: AlignmentDirectional.bottomStart,
-                    backgroundColor: WidgetStatePropertyAll(
-                        libraryToolbarMenuSurface(context)),
-                    surfaceTintColor:
-                        const WidgetStatePropertyAll(Colors.transparent),
-                    elevation: const WidgetStatePropertyAll(0),
-                    padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                    shape: WidgetStatePropertyAll(
-                        libraryToolbarDropdownMenuShape(context)),
-                  ),
-                  menuChildren: [
-                    if (onDuplicate != null)
-                      _inspectorMenuItem(
-                          'Duplicate', AppIcons.duplicateAction, onDuplicate),
-                    if (onToggleEntry != null)
-                      _inspectorMenuItem(
-                          item.source.isEntry ? 'Remove' : 'Collect',
-                          item.source.isEntry
-                              ? AppIcons.removeAction
-                              : AppIcons.collect,
-                          onToggleEntry),
-                    _inspectorMenuItem('Loan', AppIcons.loanAction, onLoan),
-                    if (onMoveToCollection != null)
-                      _inspectorMenuItem('Move to other collection',
-                          AppIcons.moveCollection, onMoveToCollection),
-                    if (onRefreshMetadata != null) ...[
-                      Divider(
-                          height: 1, color: libraryToolbarMenuBorder(context)),
-                      _inspectorMenuItem('Update from Core',
-                          AppIcons.updateFromCore, onRefreshMetadata),
-                    ],
-                    if (onUnlinkFromCore != null) ...[
-                      Divider(
-                          height: 1, color: libraryToolbarMenuBorder(context)),
-                      _inspectorMenuItem('Unlink from Core', AppIcons.unlink,
-                          onUnlinkFromCore),
-                    ],
-                    if (onLinkToCore != null) ...[
-                      Divider(
-                          height: 1, color: libraryToolbarMenuBorder(context)),
-                      _inspectorMenuItem(
-                          'Link to Core', AppIcons.link, onLinkToCore),
-                    ],
-                    if (onSubmitToCore != null)
-                      _inspectorMenuItem(
-                          'Submit to Core', AppIcons.upload, onSubmitToCore),
-                  ],
-                  builder: (context, controller, child) => _InspectorBarButton(
-                    tooltip: 'More inspector actions',
-                    semanticsLabel: 'More inspector actions',
-                    icon: AppIcons.more,
-                    onPressed: () => controller.isOpen
-                        ? controller.close()
-                        : controller.open(),
-                  ),
-                ),
-              ],
-            ),
-            if (includeLayoutControl)
+                      ],
+                    ))),
+            // Phones and tablets set the panes by screen, and a narrow window
+            // has no room to put the details beside the items.
+            if (includeLayoutControl &&
+                !appPresentationPlatform.isNativeMobile &&
+                MediaQuery.sizeOf(context).width >=
+                    kLibraryWorkspaceSplitMinWidth)
               LibraryDetailsLayoutDropdown(
                 detailsLayout: detailsLayout,
                 onChanged: (val) => onDetailsLayoutChanged?.call(val),

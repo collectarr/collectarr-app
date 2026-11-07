@@ -31,8 +31,9 @@ void main() {
       'workspace opens the shared standalone inspector only with No Details',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
-    await tester.binding.setSurfaceSize(const Size(1440, 1000));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
+    tester.view.physicalSize = const Size(1440, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(() => tester.runAsync(db.close));
     final fixture = jsonDecode(

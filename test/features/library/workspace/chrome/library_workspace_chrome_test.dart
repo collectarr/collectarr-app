@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/chrome.dart';
+import 'package:collectarr_app/features/library/workspace/layout/pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/resizable_pane.dart';
 import 'package:flutter/material.dart';
@@ -243,7 +244,7 @@ void main() {
             inspector: LayoutBuilder(builder: (context, constraints) {
               contentWidths.add(constraints.maxWidth);
               return const Row(
-                  children: [SizedBox(width: 160), SizedBox(width: 80)]);
+                  children: [SizedBox(width: 120), SizedBox(width: 80)]);
             }),
           )),
         );
@@ -257,7 +258,8 @@ void main() {
         expect(tester.takeException(), isNull);
       }
     }
-    expect(contentWidths, everyElement(greaterThanOrEqualTo(260)));
+    expect(contentWidths,
+        everyElement(greaterThanOrEqualTo(kLibraryDetailsMinWidth)));
   });
 
   testWidgets('right divider drag decreases details width when dragged right', (

@@ -180,32 +180,39 @@ void main() {
       expect(find.text('Platform icons'), findsOneWidget);
       expect(find.text('Load icons from files...'), findsWidgets);
       for (final kind in ['game', 'game_hardware', 'game_toy']) {
-        expect(
-            find.byKey(ValueKey('settings.kind.layout.$kind')), findsOneWidget);
+        expect(find.byKey(ValueKey('settings.kind.section.$kind')),
+            findsOneWidget);
       }
       final music = find.byKey(const ValueKey('settings.kind.tab.music'));
       await tester.ensureVisible(music);
       await tester.tap(music);
       await tester.pumpAndSettle();
       expect(find.text('Platform icons'), findsNothing);
-      expect(find.byKey(const ValueKey('settings.kind.layout.music')),
+      expect(find.byKey(const ValueKey('settings.kind.section.music')),
           findsOneWidget);
       expect(find.text('Add/Update from Core settings'), findsOneWidget);
       expect(find.text('Pre-fill settings'), findsOneWidget);
-      expect(find.byKey(const ValueKey('settings.kind.layout.game')),
+      expect(find.byKey(const ValueKey('settings.kind.section.game')),
           findsNothing);
-      await tester.tap(find.byType(AppSelect<LibraryDetailsLayout>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Hide Details panel').last);
-      await tester.pumpAndSettle();
-      final musicPreferences = LibraryWorkspacePreferences(
-          defaultLibraryKindRegistry.require(CatalogMediaKind.music));
-      final gamePreferences = LibraryWorkspacePreferences(
-          defaultLibraryKindRegistry.require(CatalogMediaKind.game));
-      expect((await musicPreferences.read(defaultCoverSize: 120)).detailsLayout,
-          LibraryDetailsLayout.hidden);
-      expect((await gamePreferences.read(defaultCoverSize: 120)).detailsLayout,
-          isNot(LibraryDetailsLayout.hidden));
+      // Phones and tablets set their panes by screen.
+      expect(find.byType(AppSelect<LibraryDetailsLayout>),
+          platform == TargetPlatform.windows ? findsOneWidget : findsNothing);
+      if (platform == TargetPlatform.windows) {
+        await tester.tap(find.byType(AppSelect<LibraryDetailsLayout>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Hide Details panel').last);
+        await tester.pumpAndSettle();
+        final musicPreferences = LibraryWorkspacePreferences(
+            defaultLibraryKindRegistry.require(CatalogMediaKind.music));
+        final gamePreferences = LibraryWorkspacePreferences(
+            defaultLibraryKindRegistry.require(CatalogMediaKind.game));
+        expect(
+            (await musicPreferences.read(defaultCoverSize: 120)).detailsLayout,
+            LibraryDetailsLayout.hidden);
+        expect(
+            (await gamePreferences.read(defaultCoverSize: 120)).detailsLayout,
+            isNot(LibraryDetailsLayout.hidden));
+      }
       await tester.tap(find.text('Add/Update from Core settings'));
       await tester.pumpAndSettle();
       expect(
@@ -259,11 +266,11 @@ void main() {
             preferences.getString(mobileAddDefaultMethodKey('game')), 'search');
         await tester.tap(find.byKey(const Key('settings.back')));
         await tester.pumpAndSettle();
-        expect(find.byKey(const ValueKey('settings.kind.layout.music')),
+        expect(find.byKey(const ValueKey('settings.kind.section.music')),
             findsNothing);
         router.go('/settings?kind=game&settingsKind=music');
         await tester.pumpAndSettle();
-        expect(find.byKey(const ValueKey('settings.kind.layout.music')),
+        expect(find.byKey(const ValueKey('settings.kind.section.music')),
             findsOneWidget);
         router.go('/settings?kind=game&section=customization');
         await tester.pumpAndSettle();
@@ -278,7 +285,7 @@ void main() {
           .setStringList('collectarr.library_nav.hidden', ['comic', 'game']);
       await container.read(libraryNavPreferencesProvider.notifier).load();
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('settings.kind.layout.music')),
+      expect(find.byKey(const ValueKey('settings.kind.section.music')),
           findsOneWidget);
       expect(
           find.byKey(const ValueKey('settings.kind.tab.games'),
@@ -292,13 +299,13 @@ void main() {
           find.byKey(const ValueKey('settings.kind.tab.music'),
               skipOffstage: false),
           findsNothing);
-      expect(find.byKey(const ValueKey('settings.kind.layout.music')),
+      expect(find.byKey(const ValueKey('settings.kind.section.music')),
           findsNothing);
       await prefs.setStringList('collectarr.library_nav.hidden', ['comic']);
       await container.read(libraryNavPreferencesProvider.notifier).load();
       await tester.pumpAndSettle();
       if (find
-          .byKey(const ValueKey('settings.kind.layout.music'))
+          .byKey(const ValueKey('settings.kind.section.music'))
           .evaluate()
           .isEmpty) {
         final restored = find.byKey(const ValueKey('settings.kind.tab.music'));
@@ -306,12 +313,14 @@ void main() {
         await tester.tap(restored);
         await tester.pumpAndSettle();
       }
-      expect(
-          tester
-              .widget<AppSelect<LibraryDetailsLayout>>(
-                  find.byType(AppSelect<LibraryDetailsLayout>))
-              .value,
-          LibraryDetailsLayout.hidden);
+      if (platform == TargetPlatform.windows) {
+        expect(
+            tester
+                .widget<AppSelect<LibraryDetailsLayout>>(
+                    find.byType(AppSelect<LibraryDetailsLayout>))
+                .value,
+            LibraryDetailsLayout.hidden);
+      }
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();
     }, variant: TargetPlatformVariant.only(platform));

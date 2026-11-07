@@ -1,12 +1,20 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+
 const double kLibrarySidebarMinWidth = 180;
 const double kLibrarySidebarDefaultWidth = 250;
 const double kLibrarySidebarMaxWidth = 360;
-const double kLibraryDetailsMinWidth = 200;
+
+/// Phones and tablets keep the wider pane their layouts are laid out for.
+double get kLibraryDetailsMinWidth =>
+    appPresentationPlatform.isNativeMobile ? 260 : 200;
 const double kLibraryDetailsDefaultWidth = 340;
 const double kLibraryDetailsMaxWidth = 520;
 const double kLibraryDetailsMinHeight = 240;
 const double kLibraryDetailsDefaultHeight = 300;
 const double kLibraryWorkspaceMinWidth = 320;
+
+/// The width from which the details can sit beside the items.
+const double kLibraryWorkspaceSplitMinWidth = 860;
 const double kLibraryWorkspaceMinHeight = 220;
 const double kLibraryPaneDividerWidth = 6;
 const double kLibraryPaneStoredMaxWidth = 4096;

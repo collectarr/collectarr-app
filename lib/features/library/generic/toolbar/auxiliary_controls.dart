@@ -1068,14 +1068,6 @@ void showLibraryCompactCoverSizeSheet(
             ),
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.view_sidebar_outlined),
-              title: const Text('Details on right'),
-              onTap: () {
-                Navigator.of(context).pop();
-                onDetailsLayoutChanged(LibraryDetailsLayout.right);
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.splitscreen_outlined),
               title: const Text('Details on bottom'),
               onTap: () {
