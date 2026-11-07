@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/presentation/metadata_presentation.dart';
+import 'package:collectarr_app/features/library/ui/image_load_gate.dart';
 import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -130,9 +131,11 @@ class PlatformIcon extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loaded = ref
-        .watch(listValueImageProvider((list: platformIconsList, value: name)))
-        .value;
+    final key = (list: platformIconsList, value: name);
+    final image = ref.watch(listValueImageProvider(key));
+    reportLibraryPanelLoad(context, key,
+        pending: !image.hasValue && !image.hasError);
+    final loaded = image.value;
     final ink = color ?? DefaultTextStyle.of(context).style.color;
     if (loaded != null) {
       // An image that keeps its own colours, often dark ones, stays legible

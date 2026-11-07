@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/image_load_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -62,12 +63,15 @@ class ComicPublisherLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const size = Size.fromHeight(height - 6);
-    final image = asset.endsWith('.svg')
+    final isSvg = asset.endsWith('.svg');
+    if (isSvg) reportLibraryPanelSvg(context, SvgAssetLoader(asset));
+    final image = isSvg
         ? SvgPicture.asset(asset, height: size.height, fit: BoxFit.contain)
         : Image.asset(asset,
             height: size.height,
             fit: BoxFit.contain,
-            filterQuality: FilterQuality.medium);
+            filterQuality: FilterQuality.medium,
+            frameBuilder: libraryPanelImageFrames(context, asset));
     return Tooltip(
       message: name,
       child: Semantics(

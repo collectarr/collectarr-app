@@ -390,7 +390,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
       detailsLayout: widget.detailsLayout,
     );
-    return Theme(
+    final panel = Theme(
       data: buildLibraryTheme(palette: template),
       child: Builder(
           builder: (context) => ColoredBox(
@@ -465,9 +465,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                                                       .symmetric(horizontal: 4),
                                                   child: Column(
                                                     children: [
-                                                      LibraryImageLoadGate(
-                                                          loads: coverLoads,
-                                                          child: hero),
+                                                      hero,
                                                       SizedBox(
                                                           height: density
                                                               .inspectorOuterGap),
@@ -517,6 +515,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     ])),
               )),
     );
+    return LibraryImageLoadGate(loads: coverLoads, child: panel);
   }
 
   Future<void> _removeLibraryEntry(LibraryEntrySummary item) async {

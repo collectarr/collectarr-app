@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/edit/grading_options.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/image_load_gate.dart';
 import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -198,13 +199,16 @@ class _SlabCustomLabelImage extends ConsumerWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => switch (ref
-          .watch(listValueImageProvider(
-              (list: ComicVocabularyIds.customLabel.value, value: label)))
-          .value) {
-        final image? => ListValueImageView(image, fit: BoxFit.fitHeight),
-        null => const SizedBox.shrink(),
-      };
+  Widget build(BuildContext context, WidgetRef ref) {
+    final key = (list: ComicVocabularyIds.customLabel.value, value: label);
+    final image = ref.watch(listValueImageProvider(key));
+    reportLibraryPanelLoad(context, key,
+        pending: !image.hasValue && !image.hasError);
+    return switch (image.value) {
+      final image? => ListValueImageView(image, fit: BoxFit.fitHeight),
+      null => const SizedBox.shrink(),
+    };
+  }
 }
 
 /// The white grade box: the bar colour edges its left and bottom, a perfect

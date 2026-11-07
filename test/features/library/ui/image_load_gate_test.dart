@@ -23,6 +23,27 @@ void main() {
     expect(loads.settled, isTrue);
   });
 
+  testWidgets('waits for pending data reported under the gate', (tester) async {
+    final loads = LibraryImageLoads();
+    addTearDown(loads.dispose);
+    var pending = true;
+    late StateSetter rebuild;
+    await tester.pumpWidget(LibraryImageLoadGate(
+      loads: loads,
+      child: StatefulBuilder(builder: (context, setState) {
+        rebuild = setState;
+        reportLibraryPanelLoad(context, 'label', pending: pending);
+        return const SizedBox();
+      }),
+    ));
+    await tester.pump();
+    expect(loads.settled, isFalse);
+
+    rebuild(() => pending = false);
+    await tester.pump();
+    expect(loads.settled, isTrue);
+  });
+
   testWidgets('stops waiting for a slow cover after the timeout',
       (tester) async {
     final loads = LibraryImageLoads(timeout: const Duration(seconds: 2));

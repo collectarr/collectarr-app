@@ -14,6 +14,7 @@
 - The library switcher in the header no longer stays highlighted after closing it by clicking elsewhere.
 - Comics' Custom Label shows its field label once.
 - Switching to another kind no longer flashes its "no items" message before the items appear.
+- The details panel stays on its loading screen until label images, logos and added images are in.
 
 ## 1.6.0 - 2026-11-07
 

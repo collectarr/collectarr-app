@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/list_value_image_sync.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
+import 'package:collectarr_app/features/library/ui/image_load_gate.dart';
 import 'package:collectarr_app/features/library/ui/primitives/image_intake.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
@@ -313,21 +314,26 @@ class ListValueImageView extends StatelessWidget {
   final Color? blackSvgTint;
 
   @override
-  Widget build(BuildContext context) => isSvgImage(image)
-      ? SvgPicture.memory(image,
+  Widget build(BuildContext context) {
+    if (!isSvgImage(image)) {
+      return Image.memory(image,
           fit: fit,
           alignment: alignment,
           width: width,
           height: height,
-          colorFilter: blackSvgTint != null && isBlackSvg(image)
-              ? ColorFilter.mode(blackSvgTint!, BlendMode.srcIn)
-              : null)
-      : Image.memory(image,
-          fit: fit,
-          alignment: alignment,
-          width: width,
-          height: height,
-          gaplessPlayback: true);
+          gaplessPlayback: true,
+          frameBuilder: libraryPanelImageFrames(context, image));
+    }
+    reportLibraryPanelSvg(context, SvgBytesLoader(image));
+    return SvgPicture.memory(image,
+        fit: fit,
+        alignment: alignment,
+        width: width,
+        height: height,
+        colorFilter: blackSvgTint != null && isBlackSvg(image)
+            ? ColorFilter.mode(blackSvgTint!, BlendMode.srcIn)
+            : null);
+  }
 }
 
 /// "Loaded 3 images. Skipped: a.txt." after loading files.
