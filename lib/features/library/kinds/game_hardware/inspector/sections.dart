@@ -51,9 +51,9 @@ Widget buildGameHardwareInspectorHero(
               child: Text(metadata.title,
                   style: TextStyle(
                       fontSize: 24,
-                      height: 27 / 24,
+                      height: 1.1,
                       fontWeight: kAppBoldFontWeight,
-                      color: palette.itemTitle))),
+                      color: palette.detailHeading))),
           if (entry != null)
             Tooltip(
                 message: status.label,

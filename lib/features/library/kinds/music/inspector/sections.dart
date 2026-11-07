@@ -623,6 +623,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
+                      height: 1.1,
                       color: palette.detailHeading)),
               const Divider(height: 18),
               for (var i = 0; i < boxSetAlbums.length; i++)

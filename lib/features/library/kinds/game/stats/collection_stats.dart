@@ -43,7 +43,7 @@ class GameCollectionStats extends StatelessWidget {
           ('${facts.byPlatform.length}', true),
           (facts.byPlatform.length == 1 ? ' platform' : ' platforms', false),
         ]),
-        StatsSummaryLine(fontSize: 16, parts: [
+        StatsSummaryLine(fontSize: 18, parts: [
           ('current value: ', false),
           (formatStatsMoneyTotals(facts.valueByCurrency), true),
         ]),

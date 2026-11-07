@@ -183,10 +183,8 @@ class SettingsPanel extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700, fontSize: 22),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700, fontSize: 22, height: 1.1),
             ),
             const SizedBox(height: 15),
             child,

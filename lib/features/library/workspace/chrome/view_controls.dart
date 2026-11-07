@@ -212,7 +212,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                           Text(
                             'Layout',
                             style: TextStyle(
-                              fontSize: 12.5,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: triggerText,
                             ),

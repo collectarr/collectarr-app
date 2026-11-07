@@ -111,6 +111,7 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
                                   color: accent,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 18,
+                                  height: 1.1,
                                   letterSpacing: 0,
                                 ),
                           ),

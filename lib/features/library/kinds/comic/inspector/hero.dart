@@ -94,7 +94,7 @@ class ComicInspectorHeader extends StatelessWidget {
                 onFilter: onFilter,
                 style: TextStyle(
                     fontSize: 24,
-                    height: 27 / 24,
+                    height: 1.1,
                     fontWeight: kAppBoldFontWeight,
                     color: palette.detailHeading),
               ),

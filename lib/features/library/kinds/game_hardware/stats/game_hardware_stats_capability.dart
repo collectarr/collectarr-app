@@ -89,7 +89,7 @@ class GameHardwareCollectionStats extends StatelessWidget {
           ('${byPlatform.length}', true),
           (byPlatform.length == 1 ? ' platform' : ' platforms', false),
         ]),
-        StatsSummaryLine(fontSize: 16, parts: [
+        StatsSummaryLine(fontSize: 18, parts: [
           ('current value: ', false),
           (formatStatsMoneyTotals(valueByCurrency), true),
         ]),

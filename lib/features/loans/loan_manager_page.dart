@@ -1221,7 +1221,8 @@ class _LoanBarButton extends StatelessWidget {
             const SizedBox(width: 4),
             Text(label.toUpperCase(),
                 style:
-                    const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                    // The reference's 14 px small capitals: capitals at 70 %.
+                    const TextStyle(fontSize: 9.8, fontWeight: FontWeight.w400)),
             if (caret) ...[
               const SizedBox(width: 3),
               const Icon(AppIcons.caretDown, size: 11),
@@ -1263,14 +1264,15 @@ class _LoanCountPill extends StatelessWidget {
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w400)),
           ),
           const SizedBox(width: 6),
+          // The reference's 16 px small capitals: capitals at 70 %.
           Text((count == 1 ? singular : plural).toUpperCase(),
               style: const TextStyle(
                   color: Color(0xFF444444),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700)),
+                  fontSize: 11.2,
+                  fontWeight: FontWeight.w400)),
         ]),
       );
 }

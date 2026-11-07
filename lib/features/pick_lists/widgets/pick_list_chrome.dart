@@ -125,9 +125,10 @@ class PickListPlaceholder extends StatelessWidget {
       child: Text(message,
           style: TextStyle(
               fontSize: 14,
+              fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
               color: appPalette(context).isDark
-                  ? const Color(0xffcccccc)
+                  ? const Color(0xffaaaaaa)
                   : appPalette(context).textMuted)));
 }
 
@@ -153,11 +154,14 @@ class PickListCount extends StatelessWidget {
                 style: const TextStyle(fontSize: 12, color: Colors.white))),
         const SizedBox(width: 5),
         Flexible(
+            // The reference's 16 px small capitals: capitals at 70 %.
             child: Text(label.toUpperCase(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 12, color: Color(0xff444444)))),
+                style: const TextStyle(
+                    fontSize: 11.2,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xff444444)))),
       ]));
 }
 

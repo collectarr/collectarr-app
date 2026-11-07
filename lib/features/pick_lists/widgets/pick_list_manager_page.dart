@@ -440,12 +440,12 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                   hint: Text('Select a list...',
                                       style: TextStyle(
                                           fontSize: 14,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.w400,
                                           color: palette.textPrimary)),
                                   decoration: pickListInputDecoration(context),
                                   style: TextStyle(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w500,
+                                      fontWeight: FontWeight.w400,
                                       color: palette.textPrimary),
                                   options: [
                                     for (final item in _definitions)

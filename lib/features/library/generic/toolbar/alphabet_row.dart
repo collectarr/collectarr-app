@@ -91,7 +91,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                               style: TextStyle(
                                   fontWeight: label == (selectedLetter ?? 'All')
                                       ? FontWeight.w700
-                                      : FontWeight.w500)))
+                                      : FontWeight.w400)))
                   ],
                   child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -259,9 +259,9 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
                 overflow: TextOverflow.visible,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: isSelected || _hovered
-                      ? FontWeight.w700
-                      : FontWeight.w600,
+                  // The reference keeps every letter regular, also when
+                  // chosen or hovered.
+                  fontWeight: FontWeight.w400,
                   color: textColor,
                 ),
               ),

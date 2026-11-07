@@ -222,6 +222,7 @@ class AppCheckboxTile extends StatelessWidget {
                   style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
+                          height: 20 / 14,
                           color: appPalette(context).textPrimary
                               .withValues(alpha: enabled ? 1 : .5))
                       .merge(style)),

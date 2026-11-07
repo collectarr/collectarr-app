@@ -84,7 +84,7 @@ class GameToyCollectionStats extends StatelessWidget {
           ('${byType.length}', true),
           (byType.length == 1 ? ' type' : ' types', false),
         ]),
-        StatsSummaryLine(fontSize: 16, parts: [
+        StatsSummaryLine(fontSize: 18, parts: [
           ('current value: ', false),
           (formatStatsMoneyTotals(valueByCurrency), true),
         ]),

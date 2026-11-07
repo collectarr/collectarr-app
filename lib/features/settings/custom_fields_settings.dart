@@ -124,7 +124,9 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
             Expanded(
                 child: Text(_display.tabName,
                     style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w700))),
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        height: 1.1))),
             IconButton(
                 tooltip: 'Custom Fields help',
                 onPressed: _showHelp,
@@ -177,7 +179,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               textStyle:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
           onPressed: () => _showEditor(),
           icon: const Icon(AppIcons.add, size: 14),
           label: const Text('Add Custom Field'),

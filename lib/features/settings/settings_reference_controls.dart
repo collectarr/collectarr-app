@@ -207,7 +207,7 @@ class SettingsCheck extends StatelessWidget {
             Expanded(
               child: Text(label,
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w400, height: 1)),
+                      fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14)),
             ),
           ]),
         ),
@@ -266,7 +266,7 @@ class SettingsRadio<T> extends StatelessWidget {
             Expanded(
               child: Text(label,
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w400, height: 1)),
+                      fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14)),
             ),
           ]),
         ),

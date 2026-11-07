@@ -143,6 +143,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
                     : appPalette(context).textMuted,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
+                height: 20 / 14,
               ),
         ),
         const SizedBox(height: 12),

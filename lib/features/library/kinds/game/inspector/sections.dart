@@ -113,9 +113,10 @@ class _GameInspectorHeader extends StatelessWidget {
         );
     Widget label(String text) => Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 1),
+          // The reference's 15 px small capitals: capitals at 70 %.
           child: Text(text.toUpperCase(),
               style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10.5,
                   fontWeight: kAppBoldFontWeight,
                   color: palette.textMuted)),
         );
@@ -128,9 +129,9 @@ class _GameInspectorHeader extends StatelessWidget {
             child: Text(title,
                 style: TextStyle(
                     fontSize: 24,
-                    height: 27 / 24,
+                    height: 1.1,
                     fontWeight: kAppBoldFontWeight,
-                    color: palette.itemTitle)),
+                    color: palette.detailHeading)),
           ),
           if (hasStatus)
             Tooltip(

@@ -220,7 +220,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                                   'Always show this screen',
                                   _alwaysShow,
                                   (value) =>
-                                      setState(() => _alwaysShow = value)),
+                                      setState(() => _alwaysShow = value),
+                                  bold: true),
                             ]),
                             TextButton(
                                 onPressed: _clearAll,
@@ -484,7 +485,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         _coverDiscountResets++;
       });
 
-  Widget _checkbox(String label, bool value, ValueChanged<bool> onChanged) =>
+  Widget _checkbox(String label, bool value, ValueChanged<bool> onChanged,
+          {bool bold = false}) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
         SizedBox(
             width: 24,
@@ -497,8 +499,11 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: Text(label,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w400))))),
+                        style: TextStyle(
+                            fontSize: 14,
+                            height: 20 / 14,
+                            fontWeight:
+                                bold ? FontWeight.w700 : FontWeight.w400))))),
       ]);
 
   Widget _locationField() => LibraryDropdownPickField<String>(
@@ -569,7 +574,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                       textStyle: TextStyle(
                           fontFamily: appFontFamily,
                           fontFamilyFallback: kAppFontFamilyFallback,
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.w400)),
                   onPressed: _save,
                   child: Text(widget.confirmLabel ?? 'Save'))),

@@ -57,7 +57,8 @@ class StatsSection extends StatelessWidget {
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(title,
                 style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                    const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w700, height: 1.1)),
             const SizedBox(height: 14),
             child,
           ])));
@@ -192,6 +193,7 @@ class StatsItemTile extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                     fontSize: 16,
+                                    height: 18 / 16,
                                     color: appPalette(context).itemTitle)),
                             ...lines,
                             const Spacer(),
@@ -220,8 +222,8 @@ class StatsValueBadge extends StatelessWidget {
           child: Text(text,
               style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700))));
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400))));
 }
 
 /// Money totals per currency joined with "+"; no amounts read as zero, as
