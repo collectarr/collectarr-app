@@ -12,6 +12,7 @@ import release_banner
 
 # GitHub rejects release descriptions over 125,000 characters.
 BODY_LIMIT = 120_000
+SUMMARY_ROWS = 10
 # Banners live on this orphan branch, so they stay out of the release downloads.
 BANNER_BRANCH = 'release-banners'
 BANNER = re.compile(r'!\[[^\]]*\]\((\S+)\)')
@@ -53,43 +54,32 @@ def pull_requests(repo, shas):
 
 
 def change_lines(repo, previous, tag):
-    """List every change once: each merged pull request with the commits it brought, each commit pushed directly, and the issues they close."""
+    """List every commit once, oldest first, with the issues it or its pull request closes."""
     commits = [c for c in range_commits(repo, previous, tag) if len(c['parents']) < 2]
     pulls = pull_requests(repo, [c['sha'] for c in commits])
     url = f'https://github.com/{repo}'
-    changes = {}
+    credited = set()
     for commit in commits:
         message = commit['commit']['message']
+        closes = [int(n) for n in CLOSING.findall(message)]
         pull = pulls.get(commit['sha'])
-        change = changes.setdefault(pull['number'] if pull else commit['sha'], {'pull': pull, 'commits': [], 'closes': []})
-        change['commits'].append(commit)
-        closes = change['closes']
-        closes += [int(n) for n in CLOSING.findall(message) if int(n) not in closes]
-        if pull:
-            closes += [n['number'] for n in pull['closingIssuesReferences']['nodes'] if n['number'] not in closes]
-
-    def commit_line(commit):
+        # A pull request's issues are named once, on its first commit.
+        if pull and pull['number'] not in credited:
+            credited.add(pull['number'])
+            closes += [n['number'] for n in pull['closingIssuesReferences']['nodes']]
+        closed = ' (closes ' + ', '.join(f'{url}/issues/{n}' for n in sorted(set(closes))) + ')' if closes else ''
         author = (commit.get('author') or {}).get('login')
-        title = commit['commit']['message'].splitlines()[0][:500]
-        return f"{title}{f' by @{author}' if author else ''} in [{commit['sha'][:7]}]({commit['html_url']})"
-
-    for change in changes.values():
-        pull, own = change['pull'], change['commits']
-        closes = ' (closes ' + ', '.join(f'{url}/issues/{n}' for n in sorted(change['closes'])) + ')' if change['closes'] else ''
-        if not pull:
-            yield f'* {commit_line(own[0])}{closes}'
-            continue
-        author = (pull.get('author') or {}).get('login')
-        line = f"* {pull['title'][:500]}{f' by @{author}' if author else ''} in {pull['url']}{closes}"
-        # A pull request of several commits lists them, so rebase-merged work stays visible.
-        if len(own) > 1:
-            line += ''.join(f'\n  * {commit_line(commit)}' for commit in own)
-        yield line
+        title = message.splitlines()[0][:500]
+        yield f"* {title}{f' by @{author}' if author else ''} in [{commit['sha'][:7]}]({commit['html_url']}){closed}"
 
 
-def summary_text(entry):
-    """An editorial entry is the summary text, or an object with summary and banner items."""
-    return entry if isinstance(entry, str) else entry['summary']
+def summary_lines(entry):
+    """The summary as bullets: an entry's `summary` list, or plain text split into lines and sentences."""
+    summary = entry if isinstance(entry, str) else entry['summary']
+    if isinstance(summary, str):
+        rows = (line.strip().lstrip('-*•').strip() for line in summary.splitlines())
+        summary = [sentence for row in rows if row for sentence in re.split(r'(?<=[.!?])\s+(?=[A-Z])', row)]
+    return '\n'.join(f'- {line}' for line in summary)
 
 
 def publish_banner(repo, tag, path):
@@ -135,10 +125,11 @@ def main():
             # Preserve existing release-specific notes on the first migration.
             summary = old.strip()
             if '## Changes since last release:' in summary:
-                summary = summary.split('## Changes since last release:', 1)[1].split('## Known Issues', 1)[0].strip()
+                summary = re.split(r'\n## |\n---', summary.split('## Changes since last release:', 1)[1])[0].strip()
             summary = re.sub(r'^#+ .*\n', '', summary, count=1).strip()
             paragraphs = [p.strip() for p in summary.split('\n\n') if p.strip() and not p.startswith(('#', '<!--', '**Full Changelog'))]
-            summaries[tag] = paragraphs[0] if paragraphs else 'This release updates Collectarr. The complete change list below records the included work.'
+            # Without an editorial entry, the first changelog group stands in for the most important changes.
+            summaries[tag] = '\n'.join(paragraphs[0].splitlines()[:SUMMARY_ROWS]) if paragraphs else 'This release updates Collectarr. The complete change list below records the included work.'
         request = ['api', '--method', 'POST', f'repos/{args.repo}/releases/generate-notes', '-f', f'tag_name={tag}']
         if previous:
             request += ['-f', f'previous_tag_name={previous}']
@@ -158,32 +149,11 @@ def main():
             else:
                 banner = path.as_uri()
                 print(f'Rendered the {tag} banner to {path}', file=sys.stderr)
-        component = args.repo.removeprefix('collectarr/collectarr-').title()
         header = f'''![Collectarr — Your collections. Connected.]({banner})
 
 ## Changes since last release:
 
-{summary_text(summaries[tag])}
-
-## Known Issues
-
-See [open issues]({url}/issues) for reported problems and current progress.
-
-## Installing & Updating
-
-Use the downloads attached to this release where available; `SHA256SUMS.txt` lists their checksums. Follow the [README]({url}/blob/{tag}/README.md) for component-specific setup and update instructions.
-
-## About Collectarr
-
-Collectarr is a free, open-source collection catalog. App, Core and Sync work together to help you organize your collections and keep them connected. This repository contains Collectarr {component}.
-
-## Community & Contributors
-
-Thank you to everyone contributing code, testing, documentation and ideas. Report problems and suggest improvements through [GitHub Issues]({url}/issues). Release contributors are credited in the change list below.
-
-## Support Collectarr
-
-Help by testing releases, reporting bugs, improving documentation or contributing code. See the [contribution guide]({url}/blob/main/CONTRIBUTING.md).
+{summary_lines(summaries[tag])}
 
 ---
 

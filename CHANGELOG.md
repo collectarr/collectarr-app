@@ -204,6 +204,7 @@
 - Board Game, Book, Movie, Music, Comics and Games configuration, entry payload, catalog lookup, editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.
 
 ### CI & Build
+- Release notes contain only a bulleted summary and a flat list of every commit.
 - The App's copy of the Core contract matches Core's current fields and search options.
 - Library screenshot comparisons run on the same Windows renderer as their reference images, with image differences retained when CI fails.
 - Project verification checks pass with the current Dart formatter and analyzer.
