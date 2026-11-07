@@ -1,7 +1,7 @@
 const double kLibrarySidebarMinWidth = 180;
 const double kLibrarySidebarDefaultWidth = 250;
 const double kLibrarySidebarMaxWidth = 360;
-const double kLibraryDetailsMinWidth = 260;
+const double kLibraryDetailsMinWidth = 200;
 const double kLibraryDetailsDefaultWidth = 340;
 const double kLibraryDetailsMaxWidth = 520;
 const double kLibraryDetailsMinHeight = 240;

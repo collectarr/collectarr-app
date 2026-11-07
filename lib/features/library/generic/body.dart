@@ -576,6 +576,7 @@ class LibraryBody extends StatelessWidget {
             maxBottomHeight: maxDetailsHeight,
             onRightWidthChanged: onDetailsWidthChanged,
             onBottomHeightChanged: onDetailsHeightChanged,
+            onHide: () => onDetailsLayoutChanged(LibraryDetailsLayout.hidden),
             accentColor: accent,
             transitionDuration: kAppAnimNormal,
           );

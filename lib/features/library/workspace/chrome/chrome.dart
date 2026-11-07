@@ -27,6 +27,7 @@ class LibraryDetailsAwareLayout extends StatefulWidget {
     this.bottomHeight = kLibraryDetailsDefaultHeight,
     this.onRightWidthChanged,
     this.onBottomHeightChanged,
+    this.onHide,
     this.maxRightWidth = kLibraryDetailsMaxWidth,
     this.maxBottomHeight = kLibraryPaneStoredMaxWidth,
     this.accentColor = kAppAccent,
@@ -41,6 +42,10 @@ class LibraryDetailsAwareLayout extends StatefulWidget {
   final double bottomHeight;
   final ValueChanged<double>? onRightWidthChanged;
   final ValueChanged<double>? onBottomHeightChanged;
+
+  /// Hides the panel when its divider is dragged well past the smallest size,
+  /// as the Layout menu's No Details does.
+  final VoidCallback? onHide;
   final double maxRightWidth;
   final double maxBottomHeight;
   final Color accentColor;
@@ -56,6 +61,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
   late double _bottomHeight;
   bool _draggingRight = false;
   bool _draggingBottom = false;
+  double _dragPastMinimum = 0;
   Timer? _rightPersistDebounce;
   Timer? _bottomPersistDebounce;
 
@@ -119,7 +125,20 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
     widget.onBottomHeightChanged?.call(_bottomHeight);
   }
 
+  /// How far past the smallest size a drag ends up hiding the panel.
+  static const _hideDragDistance = 60.0;
+
+  void _endDrag() {
+    final hide = _dragPastMinimum >= _hideDragDistance;
+    _dragPastMinimum = 0;
+    if (hide) widget.onHide?.call();
+  }
+
   void _handleRightDrag(double delta) {
+    _dragPastMinimum = math.max(
+      0,
+      kLibraryDetailsMinWidth - (_rightWidth - _dragPastMinimum - delta),
+    );
     final nextWidth = clampLibraryPaneWidth(
       _rightWidth - delta,
       minWidth: kLibraryDetailsMinWidth,
@@ -133,6 +152,10 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
   }
 
   void _handleBottomDrag(double delta) {
+    _dragPastMinimum = math.max(
+      0,
+      kLibraryDetailsMinHeight - (_bottomHeight - _dragPastMinimum - delta),
+    );
     final nextHeight = clampLibraryPaneHeight(
       _bottomHeight - delta,
       minHeight: kLibraryDetailsMinHeight,
@@ -246,6 +269,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
                 onDragEnd: () {
                   _draggingRight = false;
                   _flushRightWidthPersist();
+                  _endDrag();
                 },
                 onDragDelta: _handleRightDrag,
               ),
@@ -302,6 +326,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
                 onDragEnd: () {
                   _draggingBottom = false;
                   _flushBottomHeightPersist();
+                  _endDrag();
                 },
                 onDragDelta: _handleBottomDrag,
               ),
