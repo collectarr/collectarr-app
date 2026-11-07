@@ -176,6 +176,29 @@ backdrop, title and section headings `#0082A6` (24 px and 18 px bold), field
 labels `#777` 15 px bold upper case, values `#333` 15 px; value badge `#0082A6`
 over a `#B1D8EA` completeness row; list value pill `#2AA4CC`.
 
+CLZ Games Web text roles, all Gilroy, from computed styles (size / weight /
+line height, px):
+
+| Role | CLZ |
+| --- | --- |
+| Body text, menus, dialog tabs, buttons, inputs, folder rows, bottom tabs | 14 / 400 / 20 (folders 22, menus 24, toolbar letters 30) |
+| Table headers, menu and side-menu section titles, Settings legends, Add Title/Barcode tabs | 14 / 700 / 20 |
+| Editor field labels | 13 / 700 / 18.6 |
+| Footer, dates, secondary text | 13 / 400 / 18.6 |
+| Help text under settings | 11.9 / 400 / 17, #888 |
+| Badges | 12 / 400 / 12 |
+| eBay disclosure | 10 / 400 / 10 |
+| Collection name, eBay link, Add result titles | 15 / 400 (results 700) / 21.4 |
+| Page titles (Settings, Statistics) | 16 / 700 / 30 |
+| Add search field, result count | 16 / 700 / 22.9; Search button 16 / 400 |
+| Dialog titles | 18 / 700 / 18 |
+| Details section headings | 18 / 700 / 19.8 |
+| Settings and Statistics section headers | 22 / 700 / 24.2 |
+| Details title | 24 / 700 / 26.4 |
+| Dialog close × | 28 / 400 |
+
+The list view's cells were not measured, as switching CLZ's view saves it.
+
 Equal CSS and Flutter weights do not paint identically, and the bundled face is
 not Gilroy. Compare text with a user-supplied local font before changing
 weights (see [local font loading](architecture/local-font-loading.md)).
