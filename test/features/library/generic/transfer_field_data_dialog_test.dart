@@ -125,7 +125,10 @@ void main() {
           'Moved from custom field');
       expect((await custom.listAllValues())[ref.key]!.single.value,
           clearSource ? isNull : 'Moved from custom field');
-      final queued = (await SyncQueueRepository(db).readPending()).changes;
+      final queued = (await SyncQueueRepository(db).readPending())
+          .changes
+          .where((change) => change.entityType == 'library_entry')
+          .toList();
       expect(queued, hasLength(1));
       final personal = queued.single.payload['personal_data'] as Map;
       final attachments = personal[libraryEntrySyncCustomFieldsKey] as List;

@@ -52,7 +52,7 @@ void main() {
             .data
             .values
             .single,
-        6);
+        7);
   });
 
   test('creates the fresh schema at current version', () async {
@@ -333,13 +333,18 @@ void main() {
       raw.execute("INSERT INTO list_value_images_cache VALUES "
           "('labels', 'spawn', 'Spawn', x'010203', 0), "
           "('labels', 'huge', 'Huge', zeroblob(${2 * 1024 * 1024 + 1}), 0)");
+      raw.execute("INSERT INTO custom_field_definitions_cache "
+          "(id, name, field_type, created_at) "
+          "VALUES ('f1', 'Signed by', 'text', 0)");
       raw.execute('PRAGMA user_version = 6');
     }));
     addTearDown(db.close);
 
     final queued = await db.select(db.syncQueue).get();
-    expect(queued.single.entityType, 'list_value_image');
-    expect(queued.single.action, 'upsert');
+    expect(queued.map((row) => row.entityType).toSet(),
+        {'list_value_image', 'custom_field_definition'});
+    expect(queued, hasLength(2));
+    expect(queued.every((row) => row.action == 'upsert'), isTrue);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.data.values.single, 7);
   });
@@ -409,4 +414,9 @@ void _createReleasedEntryTables(Database raw) {
       'media_kind TEXT NULL, value TEXT NOT NULL, sort_name TEXT NULL, '
       'is_hidden INTEGER NOT NULL DEFAULT 0, '
       'sort_order INTEGER NOT NULL DEFAULT 0)');
+  raw.execute('CREATE TABLE custom_field_definitions_cache ('
+      'id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, '
+      'field_type TEXT NOT NULL, media_kind TEXT NULL, edit_scope TEXT NULL, '
+      'sort_order INTEGER NOT NULL DEFAULT 0, options TEXT NULL, '
+      'created_at INTEGER NOT NULL)');
 }

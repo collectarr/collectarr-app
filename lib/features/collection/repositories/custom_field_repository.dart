@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
+import 'package:collectarr_app/core/sync/custom_field_definition_sync.dart';
+import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:drift/drift.dart';
 
 class CustomFieldRepository {
@@ -41,30 +43,47 @@ class CustomFieldRepository {
 
   Future<void> upsertDefinition(CustomFieldDefinition def) {
     _validateDefinition(def);
-    return _db.into(_db.customFieldDefinitionsCache).insert(
-          CustomFieldDefinitionsCacheCompanion.insert(
-            id: def.id,
-            name: def.name,
-            fieldType: def.valueType.apiValue,
-            mediaKind: Value(def.mediaKind),
-            editScope: Value(def.editScope),
-            sortOrder: Value(def.sortOrder),
-            options: Value(def.options),
-            createdAt: def.createdAt,
-          ),
-          mode: InsertMode.insertOrReplace,
-        );
+    return _db.transaction(() async {
+      await _writeDefinition(def);
+      await SyncQueueRepository(_db).enqueue(customFieldDefinitionChange(def));
+    });
   }
 
-  Future<void> deleteDefinition(String id) async {
-    await _db.transaction(() async {
-      await (_db.delete(_db.customFieldValuesCache)
-            ..where((row) => row.fieldDefinitionId.equals(id)))
-          .go();
-      await (_db.delete(_db.customFieldDefinitionsCache)
-            ..where((row) => row.id.equals(id)))
-          .go();
-    });
+  Future<void> deleteDefinition(String id) => _db.transaction(() async {
+        await _removeDefinition(id);
+        await SyncQueueRepository(_db)
+            .enqueue(customFieldDefinitionDeletion(id));
+      });
+
+  /// Stores a definition pulled from Sync, without queueing it back.
+  Future<void> applySyncedDefinition(CustomFieldDefinition def) =>
+      _writeDefinition(def);
+
+  /// Removes a definition a Sync tombstone names, without queueing it back.
+  Future<void> applySyncedDefinitionDelete(String id) => _removeDefinition(id);
+
+  Future<void> _writeDefinition(CustomFieldDefinition def) =>
+      _db.into(_db.customFieldDefinitionsCache).insert(
+            CustomFieldDefinitionsCacheCompanion.insert(
+              id: def.id,
+              name: def.name,
+              fieldType: def.valueType.apiValue,
+              mediaKind: Value(def.mediaKind),
+              editScope: Value(def.editScope),
+              sortOrder: Value(def.sortOrder),
+              options: Value(def.options),
+              createdAt: def.createdAt,
+            ),
+            mode: InsertMode.insertOrReplace,
+          );
+
+  Future<void> _removeDefinition(String id) async {
+    await (_db.delete(_db.customFieldValuesCache)
+          ..where((row) => row.fieldDefinitionId.equals(id)))
+        .go();
+    await (_db.delete(_db.customFieldDefinitionsCache)
+          ..where((row) => row.id.equals(id)))
+        .go();
   }
 
   /// Reorders the visible definitions without moving fields from other kinds.
@@ -80,6 +99,7 @@ class CustomFieldRepository {
         }
         final visible = ids.toSet();
         final ordered = ids.iterator;
+        final queue = SyncQueueRepository(_db);
         for (var index = 0; index < all.length; index++) {
           var definition = all[index];
           if (visible.contains(definition.id)) {
@@ -90,6 +110,19 @@ class CustomFieldRepository {
                 ..where((row) => row.id.equals(definition.id)))
               .write(CustomFieldDefinitionsCacheCompanion(
                   sortOrder: Value(index)));
+          if (definition.sortOrder != index) {
+            await queue
+                .enqueue(customFieldDefinitionChange(CustomFieldDefinition(
+              id: definition.id,
+              name: definition.name,
+              fieldType: definition.fieldType,
+              mediaKind: definition.mediaKind,
+              editScope: definition.editScope,
+              sortOrder: index,
+              options: definition.options,
+              createdAt: definition.createdAt,
+            )));
+          }
         }
       });
 

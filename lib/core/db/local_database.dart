@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/sync/custom_field_definition_sync.dart';
 import 'package:collectarr_app/core/sync/list_value_image_sync.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_database_tables.g.dart';
@@ -188,9 +190,22 @@ class LocalDatabase extends _$LocalDatabase {
             }
           }
           if (from < 7) {
-            // 7: Sync carries list value images; send the ones already loaded.
-            // Larger ones predate its limit and stay on this device.
+            // 7: Sync carries custom field definitions and list value images;
+            // send the ones already here. Images above its limit predate it
+            // and stay on this device.
             final queue = SyncQueueRepository(this);
+            for (final row in await select(customFieldDefinitionsCache).get()) {
+              await queue.enqueue(customFieldDefinitionChange(
+                  CustomFieldDefinition(
+                      id: row.id,
+                      name: row.name,
+                      fieldType: row.fieldType,
+                      mediaKind: row.mediaKind,
+                      editScope: row.editScope,
+                      sortOrder: row.sortOrder,
+                      options: row.options,
+                      createdAt: row.createdAt)));
+            }
             for (final row in await select(listValueImagesCache).get()) {
               if (row.valueImage.length > maxSyncedListValueImageBytes) {
                 continue;

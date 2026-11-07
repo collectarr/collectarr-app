@@ -17,6 +17,7 @@ import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
+import 'package:collectarr_app/core/sync/custom_field_definition_sync.dart';
 import 'package:collectarr_app/core/sync/list_value_image_sync.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -115,6 +116,7 @@ class SyncApplyService {
     final customEpisodes = <_CustomEpisodeSyncInput>[];
     final pickListUpserts = <JsonMap>[];
     final pickListDeletes = <String>[];
+    final fieldDefinitions = <JsonMap>[];
     final valueImages = <JsonMap>[];
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
@@ -164,6 +166,9 @@ class SyncApplyService {
       if (type == 'custom_episode') {
         customEpisodes.add(_customEpisodeSyncInputFromEntity(entity));
       }
+      if (type == customFieldDefinitionEntityType) {
+        fieldDefinitions.add(entity);
+      }
       if (type == listValueImageEntityType) valueImages.add(entity);
       if (type == 'pick_list_value') {
         if (entity['action'] == 'delete') {
@@ -208,6 +213,15 @@ class SyncApplyService {
         }
       }
       final customFieldRepository = CustomFieldRepository(db);
+      for (final entity in fieldDefinitions) {
+        final id = entity['entity_id'] as String;
+        if (entity['action'] == 'delete') {
+          await customFieldRepository.applySyncedDefinitionDelete(id);
+        } else {
+          await customFieldRepository.applySyncedDefinition(
+              customFieldDefinitionFromSync(id, _payload(entity)));
+        }
+      }
       for (final entry in entryCustomFields) {
         await customFieldRepository.deleteValuesForTarget(
           targetId: entry.ref.key,
