@@ -10,6 +10,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Covers load faster: downloaded covers stay on disk, and zooming out reuses the ones already decoded.
 - On Windows, Install in Settings > Updates starts the installer instead of staying on "Starting the installer...", and reports when it cannot start.
 - The library switcher in the header no longer stays highlighted after closing it by clicking elsewhere.
 - Comics' Custom Label shows its field label once.

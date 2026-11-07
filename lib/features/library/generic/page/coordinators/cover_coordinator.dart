@@ -8,6 +8,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart';
 
 /// Handles cover scanning (gallery/camera → API).
 class LibraryPageCoverCoordinator {
@@ -85,6 +86,7 @@ class LibraryPageCoverCoordinator {
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: CachedNetworkImage(
+                          cacheManager: libraryCoverCacheManager,
                           imageUrl: publicUrl,
                           width: 40,
                           height: 56,

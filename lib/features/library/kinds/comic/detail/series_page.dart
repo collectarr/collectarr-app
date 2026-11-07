@@ -14,6 +14,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart';
 
 final _comicSeriesDetailProvider = FutureProvider.autoDispose
     .family<_ComicSeriesDetailData, String>((ref, seriesId) async {
@@ -330,6 +331,7 @@ class _ComicSeriesItemTile extends StatelessWidget {
                         size: 18),
                   )
                 : CachedNetworkImage(
+                    cacheManager: libraryCoverCacheManager,
                     imageUrl: coverUrl,
                     fit: BoxFit.cover,
                     placeholder: (_, __) => ColoredBox(

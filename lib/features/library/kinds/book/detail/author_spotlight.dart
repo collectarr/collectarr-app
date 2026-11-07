@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart';
 
 class BookCreatorCredit {
   const BookCreatorCredit({
@@ -189,6 +190,7 @@ class _AuthorAvatar extends StatelessWidget {
                 ),
               )
             : CachedNetworkImage(
+                cacheManager: libraryCoverCacheManager,
                 imageUrl: trimmedUrl,
                 fit: BoxFit.cover,
                 placeholder: (_, __) => ColoredBox(

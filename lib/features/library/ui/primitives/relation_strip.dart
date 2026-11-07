@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart';
 
 class LibraryRelationStrip extends StatelessWidget {
   const LibraryRelationStrip({
@@ -75,6 +76,7 @@ class _RelationCard extends StatelessWidget {
               height: 80,
               child: relation.imageUrl != null
                   ? CachedNetworkImage(
+                      cacheManager: libraryCoverCacheManager,
                       imageUrl: relation.imageUrl!,
                       fit: BoxFit.cover,
                       placeholder: (_, __) => const ColoredBox(

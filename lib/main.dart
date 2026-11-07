@@ -10,6 +10,7 @@ import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/app_zoom.dart';
 import 'package:collectarr_app/ui/browser_zoom.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +22,14 @@ void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      // The default 100 MB holds about 170 decoded covers, fewer than a
+      // zoomed-out window shows.
+      PaintingBinding.instance.imageCache
+        ..maximumSize = 4000
+        ..maximumSizeBytes = switch (defaultTargetPlatform) {
+          TargetPlatform.android || TargetPlatform.iOS => 256 << 20,
+          _ => 768 << 20,
+        };
       leaveZoomToBrowser();
       container = ProviderContainer();
 

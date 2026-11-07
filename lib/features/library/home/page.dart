@@ -4,7 +4,6 @@ import 'dart:developer' as developer;
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -24,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart';
 
 class LibraryHomePage extends ConsumerStatefulWidget {
   const LibraryHomePage({super.key, required this.routeUri});
@@ -206,14 +206,12 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     if (urls.isEmpty || skip >= urls.length) {
       return;
     }
+    // Only the download: tiles decode at their own size, so decoding here
+    // would not be reused.
     for (final url in urls.skip(skip).take(maxUrls)) {
-      unawaited(
-        precacheImage(
-          CachedNetworkImageProvider(url),
-          context,
-          onError: (_, __) {},
-        ),
-      );
+      unawaited(libraryCoverCacheManager
+          .getSingleFile(url)
+          .then<void>((_) {}, onError: (_) {}));
     }
   }
 

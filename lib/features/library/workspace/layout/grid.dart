@@ -5,6 +5,7 @@ import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter/services.dart';
 
 typedef LibraryGridItemBuilder<T> = Widget Function(
@@ -165,6 +166,8 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>>
             : null;
         final grid = GridView.builder(
           controller: widget.scrollable ? _scrollController : null,
+          // Covers just past the edge are ready before they scroll in.
+          scrollCacheExtent: ScrollCacheExtent.pixels(mainAxisExtent * 2),
           shrinkWrap: widget.shrinkWrap,
           physics:
               widget.scrollable ? null : const NeverScrollableScrollPhysics(),

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/hierarchy/domain/node.dart';
 import 'package:collectarr_app/features/library/hierarchy/providers/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart';
 
 class HierarchyChildrenSection extends ConsumerWidget {
   const HierarchyChildrenSection({
@@ -85,6 +86,7 @@ class _HierarchyNodeTileState extends State<_HierarchyNodeTile> {
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: CachedNetworkImage(
+                    cacheManager: libraryCoverCacheManager,
                     imageUrl: node.imageUrl!,
                     width: 40,
                     height: 60,

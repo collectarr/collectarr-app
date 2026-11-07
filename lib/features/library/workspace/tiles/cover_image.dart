@@ -15,6 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart';
 
 import 'cover_element_aspect.dart'
     if (dart.library.js_interop) 'cover_element_aspect_web.dart';
@@ -131,7 +132,9 @@ class LibraryCoverImage extends ConsumerWidget {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
         final resolvedCacheWidth =
             targetCacheWidth ?? _resolveCacheWidth(constraints, pixelRatio);
-        final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
+        final cacheWidth = kIsWeb || resolvedCacheWidth == null
+            ? null
+            : libraryCoverDecodeWidth(loadKey, resolvedCacheWidth);
 
         // Prefer local offline bytes when available
         if (_looksLikeSupportedImage(local)) {
@@ -144,7 +147,7 @@ class LibraryCoverImage extends ConsumerWidget {
               alignment: alignment,
               cacheWidth: cacheWidth,
               gaplessPlayback: true,
-              filterQuality: FilterQuality.high,
+              filterQuality: FilterQuality.medium,
               frameBuilder: onFrame,
               errorBuilder: (_, __, ___) {
                 showingFallback();
@@ -170,7 +173,7 @@ class LibraryCoverImage extends ConsumerWidget {
                 alignment: alignment,
                 cacheWidth: null,
                 gaplessPlayback: true,
-                filterQuality: FilterQuality.high,
+                filterQuality: FilterQuality.medium,
                 webHtmlElementStrategy: allowWebImageElement
                     ? WebHtmlElementStrategy.fallback
                     : WebHtmlElementStrategy.never,
@@ -195,6 +198,7 @@ class LibraryCoverImage extends ConsumerWidget {
         return ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius),
           child: CachedNetworkImage(
+            cacheManager: libraryCoverCacheManager,
             imageUrl: url,
             fit: fit,
             alignment: alignment,
@@ -216,7 +220,7 @@ class LibraryCoverImage extends ConsumerWidget {
                 fit: fit,
                 alignment: alignment,
                 gaplessPlayback: true,
-                filterQuality: FilterQuality.high,
+                filterQuality: FilterQuality.medium,
                 errorBuilder: (_, __, ___) {
                   showingFallback();
                   return fallbackCover;
@@ -283,8 +287,7 @@ class LibraryCoverImage extends ConsumerWidget {
     if (!constraints.hasBoundedWidth || constraints.maxWidth <= 0) {
       return null;
     }
-    final rawWidth = constraints.maxWidth * pixelRatio;
-    return ((rawWidth / 64).ceil() * 64).toInt();
+    return (constraints.maxWidth * pixelRatio).ceil();
   }
 }
 
