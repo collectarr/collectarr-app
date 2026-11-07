@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/mobile_metrics.dart';
 import 'package:flutter/material.dart';
 
 /// Native action geometry; kind labels, colors, values and commands are inputs.
@@ -28,12 +29,14 @@ class LibraryMobileToolbarActions extends StatelessWidget {
                           backgroundColor: Colors.transparent,
                           foregroundColor: foreground,
                           padding: EdgeInsets.zero,
-                          iconSize: 18,
+                          iconSize: kMobileToolbarIconSize,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          minimumSize: const Size.square(30),
-                          fixedSize: const Size.square(30))),
+                          minimumSize:
+                              const Size.square(kMobileToolbarButtonSize),
+                          fixedSize:
+                              const Size.square(kMobileToolbarButtonSize))),
                   child: SizedBox(
-                      height: 40,
+                      height: kMobileToolbarHeight,
                       child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Row(

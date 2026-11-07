@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/mobile_metrics.dart';
 import 'package:collectarr_app/features/library/selection/commands.dart';
 import 'package:collectarr_app/features/library/selection/action.dart';
 import 'selection.dart';
@@ -448,11 +449,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       backgroundColor: libraryMobileToolbarButtonColor(context),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
-                      minimumSize: const Size.square(30),
-                      fixedSize: const Size.square(30),
+                      minimumSize: const Size.square(kMobileToolbarButtonSize),
+                      fixedSize: const Size.square(kMobileToolbarButtonSize),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                  icon: const Icon(Icons.sort_by_alpha, size: 18),
+                  icon: const Icon(Icons.sort_by_alpha,
+                      size: kMobileToolbarIconSize),
                   onPressed: onEditSort),
             ),
           Padding(

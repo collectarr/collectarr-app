@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/mobile_metrics.dart';
 import 'package:flutter/material.dart';
 
 /// Compact content for native toolbar menus, in the reference's 30 dp buttons;
@@ -17,7 +18,9 @@ class MobileToolbarTrigger extends StatelessWidget {
   final Color? iconBackground;
   @override
   Widget build(BuildContext context) => ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+        constraints: const BoxConstraints(
+            minWidth: kMobileToolbarButtonSize,
+            minHeight: kMobileToolbarButtonSize),
         child: Padding(
             padding: EdgeInsets.symmetric(horizontal: label == null ? 0 : 6),
             child: Row(
@@ -33,7 +36,7 @@ class MobileToolbarTrigger extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4)),
                         child: Icon(icon, size: 13))
                   else
-                    Icon(icon, size: 18),
+                    Icon(icon, size: kMobileToolbarIconSize),
                   if (label != null) ...[
                     const SizedBox(width: 6),
                     Flexible(
@@ -44,7 +47,7 @@ class MobileToolbarTrigger extends StatelessWidget {
                   ],
                   if (chevron) ...[
                     const SizedBox(width: 3),
-                    const Icon(Icons.expand_more, size: 18)
+                    const Icon(Icons.expand_more, size: kMobileToolbarIconSize)
                   ],
                 ])),
       );

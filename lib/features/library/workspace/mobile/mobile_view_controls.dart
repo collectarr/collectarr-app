@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/mobile_metrics.dart';
 import 'package:collectarr_app/features/library/workspace/config/view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/mobile/mobile_view_mode.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -43,12 +44,14 @@ class LibraryMobileViewMenu extends StatelessWidget {
           ),
       ],
       child: Container(
-        width: 30,
-        height: 30,
-        margin: const EdgeInsets.symmetric(vertical: 5),
+        width: kMobileToolbarButtonSize,
+        height: kMobileToolbarButtonSize,
+        margin: const EdgeInsets.symmetric(
+            vertical: (kMobileToolbarHeight - kMobileToolbarButtonSize) / 2),
         decoration: BoxDecoration(
             color: background, borderRadius: BorderRadius.circular(5)),
-        child: Icon(current.icon, size: 18, color: palette.textPrimary),
+        child: Icon(current.icon,
+            size: kMobileToolbarIconSize, color: palette.textPrimary),
       ),
     );
   }
@@ -97,15 +100,16 @@ class LibraryMobileAlphabetButton extends StatelessWidget {
           ),
       ],
       child: Container(
-        width: 30,
-        height: 30,
-        margin: const EdgeInsets.symmetric(vertical: 5),
+        width: kMobileToolbarButtonSize,
+        height: kMobileToolbarButtonSize,
+        margin: const EdgeInsets.symmetric(
+            vertical: (kMobileToolbarHeight - kMobileToolbarButtonSize) / 2),
         alignment: Alignment.center,
         decoration: BoxDecoration(
             color: background, borderRadius: BorderRadius.circular(5)),
         child: selectedLetter == null
             ? Icon(Icons.filter_alt_outlined,
-                size: 18, color: palette.textPrimary)
+                size: kMobileToolbarIconSize, color: palette.textPrimary)
             : Text(selectedLetter!,
                 style: TextStyle(
                     fontWeight: FontWeight.w700, color: palette.utilityAction)),
