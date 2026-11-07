@@ -28,18 +28,22 @@ void main() {
 
   test('saving and removing an image queue Sync changes', () async {
     await images.save('labels', ' Spawn #1 ', bytes);
-    await images.remove('labels', 'Spawn #1');
-
-    final changes = await SyncQueueRepository(db).listPending();
-    expect(changes.map((change) => change.action), ['upsert', 'delete']);
-    expect(changes.first.entityType, listValueImageEntityType);
-    expect(changes.first.entityId, listValueImageSyncId('labels', 'spawn #1'));
-    expect(changes.first.payload, {
+    final queue = SyncQueueRepository(db);
+    final saved = (await queue.listPending()).single;
+    expect(saved.action, 'upsert');
+    expect(saved.entityType, listValueImageEntityType);
+    expect(saved.entityId, listValueImageSyncId('labels', 'spawn #1'));
+    expect(saved.payload, {
       'list_key': 'labels',
       'value': 'Spawn #1',
       'image': base64Encode(bytes)
     });
-    expect(changes.last.entityId, changes.first.entityId);
+
+    // The queue keeps an entity's latest change.
+    await images.remove('labels', 'Spawn #1');
+    final removed = (await queue.listPending()).single;
+    expect(removed.action, 'delete');
+    expect(removed.entityId, saved.entityId);
   });
 
   test('images from Sync are stored without queueing them back', () async {
