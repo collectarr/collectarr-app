@@ -59,8 +59,6 @@ class LibraryAddManualActionBar extends StatelessWidget {
           enabled: !request.isAdding,
           onSelected: (action) => _validatedAction(context, action)?.call(),
           itemBuilder: (_) => [
-            PopupMenuItem(
-                value: request.onPropose, child: const Text('Propose to Core')),
             if (collectarrKindAdds[request.kind]?.chrome.supportsTracking ??
                 false)
               PopupMenuItem(
@@ -79,20 +77,8 @@ class LibraryAddManualActionBar extends StatelessWidget {
     final actions = LayoutBuilder(
       builder: (context, constraints) {
         final buttons = [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _validatedAction(context, request.onPropose),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: request.accent,
-                visualDensity: VisualDensity.compact,
-              ),
-              icon: const Icon(Icons.outbox_outlined, size: 18),
-              label: const Text('Propose', overflow: TextOverflow.ellipsis),
-            ),
-          ),
           if (collectarrKindAdds[request.kind]?.chrome.supportsTracking ??
               false) ...[
-            const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _validatedAction(context, request.onAddTrack),
@@ -111,8 +97,8 @@ class LibraryAddManualActionBar extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 8),
           ],
-          const SizedBox(width: 8),
           Expanded(
             child: LibraryAddStatusButton(
               collectionStatus: libraryCollectionStatusFromValue(
@@ -161,7 +147,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
   }
 
   /// Cancel and Add as in the reference, which follows the Collection Status
-  /// chosen in the form. Propose to Core stays beside them, as in the editor.
+  /// chosen in the form.
   Widget _plainFooter(BuildContext context) {
     final palette = appPalette(context);
     final wishList = libraryCollectionStatusFromValue(
@@ -172,24 +158,6 @@ class LibraryAddManualActionBar extends StatelessWidget {
       borderColor: Colors.transparent,
       padding: const EdgeInsets.all(10),
       child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-        SizedBox(
-          height: kLibraryDialogFooterButtonHeight,
-          child: OutlinedButton.icon(
-            key: const Key('library.manual.propose'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: palette.utilityAction,
-              side: BorderSide(color: palette.utilityAction),
-              shape: kLibraryDialogFooterButtonShape,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onPressed: _validatedAction(context, request.onPropose),
-            icon: const Icon(Icons.cloud_upload_outlined, size: 17),
-            label: const Text('Propose to Core'),
-          ),
-        ),
-        const SizedBox(width: 8),
         SizedBox(
           height: kLibraryDialogFooterButtonHeight,
           width: 100,

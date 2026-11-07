@@ -57,7 +57,6 @@ class LibraryAddManualPaneRequest {
     required this.onAddEntry,
     required this.onAddWishlist,
     required this.onAddTrack,
-    required this.onPropose,
     required this.manualDraft,
     this.customFieldDefinitions = const [],
     this.customFieldValues = const {},
@@ -101,7 +100,6 @@ class LibraryAddManualPaneRequest {
   final VoidCallback onAddEntry;
   final VoidCallback onAddWishlist;
   final VoidCallback onAddTrack;
-  final VoidCallback onPropose;
 
   // Custom fields and images
   final List<CustomFieldDefinition> customFieldDefinitions;

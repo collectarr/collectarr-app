@@ -16,7 +16,6 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
   manualDraftBuilder: ComicAddManualDraft.new,
   manualCandidateBuilder: buildComicManualCandidate,
-  manualProposalBuilder: buildComicManualProposalData,
   manualPaneBuilder: buildComicAddManualPane,
   previewPaneBuilder: buildComicAddPreviewPane,
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>

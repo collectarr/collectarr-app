@@ -31,9 +31,3 @@ CatalogSearchCandidate? buildGameToyManualCandidate(LibraryKindAddDraft draft,
       kindData: metadata,
       origin: CatalogItemOrigin.privateLocal));
 }
-
-Map<String, Object?>? buildGameToyManualProposalData(LibraryKindAddDraft draft,
-        {required String title}) =>
-    buildGameToyManualCandidate(draft, title: title)
-        ?.kindCapability
-        .mapTransport((item) => Map<String, Object?>.from(item.kindData));

@@ -8,7 +8,6 @@ final gameToyKindAdd = StandardLibraryAddCapability<GameToyAddDraft>(
     coreCatalogProjectionBuilder: gameToyCatalogTransportFromCoreItem,
     manualDraftBuilder: GameToyAddManualDraft.new,
     manualCandidateBuilder: buildGameToyManualCandidate,
-    manualProposalBuilder: buildGameToyManualProposalData,
     manualPaneBuilder: buildGameToyAddManualPane,
     previewPaneBuilder: buildGameToyAddPreview,
     chrome: const LibraryAddChromeConfig(

@@ -9,7 +9,6 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
   coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
   manualDraftBuilder: MovieAddManualDraft.new,
   manualCandidateBuilder: buildMovieManualCandidate,
-  manualProposalBuilder: buildMovieManualProposalData,
   manualCandidateValidationMessage: 'Correct any invalid Catalog Item details.',
   manualPaneBuilder: buildMovieAddManualPane,
   chrome: movieAddChrome,

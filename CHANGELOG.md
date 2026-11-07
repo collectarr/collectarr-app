@@ -13,6 +13,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Add Manually no longer offers Propose to Core; propose an item to Core from its details or editor after adding it.
 - Covers load faster: downloaded covers stay on disk, and zooming out reuses the ones already decoded.
 - The Comics details panel no longer overflows at its smallest size.
 - Missing Comics lists issues still On Order when "Show On Order" is ticked, and leaves them out otherwise.

@@ -104,8 +104,7 @@ Keep these when matching the reference visually.
 - Add Toys' type tiles carry the type's name, as CLZ's logos are its licensors'
   artwork and Collectarr ships none; logos the user loads from their own files
   in Settings > Customization > Toys > Toy type logos replace the name. Its toys
-  show no price, as Collectarr does not fetch them. Add Manually
-  keeps Propose to Core beside Cancel and Add, as the editor does.
+  show no price, as Collectarr does not fetch them.
 - Platform category glyphs, the app identity, kind icons in headers, Flow
   Carousel and the extra search/tools controls are deliberate additions.
   Different cover content and persisted pane widths are not regressions.

@@ -84,7 +84,6 @@ void main() {
               onAddEntry: () {},
               onAddWishlist: () {},
               onAddTrack: () {},
-              onPropose: () {},
               onKindDraftChanged: (value) => refresh(() {
                 emissions++;
                 personal = value as GameAddDraft;

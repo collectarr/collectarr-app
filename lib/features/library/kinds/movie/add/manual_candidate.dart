@@ -84,20 +84,6 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   return CatalogSearchCandidate.fromItem(item);
 }
 
-/// Serializes the selected flat Catalog Item fields for Core review.
-Map<String, Object?>? buildMovieManualProposalData(
-  LibraryKindAddDraft draft, {
-  required String title,
-}) {
-  final candidate = buildMovieManualCandidate(draft, title: title);
-  if (candidate == null) return null;
-  return candidate.kindCapability.mapTransport(
-    (item) => Map<String, Object?>.from(item.payload)
-      ..remove('id')
-      ..remove('kind'),
-  );
-}
-
 String? _text(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;

@@ -11,7 +11,6 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   coreCatalogProjectionBuilder: gameCatalogTransportFromCoreItem,
   manualDraftBuilder: GameAddManualDraft.new,
   manualCandidateBuilder: buildGameManualCandidate,
-  manualProposalBuilder: buildGameManualProposalData,
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       GameLibraryEntryCreatePayload(
     details: details as GameEntryDetailsDraft,

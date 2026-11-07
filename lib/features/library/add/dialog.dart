@@ -55,7 +55,6 @@ import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/browse_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/cover_blocks.dart';
 import 'package:collectarr_app/features/library/add/services/cover_scan_service.dart';
-import 'package:collectarr_app/features/library/metadata/proposal.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -438,7 +437,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         LibraryAddTarget.track,
         manualDialogContext,
       ),
-      onPropose: _proposeManualDraft,
       customFieldDefinitions: _manualCustomFieldDefinitions,
       customFieldValues: _manualDraft.customFieldValues,
       onCustomFieldValuesChanged: (vals) {
@@ -527,48 +525,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     if (!mounted) return;
     setState(() => _manualCustomFieldDefinitions = definitions);
-  }
-
-  Future<void> _proposeManualDraft() async {
-    if (_controller.state.isAdding) return;
-    final capability = libraryAddForKind(widget.type.kind);
-    final Map<String, Object?>? catalogItem =
-        capability.buildManualProposalData(
-      _manualDraft.kindDraft,
-      title: _manualDraft.kindDraft.catalogTitle,
-    );
-    if (catalogItem == null) {
-      _controller.reportSubmissionError(
-        capability.manualCandidateValidationMessage,
-      );
-      return;
-    }
-    _controller.state = _controller.state.copyWith(isAdding: true);
-    try {
-      await createAndRecordLibraryMetadataProposal(
-        api: ref.read(apiClientProvider),
-        kind: widget.type.kind.apiValue,
-        catalogItem: catalogItem,
-        source: 'Manual Add form',
-      );
-      if (!mounted) return;
-      showAppToast(
-        context,
-        '${widget.type.identity.singularLabel} proposal sent for review.',
-        tone: AppToastTone.success,
-      );
-    } catch (error) {
-      if (!mounted) return;
-      showAppToast(
-        context,
-        'Could not send the proposal. ${coreRefusalMessage(error)}',
-        tone: AppToastTone.error,
-      );
-    } finally {
-      if (mounted) {
-        _controller.state = _controller.state.copyWith(isAdding: false);
-      }
-    }
   }
 
   void _submitManualFromManualPane(

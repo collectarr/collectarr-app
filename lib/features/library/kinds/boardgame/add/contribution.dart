@@ -8,7 +8,6 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
   coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
   manualDraftBuilder: BoardgameAddManualDraft.new,
   manualCandidateBuilder: buildBoardgameManualCandidate,
-  manualProposalBuilder: buildBoardgameManualProposalData,
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       BoardgameLibraryEntryCreatePayload(
     details: details as BoardgameEntryDetailsDraft,

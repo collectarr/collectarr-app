@@ -43,18 +43,3 @@ String? _nullable(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;
 }
-
-/// Serializes this kind's typed manual catalog model for Core review.
-///
-/// Core projects the supplied object onto the recognized flattened fields for
-/// this kind, so this mapper does not maintain a second field denylist.
-Map<String, Object?>? buildBoardgameManualProposalData(
-  LibraryKindAddDraft draft, {
-  required String title,
-}) {
-  final candidate = buildBoardgameManualCandidate(draft, title: title);
-  if (candidate == null) return null;
-  return candidate.kindCapability.mapTransport(
-    (item) => Map<String, Object?>.from(item.kindData),
-  );
-}

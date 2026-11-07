@@ -8,7 +8,6 @@ final gameHardwareKindAdd = StandardLibraryAddCapability<GameHardwareAddDraft>(
     coreCatalogProjectionBuilder: gameHardwareCatalogTransportFromCoreItem,
     manualDraftBuilder: GameHardwareAddManualDraft.new,
     manualCandidateBuilder: buildGameHardwareManualCandidate,
-    manualProposalBuilder: buildGameHardwareManualProposalData,
     manualPaneBuilder: buildGameHardwareAddManualPane,
     previewPaneBuilder: buildGameHardwareAddPreview,
     chrome: const LibraryAddChromeConfig(

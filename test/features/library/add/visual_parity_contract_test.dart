@@ -53,7 +53,6 @@ void main() {
         onAddEntry: () {},
         onAddWishlist: () {},
         onAddTrack: () {},
-        onPropose: () {},
       );
       for (final density in LibraryDensity.values) {
         await tester.pumpWidget(

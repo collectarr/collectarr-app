@@ -10,7 +10,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   coreCatalogProjectionBuilder: musicCatalogTransportFromCoreItem,
   manualDraftBuilder: MusicAddManualDraft.new,
   manualCandidateBuilder: buildMusicManualCandidate,
-  manualProposalBuilder: buildMusicManualProposalData,
   manualCandidateValidationMessage: 'Enter a valid music album',
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicLibraryEntryCreatePayload(

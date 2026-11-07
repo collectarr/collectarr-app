@@ -67,7 +67,6 @@ void main() {
             onAddEntry: () {},
             onAddWishlist: () {},
             onAddTrack: () {},
-            onPropose: () {},
             onKindDraftChanged: (value) => refresh(() {
               personal = value as ComicAddDraft;
             }),
