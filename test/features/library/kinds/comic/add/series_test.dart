@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/features/library/add/launcher.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -314,7 +315,7 @@ void main() {
         }
         await tester.tap(find.text('Open Add'));
         await pumpUntilSettled(tester);
-        await tester.tap(find.byType(CheckboxListTile));
+        await tester.tap(find.byType(AppCheckboxTile));
         await tester.tap(find.byKey(const ValueKey('add.method.barcode')));
         await pumpUntilSettled(tester);
         await tester.tap(find.byType(BackButton));

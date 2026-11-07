@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -338,13 +339,10 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
                     child: Row(children: [
                       SizedBox(
                           width: 26,
-                          child: Checkbox(
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              visualDensity: VisualDensity.compact,
+                          child: AppCheckbox(
                               value: selected.contains(choice),
                               onChanged: (checked) {
-                                if (checked == true) {
+                                if (checked) {
                                   selected.add(choice);
                                 } else {
                                   selected.remove(choice);

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/collections/repository.dart';
@@ -238,14 +239,12 @@ class _CollectionCloudSharingPageState
                                             _privateLinks[collection.id] =
                                                 value),
                                   ),
-                                CheckboxListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title:
-                                        const Text('Include personal fields'),
+                                AppCheckboxTile(
+                                    label: 'Include personal fields',
                                     value:
                                         _visibility[collection.id] == 'partial'
                                             ? false
-                                            : _personal[collection.id],
+                                            : _personal[collection.id] ?? false,
                                     onChanged: _busy ||
                                             _visibility[collection.id] ==
                                                 'partial' ||
@@ -254,8 +253,7 @@ class _CollectionCloudSharingPageState
                                                 !_privateLinks[collection.id]!)
                                         ? null
                                         : (value) => setState(() =>
-                                            _personal[collection.id] =
-                                                value ?? false)),
+                                            _personal[collection.id] = value)),
                                 if (_urls[collection.id] case final url?) ...[
                                   SelectableText(url),
                                   TextButton.icon(

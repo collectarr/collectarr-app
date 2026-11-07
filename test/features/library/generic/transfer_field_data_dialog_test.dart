@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -96,8 +97,8 @@ void main() {
       expect(find.text('1 item has data in this field'), findsOneWidget);
       expect(
           tester
-              .widget<CheckboxListTile>(find.widgetWithText(
-                  CheckboxListTile, 'Clear source field after transfer'))
+              .widget<AppCheckboxTile>(find.widgetWithText(
+                  AppCheckboxTile, 'Clear source field after transfer'))
               .value,
           isFalse);
       if (clearSource) {

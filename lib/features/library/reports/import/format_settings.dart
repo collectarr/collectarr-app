@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -88,17 +89,10 @@ class ImportFormatSettings extends StatelessWidget {
                         SizedBox(
                           width: 20,
                           height: 20,
-                          child: Checkbox(
+                          child: AppCheckbox(
                             key: const Key('import_format.skip_header'),
                             value: skipFirstRow,
-                            activeColor: palette.utilityAction,
-                            checkColor: Colors.white,
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                            visualDensity: VisualDensity.compact,
-                            onChanged: (val) {
-                              onSkipFirstRowChanged(val ?? true);
-                            },
+                            onChanged: onSkipFirstRowChanged,
                           ),
                         ),
                         const SizedBox(width: 8),

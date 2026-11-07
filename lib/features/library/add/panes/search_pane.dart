@@ -12,6 +12,7 @@ import 'cover_blocks.dart';
 import 'grouped_results.dart';
 import 'dependencies.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/ui/app_checkbox.dart';
 
 class LibraryAddSearchPane extends StatelessWidget {
   const LibraryAddSearchPane({
@@ -1088,15 +1089,10 @@ class _SearchResultsGrid extends StatelessWidget {
                             top: 4,
                             child: SizedBox.square(
                               dimension: 24,
-                              child: Checkbox(
+                              child: AppCheckbox(
                                 value: checked,
                                 onChanged: (_) =>
                                     onToggleResultCheck(item.reference.id),
-                                activeColor: accent,
-                                checkColor: Colors.white,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                visualDensity: VisualDensity.compact,
                               ),
                             ),
                           ),
@@ -1348,23 +1344,18 @@ class LibraryAddResultCheckbox extends StatelessWidget {
         onTap: onPressed,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: checked || partial
-                  ? blue
-                  : palette.isDark
-                      ? const Color(0xff444444)
-                      : palette.field,
-              border: Border.all(color: blue, width: 2),
-              borderRadius: BorderRadius.circular(4),
+          child: AppCheckMark(
+            value: checked ? true : (partial ? null : false),
+            size: size,
+            look: AppCheckLook(
+              fill: palette.isDark ? const Color(0xff444444) : palette.field,
+              checkedFill: blue,
+              check: Colors.white,
+              border: blue,
+              checkedBorder: blue,
+              borderWidth: 2,
+              radius: 4,
             ),
-            child: checked || partial
-                ? Icon(checked ? AppIcons.check : AppIcons.minus,
-                    size: size * 16 / 30, color: Colors.white)
-                : null,
           ),
         ),
       ),

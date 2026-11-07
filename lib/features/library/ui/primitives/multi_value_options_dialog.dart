@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -119,14 +120,12 @@ class _LibraryMultiValueOptionsDialogState<TValue>
                 ),
                 const SizedBox(height: 8),
                 for (final option in filteredOptions)
-                  CheckboxListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    title: Text(option.label),
+                  AppCheckboxTile(
+                    label: option.label,
                     value: _selected.contains(option.value),
                     onChanged: option.enabled
                         ? (checked) => setState(() {
-                              if (checked ?? false) {
+                              if (checked) {
                                 _selected.add(option.value);
                               } else {
                                 _selected.remove(option.value);

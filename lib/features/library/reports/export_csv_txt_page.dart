@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'generator.dart';
 import 'package:collectarr_app/features/library/reports/field_dialogs.dart';
@@ -1212,15 +1213,11 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               children: [
                 SizedBox.square(
                     dimension: 16,
-                    child: Checkbox(
-                      fillColor: WidgetStatePropertyAll(palette.textPrimary),
-                      checkColor: palette.panel,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
+                    child: AppCheckbox(
                       value: _includeHeaderRow,
                       onChanged: (val) {
                         setState(() {
-                          _includeHeaderRow = val ?? true;
+                          _includeHeaderRow = val;
                           _invalidateGenerated();
                         });
                       },

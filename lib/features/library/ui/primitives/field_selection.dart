@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/folder_reorder_row.dart'
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:flutter/material.dart';
 
 TextStyle get librarySelectionFieldStyle => TextStyle(
@@ -242,22 +243,21 @@ class LibraryFieldCheckbox extends StatelessWidget {
     final palette = appPalette(context);
     final ink = palette.isDark ? Colors.white : palette.textPrimary;
     final dark = palette.isDark ? const Color(0xFF262626) : palette.panel;
-    final filled = state == LibraryFieldCheckState.all;
-    return Container(
-        width: 16,
-        height: 16,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            color: filled ? ink : Colors.transparent,
-            borderRadius: BorderRadius.circular(3),
-            border: filled ? null : Border.all(color: ink, width: 2)),
-        child: switch (state) {
-          LibraryFieldCheckState.all =>
-            Icon(AppIcons.check, size: 11, color: dark),
-          LibraryFieldCheckState.some =>
-            Container(width: 8, height: 2, color: ink),
-          LibraryFieldCheckState.none => null,
-        });
+    final some = state == LibraryFieldCheckState.some;
+    return AppCheckMark(
+        value: switch (state) {
+          LibraryFieldCheckState.all => true,
+          LibraryFieldCheckState.some => null,
+          LibraryFieldCheckState.none => false,
+        },
+        look: AppCheckLook(
+            fill: Colors.transparent,
+            // A partial selection keeps the outline and shows an ink dash.
+            checkedFill: some ? Colors.transparent : ink,
+            check: some ? ink : dark,
+            border: ink,
+            checkedBorder: ink,
+            borderWidth: 2));
   }
 }
 

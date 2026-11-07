@@ -230,11 +230,11 @@ class _BundleReleaseCorrectionDialogState
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                Checkbox(
+                AppCheckbox(
                   value: member.isPrimary,
                   onChanged: (value) {
                     setState(() {
-                      member.isPrimary = value ?? false;
+                      member.isPrimary = value;
                     });
                   },
                 ),

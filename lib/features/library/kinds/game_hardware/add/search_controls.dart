@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/add/controllers/dialog_requests.
 import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -113,13 +114,11 @@ Widget buildGameHardwareAddPlatformControl(
 
 Widget buildGameHardwareAddTypeControls(
     BuildContext context, LibraryAddModeBarRequest request) {
-  final palette = appPalette(context);
   return Wrap(spacing: 18, children: [
     for (final type in GameHardwareSearchType.values)
-      _HardwareTypeCheckbox(
+      AppCheckboxTile(
           label: type.label,
-          checked: request.advancedFilterText(type.filterId) == 'true',
-          color: palette.link,
+          value: request.advancedFilterText(type.filterId) == 'true',
           onChanged: (value) {
             request.onAdvancedFilterChanged(type.filterId,
                 LibraryAddOptionFilterValue(value ? 'true' : 'false'));
@@ -128,32 +127,3 @@ Widget buildGameHardwareAddTypeControls(
   ]);
 }
 
-class _HardwareTypeCheckbox extends StatelessWidget {
-  const _HardwareTypeCheckbox(
-      {required this.label,
-      required this.checked,
-      required this.color,
-      required this.onChanged});
-  final String label;
-  final bool checked;
-  final Color color;
-  final ValueChanged<bool> onChanged;
-  @override
-  Widget build(BuildContext context) => Semantics(
-      label: label,
-      checked: checked,
-      child: InkWell(
-          onTap: () => onChanged(!checked),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            SizedBox(
-                width: 20,
-                height: 24,
-                child: Checkbox(
-                    value: checked,
-                    activeColor: color,
-                    visualDensity: VisualDensity.compact,
-                    onChanged: (value) => onChanged(value ?? false))),
-            const SizedBox(width: 4),
-            Text(label, style: const TextStyle(fontSize: 14))
-          ])));
-}

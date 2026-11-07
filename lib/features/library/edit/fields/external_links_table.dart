@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
@@ -226,17 +227,9 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
             icon: const Icon(Icons.close, size: 16),
             label: const Text('Cancel'),
           ),
-          Checkbox(
+          AppCheckbox(
             value: allSelected,
             onChanged: (_) => _toggleAllSelected(),
-            visualDensity: VisualDensity.compact,
-            side: BorderSide(color: palette.textPrimary),
-            checkColor: palette.panel,
-            fillColor: WidgetStateProperty.resolveWith(
-              (states) => states.contains(WidgetState.selected)
-                  ? palette.textPrimary
-                  : Colors.transparent,
-            ),
           ),
           Text('All', style: TextStyle(color: palette.textPrimary)),
           const Spacer(),
@@ -352,13 +345,9 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                 children: [
                   SizedBox(
                     width: _selectionColumnWidth,
-                    child: Checkbox(
+                    child: AppCheckbox(
                       value: isSelected,
-                      onChanged: (value) =>
-                          _toggleSelected(row, value ?? false),
-                      visualDensity: VisualDensity.compact,
-                      activeColor: widget.accent,
-                      side: BorderSide(color: palette.textMuted),
+                      onChanged: (value) => _toggleSelected(row, value),
                     ),
                   ),
                   SizedBox(

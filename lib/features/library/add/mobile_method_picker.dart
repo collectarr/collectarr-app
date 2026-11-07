@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -146,17 +147,11 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
                       ]);
                     }),
                     const SizedBox(height: 8),
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      dense: true,
-                      title: const Text(
-                        "Don't show this again",
-                        style: TextStyle(fontSize: 13),
-                      ),
+                    AppCheckboxTile(
+                      label: "Don't show this again",
+                      style: const TextStyle(fontSize: 13),
                       value: _remember,
-                      onChanged: (value) =>
-                          setState(() => _remember = value ?? false),
+                      onChanged: (value) => setState(() => _remember = value),
                     ),
                   ],
                 ),

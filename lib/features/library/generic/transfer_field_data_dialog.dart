@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -400,54 +401,33 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                       Text(
                           '$sourceCount item${sourceCount == 1 ? '' : 's'} ${sourceCount == 1 ? 'has' : 'have'} data in this field',
                           style: const TextStyle(fontSize: 12)),
-                      CheckboxListTile(
-                          activeColor: palette.utilityAction,
-                          checkboxScaleFactor: .7,
-                          visualDensity: VisualDensity.compact,
-                          contentPadding: EdgeInsets.zero,
-                          dense: true,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: const Text('Clear source field after transfer',
-                              style: TextStyle(fontSize: 14)),
+                      AppCheckboxTile(
+                          label: 'Clear source field after transfer',
                           value: _mode == TransferMode.move,
                           onChanged: _executing
                               ? null
-                              : (value) => setState(() => _mode = value!
+                              : (value) => setState(() => _mode = value
                                   ? TransferMode.move
                                   : TransferMode.copy)),
                     ] else ...[
                       Text(
                           '$targetCount item${targetCount == 1 ? '' : 's'} already have data in this field',
                           style: const TextStyle(fontSize: 12)),
-                      CheckboxListTile(
-                          activeColor: palette.utilityAction,
-                          checkboxScaleFactor: .7,
-                          visualDensity: VisualDensity.compact,
-                          contentPadding: EdgeInsets.zero,
-                          dense: true,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: const Text('Replace existing data',
-                              style: TextStyle(fontSize: 14)),
+                      AppCheckboxTile(
+                          label: 'Replace existing data',
                           value: _conflict == TransferConflict.overwrite,
                           onChanged: _executing
                               ? null
-                              : (value) => setState(() => _conflict = value!
+                              : (value) => setState(() => _conflict = value
                                   ? TransferConflict.overwrite
                                   : TransferConflict.skip)),
                       if (field.type == TransferableFieldType.text)
-                        CheckboxListTile(
-                            activeColor: palette.utilityAction,
-                            checkboxScaleFactor: .7,
-                            visualDensity: VisualDensity.compact,
-                            contentPadding: EdgeInsets.zero,
-                            dense: true,
-                            controlAffinity: ListTileControlAffinity.leading,
-                            title: const Text('Append to existing text',
-                                style: TextStyle(fontSize: 14)),
+                        AppCheckboxTile(
+                            label: 'Append to existing text',
                             value: _conflict == TransferConflict.append,
                             onChanged: _executing
                                 ? null
-                                : (value) => setState(() => _conflict = value!
+                                : (value) => setState(() => _conflict = value
                                     ? TransferConflict.append
                                     : TransferConflict.skip)),
                     ],

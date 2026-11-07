@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'generator.dart';
 import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
@@ -329,11 +330,6 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                 Theme.of(context).colorScheme.copyWith(primary: accent),
             radioTheme: RadioThemeData(
                 fillColor: WidgetStatePropertyAll(palette.textPrimary)),
-            checkboxTheme: CheckboxThemeData(
-                fillColor: WidgetStatePropertyAll(palette.textPrimary),
-                checkColor: WidgetStatePropertyAll(palette.panel),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
           child: AppManagementContent(
               maxWidth: 960,
@@ -800,11 +796,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Checkbox(
+              AppCheckbox(
                 value: _wrapInsideColumn,
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onChanged: (v) => setState(() => _wrapInsideColumn = v ?? true),
+                onChanged: (v) => setState(() => _wrapInsideColumn = v),
               ),
               const SizedBox(width: 6),
               const Flexible(
@@ -820,11 +814,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Checkbox(
+              AppCheckbox(
                 value: _coverThumbnails,
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                onChanged: (v) => setState(() => _coverThumbnails = v ?? false),
+                onChanged: (v) => setState(() => _coverThumbnails = v),
               ),
               const SizedBox(width: 6),
               const Flexible(
@@ -1025,9 +1017,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             (v) => setState(() => _repeatTitleOnEveryPage = v)),
         Row(
           children: [
-            Checkbox(
+            AppCheckbox(
               value: _limitRowsPerPage,
-              onChanged: (v) => setState(() => _limitRowsPerPage = v ?? false),
+              onChanged: (v) => setState(() => _limitRowsPerPage = v),
             ),
             const Text('Max rows per page:', style: TextStyle(fontSize: 14)),
             const SizedBox(width: 6),
@@ -1103,10 +1095,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
       onTap: () => onChanged(!value),
       child: Row(
         children: [
-          Checkbox(
-            value: value,
-            onChanged: (v) => onChanged(v ?? false),
-          ),
+          AppCheckbox(value: value, onChanged: onChanged),
           Expanded(
               child: Text(label,
                   style: const TextStyle(fontSize: 14),

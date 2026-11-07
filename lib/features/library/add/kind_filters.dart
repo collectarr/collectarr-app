@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/add/controllers/dialog_requests.
 import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -135,12 +136,9 @@ class _KindCheckbox extends StatelessWidget {
             SizedBox(
               width: 18,
               height: 18,
-              child: Checkbox(
-                value: checked,
-                onChanged: (value) => onChanged(value ?? false),
-                activeColor: accent,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
+              child: Center(
+                child: AppCheckMark(
+                    value: checked, look: AppCheckLook.form(context)),
               ),
             ),
             const SizedBox(width: 4),

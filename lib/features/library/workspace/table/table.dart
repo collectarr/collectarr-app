@@ -13,6 +13,7 @@ import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'dart:math' as math;
 
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryColumnWidthFor = double Function(String column);
@@ -661,7 +662,6 @@ class _LibraryTableCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final active = checked || indeterminate;
     if (!appPresentationPlatform.isNativeMobile) {
       return AppPressClaim(
           child: InkWell(
@@ -680,24 +680,18 @@ class _LibraryTableCheckbox extends StatelessWidget {
         child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(3),
-      child: Container(
-        width: 15,
-        height: 15,
-        decoration: BoxDecoration(
-          color: active ? accentColor : Colors.transparent,
-          borderRadius: BorderRadius.zero,
-          border: Border.all(
-            color: active ? accentColor : outlineColor,
-            width: 1.2,
-          ),
+      child: AppCheckMark(
+        value: indeterminate ? null : checked,
+        size: 15,
+        look: AppCheckLook(
+          fill: Colors.transparent,
+          checkedFill: accentColor,
+          check: checkColor,
+          border: outlineColor,
+          checkedBorder: accentColor,
+          borderWidth: 1.2,
+          radius: 0,
         ),
-        child: active
-            ? Icon(
-                indeterminate ? AppIcons.minus : AppIcons.check,
-                size: 11,
-                color: checkColor,
-              )
-            : null,
       ),
     ));
   }

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -153,11 +154,10 @@ final class _LibraryOnlineCoverPickerDialogState
                             SizedBox(
                                 width: 22,
                                 height: 24,
-                                child: Checkbox(
+                                child: AppCheckbox(
                                     value: token.value,
                                     onChanged: (value) =>
-                                        _toggle(token.key, value ?? false),
-                                    visualDensity: VisualDensity.compact)),
+                                        _toggle(token.key, value))),
                             Text(token.key,
                                 style: context.libraryTextTheme.metadataLabel),
                             const SizedBox(width: 10),

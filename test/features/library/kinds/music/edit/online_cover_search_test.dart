@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/online_cover_search.dart';
 import 'package:collectarr_app/features/library/edit/covers/online_cover_picker_dialog.dart';
 import 'dart:convert';
@@ -114,7 +115,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
         'Powerwolf Lupus Dei 039841461923');
-    await tester.tap(find.byType(Checkbox).last);
+    await tester.tap(find.byType(AppCheckbox).last);
     await tester.pump();
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
         'Powerwolf Lupus Dei');

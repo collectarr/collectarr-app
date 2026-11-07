@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -488,11 +489,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         SizedBox(
             width: 24,
             height: 24,
-            child: Checkbox(
-                value: value,
-                onChanged: (value) {
-                  if (value != null) onChanged(value);
-                })),
+            child: AppCheckbox(value: value, onChanged: onChanged)),
         const SizedBox(width: 5),
         Flexible(
             child: GestureDetector(

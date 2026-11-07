@@ -7,6 +7,7 @@
 - Comics' Custom Label shows each label's image inside the field and its menu, and the Select panel chooses, removes and loads label images.
 - Images loaded for list values, such as Custom Label, platform and toy type images, sync across devices; each image is limited to 2 MB.
 - Custom field definitions sync across devices.
+- Checkboxes draw their tick in as they are checked, and turning off animations in Settings makes it instant; form checkboxes, such as the Add Hardware type filters, use white boxes and regular-weight labels as in CLZ.
 - Hardware Type is a pick list with Console, Controller and Accessory, and its values can be renamed and merged like other pick lists.
 - Select Location matches the other pick lists, lists full paths with item counts and creates nested locations; Manage Locations uses the same table.
 - The details panel can be made narrower, and dragging its divider past the smallest size hides it.

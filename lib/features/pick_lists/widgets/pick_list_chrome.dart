@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -183,16 +184,17 @@ class PickListCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final ink = palette.isDark ? Colors.white : palette.textPrimary;
-    return Container(
-        width: 14,
-        height: 14,
-        decoration: BoxDecoration(
-            color: selected ? ink : null,
-            border: Border.all(color: ink, width: 1.5),
-            borderRadius: BorderRadius.circular(2)),
-        child: selected
-            ? Icon(AppIcons.check, size: 10, color: pickListSurface(context))
-            : null);
+    return AppCheckMark(
+        value: selected,
+        size: 14,
+        look: AppCheckLook(
+            fill: Colors.transparent,
+            checkedFill: ink,
+            check: pickListSurface(context),
+            border: ink,
+            checkedBorder: ink,
+            borderWidth: 1.5,
+            radius: 2));
   }
 }
 
