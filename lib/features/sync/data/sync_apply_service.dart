@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -15,8 +17,10 @@ import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
+import 'package:collectarr_app/core/sync/list_value_image_sync.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -111,6 +115,7 @@ class SyncApplyService {
     final customEpisodes = <_CustomEpisodeSyncInput>[];
     final pickListUpserts = <JsonMap>[];
     final pickListDeletes = <String>[];
+    final valueImages = <JsonMap>[];
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
       if (libraryKindSyncEntityCodecs
@@ -159,6 +164,7 @@ class SyncApplyService {
       if (type == 'custom_episode') {
         customEpisodes.add(_customEpisodeSyncInputFromEntity(entity));
       }
+      if (type == listValueImageEntityType) valueImages.add(entity);
       if (type == 'pick_list_value') {
         if (entity['action'] == 'delete') {
           pickListDeletes.add(entity['entity_id'] as String);
@@ -249,6 +255,19 @@ class SyncApplyService {
           updatedAt: customEpisode.updatedAt,
           deletedAt: customEpisode.deletedAt,
         );
+      }
+      final images = ListValueImages(db);
+      for (final entity in valueImages) {
+        if (entity['action'] == 'delete') {
+          await images.applySyncedDelete(entity['entity_id'] as String);
+        } else {
+          final payload = _payload(entity);
+          await images.applySyncedUpsert(
+              payload['list_key'] as String,
+              payload['value'] as String,
+              base64Decode(payload['image'] as String),
+              DateTime.parse(entity['client_changed_at'] as String).toUtc());
+        }
       }
       if (pickListUpserts.isNotEmpty || pickListDeletes.isNotEmpty) {
         await _applyPickListValues(pickListUpserts, pickListDeletes);

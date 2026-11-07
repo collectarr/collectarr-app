@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/sync/list_value_image_sync.dart';
+import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/image_intake.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -85,14 +87,13 @@ bool _nearBlack(String hex) {
   return [16, 8, 0].every((shift) => (value >> shift) & 0xff <= 0x33);
 }
 
-/// Accepts an SVG up to 2 MB or a raster image the library accepts.
+/// Accepts an SVG or a raster image the library accepts, up to the size Sync
+/// carries.
 Future<void> validateListValueImage(Uint8List bytes) async {
-  if (isSvgImage(bytes)) {
-    if (bytes.length > 2 * 1024 * 1024) {
-      throw const FormatException('Choose an SVG up to 2 MB.');
-    }
-    return;
+  if (bytes.length > maxSyncedListValueImageBytes) {
+    throw const FormatException('Choose an image up to 2 MB.');
   }
+  if (isSvgImage(bytes)) return;
   await validateLibraryImageBytes(bytes);
 }
 
@@ -140,30 +141,78 @@ class ListValueImages {
   Future<void> save(String list, String value, Uint8List image) async {
     final key = listValueImageKey(value);
     if (key == null) return;
-    await _db.into(_db.listValueImagesCache).insertOnConflictUpdate(
-          ListValueImagesCacheCompanion.insert(
-            listKey: list,
-            valueKey: key,
-            value: value.trim(),
-            valueImage: image,
-            updatedAt: DateTime.now().toUtc(),
-          ),
-        );
+    await _db.transaction(() async {
+      await _write(list, key, value.trim(), image, DateTime.now().toUtc());
+      await SyncQueueRepository(_db).enqueue(listValueImageChange(
+          list: list, valueKey: key, value: value.trim(), image: image));
+    });
   }
 
   Future<void> remove(String list, String value) async {
     final key = listValueImageKey(value);
     if (key == null) return;
     final rows = _db.listValueImagesCache;
-    await (_db.delete(rows)
-          ..where((row) => row.listKey.equals(list) & row.valueKey.equals(key)))
-        .go();
+    await _db.transaction(() async {
+      await (_db.delete(rows)
+            ..where(
+                (row) => row.listKey.equals(list) & row.valueKey.equals(key)))
+          .go();
+      await SyncQueueRepository(_db).enqueue(
+          listValueImageChange(list: list, valueKey: key, value: value.trim()));
+    });
   }
 
   Future<void> removeAll(String list) async {
-    final rows = _db.listValueImagesCache;
-    await (_db.delete(rows)..where((row) => row.listKey.equals(list))).go();
+    final table = _db.listValueImagesCache;
+    await _db.transaction(() async {
+      final rows = await (_db.select(table)
+            ..where((row) => row.listKey.equals(list)))
+          .get();
+      await (_db.delete(table)..where((row) => row.listKey.equals(list))).go();
+      final queue = SyncQueueRepository(_db);
+      for (final row in rows) {
+        await queue.enqueue(listValueImageChange(
+            list: list, valueKey: row.valueKey, value: row.value));
+      }
+    });
   }
+
+  /// Stores an image pulled from Sync, without queueing it back.
+  Future<void> applySyncedUpsert(
+      String list, String value, Uint8List image, DateTime changedAt) async {
+    final key = listValueImageKey(value);
+    if (key == null) return;
+    await _write(list, key, value.trim(), image, changedAt);
+  }
+
+  /// Removes the image a Sync tombstone names, without queueing it back.
+  Future<void> applySyncedDelete(String entityId) async {
+    final table = _db.listValueImagesCache;
+    final rows = await (_db.selectOnly(table)
+          ..addColumns([table.listKey, table.valueKey]))
+        .get();
+    for (final row in rows) {
+      final list = row.read(table.listKey)!;
+      final key = row.read(table.valueKey)!;
+      if (listValueImageSyncId(list, key) != entityId) continue;
+      await (_db.delete(table)
+            ..where(
+                (row) => row.listKey.equals(list) & row.valueKey.equals(key)))
+          .go();
+    }
+  }
+
+  Future<void> _write(String list, String key, String value, Uint8List image,
+          DateTime updatedAt) =>
+      _db.into(_db.listValueImagesCache).insertOnConflictUpdate(
+            ListValueImagesCacheCompanion.insert(
+              listKey: list,
+              valueKey: key,
+              value: value,
+              valueImage: image,
+              updatedAt: updatedAt,
+            ),
+          );
 
   /// Lets the user pick image files, and optionally their index, to load.
   Future<({int loaded, List<String> skipped})> loadFiles(String list) async =>

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
+import 'package:collectarr_app/core/sync/list_value_image_sync.dart';
+import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_database_tables.g.dart';
 
 import 'universal_local_tables.dart';
@@ -40,7 +42,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   // Dormant kind models remain available to their isolated source modules.
   // The release database exposes and creates only shared and released-kind
@@ -81,7 +83,7 @@ class LocalDatabase extends _$LocalDatabase {
         // Explicit, ordered upgrade steps; each runs once, from the released
         // schema it follows.
         onUpgrade: (migrator, from, to) async {
-          if (from < 1 || to > 6) {
+          if (from < 1 || to > 7) {
             throw StateError(
                 'No released migration exists from schema $from to $to.');
           }
@@ -183,6 +185,21 @@ class LocalDatabase extends _$LocalDatabase {
                   'UPDATE pick_list_values_cache SET value = ?1 '
                   "WHERE list_name = 'game.platform' AND value = ?2",
                   variables: names);
+            }
+          }
+          if (from < 7) {
+            // 7: Sync carries list value images; send the ones already loaded.
+            // Larger ones predate its limit and stay on this device.
+            final queue = SyncQueueRepository(this);
+            for (final row in await select(listValueImagesCache).get()) {
+              if (row.valueImage.length > maxSyncedListValueImageBytes) {
+                continue;
+              }
+              await queue.enqueue(listValueImageChange(
+                  list: row.listKey,
+                  valueKey: row.valueKey,
+                  value: row.value,
+                  image: row.valueImage));
             }
           }
         },

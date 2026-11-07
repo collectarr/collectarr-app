@@ -59,9 +59,9 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 6);
+    expect(db.schemaVersion, 7);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 6);
+    expect(version.data.values.single, 7);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -137,7 +137,7 @@ void main() {
     expect(row.email, isNull);
     expect(row.address, isNull);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 6);
+    expect(version.data.values.single, 7);
   });
 
   test('upgrades a schema 2 database by creating the Game tables', () async {
@@ -156,7 +156,7 @@ void main() {
     expect(kept, ['e1']);
     expect(await db.select(db.gameTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 6);
+    expect(version.data.values.single, 7);
   });
 
   test('upgrades a schema 2 database by dropping the TV and Manga tables',
@@ -222,7 +222,7 @@ void main() {
       '{"personal_data":{"tags":"kept"}}',
     ]);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 6);
+    expect(version.data.values.single, 7);
   });
 
   test('upgrades released schema 3 Games by dropping Core Region', () async {
@@ -249,7 +249,7 @@ void main() {
     ]);
     expect(await payloads('sync_queue'), ['{"personal_data":{}}']);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 6);
+    expect(version.data.values.single, 7);
   });
 
   test('upgrades released schema 4 Music credits to names', () async {
@@ -319,7 +319,29 @@ void main() {
     // Schema 6 also keeps the images users load for list values.
     expect(await db.select(db.listValueImagesCache).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 6);
+    expect(version.data.values.single, 7);
+  });
+
+  test('upgrades released schema 6 by queueing loaded list value images',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      _createReleasedEntryTables(raw);
+      raw.execute('CREATE TABLE list_value_images_cache ('
+          'list_key TEXT NOT NULL, value_key TEXT NOT NULL, '
+          'value TEXT NOT NULL, value_image BLOB NOT NULL, '
+          'updated_at INTEGER NOT NULL, PRIMARY KEY (list_key, value_key))');
+      raw.execute("INSERT INTO list_value_images_cache VALUES "
+          "('labels', 'spawn', 'Spawn', x'010203', 0), "
+          "('labels', 'huge', 'Huge', zeroblob(${2 * 1024 * 1024 + 1}), 0)");
+      raw.execute('PRAGMA user_version = 6');
+    }));
+    addTearDown(db.close);
+
+    final queued = await db.select(db.syncQueue).get();
+    expect(queued.single.entityType, 'list_value_image');
+    expect(queued.single.action, 'upsert');
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 7);
   });
 
   test('upgrades released schema 5 Games to the short platform names',
