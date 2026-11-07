@@ -74,8 +74,14 @@ abstract final class LibraryPageShellPresenter {
       viewState: viewState,
       shelfState: shelfState,
     );
+    // Until the collections are in, every item looks like it is in none, and
+    // the page would flash its empty message.
+    final collections = state.ref
+        .watch(libraryCollectionsProvider(state.widget.type.kind.apiValue));
+    final collectionsLoading = !collections.hasValue && !collections.hasError;
     final content = shelf.when(
       data: (stateValue) {
+        if (collectionsLoading) return const LibraryShelfLoading();
         final resolvedProjection =
             projection ?? state._projectionForShelf(stateValue, viewState);
         return _buildBody(
