@@ -121,8 +121,16 @@ Future<List<CatalogSearchCandidate>> loadLibraryAddBrowseGroupItems({
   required LibraryAddBrowseCapability capability,
   required LibraryAddBrowseGroup group,
   required Duration timeout,
+}) async =>
+    cacheLibraryAddCoreRows(
+        catalog: catalog,
+        rows: await capability.loadItemRows(api, group).timeout(timeout));
+
+/// Caches Core search envelopes as Add results.
+Future<List<CatalogSearchCandidate>> cacheLibraryAddCoreRows({
+  required CatalogTransportRepository catalog,
+  required List<Map<String, dynamic>> rows,
 }) async {
-  final rows = await capability.loadItemRows(api, group).timeout(timeout);
   final items = [
     for (final row in rows)
       CatalogSearchCandidate.fromApiJson(

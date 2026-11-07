@@ -36,9 +36,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'search_flow.dart';
 part 'browse_flow.dart';
+part 'kind_tab_flow.dart';
 
 class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
-    with _LibraryAddSearchFlow, _LibraryAddBrowseFlow {
+    with _LibraryAddSearchFlow, _LibraryAddBrowseFlow, _LibraryAddKindTabFlow {
   LibraryAddSessionController({
     required this.kind,
     LibraryKindRegistration? type,
@@ -161,9 +162,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   void setMode(LibraryAddDialogMode mode) {
     final crossesBrowse = (state.mode == LibraryAddDialogMode.browse) !=
         (mode == LibraryAddDialogMode.browse);
+    final leavesKindTab = state.mode == LibraryAddDialogMode.kindTab &&
+        mode != LibraryAddDialogMode.kindTab;
     state = state.copyWith(mode: mode);
-    // Series issues and search results share one results list.
-    if (crossesBrowse) closeBrowseGroup();
+    // Series issues, kind tab lists and search results share one list.
+    if (crossesBrowse || leavesKindTab) closeBrowseGroup();
   }
 
   void setTarget(LibraryAddTarget target) {

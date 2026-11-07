@@ -165,6 +165,9 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
           onModeChanged: widget.onModeChanged,
           browseTab: widget.browseTab,
           codeSearchTab: widget.codeSearchTab,
+          kindTabs: widget.kindTabs,
+          kindTab: widget.kindTab,
+          onKindTab: widget.onKindTab,
           onManual: widget.onManual,
           onCoreDataSettings: widget.onCoreDataSettings,
           onScanCover: widget.canScanCover && !widget.isScanningCover
@@ -180,7 +183,9 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (widget.mode == LibraryAddDialogMode.code &&
+                  if (widget.mode == LibraryAddDialogMode.kindTab)
+                    widget.kindTabControls ?? const SizedBox.shrink()
+                  else if (widget.mode == LibraryAddDialogMode.code &&
                       widget.listingScope != null)
                     Row(children: [
                       Expanded(flex: 3, child: widget.listingScope!),
@@ -227,6 +232,7 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
                                     widget.onLookupIdentifier,
                                   LibraryAddDialogMode.code =>
                                     widget.onSearchCode,
+                                  LibraryAddDialogMode.kindTab => null,
                                 },
                         ),
                       ],

@@ -14,6 +14,9 @@ class LibraryAddMobileModeBar extends StatelessWidget {
     required this.searchLabel,
     required this.browseLabel,
     required this.codeLabel,
+    this.kindTabLabels = const [],
+    this.kindTab = 0,
+    this.onKindTab,
     required this.onModeSelected,
     required this.onScanCover,
     required this.input,
@@ -28,6 +31,11 @@ class LibraryAddMobileModeBar extends StatelessWidget {
   final String searchLabel;
   final String? browseLabel;
   final String? codeLabel;
+
+  /// The kind's own tabs, chosen by their index.
+  final List<String> kindTabLabels;
+  final int kindTab;
+  final ValueChanged<int>? onKindTab;
   final ValueChanged<LibraryAddDialogMode?> onModeSelected;
   final VoidCallback onScanCover;
   final Widget? input;
@@ -35,7 +43,8 @@ class LibraryAddMobileModeBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      LibraryAddMobileSearchControls<LibraryAddDialogMode?>(
+      // A tab is a dialog mode, or a kind tab's index.
+      LibraryAddMobileSearchControls<Object?>(
         tabs: [
           if (canScanCover) (value: null, label: 'Cover'),
           (value: LibraryAddDialogMode.identifier, label: 'Barcode'),
@@ -44,10 +53,18 @@ class LibraryAddMobileModeBar extends StatelessWidget {
           (value: LibraryAddDialogMode.search, label: searchLabel),
           if (codeLabel != null)
             (value: LibraryAddDialogMode.code, label: codeLabel!),
+          for (final (index, label) in kindTabLabels.indexed)
+            (value: index, label: label),
         ],
-        selected: coverSelected ? null : mode,
+        selected: coverSelected
+            ? null
+            : mode == LibraryAddDialogMode.kindTab
+                ? kindTab
+                : mode,
         accent: accent,
-        onSelected: onModeSelected,
+        onSelected: (value) => value is int
+            ? onKindTab?.call(value)
+            : onModeSelected(value as LibraryAddDialogMode?),
         input: coverSelected
             ? FilledButton.icon(
                 onPressed: isScanningCover ? null : onScanCover,

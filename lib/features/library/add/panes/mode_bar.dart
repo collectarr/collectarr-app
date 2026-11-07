@@ -66,6 +66,10 @@ class LibraryAddModeBar extends StatefulWidget {
     this.codeQueryController,
     this.browseTab,
     this.browseQueryController,
+    this.kindTabs = const [],
+    this.kindTab = 0,
+    this.onKindTab,
+    this.kindTabControls,
     this.onBrowseChanged,
     this.onSearchBrowse,
     this.queryTrailing,
@@ -116,6 +120,13 @@ class LibraryAddModeBar extends StatefulWidget {
   /// adds a browse tab.
   final LibraryAddBrowseCapability? browseTab;
   final TextEditingController? browseQueryController;
+
+  /// The kind's own tabs, after the shared ones; [kindTabControls] is the
+  /// open one's row.
+  final List<LibraryAddKindTab> kindTabs;
+  final int kindTab;
+  final ValueChanged<int>? onKindTab;
+  final Widget? kindTabControls;
 
   /// Each edit of the browse field, for suggestions while typing.
   final ValueChanged<String>? onBrowseChanged;
@@ -432,6 +443,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
             onSubmitted: widget.onSearchCode,
             trailing: widget.queryTrailing,
           ),
+        LibraryAddDialogMode.kindTab =>
+          widget.kindTabControls ?? const SizedBox.shrink(),
       };
 
   Widget _buildMobile(
@@ -445,6 +458,9 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       searchLabel: searchLabel,
       browseLabel: widget.browseTab?.label,
       codeLabel: widget.codeSearchTab?.label,
+      kindTabLabels: [for (final tab in widget.kindTabs) tab.label],
+      kindTab: widget.kindTab,
+      onKindTab: widget.onKindTab,
       onModeSelected: (mode) {
         FocusScope.of(context).unfocus();
         widget.onDismissSuggestions();
@@ -523,6 +539,9 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.onModeChanged,
     required this.browseTab,
     required this.codeSearchTab,
+    required this.kindTabs,
+    required this.kindTab,
+    required this.onKindTab,
     required this.onManual,
     this.onCoreDataSettings,
     this.onScanCover,
@@ -534,6 +553,9 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final LibraryAddBrowseCapability? browseTab;
   final LibraryAddCodeSearchTab? codeSearchTab;
+  final List<LibraryAddKindTab> kindTabs;
+  final int kindTab;
+  final ValueChanged<int>? onKindTab;
   final VoidCallback onManual;
   final VoidCallback? onCoreDataSettings;
   final VoidCallback? onScanCover;
@@ -586,6 +608,14 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                       label: tab.label,
                       selected: mode == LibraryAddDialogMode.code,
                       onTap: () => onModeChanged(LibraryAddDialogMode.code),
+                    ),
+                  for (final (index, tab) in kindTabs.indexed)
+                    LibraryAddModeTab(
+                      icon: Icon(tab.icon),
+                      label: tab.label,
+                      selected: mode == LibraryAddDialogMode.kindTab &&
+                          kindTab == index,
+                      onTap: () => onKindTab?.call(index),
                     ),
                   if (onCoreDataSettings != null)
                     _LibraryAddModeIconButton(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/comic/add/releases_tab.dart';
 import '../selection/contribution.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -122,6 +123,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
       filterValuesBuilder: comicCoverScanFilterValues,
     ),
     browse: comicAddSeries,
+    kindTabs: const [ComicReleasesTab()],
   ),
   resultPolicy: comicAddResultPolicy,
 );

@@ -68,6 +68,7 @@ import 'package:collectarr_app/features/library/add/panes/browse_tiles.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -141,6 +142,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Set<String> _ownedGroupKeys = const {};
   Set<String> _ownedListingKeys = const {};
   Map<String, int> _ownedGroupCounts = const {};
+
+  /// The library's entries of the kind, for the kind's own tabs.
+  List<LibraryEntryRecord> _kindEntries = const [];
   String? _rememberedListingScope;
   bool _listingScopeLoaded = false;
   int? _ownedGroupsEntryCount;
@@ -945,6 +949,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final dialogTheme = buildLibraryAddDialogTheme(accent, palette);
     final browse = addCapability.search.browse;
     final browseMode = state.mode == LibraryAddDialogMode.browse;
+    final kindTab = state.mode == LibraryAddDialogMode.kindTab
+        ? addCapability.search.kindTabs.elementAtOrNull(state.kindTab)
+        : null;
+    // Browse groups and kind tabs list items to check, as cover blocks.
+    final checkList = browseMode || kindTab != null;
+    final coverBlock =
+        kindTab?.coverBlock ?? (browseMode ? browse?.coverBlock : null);
     final openedGroup = browseMode ? state.browse.opened : null;
     final kindControls = state.mode == LibraryAddDialogMode.search ||
             state.mode == LibraryAddDialogMode.code
@@ -1013,6 +1024,19 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             codeQueryController: _codeQueryController,
             browseTab: browse,
             browseQueryController: _browseQueryController,
+            kindTabs: addCapability.search.kindTabs,
+            kindTab: state.kindTab,
+            onKindTab: _controller.openKindTab,
+            kindTabControls: kindTab?.buildControls(
+              context,
+              LibraryAddKindTabRequest(
+                api: ref.read(apiClientProvider),
+                entries: _kindEntries,
+                isLoading: state.search.isSearching,
+                list: (rows) =>
+                    _controller.listKindTabRows(rows, kindTab.label),
+              ),
+            ),
             onSearchBrowse: _searchBrowseGroups,
             onBrowseChanged: _suggestBrowseGroups,
             queryTrailing: queryTrailing,
@@ -1202,9 +1226,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         _groupListWidth = width.clamp(
                             LibraryAddResultGrouping.minListWidth, 720.0)),
                     showVariantFacet: state.mode == LibraryAddDialogMode.search,
-                    coverBlocks: browseMode && browse?.coverBlock != null
+                    coverBlocks: coverBlock != null
                         ? LibraryAddCoverBlockView(
-                            block: browse!.coverBlock!,
+                            block: coverBlock,
                             layout: _blockLayout,
                             onLayoutChanged: (layout) =>
                                 setState(() => _blockLayout = layout),
@@ -1215,7 +1239,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 _openManualDialog(accent, addCapability),
                           )
                         : null,
-                    headerTrailing: browseMode
+                    headerTrailing: checkList
                         ? LibraryAddCheckAllToggle(
                             count: visibleCore.length,
                             partial: visibleCore.any((item) => state
@@ -1359,11 +1383,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final keyOf =
         libraryAddForKind(widget.type.kind).search.browse?.ownedGroupKey;
     final listingKeyOf = _listingTab?.entryOwnedKey;
-    if (keyOf == null && listingKeyOf == null) return;
+    final kindTabs = libraryAddForKind(widget.type.kind).search.kindTabs;
+    if (keyOf == null && listingKeyOf == null && kindTabs.isEmpty) return;
     final entries = await LibraryEntryStore(ref.read(localDatabaseProvider))
         .list(kind: widget.type.kind);
     if (!mounted) return;
     setState(() {
+      _kindEntries = kindTabs.isEmpty ? const [] : entries;
       _ownedGroupKeys = {
         if (keyOf != null)
           for (final entry in entries)

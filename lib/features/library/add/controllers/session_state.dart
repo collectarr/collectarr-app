@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final class LibraryAddSessionState {
   const LibraryAddSessionState({
     required this.mode,
+    this.kindTab = 0,
     required this.target,
     required this.search,
     this.browse = const LibraryAddBrowseState(),
@@ -36,6 +37,9 @@ final class LibraryAddSessionState {
   });
 
   final LibraryAddDialogMode mode;
+
+  /// Which of the kind's own tabs is open while [mode] is a kind tab.
+  final int kindTab;
   final LibraryAddTarget target;
   final LibraryAddSearchState search;
   final LibraryAddBrowseState browse;
@@ -80,6 +84,7 @@ final class LibraryAddSessionState {
 
   LibraryAddSessionState copyWith({
     LibraryAddDialogMode? mode,
+    int? kindTab,
     LibraryAddTarget? target,
     LibraryAddSearchState? search,
     LibraryAddBrowseState? browse,
@@ -104,6 +109,7 @@ final class LibraryAddSessionState {
   }) {
     return LibraryAddSessionState(
       mode: mode ?? this.mode,
+      kindTab: kindTab ?? this.kindTab,
       target: target ?? this.target,
       search: search ?? this.search,
       browse: browse ?? this.browse,

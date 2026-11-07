@@ -70,6 +70,7 @@ class LibraryAddSearchCapability {
     required this.core,
     this.coverScan,
     this.browse,
+    this.kindTabs = const [],
     this.presentation = const LibraryAddSearchPresentationCapability(),
   });
 
@@ -80,7 +81,45 @@ class LibraryAddSearchCapability {
   /// Adds a tab that finds a group of catalog items, such as a comic
   /// series, and checks those to add.
   final LibraryAddBrowseCapability? browse;
+
+  /// Tabs the kind adds after the shared ones, such as a comic release week.
+  final List<LibraryAddKindTab> kindTabs;
   final LibraryAddSearchPresentationCapability presentation;
+}
+
+/// An Add tab a kind contributes. The kind owns its controls and what they
+/// load; the dialog lists the loaded catalog items as a checkable cover grid.
+abstract class LibraryAddKindTab {
+  const LibraryAddKindTab();
+
+  String get label;
+  IconData get icon;
+
+  /// The labels around each listed item's cover.
+  LibraryAddCoverBlock coverBlock(CatalogSearchCandidate item);
+
+  /// The row under the tabs. Its controls list catalog items through
+  /// [request].
+  Widget buildControls(BuildContext context, LibraryAddKindTabRequest request);
+}
+
+/// What a [LibraryAddKindTab]'s controls can use.
+class LibraryAddKindTabRequest {
+  const LibraryAddKindTabRequest({
+    required this.api,
+    required this.entries,
+    required this.isLoading,
+    required this.list,
+  });
+
+  final ApiClient? api;
+
+  /// The library's entries of the kind, for controls that narrow to them.
+  final Iterable<LibraryEntryRecord> entries;
+  final bool isLoading;
+
+  /// Lists the Core search envelopes [rows] resolves to.
+  final void Function(Future<List<Map<String, dynamic>>> rows) list;
 }
 
 /// One Core group of catalog items in the Add dialog's browse tab.
