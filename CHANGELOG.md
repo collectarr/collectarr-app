@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.6.0 - 2026-11-07
+
 ### Docs
 - The README describes the current libraries, features and platforms, without emoji.
 - The CLZ parity guide lists what is left to compare in the Add flows of Games, Hardware and Toys.
