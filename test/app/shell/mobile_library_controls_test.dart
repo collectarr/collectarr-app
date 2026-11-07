@@ -42,8 +42,9 @@ void main() {
       await pumpUntilSettled(tester);
       final row = find.byKey(const Key('library.mobile-controls'));
       expect(row, findsOneWidget);
-      expect(find.byKey(const Key('library.mobile-count')), findsNothing);
-      expect(find.byTooltip('Group By'), findsOneWidget);
+      // As in the reference, a library first opens on the whole collection.
+      expect(find.byKey(const Key('library.mobile-count')), findsOneWidget);
+      expect(find.byTooltip('Back to folders'), findsOneWidget);
       expect(find.byTooltip('Library tools'), findsOneWidget);
       final material = tester.widget<Material>(
           find.ancestor(of: row, matching: find.byType(Material)).first);
@@ -76,8 +77,12 @@ void main() {
       expect(find.text('Folders...'), findsOneWidget);
       Navigator.of(tester.element(find.text('Folders...'))).pop();
       await pumpUntilSettled(tester);
+      await tester.tap(find.byTooltip('Back to folders'));
+      await pumpUntilSettled(tester);
       expect(
           find.byKey(const Key('library.mobile-folder-list')), findsOneWidget);
+      expect(find.byKey(const Key('library.mobile-count')), findsNothing);
+      expect(find.byTooltip('Group By'), findsOneWidget);
       await tester.tap(find.text('[All Comics]'));
       await pumpUntilSettled(tester);
       expect(find.byKey(const Key('library.mobile-folder-list')), findsNothing);

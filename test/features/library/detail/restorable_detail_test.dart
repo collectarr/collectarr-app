@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_workspace.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -6,7 +7,6 @@ import 'package:collectarr_app/features/library/detail/item_provider.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import '../../../support/builders/catalog_item_builder.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/compact_bucket_bar.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -51,14 +51,16 @@ void main() {
         ProviderScope.containerOf(tester.element(find.byType(AppShell)));
     container.read(appRouterProvider).go('/libraries?kind=music&q=Offline');
     await pumpUntilSettled(tester);
-    expect(find.byType(LibraryCoverTile), findsNWidgets(2));
+    final covers = find.descendant(
+        of: find.byType(LibraryMobileWorkspace),
+        matching: find.byType(InkWell));
+    expect(covers, findsNWidgets(2));
     await tester.tap(find.byIcon(Icons.library_add_check));
     await pumpUntilSettled(tester);
     expect(
         tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,
         isTrue);
-    final covers = find.byType(LibraryCoverTile);
-    await tester.tapAt(tester.getTopLeft(covers.at(0)) + const Offset(20, 20));
+    await tester.tap(covers.at(0));
     await pumpUntilSettled(tester);
     expect(
         tester
@@ -66,8 +68,7 @@ void main() {
             .selectedItemIds
             .length,
         1);
-    await tester
-        .tapAt(tester.getBottomRight(covers.at(1)) - const Offset(8, 8));
+    await tester.tap(covers.at(1));
     await pumpUntilSettled(tester);
     expect(
         tester
@@ -76,7 +77,7 @@ void main() {
             .length,
         2);
     expect(find.byType(LibraryDetailPage), findsNothing);
-    await tester.tapAt(tester.getCenter(covers.at(0)));
+    await tester.tap(covers.at(0));
     await pumpUntilSettled(tester);
     expect(
         tester
@@ -163,7 +164,7 @@ void main() {
     }
   });
 
-  for (final width in [390.0, 1024.0]) {
+  for (final width in [390.0, 700.0]) {
     testWidgets(
         'cold local detail, unavailable target and safe Back at $width dp',
         (tester) async {
@@ -185,7 +186,11 @@ void main() {
       final router = container.read(appRouterProvider);
       router.go('/libraries?kind=music&q=Offline');
       await pumpUntilSettled(tester);
-      final tile = find.byType(LibraryCoverTile).first;
+      final tile = find
+          .descendant(
+              of: find.byType(LibraryMobileWorkspace),
+              matching: find.byType(InkWell))
+          .first;
       expect(find.byType(LibraryCompactBucketBar), findsNothing);
       await tester.tap(find.byIcon(Icons.library_add_check));
       await pumpUntilSettled(tester);

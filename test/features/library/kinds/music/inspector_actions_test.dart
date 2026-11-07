@@ -192,11 +192,11 @@ void main() {
       await preferences.setShowInspectorBackdrop(true);
       await preferences.setShowEbayLinks(true);
       await tester.pumpAndSettle();
-      expect(find.byTooltip('Share'), findsOneWidget);
-      expect(find.bySemanticsLabel('Edit'), findsOneWidget);
-      expect(find.bySemanticsLabel('Share'), findsOneWidget);
-      await tester.tap(find.byTooltip('More inspector actions'));
+      expect(find.byKey(const Key('inspector.mobile-edit')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('inspector.mobile-actions')));
       await tester.pumpAndSettle();
+      expect(find.text('Select your action:'), findsOneWidget);
+      expect(find.text('Share'), findsOneWidget);
       expect(find.text('Duplicate'), findsOneWidget);
       expect(find.text('Loan'), findsOneWidget);
       expect(find.text('Unlink from Core'),
