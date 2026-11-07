@@ -84,10 +84,8 @@ void main() {
         reason: 'Location uses the boxed pick field like the editor');
     await tester.tap(find.byTooltip('Manage Locations'));
     await pumpUntilSettled(tester);
-    expect(find.text('Assign Location'), findsOneWidget);
+    expect(find.text('Select Location'), findsOneWidget);
     await tester.tap(find.text('Short Box 1').last);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
     await pumpUntilSettled(tester);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save').first);

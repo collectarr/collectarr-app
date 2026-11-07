@@ -551,7 +551,7 @@ class _LibraryEntryStatusStripState
         final selected = await showLocationPickerDialog(
           context: context,
           db: db,
-          currentLocationId: selectedValue,
+          currentLocationId: selectedId.isEmpty ? null : selectedId,
         );
         if (selected == null) return null;
         await _loadLocations();

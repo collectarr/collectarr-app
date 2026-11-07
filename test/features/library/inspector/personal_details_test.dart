@@ -80,10 +80,8 @@ void main() {
     await pumpUntilSettled(tester);
     await tester.tap(find.byIcon(Icons.place));
     await pumpUntilSettled(tester);
-    expect(find.text('Assign Location'), findsOneWidget);
+    expect(find.text('Select Location'), findsOneWidget);
     await tester.tap(find.text('Shelf B').last);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
     await pumpUntilSettled(tester);
 
     await tester
