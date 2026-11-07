@@ -115,6 +115,18 @@ class LocationRepository {
     return null;
   }
 
+  /// How many active items sit directly in each location, by location id.
+  Future<Map<String, int>> itemCounts() async {
+    final counts = <String, int>{};
+    for (final item
+        in await LibraryEntriesRepository(_db).listActiveSummaries()) {
+      if (item.locationId case final id?) {
+        counts.update(id, (count) => count + 1, ifAbsent: () => 1);
+      }
+    }
+    return counts;
+  }
+
   Future<void> _writeLocation(StorageLocation location) {
     return _db.into(_db.locationsCache).insertOnConflictUpdate(
           LocationsCacheCompanion.insert(

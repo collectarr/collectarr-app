@@ -1,17 +1,13 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
-
-import '../../support/fixtures/test_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('location management dialog renames and reparents locations',
-      (tester) async {
+  Future<LocalDatabase> pumpDialog(WidgetTester tester) async {
     tester.view.physicalSize = const Size(1400, 1200);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -19,117 +15,82 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    await tester.runAsync(() => db.batch((batch) {
+          batch.insertAll(db.locationsCache, [
+            LocationsCacheCompanion.insert(
+                id: 'room', name: 'Room', sortOrder: const Value(1)),
+            LocationsCacheCompanion.insert(
+                id: 'shelf',
+                name: 'Shelf',
+                parentId: const Value('room'),
+                sortOrder: const Value(2)),
+          ]);
+        }));
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: LocationManagementDialog(db: db)),
+    ));
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump();
+    return db;
+  }
 
-    await db.batch((batch) {
-      batch.insertAll(db.locationsCache, [
-        LocationsCacheCompanion.insert(
-          id: 'room',
-          name: 'Room',
-          sortOrder: const Value(1),
-        ),
-        LocationsCacheCompanion.insert(
-          id: 'closet',
-          name: 'Closet',
-          sortOrder: const Value(2),
-        ),
-        LocationsCacheCompanion.insert(
-          id: 'shelf',
-          name: 'Shelf',
-          parentId: const Value('room'),
-          sortOrder: const Value(3),
-        ),
-      ]);
-    });
+  Future<void> settle(WidgetTester tester) async {
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump(const Duration(milliseconds: 300));
+  }
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: LocationManagementDialog(db: db),
-        ),
-      ),
-    );
-    await pumpUntilSettled(tester);
+  testWidgets('lists locations by full path', (tester) async {
+    await pumpDialog(tester);
 
-    await tester.tap(find.text('Shelf').first);
-    await pumpUntilSettled(tester);
-
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Location name'),
-      'Short Box 1',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Description'),
-      'Top shelf overflow',
-    );
-
-    final parentDropdown = find.byWidgetPredicate(
-      (widget) => widget is CompactSearchDropdownFormField<String?>,
-    );
-    await tester.ensureVisible(parentDropdown);
-    await tester.tap(parentDropdown);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Closet').last);
-    await pumpUntilSettled(tester);
-
-    final saveButton = find.widgetWithText(FilledButton, 'Save changes');
-    await tester.ensureVisible(saveButton);
-    await tester.tap(saveButton);
-    await pumpUntilSettled(tester);
-
-    final updated = await LocationRepository(db).getById('shelf');
-    expect(updated, isNotNull);
-    expect(updated!.name, 'Short Box 1');
-    expect(updated.parentId, 'closet');
-    expect(updated.description, 'Top shelf overflow');
+    expect(find.text('Manage Locations'), findsOneWidget);
+    expect(find.text('Room › Shelf'), findsOneWidget);
   });
 
-  testWidgets(
-      'location management dialog deletes a location and unparents children',
+  testWidgets('New Location creates a location with the name typed',
       (tester) async {
-    tester.view.physicalSize = const Size(1400, 1200);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = await pumpDialog(tester);
 
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
+    await tester.tap(find.text('New Location'));
+    await settle(tester);
+    await tester.enterText(find.byType(TextField).at(1), 'Attic');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await settle(tester);
 
-    await db.batch((batch) {
-      batch.insertAll(db.locationsCache, [
-        LocationsCacheCompanion.insert(
-          id: 'room',
-          name: 'Room',
-          sortOrder: const Value(1),
-        ),
-        LocationsCacheCompanion.insert(
-          id: 'shelf',
-          name: 'Shelf',
-          parentId: const Value('room'),
-          sortOrder: const Value(2),
-        ),
-      ]);
-    });
+    final names = await tester.runAsync(() => LocationRepository(db).getAll());
+    expect(names!.map((location) => location.name), contains('Attic'));
+  });
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: LocationManagementDialog(db: db),
-        ),
-      ),
-    );
-    await pumpUntilSettled(tester);
+  testWidgets('a row edits its location', (tester) async {
+    final db = await pumpDialog(tester);
 
-    await tester.tap(find.text('Room').first);
-    await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Delete location'));
-    await pumpUntilSettled(tester);
+    await tester.tap(find.byTooltip('Edit Room › Shelf'));
+    await settle(tester);
+    expect(find.text('Edit Location'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).at(1), 'Short Box 1');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await settle(tester);
+
+    final updated =
+        await tester.runAsync(() => LocationRepository(db).getById('shelf'));
+    expect(updated!.name, 'Short Box 1');
+    expect(updated.parentId, 'room');
+  });
+
+  testWidgets('deleting a location makes its children top level',
+      (tester) async {
+    final db = await pumpDialog(tester);
+
+    await tester.tap(find.byTooltip('Remove Room'));
+    await settle(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
-    await pumpUntilSettled(tester);
+    await settle(tester);
 
-    final repo = LocationRepository(db);
-    final deleted = await repo.getById('room');
-    final child = await repo.getById('shelf');
-    expect(deleted, isNull);
+    final repository = LocationRepository(db);
+    expect(await tester.runAsync(() => repository.getById('room')), isNull);
+    final child = await tester.runAsync(() => repository.getById('shelf'));
     expect(child, isNotNull);
     expect(child!.parentId, isNull);
   });

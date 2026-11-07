@@ -4,12 +4,10 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/entries/repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_values_table.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
-import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -78,13 +76,9 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   }
 
   Future<void> _load() async {
-    final locations = await LocationRepository(widget.db).getAll();
-    final counts = <String, int>{};
-    for (final entry
-        in await LibraryEntriesRepository(widget.db).listActiveSummaries()) {
-      final id = entry.locationId;
-      if (id != null) counts.update(id, (n) => n + 1, ifAbsent: () => 1);
-    }
+    final repository = LocationRepository(widget.db);
+    final locations = await repository.getAll();
+    final counts = await repository.itemCounts();
     if (!mounted) return;
     setState(() {
       _locations = locations;
@@ -94,13 +88,13 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
   }
 
   Future<void> _create() async {
-    final created = await showAppDialog<({String name, String? parentId})>(
-      context: context,
-      builder: (_) => _NewLocationDialog(locations: _locations),
-    );
+    final created =
+        await showLocationEditorDialog(context: context, locations: _locations);
     if (created == null) return;
-    await LocationRepository(widget.db)
-        .create(name: created.name, parentId: created.parentId);
+    await LocationRepository(widget.db).create(
+        name: created.name,
+        parentId: created.parentId,
+        description: created.description);
     await _load();
   }
 
@@ -203,113 +197,4 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                               ])),
                     ]))));
   }
-}
-
-/// A new location's name and where it sits in the tree.
-class _NewLocationDialog extends StatefulWidget {
-  const _NewLocationDialog({required this.locations});
-
-  final List<StorageLocation> locations;
-
-  @override
-  State<_NewLocationDialog> createState() => _NewLocationDialogState();
-}
-
-class _NewLocationDialogState extends State<_NewLocationDialog> {
-  static const _topLevel = '';
-  final _name = TextEditingController();
-  String _parentId = _topLevel;
-  String? _nameError;
-
-  @override
-  void dispose() {
-    _name.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final name = _name.text.trim();
-    if (name.isEmpty) {
-      setState(() => _nameError = 'Enter a name.');
-      return;
-    }
-    Navigator.pop(context, (
-      name: name,
-      parentId: _parentId == _topLevel ? null : _parentId,
-    ));
-  }
-
-  String _parentLabel(String id) {
-    if (id == _topLevel) return 'Top level';
-    return locationPathForId(widget.locations, id) ?? id;
-  }
-
-  Widget _labeled(String label, Widget child) => Padding(
-        padding: const EdgeInsets.only(bottom: 18),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          child,
-        ]),
-      );
-
-  @override
-  Widget build(BuildContext context) => PickListDialog(
-      child: Material(
-          color: pickListSurface(context),
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                PickListHeader(
-                    title: 'New Location',
-                    onClose: () => Navigator.pop(context)),
-                Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _labeled(
-                              'Name',
-                              TextField(
-                                  controller: _name,
-                                  autofocus: true,
-                                  textInputAction: TextInputAction.done,
-                                  onSubmitted: (_) => _submit(),
-                                  decoration: settingsSelectDecoration(context)
-                                      .copyWith(errorText: _nameError))),
-                          _labeled(
-                              'Parent',
-                              SettingsSelect<String>(
-                                  value: _parentId,
-                                  values: [
-                                    _topLevel,
-                                    for (final location in widget.locations)
-                                      location.id
-                                  ],
-                                  labelOf: _parentLabel,
-                                  onChanged: (id) =>
-                                      setState(() => _parentId = id))),
-                        ])),
-                Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          FilledButton(
-                              style: pickListButtonStyle(context,
-                                  primary: false, footer: true),
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel')),
-                          const SizedBox(width: 5),
-                          FilledButton(
-                              style: pickListButtonStyle(context, footer: true),
-                              onPressed: _submit,
-                              child: const Text('Save')),
-                        ])),
-              ])));
 }

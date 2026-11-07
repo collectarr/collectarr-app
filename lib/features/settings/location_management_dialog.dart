@@ -1,40 +1,60 @@
-import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_values_table.dart';
+import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_message_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<void> showLocationManagementDialog({
   required BuildContext context,
   required LocalDatabase db,
   bool startCreating = false,
-  String? initialParentId,
 }) {
   return showAppDialog<void>(
     context: context,
     builder: (context) => LocationManagementDialog(
       db: db,
       startCreating: startCreating,
-      initialParentId: initialParentId,
     ),
   );
 }
 
+/// What the location editor returns.
+typedef LocationDraft = ({String name, String? parentId, String? description});
+
+/// Asks for a location's name, place in the tree and description.
+Future<LocationDraft?> showLocationEditorDialog({
+  required BuildContext context,
+  required List<StorageLocation> locations,
+  StorageLocation? existing,
+}) =>
+    showAppDialog<LocationDraft>(
+      context: context,
+      builder: (_) => _LocationEditorDialog(
+        locations: locations,
+        existing: existing,
+      ),
+    );
+
+/// Every location in the shared tree, as a pick list table: each row names
+/// its full path, with its item count, and edits or removes that location.
 class LocationManagementDialog extends StatefulWidget {
   const LocationManagementDialog({
     super.key,
     required this.db,
     this.startCreating = false,
-    this.initialParentId,
   });
 
   final LocalDatabase db;
   final bool startCreating;
-  final String? initialParentId;
 
   @override
   State<LocationManagementDialog> createState() =>
@@ -42,496 +62,302 @@ class LocationManagementDialog extends StatefulWidget {
 }
 
 class _LocationManagementDialogState extends State<LocationManagementDialog> {
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-
+  final _search = TextEditingController();
   List<StorageLocation> _locations = const [];
-  String? _selectedLocationId;
-  String? _draftParentId;
-  bool _creating = false;
-  bool _loading = true;
-  bool _saving = false;
+  Map<String, int> _counts = const {};
+  bool _busy = true;
+
+  LocationRepository get _repository => LocationRepository(widget.db);
 
   @override
   void initState() {
     super.initState();
-    _nameController.addListener(_handleDraftChanged);
-    _descriptionController.addListener(_handleDraftChanged);
-    _loadLocations();
+    unawaited(_start());
   }
 
   @override
   void dispose() {
-    _nameController.removeListener(_handleDraftChanged);
-    _descriptionController.removeListener(_handleDraftChanged);
-    _nameController.dispose();
-    _descriptionController.dispose();
+    _search.dispose();
     super.dispose();
   }
 
-  void _handleDraftChanged() {
-    if (mounted) {
-      setState(() {});
-    }
+  Future<void> _start() async {
+    await _load();
+    if (widget.startCreating && mounted) await _create();
   }
 
-  StorageLocation? get _selectedLocation {
-    final selectedId = _selectedLocationId;
-    if (selectedId == null) {
-      return null;
-    }
-    return _locations.cast<StorageLocation?>().firstWhere(
-          (location) => location?.id == selectedId,
-          orElse: () => null,
-        );
-  }
-
-  Future<void> _loadLocations() async {
-    final locations = await LocationRepository(widget.db).getAll();
-    if (!mounted) {
-      return;
-    }
+  Future<void> _load() async {
+    final locations = await _repository.getAll();
+    final counts = await _repository.itemCounts();
+    if (!mounted) return;
     setState(() {
       _locations = locations;
-      _loading = false;
-      if (_selectedLocationId != null &&
-          locations.every((location) => location.id != _selectedLocationId)) {
-        _selectedLocationId = null;
-      }
-      if (widget.startCreating && !_creating && _selectedLocationId == null) {
-        _creating = true;
-        _draftParentId = widget.initialParentId;
-        _nameController.clear();
-        _descriptionController.clear();
-      }
+      _counts = counts;
+      _busy = false;
     });
   }
 
-  void _selectLocation(StorageLocation location) {
-    setState(() {
-      _creating = false;
-      _selectedLocationId = location.id;
-      _draftParentId = location.parentId;
-      _nameController.text = location.name;
-      _descriptionController.text = location.description ?? '';
-    });
+  Future<void> _create() async {
+    final draft =
+        await showLocationEditorDialog(context: context, locations: _locations);
+    if (draft == null) return;
+    await _repository.create(
+        name: draft.name,
+        parentId: draft.parentId,
+        description: draft.description);
+    await _load();
   }
 
-  void _beginCreate({String? parentId}) {
-    setState(() {
-      _creating = true;
-      _selectedLocationId = null;
-      _draftParentId = parentId;
-      _nameController.clear();
-      _descriptionController.clear();
-    });
+  StorageLocation _locationOf(PickListValue value) =>
+      _locations.firstWhere((location) => location.id == value.id);
+
+  Future<void> _edit(PickListValue value) async {
+    final location = _locationOf(value);
+    final draft = await showLocationEditorDialog(
+        context: context, locations: _locations, existing: location);
+    if (draft == null) return;
+    await _repository.update(StorageLocation(
+      id: location.id,
+      name: draft.name,
+      parentId: draft.parentId,
+      description: draft.description,
+      sortOrder: location.sortOrder,
+    ));
+    await _load();
   }
 
-  Set<String> _descendantIds(String id) {
-    final descendants = <String>{};
-    void collect(String currentId) {
-      for (final child
-          in _locations.where((location) => location.parentId == currentId)) {
-        if (descendants.add(child.id)) {
-          collect(child.id);
-        }
-      }
-    }
-
-    collect(id);
-    return descendants;
-  }
-
-  Future<void> _save() async {
-    final name = _nameController.text.trim();
-    final description = _descriptionController.text.trim();
-    if (name.isEmpty) {
-      return;
-    }
-    final repo = LocationRepository(widget.db);
-    setState(() => _saving = true);
-    try {
-      if (_creating) {
-        final created = await repo.create(
-          name: name,
-          parentId: _draftParentId,
-          description: description.isEmpty ? null : description,
-        );
-        await _loadLocations();
-        if (!mounted) {
-          return;
-        }
-        _selectLocation(created);
-      } else {
-        final selected = _selectedLocation;
-        if (selected == null) {
-          return;
-        }
-        final updated = StorageLocation(
-          id: selected.id,
-          name: name,
-          parentId: _draftParentId,
-          description: description.isEmpty ? null : description,
-          sortOrder: selected.sortOrder,
-        );
-        await repo.update(updated);
-        await _loadLocations();
-        if (!mounted) {
-          return;
-        }
-        _selectLocation(updated);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _saving = false);
-      }
-    }
-  }
-
-  Future<void> _deleteSelected() async {
-    final selected = _selectedLocation;
-    if (selected == null) {
-      return;
-    }
-    final confirmed = await showAppDialog<bool>(
+  Future<void> _delete(PickListValue value) async {
+    final confirmed = await showAppMessageDialog(
       context: context,
-      builder: (context) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
-        backgroundColor: appPalette(context).panel,
-        title: const Text('Delete location'),
-        content: Text(
-          'Delete "${selected.fullPath(_locations)}"? Children will become top-level locations and items assigned directly to this location will be cleared.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete location',
+      message: 'Delete "${value.effectiveLabel}"? Its children become '
+          'top-level locations and items assigned directly to it are cleared.',
+      confirmLabel: 'Delete',
     );
-    if (confirmed != true) {
-      return;
-    }
-    await LocationRepository(widget.db).delete(selected.id);
-    await _loadLocations();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _selectedLocationId = null;
-      _creating = false;
-      _nameController.clear();
-      _descriptionController.clear();
-      _draftParentId = null;
-    });
+    if (!confirmed) return;
+    await _repository.delete(value.id);
+    await _load();
   }
 
   @override
   Widget build(BuildContext context) {
-    final selected = _selectedLocation;
-    final roots =
-        _locations.where((location) => location.parentId == null).toList();
-    final blockedParentIds =
-        selected == null ? const <String>{} : _descendantIds(selected.id);
-    final parentChoices = [
+    final query = normalizePickListValue(_search.text);
+    final visible = [
       for (final location in _locations)
-        if (selected == null ||
-            (location.id != selected.id &&
-                !blockedParentIds.contains(location.id)))
-          location,
-    ];
-
-    return AccentAlertDialog(
-      headerIcon: AppIcons.location,
-      backgroundColor: appPalette(context).panel,
-      title: const Text('Manage locations'),
-      content: SizedBox(
-        width: 920,
-        height: 520,
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : Row(
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: () => _beginCreate(),
-                              icon: const Icon(Icons.add_outlined),
-                              label: const Text('New root'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: selected == null
-                                  ? null
-                                  : () => _beginCreate(parentId: selected.id),
-                              icon: const Icon(Icons.subdirectory_arrow_right),
-                              label: const Text('New child'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: appPalette(context).divider),
-                            ),
-                            child: _locations.isEmpty
-                                ? Center(
-                                    child: Text(
-                                      'No locations yet. Create a root location to start the hierarchy.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: appPalette(context).textMuted),
-                                    ),
-                                  )
-                                : ListView(
-                                    padding: const EdgeInsets.all(12),
-                                    children: [
-                                      for (final root in roots)
-                                        _LocationListTile(
-                                          location: root,
-                                          allLocations: _locations,
-                                          selectedId: _selectedLocationId,
-                                          onSelected: _selectLocation,
-                                          depth: 0,
-                                        ),
-                                    ],
-                                  ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 5,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: appPalette(context).divider),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: _creating || selected != null
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(
-                                    child: ListView(
-                                      children: [
-                                        Text(
-                                          _creating
-                                              ? 'New location'
-                                              : 'Edit location',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.w700),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        TextField(
-                                          controller: _nameController,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Location name',
-                                            border: OutlineInputBorder(),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        CompactSearchDropdownFormField<String?>(
-                                          key: ValueKey(
-                                            'parent-${_selectedLocationId ?? 'new'}-${_draftParentId ?? 'root'}',
-                                          ),
-                                          initialValue: _draftParentId,
-                                          dropdownColor:
-                                              appPalette(context).panelRaised,
-                                          borderRadius: kAppMenuBorderRadius,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Parent location',
-                                            border: OutlineInputBorder(),
-                                          ),
-                                          items: [
-                                            const DropdownMenuItem<String?>(
-                                              value: null,
-                                              child: Text('Top level'),
-                                            ),
-                                            for (final location
-                                                in parentChoices)
-                                              DropdownMenuItem<String?>(
-                                                value: location.id,
-                                                child: Text(location
-                                                    .fullPath(_locations)),
-                                              ),
-                                          ],
-                                          onChanged: (value) {
-                                            setState(
-                                                () => _draftParentId = value);
-                                          },
-                                        ),
-                                        const SizedBox(height: 12),
-                                        TextField(
-                                          controller: _descriptionController,
-                                          minLines: 3,
-                                          maxLines: 4,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Description',
-                                            alignLabelWithHint: true,
-                                            border: OutlineInputBorder(),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Text(
-                                          _creating
-                                              ? 'Create a reusable location that can be assigned across add, edit, and bulk flows.'
-                                              : 'Renaming or reparenting updates the hierarchy label everywhere this location id is resolved.',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                  color: appPalette(context)
-                                                      .textMuted),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    alignment: WrapAlignment.end,
-                                    children: [
-                                      if (!_creating)
-                                        OutlinedButton.icon(
-                                          onPressed:
-                                              _saving ? null : _deleteSelected,
-                                          icon:
-                                              const Icon(Icons.delete_outline),
-                                          label: const Text('Delete location'),
-                                        ),
-                                      FilledButton.icon(
-                                        onPressed: _saving ||
-                                                _nameController.text
-                                                    .trim()
-                                                    .isEmpty
-                                            ? null
-                                            : _save,
-                                        icon: _saving
-                                            ? const SizedBox.square(
-                                                dimension: 16,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                ),
-                                              )
-                                            : Icon(_creating
-                                                ? Icons.add_task_outlined
-                                                : Icons.save_outlined),
-                                        label: Text(
-                                          _creating
-                                              ? 'Create location'
-                                              : 'Save changes',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )
-                            : Center(
-                                child: Text(
-                                  'Select a location to edit it, or create a new root or child location.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: appPalette(context).textMuted),
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
-      ],
-    );
+        PickListValue(
+            id: location.id,
+            listName: 'locations',
+            value: location.name,
+            displayLabel: location.fullPath(_locations))
+    ]
+        .where((value) =>
+            normalizePickListValue(value.effectiveLabel).contains(query))
+        .toList();
+    return PickListDialog(
+        child: Material(
+            color: pickListSurface(context),
+            child: DefaultTextStyle.merge(
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      PickListHeader(
+                          title: 'Manage Locations',
+                          onClose: () => Navigator.pop(context)),
+                      PickListToolbar(
+                          search: TextField(
+                              controller: _search,
+                              onChanged: (_) => setState(() {}),
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500),
+                              decoration: pickListInputDecoration(context,
+                                  hintText: 'Search...',
+                                  suffixIcon: IconButton(
+                                      style: IconButton.styleFrom(
+                                          backgroundColor: Colors.transparent,
+                                          disabledBackgroundColor:
+                                              Colors.transparent,
+                                          side: BorderSide.none),
+                                      padding: EdgeInsets.zero,
+                                      iconSize: 16,
+                                      color: appPalette(context)
+                                          .textMuted
+                                          .withValues(alpha: .65),
+                                      icon: Icon(query.isEmpty
+                                          ? Icons.search
+                                          : Icons.close),
+                                      onPressed: () =>
+                                          setState(() => _search.clear())))),
+                          trailing: FilledButton(
+                              onPressed: _busy ? null : _create,
+                              style: pickListButtonStyle(context),
+                              child: const Text('New Location'))),
+                      Flexible(
+                          fit: FlexFit.loose,
+                          child: SizedBox(
+                              height: math.max(visible.length, 1) * 48.0 + 48,
+                              child: _busy
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : PickListValuesTable(
+                                      values: visible,
+                                      usageCounts: _counts,
+                                      showSortName: false,
+                                      onEdit: _edit,
+                                      onDelete: _delete))),
+                      Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                FilledButton(
+                                    style: pickListButtonStyle(context,
+                                        primary: false, footer: true),
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close')),
+                              ])),
+                    ]))));
   }
 }
 
-class _LocationListTile extends StatelessWidget {
-  const _LocationListTile({
-    required this.location,
-    required this.allLocations,
-    required this.selectedId,
-    required this.onSelected,
-    required this.depth,
-  });
+class _LocationEditorDialog extends StatefulWidget {
+  const _LocationEditorDialog({required this.locations, this.existing});
 
-  final StorageLocation location;
-  final List<StorageLocation> allLocations;
-  final String? selectedId;
-  final ValueChanged<StorageLocation> onSelected;
-  final int depth;
+  final List<StorageLocation> locations;
+  final StorageLocation? existing;
 
   @override
-  Widget build(BuildContext context) {
-    final children =
-        allLocations.where((entry) => entry.parentId == location.id).toList();
-    final selected = selectedId == location.id;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: depth * 16.0),
-          child: Material(
-            color: appPalette(context).panelRaised,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ListTile(
-              dense: true,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              selected: selected,
-              selectedTileColor: Colors.white.withValues(alpha: 0.06),
-              leading: Icon(
-                depth == 0
-                    ? Icons.folder_outlined
-                    : Icons.subdirectory_arrow_right,
-                size: 18,
-              ),
-              title: Text(location.name),
-              subtitle: Text(location.fullPath(allLocations)),
-              onTap: () => onSelected(location),
-            ),
-          ),
-        ),
-        for (final child in children)
-          _LocationListTile(
-            location: child,
-            allLocations: allLocations,
-            selectedId: selectedId,
-            onSelected: onSelected,
-            depth: depth + 1,
-          ),
-      ],
-    );
+  State<_LocationEditorDialog> createState() => _LocationEditorDialogState();
+}
+
+class _LocationEditorDialogState extends State<_LocationEditorDialog> {
+  static const _topLevel = '';
+  late final _name = TextEditingController(text: widget.existing?.name ?? '');
+  late final _description =
+      TextEditingController(text: widget.existing?.description ?? '');
+  late String _parentId = widget.existing?.parentId ?? _topLevel;
+  String? _nameError;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _description.dispose();
+    super.dispose();
   }
+
+  /// A location cannot move under itself or anything nested in it.
+  List<String> get _parentChoices {
+    final blocked = <String>{};
+    void block(String id) {
+      if (!blocked.add(id)) return;
+      for (final child in widget.locations.where((l) => l.parentId == id)) {
+        block(child.id);
+      }
+    }
+
+    if (widget.existing case final existing?) block(existing.id);
+    return [
+      _topLevel,
+      for (final location in widget.locations)
+        if (!blocked.contains(location.id)) location.id
+    ];
+  }
+
+  String _parentLabel(String id) {
+    if (id == _topLevel) return 'Top level';
+    return widget.locations
+        .firstWhere((location) => location.id == id)
+        .fullPath(widget.locations);
+  }
+
+  void _submit() {
+    final name = _name.text.trim();
+    if (name.isEmpty) {
+      setState(() => _nameError = 'Enter a name.');
+      return;
+    }
+    final description = _description.text.trim();
+    Navigator.pop<LocationDraft>(context, (
+      name: name,
+      parentId: _parentId == _topLevel ? null : _parentId,
+      description: description.isEmpty ? null : description,
+    ));
+  }
+
+  Widget _labeled(String label, Widget child) => Padding(
+        padding: const EdgeInsets.only(bottom: 18),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          child,
+        ]),
+      );
+
+  @override
+  Widget build(BuildContext context) => PickListDialog(
+      child: Material(
+          color: pickListSurface(context),
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PickListHeader(
+                    title: widget.existing == null
+                        ? 'New Location'
+                        : 'Edit Location',
+                    onClose: () => Navigator.pop(context)),
+                Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _labeled(
+                              'Name',
+                              TextField(
+                                  controller: _name,
+                                  autofocus: true,
+                                  textInputAction: TextInputAction.done,
+                                  onSubmitted: (_) => _submit(),
+                                  decoration: settingsSelectDecoration(context)
+                                      .copyWith(errorText: _nameError))),
+                          _labeled(
+                              'Parent',
+                              SettingsSelect<String>(
+                                  value: _parentId,
+                                  values: _parentChoices,
+                                  labelOf: _parentLabel,
+                                  onChanged: (id) =>
+                                      setState(() => _parentId = id))),
+                          _labeled(
+                              'Description',
+                              TextField(
+                                  controller: _description,
+                                  minLines: 3,
+                                  maxLines: 4,
+                                  decoration:
+                                      settingsSelectDecoration(context))),
+                        ])),
+                Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          FilledButton(
+                              style: pickListButtonStyle(context,
+                                  primary: false, footer: true),
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel')),
+                          const SizedBox(width: 5),
+                          FilledButton(
+                              style: pickListButtonStyle(context, footer: true),
+                              onPressed: _submit,
+                              child: const Text('Save')),
+                        ])),
+              ])));
 }
