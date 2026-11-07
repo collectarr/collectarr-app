@@ -13,6 +13,7 @@
 ### Fixes
 - Covers load faster: downloaded covers stay on disk, and zooming out reuses the ones already decoded.
 - The Comics details panel no longer overflows at its smallest size.
+- Download Covers uses the same buttons as other dialogs, larger text, and opens in the middle of the window.
 - On Windows, Install in Settings > Updates starts the installer instead of staying on "Starting the installer...", and reports when it cannot start.
 - The library switcher in the header no longer stays highlighted after closing it by clicking elsewhere.
 - Comics' Custom Label shows its field label once.
