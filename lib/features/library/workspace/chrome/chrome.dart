@@ -62,6 +62,7 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
   bool _draggingRight = false;
   bool _draggingBottom = false;
   double _dragPastMinimum = 0;
+  double _sizeAtDragStart = 0;
   Timer? _rightPersistDebounce;
   Timer? _bottomPersistDebounce;
 
@@ -128,10 +129,28 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
   /// How far past the smallest size a drag ends up hiding the panel.
   static const _hideDragDistance = 60.0;
 
-  void _endDrag() {
-    final hide = _dragPastMinimum >= _hideDragDistance;
+  /// Whether the drag that just ended hides the panel, which then keeps the
+  /// size it had before the drag for when it returns.
+  bool _endDrag() {
+    final hide = _dragPastMinimum >= _hideDragDistance && widget.onHide != null;
     _dragPastMinimum = 0;
-    if (hide) widget.onHide?.call();
+    return hide;
+  }
+
+  void _endRightDrag() {
+    _draggingRight = false;
+    final hide = _endDrag();
+    if (hide) setState(() => _rightWidth = _sizeAtDragStart);
+    _flushRightWidthPersist();
+    if (hide) widget.onHide!();
+  }
+
+  void _endBottomDrag() {
+    _draggingBottom = false;
+    final hide = _endDrag();
+    if (hide) setState(() => _bottomHeight = _sizeAtDragStart);
+    _flushBottomHeightPersist();
+    if (hide) widget.onHide!();
   }
 
   void _handleRightDrag(double delta) {
@@ -265,12 +284,11 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
             else
               LibraryResizableDivider(
                 accentColor: widget.accentColor,
-                onDragStart: () => _draggingRight = true,
-                onDragEnd: () {
-                  _draggingRight = false;
-                  _flushRightWidthPersist();
-                  _endDrag();
+                onDragStart: () {
+                  _draggingRight = true;
+                  _sizeAtDragStart = _rightWidth;
                 },
+                onDragEnd: _endRightDrag,
                 onDragDelta: _handleRightDrag,
               ),
           ConstrainedBox(
@@ -322,12 +340,11 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
               LibraryResizableDivider(
                 axis: Axis.vertical,
                 accentColor: widget.accentColor,
-                onDragStart: () => _draggingBottom = true,
-                onDragEnd: () {
-                  _draggingBottom = false;
-                  _flushBottomHeightPersist();
-                  _endDrag();
+                onDragStart: () {
+                  _draggingBottom = true;
+                  _sizeAtDragStart = _bottomHeight;
                 },
+                onDragEnd: _endBottomDrag,
                 onDragDelta: _handleBottomDrag,
               ),
           ConstrainedBox(
