@@ -53,11 +53,19 @@ List<LibraryFieldSpec<T>> gameHardwareMainFields<T>(
           value: (draft) =>
               values(draft).platform.isEmpty ? null : values(draft).platform,
           setValue: (draft, value) => values(draft).platform = value ?? ''),
-      LibraryTextFieldSpec<T>(
+      LibraryVocabularyFieldSpec<T, String>(
           id: 'hardware_type',
           label: 'Hardware Type',
-          value: (draft) => values(draft).hardwareType,
-          setValue: (draft, value) => values(draft).hardwareType = value),
+          pickListKey: 'game_hardware.hardware_type',
+          options: [
+            for (final name in GameHardwareVocabularies.hardwareType.builtIns)
+              LibraryFieldOption(value: name, label: name)
+          ],
+          value: (draft) => values(draft).hardwareType.isEmpty
+              ? null
+              : values(draft).hardwareType,
+          setValue: (draft, value) =>
+              values(draft).hardwareType = value ?? ''),
       LibraryPartialDateFieldSpec<T>(
           id: 'release_date',
           label: 'Release Date',

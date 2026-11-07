@@ -19,6 +19,14 @@ abstract final class GameHardwareVocabularies {
       label: 'Series',
       valuesFrom:
           TypedVocabularyProjector<GameHardwareCatalogMetadata>(_seriesValues));
+  static const hardwareType = VocabularyDefinition<String>(
+      id: VocabularyId('game_hardware.hardware_type'),
+      label: 'Hardware Type',
+      builtIns: ['Console', 'Controller', 'Accessory'],
+      valuesFrom: TypedVocabularyProjector<GameHardwareCatalogMetadata>(
+          _hardwareTypeValues),
+      // Hardware types are filed by their name.
+      hasSortName: false);
   static const condition = VocabularyDefinition<String>(
       id: VocabularyId('game_hardware.condition'),
       label: 'Condition',
@@ -27,6 +35,7 @@ abstract final class GameHardwareVocabularies {
   static const all = <VocabularyDefinition<dynamic>>[
     platform,
     series,
+    hardwareType,
     condition
   ];
   static Future<List<String>> entryOptions(
@@ -130,3 +139,5 @@ Iterable<String?> _platformValues(GameHardwareCatalogMetadata metadata) =>
     [metadata.platform];
 Iterable<String?> _seriesValues(GameHardwareCatalogMetadata metadata) =>
     [metadata.seriesTitle];
+Iterable<String?> _hardwareTypeValues(GameHardwareCatalogMetadata metadata) =>
+    [metadata.hardwareType];

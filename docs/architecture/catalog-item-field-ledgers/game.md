@@ -135,7 +135,7 @@ Main, Value, Personal, Custom Fields, Image, My Images, Description, Links,
 with the same footer as Games.
 
 - Main: Title (capitalisation button), Sort Title, Platform (single pick list),
-  Release Date (partial), Barcode, Hardware Type (text), Series (pick list),
+  Release Date (partial), Barcode, Hardware Type (pick list), Series (pick list),
   Serial No. (text).
 - Value: as Games (Completeness N/A, Loose, CIB, New, Graded; Box, Manual,
   Value, Condition, Purchase Price, Purchase Store, Purchase Date, Values from
