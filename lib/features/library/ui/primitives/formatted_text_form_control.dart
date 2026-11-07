@@ -43,7 +43,7 @@ class _LibraryFormattedTextFormControlState
   late final AppFormattedTextController _rich =
       AppFormattedTextController(_source.text);
   late bool _richMode = droppedAppFormattedTextTags(_source.text).isEmpty;
-  late int _revision = _rich.revision;
+  late int _revision;
 
   /// The HTML last written from Rich, to tell it from text set from outside.
   String? _written;
@@ -51,6 +51,8 @@ class _LibraryFormattedTextFormControlState
   @override
   void initState() {
     super.initState();
+    // Read now: read lazily, the first edit would match its own revision.
+    _revision = _rich.revision;
     _source.addListener(_sourceChanged);
     _rich.addListener(_richChanged);
   }
