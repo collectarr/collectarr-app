@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_workspace.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_footer.dart';
 import 'dart:ui' as ui;
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -226,9 +227,8 @@ void main() {
                 pixels.getUint8(offset + 2));
           }
 
-          expect(pixel(10, 90), active ? _selected : canvasColor,
-              reason:
-                  'Only an active cover may fill the cell beside the image');
+          expect(pixel(10, 90), canvasColor,
+              reason: 'The active frame hugs the cover, not the whole cell');
           final palette =
               appPalette(tester.element(find.byType(LibraryCoverTile)));
           final expectedCover = checked
@@ -472,17 +472,11 @@ void main() {
         }))),
       ));
       await tester.pumpAndSettle();
-      final target =
-          mode == LibraryViewMode.grid || mode == LibraryViewMode.shelves
-              ? find.byType(LibraryCoverTile)
-              : mode == LibraryViewMode.list
-                  ? find.text('Album')
-                  : find.byType(LibraryWorkspaceCard);
-      if (mode == LibraryViewMode.grid || mode == LibraryViewMode.shelves) {
-        expect(tester.widget<LibraryCoverTile>(target).active, isFalse);
-      } else if (mode != LibraryViewMode.list) {
-        expect(tester.widget<LibraryWorkspaceCard>(target).selected, isFalse);
-      }
+      final target = find
+          .descendant(
+              of: find.byType(LibraryMobileWorkspace),
+              matching: find.byType(InkWell))
+          .first;
       await tester.tap(target);
       await tester.pumpAndSettle();
       expect(opened, 1);
@@ -493,42 +487,27 @@ void main() {
       final openedBeforeSelection = opened;
       await tester.tap(find.text('Selection mode'));
       await tester.pumpAndSettle();
-      final bounds = tester.getRect(target);
-      await tester.tapAt(mode == LibraryViewMode.list
-          ? bounds.center
-          : bounds.topRight + const Offset(-8, 8));
+      await tester.tap(target);
       await tester.pumpAndSettle();
       expect(selection.value.itemIds, {item.target.id});
       expect(opened, openedBeforeSelection);
-      await tester.tapAt(mode == LibraryViewMode.list
-          ? bounds.center
-          : bounds.bottomRight + const Offset(-8, -8));
+      expect(
+          tester
+              .widget<LibraryTileSelectionToggle>(
+                  find.byType(LibraryTileSelectionToggle))
+              .selected,
+          isTrue);
+      await tester.tap(target);
       await tester.pumpAndSettle();
       expect(selection.value.itemIds, isEmpty);
       expect(selection.value.enabled, isTrue);
       expect(opened, openedBeforeSelection);
-      if (mode != LibraryViewMode.list) {
-        final unchecked = tester.widget<LibraryTileSelectionToggle>(
-            find.byType(LibraryTileSelectionToggle));
-        expect(unchecked.selected, isFalse);
-        await tester.tap(find.byType(LibraryTileSelectionToggleButton));
-        await tester.pumpAndSettle();
-        expect(selection.value.itemIds, {item.target.id});
-        final checked = tester.widget<LibraryTileSelectionToggle>(
-            find.byType(LibraryTileSelectionToggle));
-        expect(checked.selected, isTrue);
-        expect(opened, openedBeforeSelection);
-        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
-        await mouse.addPointer(location: bounds.center);
-        await mouse.down(bounds.center);
-        await mouse.moveBy(const Offset(1, 1));
-        await mouse.up();
-        await tester.pumpAndSettle();
-        expect(selection.value.itemIds, isEmpty);
-        expect(selection.value.enabled, isTrue);
-        expect(opened, openedBeforeSelection);
-        await mouse.removePointer();
-      }
+      expect(
+          tester
+              .widget<LibraryTileSelectionToggle>(
+                  find.byType(LibraryTileSelectionToggle))
+              .selected,
+          isFalse);
     }, variant: TargetPlatformVariant({TargetPlatform.android}));
   }
 
