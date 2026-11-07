@@ -219,7 +219,6 @@
 - Test names identify their behavior within feature folders, making failures easier to locate.
 - Local Core development uses the single `collectarr` Docker suite.
 - UI regression checks cover native navigation, offline detail restoration, shared Add/Edit flows and browser presentation, landscape editors with larger text and desktop dialog geometry.
-- Release notes list the commits of each merged pull request under it instead of only its title.
 - Release banners count the issues open when the release was published instead of showing none.
 - Release banners are no longer listed among the release downloads.
 - Release banners use a new dashboard with six summary rows with emoji, commit, pull request and contributor counts, and first-time contributors.
