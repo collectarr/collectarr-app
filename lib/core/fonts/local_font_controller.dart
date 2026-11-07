@@ -21,20 +21,26 @@ class LocalFontController extends ChangeNotifier {
   static const preferencesKey = 'app.localFonts';
   static const maxImportedBytes = 2 * 1024 * 1024;
 
-  /// The bundled family as registered for the UI. Its normal slots carry
-  /// the SemiBold outlines: Flutter paints about 15 % lighter than the
-  /// reference browser rendering, and measured ink of ordinary 14 px text
-  /// matches the reference only at SemiBold. Bold and heavier keep their
-  /// own faces. The bundled files themselves are unchanged.
+  /// The bundled family as registered for the UI. Plus Jakarta Sans draws
+  /// larger and wider than the reference's Gilroy at the same size, so every
+  /// face is registered at [_bundledEmScale]. At that size its normal slots
+  /// carry the SemiBold outlines and bold carries ExtraBold: Flutter paints
+  /// lighter than the reference browser, and these match the reference's
+  /// 14 px text and bold labels in width and ink. The bundled files
+  /// themselves are unchanged.
   static const bundledFamily = 'Collectarr Sans';
   static const _fallback = {
     400: 'SemiBold',
     500: 'SemiBold',
     600: 'SemiBold',
-    700: 'Bold',
+    700: 'ExtraBold',
     800: 'ExtraBold',
     900: 'ExtraBold',
   };
+
+  /// Measured against the reference on 2026-11-08 at 14 px: unscaled, its
+  /// labels were 4-6 % wider than Gilroy's and its capitals 6 % taller.
+  static const _bundledEmScale = .95;
   final RegisterLocalFont _registerFont;
   final Future<List<LocalFontFace>> Function() _discoverFonts;
   final bool? _canDiscover;
@@ -274,16 +280,15 @@ class LocalFontController extends ChangeNotifier {
     return family;
   }
 
-  /// A bundled face for [weight], re-weighted where a slot borrows another
-  /// face's outlines (400/500 from SemiBold, 900 from ExtraBold).
+  /// A bundled face for [weight] at the bundled scale, re-weighted where a
+  /// slot borrows another face's outlines.
   static Future<Uint8List> _bundledFace(int weight) async {
     final data = await rootBundle
         .load('assets/fonts/PlusJakartaSans-${_fallback[weight]}.ttf');
-    final bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    return weight == 400 || weight == 500 || weight == 900
-        ? fontBytesAtWeight(bytes, weight)
-        : bytes;
+    return fontBytesAtWeight(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+        weight,
+        emScale: _bundledEmScale);
   }
 
   Future<String> _registerBundled() async {

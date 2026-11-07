@@ -10,13 +10,16 @@ Flutter paints the same outlines about 15 % lighter than the browser does.
 Measured ink of identical 14 px strings (2026-10-16): the reference's regular
 text 4.60, Gilroy Medium in Flutter 3.93, Gilroy SemiBold 4.53.
 
-The bundled family follows the same rule. It is registered as
-`Collectarr Sans` with Plus Jakarta Sans SemiBold outlines, re-weighted, in
-its 400 and 500 slots; 600, 700 and 800 keep their own faces and 900 uses
-ExtraBold. Measured ink: Jakarta Regular 3.75, Medium 4.15, SemiBold 4.65
-against the reference's 4.60; Jakarta Bold matches the reference's bold within
-about 4 %. The asset files are unchanged and `Plus Jakarta Sans` remains the
-text fallback.
+The bundled family is registered as `Collectarr Sans`. Plus Jakarta Sans
+draws larger than Gilroy at the same size (capitals 0.745 em against 0.700,
+x-height 0.541 against 0.500), so every face is registered with its em square
+enlarged to draw at 95 % of the requested size, as CSS `size-adjust` does;
+line heights set in styles are unchanged. At that scale its 400, 500 and 600
+slots carry the SemiBold outlines and 700 to 900 carry ExtraBold. Measured in
+the browser against the reference at 14 px (2026-11-08), unscaled SemiBold
+labels were 4-6 % wider with 11-15 % more ink and Bold was 4 % wider; at 95 %
+the label widths are within 1 % of the reference and their ink within 8 %. The asset files are
+unchanged and `Plus Jakarta Sans` remains the text fallback.
 Bold text (700) is lighter in Flutter than in the reference for local Gilroy
 too. Measured in the Windows engine at 14 px (2026-10-18) with the reference's
 bold at 2194 units of ink: Bold 1773 (-19 %), ExtraBold 1968 (-10 %), Black

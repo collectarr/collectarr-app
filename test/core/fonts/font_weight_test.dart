@@ -28,6 +28,11 @@ Map<int, String> _names(Uint8List bytes) {
   return result;
 }
 
+int _headOffset(ByteData data) => data.getUint32([
+      for (var i = 0; i < data.getUint16(4); i++) 12 + i * 16,
+    ].singleWhere((entry) => data.getUint32(entry) == 0x68656164) +
+    8);
+
 void main() {
   for (final (weight, style) in [(400, 'Regular'), (500, 'Medium')]) {
     test('weight $weight also updates DirectWrite subfamily metadata', () {
@@ -88,6 +93,21 @@ void main() {
     for (var i = 0; i < data.getUint16(4); i++) {
       expect(data.getUint32(12 + i * 16 + 8) % 4, 0);
     }
+    var checksum = 0;
+    for (var i = 0; i < result.length; i += 4) {
+      checksum = (checksum + data.getUint32(i)) & 0xffffffff;
+    }
+    expect(checksum, 0xb1b0afba);
+  });
+
+  test('emScale enlarges the em square and keeps the checksum valid', () {
+    final original = fontFixture();
+    final source = ByteData.sublistView(original);
+    source.setUint16(_headOffset(source) + 18, 1000);
+    final result = fontBytesAtWeight(original, 700, emScale: .95);
+    final data = ByteData.sublistView(result);
+    expect(data.getUint16(_headOffset(data) + 18), 1053);
+    expect(source.getUint16(_headOffset(source) + 18), 1000);
     var checksum = 0;
     for (var i = 0; i < result.length; i += 4) {
       checksum = (checksum + data.getUint32(i)) & 0xffffffff;

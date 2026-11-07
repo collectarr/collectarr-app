@@ -243,7 +243,7 @@ void main() {
     }
   });
 
-  test('the bundled family serves SemiBold outlines in its normal slots',
+  test('the bundled family serves SemiBold for normal and ExtraBold for bold',
       () async {
     final registered = <(String, int, Uint8List)>[];
     final c = LocalFontController(
@@ -267,6 +267,14 @@ void main() {
       expect(outlines, semiBold);
       expect(outlines, isNot(regular));
     }
+    // Bold borrows ExtraBold, and every face draws at 95 % of its size.
+    final extraBold = File('assets/fonts/PlusJakartaSans-ExtraBold.ttf')
+        .readAsBytesSync();
+    expect(_glyf(registered.firstWhere((r) => r.$2 == 700).$3),
+        _glyf(extraBold));
+    for (final (_, _, bytes) in registered) {
+      expect(_unitsPerEm(bytes), (_unitsPerEm(extraBold) / .95).round());
+    }
     c.dispose();
   });
 
@@ -274,7 +282,7 @@ void main() {
       () async {
     final controller = LocalFontController(registerFont: (_, __) async {});
     await controller.initialize(discover: false);
-    // The bundled family keeps its own Bold.
+    // The bundled family's bold slot already carries ExtraBold.
     expect(appTitleBoldFontWeightFor(controller), FontWeight.w700);
 
     await controller.importFaces([face(400), face(700), face(900)]);
@@ -299,4 +307,15 @@ List<int> _glyf(Uint8List font) {
     }
   }
   throw StateError('No glyf table');
+}
+
+int _unitsPerEm(Uint8List font) {
+  final data = ByteData.sublistView(font);
+  for (var i = 0; i < data.getUint16(4); i++) {
+    final record = 12 + i * 16;
+    if (data.getUint32(record) == 0x68656164) {
+      return data.getUint16(data.getUint32(record + 8) + 18);
+    }
+  }
+  throw const FormatException('Font lacks a head table.');
 }

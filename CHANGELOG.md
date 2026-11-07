@@ -15,6 +15,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Without a local Gilroy font, the bundled font draws text at the size, width and weight of CLZ's instead of larger and heavier.
 - Add Manually no longer offers Propose to Core; propose an item to Core from its details or editor after adding it.
 - Covers load faster: downloaded covers stay on disk, and zooming out reuses the ones already decoded.
 - The Comics details panel no longer overflows at its smallest size.

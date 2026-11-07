@@ -2,9 +2,17 @@ import 'dart:typed_data';
 
 /// Registers a copy in an explicit engine weight slot, like a CSS font-face.
 /// Glyph tables and the caller's original bytes remain unchanged.
-Uint8List fontBytesAtWeight(Uint8List input, int weight) {
+///
+/// [emScale] draws every glyph at that fraction of its size by enlarging the
+/// em square, as CSS `size-adjust` does; line heights set in text styles are
+/// unaffected.
+Uint8List fontBytesAtWeight(Uint8List input, int weight,
+    {double emScale = 1}) {
   if (weight < 100 || weight > 900 || weight % 100 != 0) {
     throw ArgumentError.value(weight, 'weight', 'Expected 100 through 900');
+  }
+  if (emScale <= 0) {
+    throw ArgumentError.value(emScale, 'emScale', 'Expected a positive scale');
   }
   final original = ByteData.sublistView(input);
   final count = original.getUint16(4);
@@ -21,7 +29,10 @@ Uint8List fontBytesAtWeight(Uint8List input, int weight) {
     } else if (tag == 0x6e616d65) {
       table = _nameTableAtWeight(table, weight);
     } else if (tag == 0x68656164) {
-      ByteData.sublistView(table).setUint32(8, 0);
+      final head = ByteData.sublistView(table)..setUint32(8, 0);
+      if (emScale != 1) {
+        head.setUint16(18, (head.getUint16(18) / emScale).round());
+      }
     }
     tables.add((tag, table));
     size += (table.length + 3) & ~3;
