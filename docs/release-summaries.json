@@ -42,5 +42,43 @@
         "text": "Now licensed under AGPL-3.0-only"
       }
     ]
+  },
+  "v1.6.0": {
+    "summary": [
+      "Games gain a Platform tab that lists each game once, 222 platforms under their short names and public-domain logos for many of them.",
+      "Add Toys opens on a list of toy types with owned and total counts.",
+      "Phones and tablets are closer to CLZ: List, Cards and Images views, side-by-side panes on tablets, a compact toolbar and the Action panel.",
+      "Comics Edit on wide screens uses CLZ's field rows, and descriptions can be edited as they appear, with bold, italic, underline and lists.",
+      "Sync follows the signed-in account, and conflicts can be reviewed by comparing the fields that differ.",
+      "On Android, barcodes and cover text are read by open-source engines instead of Google's.",
+      "Comics statistics have a tab per collection, and value filter chips name their field and accumulate.",
+      "Release downloads are named by version, platform and architecture, with a checksum file, and the updater picks the build for the device."
+    ],
+    "items": [
+      {
+        "emoji": "🎮",
+        "text": "Game Platform tab and 222 platforms"
+      },
+      {
+        "emoji": "🧸",
+        "text": "Add Toys opens on a type list"
+      },
+      {
+        "emoji": "📱",
+        "text": "Phone and tablet views like CLZ"
+      },
+      {
+        "emoji": "✏️",
+        "text": "Edit descriptions as they appear"
+      },
+      {
+        "emoji": "🔄",
+        "text": "Sync follows the signed-in account"
+      },
+      {
+        "emoji": "📷",
+        "text": "Open-source barcode and text reading"
+      }
+    ]
   }
 }

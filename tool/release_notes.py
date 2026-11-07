@@ -77,7 +77,9 @@ def summary_lines(entry):
     """The summary as bullets: an entry's `summary` list, or plain text split into lines and sentences."""
     summary = entry if isinstance(entry, str) else entry['summary']
     if isinstance(summary, str):
-        rows = (line.strip().lstrip('-*•').strip() for line in summary.splitlines())
+        # Older notes follow their summary with full sections, which the change list replaces.
+        text = re.split(r'^#', summary, maxsplit=1, flags=re.MULTILINE)[0]
+        rows = (line.strip().lstrip('-*•').strip() for line in text.splitlines())
         summary = [sentence for row in rows if row for sentence in re.split(r'(?<=[.!?])\s+(?=[A-Z])', row)]
     return '\n'.join(f'- {line}' for line in summary)
 
