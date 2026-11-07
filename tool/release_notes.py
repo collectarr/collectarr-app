@@ -88,7 +88,7 @@ def change_lines(repo, previous, tag):
 
 
 def summary_text(entry):
-    """An editorial entry is the summary text, or an object with summary, headline and highlights."""
+    """An editorial entry is the summary text, or an object with summary and banner items."""
     return entry if isinstance(entry, str) else entry['summary']
 
 
