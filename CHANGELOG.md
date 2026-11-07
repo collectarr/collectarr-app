@@ -14,6 +14,7 @@
 ### Fixes
 - Covers load faster: downloaded covers stay on disk, and zooming out reuses the ones already decoded.
 - The Comics details panel no longer overflows at its smallest size.
+- Missing Comics lists issues still On Order when "Show On Order" is ticked, and leaves them out otherwise.
 - Phones, tablets and narrow windows no longer offer details layouts they cannot use, in the details panel, Settings or the view menu.
 - Download Covers uses the same buttons as other dialogs, larger text, and opens in the middle of the window.
 - On Windows, Install in Settings > Updates starts the installer instead of staying on "Starting the installer...", and reports when it cannot start.

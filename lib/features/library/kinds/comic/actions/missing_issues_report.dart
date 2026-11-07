@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -97,14 +99,16 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       ),
     );
 
-    if (dto.libraryEntry != null) {
-      accumulator.entryIssueNumbers.add(issueNumber);
-      continue;
-    }
-    if (options.excludeOnOrder &&
-        dto.libraryEntry?.personal.collectionStatus?.trim().toLowerCase() ==
-            'on_order') {
-      continue;
+    final entry = dto.libraryEntry;
+    if (entry != null) {
+      final onOrder =
+          libraryCollectionStatusFromValue(entry.personal.collectionStatus) ==
+              LibraryCollectionStatusScope.onOrder;
+      // Show "On Order" lists the issues still on order as missing.
+      if (!onOrder || options.excludeOnOrder) {
+        accumulator.entryIssueNumbers.add(issueNumber);
+        continue;
+      }
     }
     if (options.excludeUnreleased &&
         _isFutureRelease(metadata.releaseDate, resolvedNow)) {

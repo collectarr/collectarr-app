@@ -16,14 +16,15 @@ import 'package:collectarr_app/features/library/workspace/schema/projections.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-LibraryProjectionItem _issue(String number, {bool owned = false}) {
+LibraryProjectionItem _issue(String number,
+    {bool owned = false, String? status}) {
   final comic = ComicCatalogItem(
       title: 'Fixture #$number', seriesTitle: 'Fixture', issueNumber: number);
   final entry = owned
       ? ComicLibraryEntry(
           id: LibraryEntryId('entry-$number'),
           metadata: comic,
-          personal: const ComicPersonalData(),
+          personal: ComicPersonalData(collectionStatus: status),
           updatedAt: DateTime.utc(2026),
         )
       : null;
@@ -56,6 +57,19 @@ void main() {
         missingComicIssuesText(
             report, const MissingComicReportOptions(verbose: true)),
         '2 3 5');
+  });
+
+  test('issues on order count as missing only when shown', () {
+    final items = [
+      _issue('1', owned: true),
+      _issue('2', owned: true, status: 'On Order'),
+    ];
+    expect(buildMissingComicSeriesReports(items), isEmpty);
+    final shown = buildMissingComicSeriesReports(items,
+            options: const MissingComicReportOptions(excludeOnOrder: false))
+        .single;
+    expect(shown.issueGroups.map((group) => group.issueNumber), [2]);
+    expect(shown.entryIssueCount, 1);
   });
 
   testWidgets('Missing Comics lists series in the reference table',
