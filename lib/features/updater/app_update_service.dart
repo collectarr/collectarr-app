@@ -521,6 +521,9 @@ class AppUpdateController extends Notifier<AppUpdateState> {
     state = state.copyWith(status: UpdateStatus.installing);
     try {
       await _installer.install(path);
+      if (!ref.mounted) return;
+      // The installer runs on its own; offer it again if it is cancelled.
+      state = state.copyWith(status: UpdateStatus.readyToInstall);
     } catch (e) {
       if (!ref.mounted) return;
       state = state.copyWith(

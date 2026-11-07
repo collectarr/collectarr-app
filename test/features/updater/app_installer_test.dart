@@ -27,28 +27,42 @@ class _FakeProcess implements Process {
 
 void main() {
   group('AppInstallers', () {
-    test('WindowsAppInstaller launches PowerShell detached process', () async {
+    test('WindowsAppInstaller waits for PowerShell to start the installer',
+        () async {
       String? launchedExecutable;
       List<String>? launchedArgs;
-      ProcessStartMode? launchedMode;
 
       final installer = WindowsAppInstaller(
-        processStarter: (exec, args, {mode = ProcessStartMode.normal}) async {
+        processRunner: (exec, args) async {
           launchedExecutable = exec;
           launchedArgs = args;
-          launchedMode = mode;
-          return _FakeProcess();
+          return ProcessResult(123, 0, '', '');
         },
       );
 
-      await installer.install(r'C:\temp\update.msix');
+      await installer.install(r"C:\temp\it's\setup.exe");
 
       expect(launchedExecutable, 'powershell');
-      expect(
-        launchedArgs,
-        ['-Command', 'Start-Process', r'"C:\temp\update.msix"'],
+      expect(launchedArgs, [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        r"Start-Process -FilePath 'C:\temp\it''s\setup.exe' -ErrorAction Stop",
+      ]);
+    });
+
+    test('WindowsAppInstaller reports an installer that cannot start',
+        () async {
+      final installer = WindowsAppInstaller(
+        processRunner: (_, __) async => ProcessResult(
+            123, 1, '', 'The operation was canceled by the user.'),
       );
-      expect(launchedMode, ProcessStartMode.detached);
+
+      await expectLater(
+        installer.install(r'C:\temp\setup.exe'),
+        throwsA(isA<ProcessException>().having((e) => e.message, 'message',
+            'The operation was canceled by the user.')),
+      );
     });
 
     test('MacAppInstaller launches open detached process', () async {

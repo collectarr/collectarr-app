@@ -11,17 +11,28 @@ typedef ProcessStarter = Future<Process> Function(
 });
 
 class WindowsAppInstaller implements AppInstaller {
-  const WindowsAppInstaller({this.processStarter = Process.start});
+  const WindowsAppInstaller({this.processRunner = Process.run});
 
-  final ProcessStarter processStarter;
+  final Future<ProcessResult> Function(
+      String executable, List<String> arguments) processRunner;
 
+  /// PowerShell started detached exits without running its command, so this
+  /// waits for it. Start-Process returns once the installer is running, or
+  /// fails when the file cannot start or its elevation prompt is declined.
   @override
   Future<void> install(String filePath) async {
-    await processStarter(
-      'powershell',
-      ['-Command', 'Start-Process', '"$filePath"'],
-      mode: ProcessStartMode.detached,
-    );
+    final quoted = filePath.replaceAll("'", "''");
+    final arguments = [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      "Start-Process -FilePath '$quoted' -ErrorAction Stop",
+    ];
+    final result = await processRunner('powershell', arguments);
+    if (result.exitCode != 0) {
+      throw ProcessException(
+          'powershell', arguments, '${result.stderr}'.trim(), result.exitCode);
+    }
   }
 }
 

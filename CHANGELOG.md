@@ -5,6 +5,9 @@
 ### Features
 - Settings > Updates opens release notes in a panel with formatted text, images and links, and links to the release on GitHub.
 
+### Fixes
+- On Windows, Install in Settings > Updates starts the installer instead of staying on "Starting the installer...", and reports when it cannot start.
+
 ## 1.6.0 - 2026-11-07
 
 ### Docs
