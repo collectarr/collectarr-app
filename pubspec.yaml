@@ -46,6 +46,7 @@ dependencies:
   font_awesome_flutter: ^11.0.0
   timezone: ^0.11.2
   sensors_plus: ^7.1.1
+  flutter_markdown_plus: ^1.0.12
 
 dev_dependencies:
   flutter_test:

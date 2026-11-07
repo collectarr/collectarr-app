@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/settings/settings_updates_section.dart';
 import 'package:collectarr_app/features/updater/app_update_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -102,12 +103,33 @@ void main() {
 
     expect(find.text('Installed version: 1.3.0'), findsOneWidget);
     expect(find.text('Version 1.4.0 is available.'), findsOneWidget);
-    expect(find.text('- Faster sync'), findsOneWidget);
     await tester.tap(find.byKey(const Key('settings.updates.download')));
     await tester.tap(find.byKey(const Key('settings.updates.check')));
 
     expect(controller.downloads, 1);
     expect(controller.checks, 1);
+  });
+
+  testWidgets('Updates shows the release notes in a panel, not inline',
+      (tester) async {
+    await _pump(
+        tester,
+        AppUpdateState(
+            status: UpdateStatus.updateAvailable,
+            currentVersion: '1.3.0',
+            release: _release),
+        const SettingsUpdatesSection());
+
+    expect(find.byType(Markdown), findsNothing);
+    expect(find.byKey(const Key('settings.updates.release')), findsOneWidget);
+    expect(_release.pageUri.path,
+        '/collectarr/collectarr-app/releases/tag/v1.4.0');
+
+    await tester.tap(find.byKey(const Key('settings.updates.notes')));
+    await tester.pumpAndSettle();
+
+    expect(
+        tester.widget<Markdown>(find.byType(Markdown)).data, '- Faster sync');
   });
 
   testWidgets('Updates offers installing a downloaded release', (tester) async {

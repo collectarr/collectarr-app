@@ -138,6 +138,10 @@ class GitHubRelease {
 
   String get downloadUrl => primaryAsset?.downloadUrl ?? msixDownloadUrl;
 
+  /// The release's page on GitHub.
+  Uri get pageUri =>
+      Uri.parse('$collectarrRepositoryUrl/releases/tag/$tagName');
+
   factory GitHubRelease.fromJson(
     Map<String, dynamic> json, {
     ReleaseAssetResolver resolver = const ReleaseAssetResolver(),

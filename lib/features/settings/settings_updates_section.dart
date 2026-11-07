@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/features/updater/app_update_service.dart';
+import 'package:collectarr_app/features/updater/release_notes_panel.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -140,7 +140,6 @@ class _UpdateStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final release = update.release;
     final installed = update.currentVersion.isEmpty
         ? 'Reading the installed version...'
         : 'Installed version: ${update.currentVersion}';
@@ -160,17 +159,6 @@ class _UpdateStatus extends StatelessWidget {
       ],
       const SizedBox(height: 12),
       Wrap(spacing: 8, runSpacing: 8, children: _actions(context)),
-      if (release != null && release.body.trim().isNotEmpty) ...[
-        const SizedBox(height: 16),
-        Text(
-            '${release.name} - ${AppFormats.current.formatDate(release.publishedAt)}',
-            style: const TextStyle(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 6),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 240),
-          child: SingleChildScrollView(child: SelectableText(release.body)),
-        ),
-      ],
     ]);
   }
 
@@ -201,6 +189,18 @@ class _UpdateStatus extends StatelessWidget {
           key: const Key('settings.updates.install'),
           label: 'Install ${release?.version ?? 'update'}',
           onPressed: controller.installUpdate,
+        ),
+      if (release != null && release.body.trim().isNotEmpty)
+        OutlinedButton(
+          key: const Key('settings.updates.notes'),
+          onPressed: () => showReleaseNotesPanel(context, release),
+          child: const Text('Release notes'),
+        ),
+      if (release != null)
+        OutlinedButton(
+          key: const Key('settings.updates.release'),
+          onPressed: () => openReleaseLink(context, release.pageUri),
+          child: const Text('View on GitHub'),
         ),
     ];
   }

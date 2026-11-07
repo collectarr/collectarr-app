@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Settings > Updates opens release notes in a panel with formatted text, images and links, and links to the release on GitHub.
+
 ## 1.6.0 - 2026-11-07
 
 ### Docs
