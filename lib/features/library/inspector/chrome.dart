@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/controls.dart';
@@ -399,67 +401,64 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
             child: Row(children: [
-              MenuAnchor(
-                menuChildren: [
-                  if (onShare != null)
-                    _inspectorMenuItem('Share', AppIcons.cloudSharing, onShare),
-                  if (ebayUri != null)
-                    _inspectorMenuItem('Find sold listings on eBay',
-                        AppIcons.search, () => launchUrl(ebayUri)),
+              TextButton.icon(
+                key: const Key('inspector.mobile-actions'),
+                onPressed: () => _showMobileActions(context, [
                   if (onDuplicate != null)
-                    _inspectorMenuItem(
+                    _MobileAction(
                         'Duplicate', AppIcons.duplicateAction, onDuplicate),
                   if (onToggleEntry != null)
-                    _inspectorMenuItem(
+                    _MobileAction(
                         item.source.isEntry ? 'Remove' : 'Collect',
                         item.source.isEntry
                             ? AppIcons.removeAction
                             : AppIcons.collect,
                         onToggleEntry),
-                  _inspectorMenuItem('Loan', AppIcons.loanAction, onLoan),
-                  if (onMoveToCollection != null)
-                    _inspectorMenuItem('Move to other collection',
-                        AppIcons.moveCollection, onMoveToCollection),
                   if (onRefreshMetadata != null)
-                    _inspectorMenuItem('Update from Core',
-                        AppIcons.updateFromCore, onRefreshMetadata),
+                    _MobileAction('Update from Core', AppIcons.updateFromCore,
+                        onRefreshMetadata),
                   if (onUnlinkFromCore != null)
-                    _inspectorMenuItem(
+                    _MobileAction(
                         'Unlink from Core', AppIcons.unlink, onUnlinkFromCore),
                   if (onLinkToCore != null)
-                    _inspectorMenuItem(
-                        'Link to Core', AppIcons.link, onLinkToCore),
+                    _MobileAction('Link to Core', AppIcons.link, onLinkToCore),
                   if (onSubmitToCore != null)
-                    _inspectorMenuItem(
+                    _MobileAction(
                         'Submit to Core', AppIcons.upload, onSubmitToCore),
+                  if (ebayUri != null)
+                    _MobileAction('Find sold listings on eBay', AppIcons.search,
+                        () => launchUrl(ebayUri)),
+                  if (onShare != null)
+                    _MobileAction('Share', AppIcons.cloudSharing, onShare),
+                  _MobileAction('Loan', AppIcons.loanAction, onLoan),
+                  if (onMoveToCollection != null)
+                    _MobileAction('Move to other collection',
+                        AppIcons.moveCollection, onMoveToCollection),
                   if (includeLayoutControl && onDetailsLayoutChanged != null)
-                    SubmenuButton(
-                      menuChildren: [
-                        for (final layout in LibraryDetailsLayout.values)
-                          MenuItemButton(
-                            onPressed: () =>
-                                onDetailsLayoutChanged?.call(layout),
-                            child: Text('Details ${layout.name}'),
-                          ),
-                      ],
-                      child: const Text('Details layout'),
-                    ),
-                ],
-                builder: (context, controller, _) => TextButton.icon(
-                  key: const Key('inspector.mobile-actions'),
-                  onPressed: () => controller.isOpen
-                      ? controller.close()
-                      : controller.open(),
-                  style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF8B8B8B),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4))),
-                  icon: const Icon(Icons.menu, size: 18),
-                  label: const Text('Action'),
-                ),
+                    _MobileAction(
+                        'Details layout',
+                        Icons.view_agenda_outlined,
+                        () => _showMobileActions(context, [
+                              for (final layout in LibraryDetailsLayout.values)
+                                _MobileAction(
+                                    'Details ${layout.name}',
+                                    Icons.view_agenda_outlined,
+                                    () => onDetailsLayoutChanged?.call(layout)),
+                            ])),
+                ]),
+                style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFF8B8B8B),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(100, 28),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textStyle: const TextStyle(fontSize: 13),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4))),
+                icon: const Icon(Icons.menu, size: 18),
+                label: const Text('Action'),
               ),
               const Spacer(),
               if (onEdit != null)
@@ -469,7 +468,10 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: palette.utilityAction,
                     foregroundColor: Colors.white,
-                    minimumSize: const Size(120, 36),
+                    minimumSize: const Size(104, 28),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textStyle: const TextStyle(fontSize: 13),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4)),
                   ),
@@ -716,5 +718,102 @@ class InspectorEbayLinksSection extends ConsumerWidget {
           icon: const Icon(Icons.open_in_new, size: 14),
           label: const Text('Search eBay'),
         ));
+  }
+}
+
+final class _MobileAction {
+  const _MobileAction(this.label, this.icon, this.onPressed);
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+}
+
+/// The reference's Action panel above the details bar. It is a route, so Back
+/// closes the panel and not the details behind it.
+void _showMobileActions(BuildContext context, List<_MobileAction> actions) {
+  final media = MediaQuery.of(context);
+  unawaited(showGeneralDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Close actions',
+    barrierColor: Colors.black38,
+    transitionDuration: const Duration(milliseconds: 100),
+    pageBuilder: (dialogContext, _, __) => Align(
+      alignment: Alignment.bottomLeft,
+      child: Padding(
+        padding: EdgeInsets.only(left: 8, bottom: media.padding.bottom + 42),
+        child: _MobileActionPanel(
+            actions: actions,
+            maxHeight: media.size.height - media.padding.vertical - 120),
+      ),
+    ),
+  ));
+}
+
+class _MobileActionPanel extends StatelessWidget {
+  const _MobileActionPanel({required this.actions, required this.maxHeight});
+  final List<_MobileAction> actions;
+  final double maxHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final divider = Divider(
+        height: 1, thickness: 1, color: libraryToolbarMenuBorder(context));
+    return Material(
+      key: const Key('inspector.mobile-action-panel'),
+      color: palette.panelRaised,
+      borderRadius: BorderRadius.circular(4),
+      clipBehavior: Clip.antiAlias,
+      child: ConstrainedBox(
+        constraints:
+            BoxConstraints(maxWidth: 313, maxHeight: maxHeight, minWidth: 240),
+        child: IntrinsicWidth(
+          stepWidth: 313,
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(
+              height: 28,
+              child: Center(
+                  child: Text('Select your action:',
+                      style:
+                          TextStyle(fontSize: 12, color: palette.textMuted))),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  for (final action in actions) ...[
+                    divider,
+                    InkWell(
+                      onTap: action.onPressed == null
+                          ? null
+                          : () {
+                              Navigator.of(context).pop();
+                              action.onPressed!();
+                            },
+                      child: SizedBox(
+                        height: 53,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(children: [
+                            Expanded(
+                                child: Text(action.label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 14))),
+                            const SizedBox(width: 12),
+                            Icon(action.icon,
+                                size: 20, color: palette.textMuted),
+                          ]),
+                        ),
+                      ),
+                    ),
+                  ],
+                ]),
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 }
