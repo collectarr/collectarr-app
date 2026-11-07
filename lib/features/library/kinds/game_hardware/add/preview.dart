@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/cover_preview.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_metadata.dart';
@@ -16,7 +17,7 @@ Widget buildGameHardwareAddPreview(
     mediaKind: item.summary.kind,
     imageUrl: item.summary.imageUrl,
     accent: request.accent,
-    platform: platform,
+    iconLabel: platformIconLabel(platform),
     year: hardware.releaseDateParts?.year,
     ebayQuery: '${hardware.title} $platform',
     details: [

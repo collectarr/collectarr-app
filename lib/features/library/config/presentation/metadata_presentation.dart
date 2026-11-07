@@ -20,6 +20,14 @@ import 'package:flutter/material.dart';
 
 import 'search_presentation.dart';
 
+/// A short label with an icon a kind supplies, shown in the Add dialog.
+class LibraryAddIconLabel {
+  const LibraryAddIconLabel(this.label, this.icon);
+
+  final String label;
+  final Widget Function(double size, Color? color) icon;
+}
+
 class LibraryAddSearchResultDisplay {
   const LibraryAddSearchResultDisplay({
     required this.title,
@@ -27,7 +35,7 @@ class LibraryAddSearchResultDisplay {
     required this.detailLine,
     this.trailingDetail,
     this.year,
-    this.platform,
+    this.iconLabel,
   });
 
   final String title;
@@ -38,8 +46,8 @@ class LibraryAddSearchResultDisplay {
   final String? trailingDetail;
   final int? year;
 
-  /// Shown with its icon on the row's last line, as in the reference.
-  final String? platform;
+  /// Shown on the row's last line, as in the reference.
+  final LibraryAddIconLabel? iconLabel;
 }
 
 enum LibraryMetadataSectionPlacement { context, credits }

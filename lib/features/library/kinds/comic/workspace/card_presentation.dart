@@ -61,7 +61,7 @@ LibraryCardPresentation buildComicCardPresentation(
       headline: fields.headline ?? item.dto.primaryLabel,
       subtitle: comicDto?.comic.variantDescription,
       numberLabel: fields.numberLabel,
-      date: fields.date,
+      dateLabel: fields.date,
       pill: fields.pill,
     ),
     coverBodyBuilder: buildStandardCoverContent,

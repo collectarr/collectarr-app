@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_add_registry.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -1273,16 +1272,15 @@ class SearchResultTile extends StatelessWidget {
                         if (secondary.isNotEmpty) Text(secondary),
                         Row(
                           children: [
-                            if (display?.platform case final platform?) ...[
+                            if (display?.iconLabel case final iconLabel?) ...[
                               Padding(
                                 padding: const EdgeInsets.only(top: 3),
-                                child: PlatformIcon(platform,
-                                    size: 20, color: palette.textMuted),
+                                child: iconLabel.icon(20, palette.textMuted),
                               ),
                               const SizedBox(width: 6),
                               Padding(
                                 padding: const EdgeInsets.only(top: 3),
-                                child: Text(platform,
+                                child: Text(iconLabel.label,
                                     style: TextStyle(color: palette.textMuted)),
                               ),
                               const SizedBox(width: 6),

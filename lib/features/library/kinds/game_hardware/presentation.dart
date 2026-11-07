@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'workspace/card_presentation.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -22,7 +23,7 @@ final class GameHardwarePresentationBuilder
         title: item.summary.primaryLabel,
         secondaryLine: null,
         detailLine: null,
-        platform: platform == null || platform.isEmpty ? null : platform);
+        iconLabel: platformIconLabel(platform));
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/presentation/metadata_presentation.dart';
 import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -110,6 +111,16 @@ IconData resolvePlatformIcon(String platform) {
 /// The icon the user loaded for the platform called [name], else its logo
 /// or glyph, at [size] in [color] or the current text color, with the name
 /// as tooltip. A loaded icon keeps its own colours.
+/// A platform name and its icon for the Add dialog, or null without a name.
+LibraryAddIconLabel? platformIconLabel(String? platform) {
+  final name = platform?.trim() ?? '';
+  if (name.isEmpty) return null;
+  return LibraryAddIconLabel(
+    name,
+    (size, color) => PlatformIcon(name, size: size, color: color),
+  );
+}
+
 class PlatformIcon extends ConsumerWidget {
   const PlatformIcon(this.name, {super.key, this.size = 16, this.color});
 

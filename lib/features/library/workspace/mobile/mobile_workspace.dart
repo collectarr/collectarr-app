@@ -165,7 +165,7 @@ class _TileData {
   final bool selectionMode;
   final VoidCallback onTap;
 
-  Widget cover(BuildContext context, {required double width}) {
+  Widget buildCover(BuildContext context, {required double width}) {
     final wrap = presentation.coverOverlayBuilder ?? (Widget cover) => cover;
     final ratio = MediaQuery.devicePixelRatioOf(context);
     return wrap(LibraryCoverImage(
@@ -294,7 +294,7 @@ class _ListRow extends StatelessWidget {
           SizedBox(
             width: _kMobileListCoverWidth,
             height: _kMobileListRowHeight,
-            child: data.cover(context, width: _kMobileListCoverWidth),
+            child: data.buildCover(context, width: _kMobileListCoverWidth),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -332,7 +332,7 @@ class _ListRow extends StatelessWidget {
                 children: [
                   if (content.numberLabel case final number?)
                     _NumberBadge(number, fontSize: 15),
-                  if (content.date case final date?)
+                  if (content.dateLabel case final date?)
                     Text(date,
                         style:
                             TextStyle(fontSize: 12, color: palette.textMuted)),
@@ -383,7 +383,7 @@ class _CardTile extends StatelessWidget {
               ),
               Expanded(
                 child: Stack(fit: StackFit.expand, children: [
-                  data.cover(context, width: constraints.maxWidth),
+                  data.buildCover(context, width: constraints.maxWidth),
                   if (data.showsStatusOnCover) _StatusOnCover(data: data),
                 ]),
               ),
@@ -392,7 +392,7 @@ class _CardTile extends StatelessWidget {
                 if (content.numberLabel case final number?)
                   Flexible(child: _NumberBadge(number, fontSize: 14)),
                 const Spacer(),
-                if (content.date case final date?)
+                if (content.dateLabel case final date?)
                   Text(date.replaceFirst(', ', '\n'),
                       textAlign: TextAlign.right,
                       style: TextStyle(
@@ -423,7 +423,7 @@ class _ImageTile extends StatelessWidget {
               Stack(fit: StackFit.expand, children: [
             Opacity(
               opacity: data.selected ? .5 : 1,
-              child: data.cover(context, width: constraints.maxWidth),
+              child: data.buildCover(context, width: constraints.maxWidth),
             ),
             if (data.showsStatusOnCover) _StatusOnCover(data: data),
           ]),

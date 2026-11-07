@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
-import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/features/library/config/presentation/metadata_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The item in the Add dialog's confirm sheet: cover beside title, platform
+/// The item in the Add dialog's confirm sheet: cover beside title, icon label
 /// and year, its details and a link to eBay, as in the reference.
 class LibraryAddCoverPreview extends ConsumerWidget {
   const LibraryAddCoverPreview({
@@ -17,7 +17,7 @@ class LibraryAddCoverPreview extends ConsumerWidget {
     required this.imageUrl,
     required this.accent,
     required this.ebayQuery,
-    this.platform = '',
+    this.iconLabel,
     this.year,
     this.details = const [],
   });
@@ -27,7 +27,7 @@ class LibraryAddCoverPreview extends ConsumerWidget {
   final String? imageUrl;
   final Color accent;
   final String ebayQuery;
-  final String platform;
+  final LibraryAddIconLabel? iconLabel;
   final int? year;
   final List<String> details;
 
@@ -64,15 +64,15 @@ class LibraryAddCoverPreview extends ConsumerWidget {
                           height: 26 / 24,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 12),
-                  if (platform.isNotEmpty || year != null)
+                  if (iconLabel != null || year != null)
                     Row(children: [
-                      if (platform.isNotEmpty) ...[
-                        PlatformIcon(platform, size: 24),
+                      if (iconLabel case final iconLabel?) ...[
+                        iconLabel.icon(24, null),
                         const SizedBox(width: 5),
-                        Flexible(child: Text(platform)),
+                        Flexible(child: Text(iconLabel.label)),
                       ],
                       if (year != null)
-                        Text(platform.isEmpty ? '$year' : ' ($year)',
+                        Text(iconLabel == null ? '$year' : ' ($year)',
                             style: TextStyle(
                                 color: palette.isDark
                                     ? const Color(0xff888888)

@@ -136,14 +136,14 @@ class LibraryMobileTileContent {
     required this.headline,
     this.subtitle,
     this.numberLabel,
-    this.date,
+    this.dateLabel,
     this.pill,
   });
 
   final String headline;
   final String? subtitle;
   final String? numberLabel;
-  final String? date;
+  final String? dateLabel;
   final LibraryCardPill? pill;
 }
 
