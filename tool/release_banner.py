@@ -41,7 +41,7 @@ class Slot:
 
 SLOTS = {
     'version': Slot((600, 138, 1092, 196), 0, (112, 226, 52), 50, MONO_BOLD, glow=(60, 200, 40)),
-    'date': Slot((1172, 150, 1292, 190), -5, PAPER_INK, 34),
+    'date': Slot((1170, 150, 1294, 190), -5, PAPER_INK, 30),
     'issues': Slot((244, 454, 380, 516), 7, (150, 34, 26), 30, lines=2),
     'stars': Slot((1345, 552, 1505, 604), 2, (246, 200, 82), 38),
     'previous_version': Slot((296, 684, 524, 716), 1, SCREEN_INK, 24, MONO),
@@ -236,11 +236,10 @@ def new_contributors(repo, logins, previous):
     return [login for login in logins if not json.loads(gh('api', f'repos/{repo}/commits?sha={previous}&author={login}&per_page=1'))]
 
 
-def week_of(moment):
-    """The Monday of the week a release was published, like `Oct 26`."""
+def release_date(moment):
+    """The day a release was published, like `Oct 31, 2026`."""
     day = datetime.datetime.fromisoformat(moment.replace('Z', '+00:00')).date()
-    monday = day - datetime.timedelta(days=day.weekday())
-    return f'{monday:%b} {monday.day}'
+    return f'{day:%b} {day.day}, {day.year}'
 
 
 def contributor_rows(logins):
@@ -265,7 +264,7 @@ def release_data(repo, tag, entry):
     logins = contributors(commits)
     return {
         'version': tag,
-        'date': week_of(moment),
+        'date': release_date(moment),
         'issues': plural(issues, 'open issue'),
         'stars': plural(stars, 'star'),
         'previous_version': previous or 'First release',
