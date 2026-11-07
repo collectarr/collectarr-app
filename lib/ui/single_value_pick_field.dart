@@ -268,7 +268,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           floatingLabelStyle:
               nativeEditor ? const TextStyle(fontSize: 12) : null,
           floatingLabelBehavior:
-              nativeEditor ? FloatingLabelBehavior.always : null,
+              nativeEditor ? FloatingLabelBehavior.auto : null,
           filled: !nativeEditor,
           fillColor: nativeEditor ? Colors.transparent : null,
           border: nativeEditor

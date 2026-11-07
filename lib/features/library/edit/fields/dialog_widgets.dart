@@ -121,7 +121,9 @@ ThemeData editDialogTheme({
       constraints: BoxConstraints(
         minHeight: isNativeMobile ? 56 : LibraryMetrics.defaultFieldHeight,
       ),
-      floatingLabelBehavior: FloatingLabelBehavior.always,
+      floatingLabelBehavior: isNativeMobile
+          ? FloatingLabelBehavior.auto
+          : FloatingLabelBehavior.always,
       labelStyle: TextStyle(
         color: palette.textPrimary.withValues(alpha: 0.7),
         fontSize: isNativeMobile

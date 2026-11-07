@@ -122,7 +122,10 @@ class _LibraryMobileEditorScaffoldState
           title: title,
           headerColor: accent,
           systemBarColor: widget.systemBarColor,
-          backgroundColor: appPalette(context).surfaceBright,
+          // One background down the whole sheet, as in the reference.
+          backgroundColor: appPalette(context).isDark
+              ? const Color(0xFF303030)
+              : appPalette(context).panel,
           onBack: onBack,
           canGoBack: !isBusy,
           actions: [

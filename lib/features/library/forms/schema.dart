@@ -26,6 +26,7 @@ final class LibraryFormSectionSpec<TDraft> {
     this.fieldColumnSpans = const <String, int>{},
     this.rightAlignedFieldIds = const <String>{},
     this.columns = const <LibraryFormColumnSpec>[],
+    this.wideColumns = const <LibraryFormColumnSpec>[],
     this.visibleWhen,
   });
 
@@ -36,6 +37,9 @@ final class LibraryFormSectionSpec<TDraft> {
   final Set<String> fullWidthFieldIds;
   final Map<String, int> fieldColumnSpans;
   final Set<String> rightAlignedFieldIds;
+
+  /// Replaces [columns] from 600 dp wide, when not empty.
+  final List<LibraryFormColumnSpec> wideColumns;
 
   /// Independently stacked columns; each row contains one or more field IDs.
   /// Empty means the section uses the regular responsive field grid.

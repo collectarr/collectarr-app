@@ -34,6 +34,7 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
           LibraryFormSectionSpec<ComicAddManualDraft>(
             id: 'issue',
             label: 'Issue',
+            wideColumns: mobile ? comicWideMobileMainColumns : const [],
             columns: mobile
                 ? comicMobileMainColumns
                 : fieldIds?.contains('comic.series') == true

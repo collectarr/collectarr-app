@@ -108,7 +108,10 @@ class _LibraryFieldSpecRendererState<TDraft>
             fullWidthFieldIds: section.fullWidthFieldIds,
             fieldColumnSpans: section.fieldColumnSpans,
             rightAlignedFieldIds: section.rightAlignedFieldIds,
-            columns: section.columns,
+            columns: section.wideColumns.isNotEmpty &&
+                    MediaQuery.sizeOf(context).width >= 600
+                ? section.wideColumns
+                : section.columns,
           ),
         ],
       ],

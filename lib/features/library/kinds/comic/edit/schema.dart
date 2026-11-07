@@ -135,6 +135,7 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
           id: 'issue',
           label: '',
           columns: comicMobileMainColumns,
+          wideColumns: comicWideMobileMainColumns,
           fields: [
             ..._fields(const [
               'comic.series',
