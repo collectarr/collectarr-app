@@ -1,10 +1,13 @@
 import 'pick_list_chrome.dart';
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import '../list_value_images.dart';
 import '../models/pick_list_value.dart';
 import '../pick_list_repository.dart';
 import 'pick_list_manager_page.dart';
@@ -23,6 +26,7 @@ class PickListSelectionDialog extends StatefulWidget {
       this.pluralLabel,
       this.mediaKind,
       this.allowUserValues = false,
+      this.showImages = false,
       this.db});
   final String label;
   final List<String> options;
@@ -32,6 +36,9 @@ class PickListSelectionDialog extends StatefulWidget {
   final String? pluralLabel;
   final String? mediaKind;
   final bool allowUserValues;
+
+  /// Lists each value's image, which can be chosen from its row.
+  final bool showImages;
   final LocalDatabase? db;
   @override
   State<PickListSelectionDialog> createState() =>
@@ -50,6 +57,8 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
   bool _managing = false;
   bool _managerReady = false;
   String? _error;
+  Map<String, Uint8List> _images = const {};
+  StreamSubscription<Map<String, Uint8List>>? _imagesSubscription;
   late final _definition = defaultPickListRegistry
       .definitionsForKind(widget.mediaKind)
       .where((definition) => definition.listName == widget.listName)
@@ -63,16 +72,53 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
           ? null
           : PickListRepository(widget.db!,
               contributors: defaultPickListDefinitionContributors);
+
+  ListValueImages? get _imageStore =>
+      widget.showImages && widget.db != null && widget.listName != null
+          ? ListValueImages(widget.db!)
+          : null;
+
   @override
   void initState() {
     super.initState();
+    _imagesSubscription = _imageStore
+        ?.watchImages(widget.listName!)
+        .listen((images) => setState(() => _images = images));
     unawaited(_load());
   }
 
   @override
   void dispose() {
+    unawaited(_imagesSubscription?.cancel());
     _search.dispose();
     super.dispose();
+  }
+
+  void _tell(String? message) {
+    if (message == null || !mounted) return;
+    ScaffoldMessenger.maybeOf(context)
+        ?.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _loadImages() async {
+    final result = await _imageStore!.loadFiles(widget.listName!);
+    if (result.loaded > 0 || result.skipped.isNotEmpty) {
+      _tell(listValueImagesLoadMessage(result));
+    }
+    // Images named after new values add them to the list.
+    if (result.loaded > 0 && mounted) await _load();
+  }
+
+  Widget _imageCell(PickListValue value) {
+    final store = _imageStore!;
+    final list = widget.listName!;
+    final key = listValueImageKey(value.value);
+    return _PickListImageCell(
+        label: value.effectiveLabel,
+        image: key == null ? null : _images[key],
+        onChoose: () async =>
+            _tell(await chooseListValueImage(store, list, value.value)),
+        onRemove: () => store.remove(list, value.value));
   }
 
   Future<void> _load() async {
@@ -95,6 +141,10 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
       for (final option in widget.options) {
         final value = _changes.apply(listName ?? '', option);
         if (value != null) add(value);
+      }
+      for (final value
+          in await _imageStore?.watchValues(listName!).first ?? <String>[]) {
+        add(value);
       }
       final mediaKind = widget.mediaKind;
       if (repository != null &&
@@ -305,6 +355,12 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
                                   onPressed: _busy ? null : _create,
                                   style: pickListButtonStyle(context),
                                   child: Text('New ${widget.label}')),
+                            if (_imageStore != null)
+                              FilledButton(
+                                  onPressed: _busy ? null : _loadImages,
+                                  style: pickListButtonStyle(context,
+                                      primary: false),
+                                  child: const Text('Load Images')),
                             if (_repository != null)
                               FilledButton(
                                   onPressed: _busy ? null : _manage,
@@ -333,6 +389,9 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
                                       mode: widget.multiple
                                           ? PickListTableMode.multiSelect
                                           : PickListTableMode.singleSelect,
+                                      imageCell: _imageStore == null
+                                          ? null
+                                          : _imageCell,
                                       onSelect: _select))),
                       Padding(
                           padding: const EdgeInsets.all(10),
@@ -354,5 +413,51 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
                                       child: const Text('Save')),
                               ])),
                     ]))));
+  }
+}
+
+enum _ImageAction { choose, remove }
+
+/// A value's image in the select table. Tapping it manages the image without
+/// selecting the value: an empty cell asks for a file straight away.
+class _PickListImageCell extends StatelessWidget {
+  const _PickListImageCell(
+      {required this.label,
+      required this.image,
+      required this.onChoose,
+      required this.onRemove});
+  final String label;
+  final Uint8List? image;
+  final VoidCallback onChoose;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = this.image;
+    if (image == null) {
+      return InkWell(
+          onTap: onChoose,
+          mouseCursor: WidgetStateMouseCursor.clickable,
+          child: Tooltip(
+              message: 'Choose an image for "$label"',
+              child: Icon(AppIcons.tabImages,
+                  size: 15, color: appPalette(context).textMuted)));
+    }
+    return PopupMenuButton<_ImageAction>(
+        tooltip: 'Image of "$label"',
+        onSelected: (action) => switch (action) {
+              _ImageAction.choose => onChoose(),
+              _ImageAction.remove => onRemove(),
+            },
+        itemBuilder: (_) => const [
+              PopupMenuItem(
+                  value: _ImageAction.choose,
+                  child: Text('Choose another image...')),
+              PopupMenuItem(
+                  value: _ImageAction.remove, child: Text('Remove the image')),
+            ],
+        child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: SizedBox.expand(child: ListValueImageView(image))));
   }
 }

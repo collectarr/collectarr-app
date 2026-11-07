@@ -4,10 +4,12 @@
 
 ### Features
 - Settings > Updates opens release notes in a panel with formatted text, images and links, and links to the release on GitHub.
+- Comics' Custom Label shows each label's image inside the field and its menu, and the Select panel chooses, removes and loads label images.
 
 ### Fixes
 - On Windows, Install in Settings > Updates starts the installer instead of staying on "Starting the installer...", and reports when it cannot start.
 - The library switcher in the header no longer stays highlighted after closing it by clicking elsewhere.
+- Comics' Custom Label shows its field label once.
 
 ## 1.6.0 - 2026-11-07
 

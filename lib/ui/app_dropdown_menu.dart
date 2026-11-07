@@ -47,7 +47,10 @@ final class AppDropdownMenuStyle {
 
   /// A plain 32 px row; [current] marks the value the field holds.
   PopupMenuEntry<T> row<T>(
-          {required T value, required Widget child, bool current = false}) =>
+          {required T value,
+          required Widget child,
+          Widget? trailing,
+          bool current = false}) =>
       shaded(PopupMenuItem<T>(
           value: value,
           height: rowHeight,
@@ -56,9 +59,12 @@ final class AppDropdownMenuStyle {
               height: rowHeight,
               width: double.infinity,
               alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 7),
+              padding:
+                  EdgeInsets.only(left: 7, right: trailing == null ? 7 : 0),
               color: current ? shade : null,
-              child: child)));
+              child: trailing == null
+                  ? child
+                  : Row(children: [Expanded(child: child), trailing]))));
 }
 
 class _ShadedMenuEntry<T> extends PopupMenuEntry<T> {

@@ -20,7 +20,8 @@ class PickListValuesTable extends StatefulWidget {
       this.onEdit,
       this.onDelete,
       this.enabled = true,
-      this.showSortName = true});
+      this.showSortName = true,
+      this.imageCell});
   final List<PickListValue> values;
   final Map<String, int> usageCounts;
   final PickListTableMode mode;
@@ -30,9 +31,14 @@ class PickListValuesTable extends StatefulWidget {
   final ValueChanged<PickListValue>? onDelete;
   final bool enabled;
   final bool showSortName;
+
+  /// Adds an Image column for lists whose values can have an image.
+  final Widget Function(PickListValue value)? imageCell;
   @override
   State<PickListValuesTable> createState() => _PickListValuesTableState();
 }
+
+const _imageColumnWidth = 120.0;
 
 class _PickListValuesTableState extends State<PickListValuesTable> {
   PickListTableSort _sort = PickListTableSort.name;
@@ -65,6 +71,9 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selecting = widget.mode != PickListTableMode.manage;
+    final imageCell = widget.imageCell;
+    final grid = _PickListGrid(pickListDivider(context), selecting,
+        imageColumn: imageCell != null);
     final values = [...widget.values]..sort((a, b) {
         // A single choice lists the current value first, whatever the sort.
         if (widget.mode == PickListTableMode.singleSelect) {
@@ -92,7 +101,7 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
       });
     return Column(children: [
       CustomPaint(
-          foregroundPainter: _PickListGrid(pickListDivider(context), selecting),
+          foregroundPainter: grid,
           child: Container(
               height: 48,
               decoration: BoxDecoration(
@@ -114,6 +123,15 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                     'Sort Name', PickListTableSort.sortName,
                                     secondary: true)
                             ]))),
+                if (imageCell != null)
+                  const SizedBox(
+                      width: _imageColumnWidth,
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          child: Text('Image',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: kAppBoldFontWeight)))),
                 SizedBox(
                     width: 84,
                     child: Padding(
@@ -136,8 +154,7 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                         ? (selecting ? widget.onSelect : widget.onEdit)
                         : null;
                     return CustomPaint(
-                        foregroundPainter:
-                            _PickListGrid(pickListDivider(context), selecting),
+                        foregroundPainter: grid,
                         child: Material(
                             color: pickListRow(context, index),
                             child: InkWell(
@@ -213,6 +230,11 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                                               color: palette
                                                                   .textMuted)),
                                                   ]))),
+                                      if (imageCell != null)
+                                        SizedBox(
+                                            width: _imageColumnWidth,
+                                            height: 48,
+                                            child: imageCell(value)),
                                       SizedBox(
                                           width: 84,
                                           child: Padding(
@@ -257,9 +279,10 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
 
 /// Paint the reference grid without changing cell widths or hit targets.
 class _PickListGrid extends CustomPainter {
-  const _PickListGrid(this.color, this.selecting);
+  const _PickListGrid(this.color, this.selecting, {this.imageColumn = false});
   final Color color;
   final bool selecting;
+  final bool imageColumn;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -267,7 +290,12 @@ class _PickListGrid extends CustomPainter {
       ..color = color
       ..strokeWidth = 1;
     final countEnd = size.width - (selecting ? 0 : 36);
-    for (final x in [36.0, countEnd - 84, if (!selecting) countEnd]) {
+    for (final x in [
+      36.0,
+      if (imageColumn) countEnd - 84 - _imageColumnWidth,
+      countEnd - 84,
+      if (!selecting) countEnd
+    ]) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
     canvas.drawLine(Offset(0, size.height - .5),
@@ -276,5 +304,7 @@ class _PickListGrid extends CustomPainter {
 
   @override
   bool shouldRepaint(_PickListGrid oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.selecting != selecting;
+      oldDelegate.color != color ||
+      oldDelegate.selecting != selecting ||
+      oldDelegate.imageColumn != imageColumn;
 }

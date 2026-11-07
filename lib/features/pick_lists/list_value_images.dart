@@ -129,6 +129,14 @@ class ListValueImages {
         .watch();
   }
 
+  /// Every image of [list], by [listValueImageKey].
+  Stream<Map<String, Uint8List>> watchImages(String list) {
+    final rows = _db.listValueImagesCache;
+    return (_db.select(rows)..where((row) => row.listKey.equals(list)))
+        .watch()
+        .map((rows) => {for (final row in rows) row.valueKey: row.valueImage});
+  }
+
   Future<void> save(String list, String value, Uint8List image) async {
     final key = listValueImageKey(value);
     if (key == null) return;
@@ -213,10 +221,33 @@ final listValueImageValuesProvider = StreamProvider.autoDispose
     .family<List<String>, String>(
         (ref, list) => ref.watch(listValueImagesProvider).watchValues(list));
 
+/// Every image of a list, by [listValueImageKey].
+final listValueImagesByKeyProvider = StreamProvider.autoDispose
+    .family<Map<String, Uint8List>, String>(
+        (ref, list) => ref.watch(listValueImagesProvider).watchImages(list));
+
+/// Asks for an image file and stores it for [value]; returns what went wrong.
+Future<String?> chooseListValueImage(
+    ListValueImages images, String list, String value) async {
+  final file = await openFile(acceptedTypeGroups: listValueImageFileTypes);
+  if (file == null) return null;
+  try {
+    final bytes = await file.readAsBytes();
+    await validateListValueImage(bytes);
+    await images.save(list, value, bytes);
+    return null;
+  } on FormatException catch (error) {
+    return error.message;
+  } catch (_) {
+    return 'Could not load the image.';
+  }
+}
+
 /// A loaded list value image, SVG or raster, scaled to fit.
 class ListValueImageView extends StatelessWidget {
   const ListValueImageView(this.image,
       {this.fit = BoxFit.contain,
+      this.alignment = Alignment.center,
       this.width,
       this.height,
       this.blackSvgTint,
@@ -224,6 +255,7 @@ class ListValueImageView extends StatelessWidget {
 
   final Uint8List image;
   final BoxFit fit;
+  final Alignment alignment;
   final double? width;
   final double? height;
 
@@ -235,13 +267,18 @@ class ListValueImageView extends StatelessWidget {
   Widget build(BuildContext context) => isSvgImage(image)
       ? SvgPicture.memory(image,
           fit: fit,
+          alignment: alignment,
           width: width,
           height: height,
           colorFilter: blackSvgTint != null && isBlackSvg(image)
               ? ColorFilter.mode(blackSvgTint!, BlendMode.srcIn)
               : null)
       : Image.memory(image,
-          fit: fit, width: width, height: height, gaplessPlayback: true);
+          fit: fit,
+          alignment: alignment,
+          width: width,
+          height: height,
+          gaplessPlayback: true);
 }
 
 /// "Loaded 3 images. Skipped: a.txt." after loading files.

@@ -32,6 +32,7 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget
     this.enabled = true,
     this.focusNode,
     this.showFieldLabel = true,
+    this.optionImage,
   });
 
   final String label;
@@ -48,6 +49,7 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget
   final bool enabled;
   final FocusNode? focusNode;
   final bool showFieldLabel;
+  final Widget? Function(String value)? optionImage;
 
   @override
   State<LibraryDropdownPickField<TValue>> createState() =>
@@ -178,6 +180,7 @@ class _LibraryDropdownPickFieldState<TValue>
       enabled: widget.enabled,
       onChanged: _selectLabel,
       onManage: widget.onManage ?? _openPicker,
+      optionImage: widget.optionImage,
     );
     return widget.showFieldLabel && !LibraryMobileEditFormScope.active(context)
         ? LibraryFormField(label: widget.label, child: field)

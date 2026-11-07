@@ -31,6 +31,7 @@ class SingleValuePickField extends StatefulWidget
     this.enabled = true,
     this.readOnly = false,
     this.focusNode,
+    this.optionImage,
   });
 
   final TextEditingController controller;
@@ -50,6 +51,10 @@ class SingleValuePickField extends StatefulWidget
   final bool readOnly;
   final FocusNode? focusNode;
 
+  /// A value's image, shown at the right of its menu row and of the field, as
+  /// the reference shows a Custom Label's image.
+  final Widget? Function(String value)? optionImage;
+
   @override
   State<SingleValuePickField> createState() => _SingleValuePickFieldState();
 }
@@ -60,6 +65,8 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode;
   final GlobalKey _fieldAnchorKey = GlobalKey();
   static const _suffixButtonExtent = 32.0;
+  static const _fieldImageWidth = 72.0;
+  static const _menuImageWidth = 110.0;
 
   @override
   void initState() {
@@ -169,6 +176,13 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
               menu.row(
                   value: option,
                   current: currentValue == option.toLowerCase(),
+                  trailing: switch (widget.optionImage?.call(option)) {
+                    final image? => SizedBox(
+                        width: _menuImageWidth,
+                        height: AppDropdownMenuStyle.rowHeight,
+                        child: image),
+                    null => null,
+                  },
                   child: Text(option,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -245,8 +259,13 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     final fieldHeight = nativeEditor
         ? 56.0
         : LibraryDensityScope.of(context).metrics.fieldHeight;
-    final suffixWidth =
-        _suffixButtonExtent + (hasBrowseAction ? PickListFieldButton.width : 0);
+    final image = widget.optionImage?.call(widget.controller.text.trim());
+    final imageWidth = image == null ? 0.0 : _fieldImageWidth;
+    final suffixWidth = imageWidth +
+        (nativeEditor
+            ? 44.0
+            : _suffixButtonExtent +
+                (hasBrowseAction ? PickListFieldButton.width : 0));
     return KeyedSubtree(
       key: _fieldAnchorKey,
       child: TextFormField(
@@ -309,16 +328,19 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
             minHeight: fieldHeight,
           ),
           suffixIconConstraints: BoxConstraints(
-            minWidth: nativeEditor ? 44.0 : suffixWidth,
-            maxWidth: nativeEditor ? 44.0 : suffixWidth,
+            minWidth: suffixWidth,
+            maxWidth: suffixWidth,
             minHeight: fieldHeight - 2,
           ),
           suffixIcon: SizedBox(
-            width: nativeEditor ? 44.0 : suffixWidth,
+            width: suffixWidth,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.max,
               children: [
+                if (image != null)
+                  SizedBox(
+                      width: imageWidth, height: fieldHeight - 2, child: image),
                 _suffixAction(
                   tooltip: 'Pick ${widget.label}',
                   onPressed: () => _openInlinePicker(normalizedOptions),

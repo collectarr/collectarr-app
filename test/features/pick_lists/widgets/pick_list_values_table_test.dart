@@ -24,6 +24,19 @@ void main() {
     expect(top(tester, 'Zeta'), lessThan(top(tester, 'Alpha')));
   });
 
+  testWidgets('lists with images add an Image column', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: PickListValuesTable(
+                values: [value('Alpha')],
+                usageCounts: const {},
+                mode: PickListTableMode.singleSelect,
+                imageCell: (value) => Text('image of ${value.value}')))));
+
+    expect(find.text('Image'), findsOneWidget);
+    expect(find.text('image of Alpha'), findsOneWidget);
+  });
+
   testWidgets('a multiple choice keeps the sort order', (tester) async {
     await pump(tester, PickListTableMode.multiSelect);
     expect(top(tester, 'Alpha'), lessThan(top(tester, 'Zeta')));

@@ -106,6 +106,34 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('a value image shows in the field and its menu row',
+      (tester) async {
+    final controller = TextEditingController(text: 'Publisher A');
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleValuePickField(
+            controller: controller,
+            options: const ['Publisher A', 'Publisher B'],
+            label: 'Publisher',
+            optionImage: (value) => value == 'Publisher A'
+                ? const SizedBox(key: Key('publisher-a-image'))
+                : null,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const Key('publisher-a-image')), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Pick Publisher'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('publisher-a-image')), findsNWidgets(2));
+  });
+
   testWidgets('single value pick field exposes an inline picker menu',
       (tester) async {
     final controller = TextEditingController(text: 'Publisher A');

@@ -12,6 +12,7 @@ Future<String?> showPickListSelectDialog({
   String? pluralLabel,
   String? mediaKind,
   bool allowUserValues = false,
+  bool showImages = false,
   LocalDatabase? db,
 }) =>
     showAppDialog<String>(
@@ -26,4 +27,5 @@ Future<String?> showPickListSelectDialog({
             pluralLabel: pluralLabel,
             mediaKind: mediaKind,
             allowUserValues: allowUserValues,
+            showImages: showImages,
             db: db));
