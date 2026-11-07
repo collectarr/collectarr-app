@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/controls.dart';
@@ -732,13 +733,13 @@ final class _MobileAction {
 /// closes the panel and not the details behind it.
 void _showMobileActions(BuildContext context, List<_MobileAction> actions) {
   final media = MediaQuery.of(context);
-  unawaited(showGeneralDialog<void>(
+  unawaited(showAppDialog<void>(
     context: context,
     barrierDismissible: true,
     barrierLabel: 'Close actions',
     barrierColor: Colors.black38,
-    transitionDuration: const Duration(milliseconds: 100),
-    pageBuilder: (dialogContext, _, __) => Align(
+    useSafeArea: false,
+    builder: (dialogContext) => Align(
       alignment: Alignment.bottomLeft,
       child: Padding(
         padding: EdgeInsets.only(left: 8, bottom: media.padding.bottom + 42),
