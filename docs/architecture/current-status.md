@@ -119,6 +119,12 @@ owners. Native primary destinations reuse the drawer model, with a bar below
 840 dp and a rail above; collection selection sits above library content and
 shares activation with desktop tabs.
 
+The header is a fixed bar; it does not collapse on scroll, so the library's
+toolbars keep their place. Library pages keep a bottom bar with the menu and
+collection tabs, as the reference does, and other pages have none. Settings
+and the management pages share the same header, with scrollable tabs when the
+window is narrow.
+
 Native item activation opens a root detail route and keeps the Library route
 mounted below it; long-press selects without opening. `/detail` identifies the
 kind, entry/catalog namespace and ID. Shelf hydration and cached catalog

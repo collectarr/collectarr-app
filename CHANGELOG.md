@@ -30,6 +30,7 @@
 ## 1.6.0 - 2026-11-07
 
 ### Docs
+- The architecture notes record why the header stays fixed and only library pages have a bottom bar.
 - The README describes the current libraries, features and platforms, without emoji.
 - The CLZ parity guide lists what is left to compare in the Add flows of Games, Hardware and Toys.
 - The CLZ parity guide records the remaining phone differences of the Action menu, Pre-fill, settings, sync and accounts.
