@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -49,8 +50,14 @@ void main() {
     addTearDown(db.close);
     final images = ListValueImages(db);
     final svg = Uint8List.fromList(utf8.encode('<svg></svg>'));
-    XFile file(String name, List<int> bytes) =>
-        XFile.fromData(Uint8List.fromList(bytes), name: name);
+    // A real file: XFile.fromData ignores its name outside the web.
+    final folder = Directory.systemTemp.createTempSync('list_value_images');
+    addTearDown(() => folder.deleteSync(recursive: true));
+    XFile file(String name, List<int> bytes) {
+      final path = '${folder.path}${Platform.pathSeparator}$name';
+      File(path).writeAsBytesSync(bytes);
+      return XFile(path);
+    }
 
     final result = await images.loadPickedFiles('platform', [
       file('ps5.svg', svg),

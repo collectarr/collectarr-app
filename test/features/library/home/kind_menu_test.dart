@@ -17,7 +17,6 @@ void main() {
     testWidgets('switcher opens under the title and points to it at $width px',
         (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      addTearDown(() => debugDefaultTargetPlatformOverride = null);
       tester.view.physicalSize = Size(width, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -59,6 +58,7 @@ void main() {
       await tester.tapAt(const Offset(5, 300));
       await tester.pumpAndSettle();
       expect(find.text('CLR Games'), findsNothing);
+      debugDefaultTargetPlatformOverride = null;
     });
   }
 

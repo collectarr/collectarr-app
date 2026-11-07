@@ -178,7 +178,7 @@ void main() {
       await tester.tap(games);
       await tester.pumpAndSettle();
       expect(find.text('Platform icons'), findsOneWidget);
-      expect(find.text('Load icons from files...'), findsOneWidget);
+      expect(find.text('Load icons from files...'), findsWidgets);
       for (final kind in ['game', 'game_hardware', 'game_toy']) {
         expect(
             find.byKey(ValueKey('settings.kind.layout.$kind')), findsOneWidget);

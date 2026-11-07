@@ -60,10 +60,12 @@ void main() {
 
     test('Game vocabularies cover the reference Main, Value and Personal lists',
         () {
-      // As in the reference, the lists hold only the values entries use.
+      // As in the reference, the lists hold only the values entries use; the
+      // platform picker needs its platforms before any entry exists.
       expect(
-          GameVocabularies.all
-              .where((vocabulary) => vocabulary.builtIns.isNotEmpty),
+          GameVocabularies.all.where((vocabulary) =>
+              vocabulary.builtIns.isNotEmpty &&
+              vocabulary.key != 'game.platform'),
           isEmpty);
       expect(
         GameVocabularies.all.map((vocabulary) => vocabulary.key),

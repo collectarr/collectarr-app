@@ -178,6 +178,8 @@ void main() {
         find.textContaining('CLZ.com Web © Copyright 2000-2026'),
         findsNothing,
       );
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 100));
     });
 
     testWidgets(
@@ -258,6 +260,8 @@ void main() {
       await tester.tap(find.byKey(const Key('import_data.back')));
       await tester.pumpAndSettle();
       expect(find.text('Import from:'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 100));
     });
 
     testWidgets('navigates to guided file import view (Discogs)',
@@ -299,6 +303,8 @@ void main() {
       await tester.tap(find.byKey(const Key('import_data.back')));
       await tester.pumpAndSettle();
       expect(find.text('Import from:'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 100));
     });
   });
 }

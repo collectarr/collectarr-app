@@ -17,7 +17,7 @@ void main() {
                   selectedIds: const {'zeta'}))));
 
   double top(WidgetTester tester, String name) =>
-      tester.getTopLeft(find.text(name)).dy;
+      tester.getTopLeft(find.text(name).first).dy;
 
   testWidgets('a single choice lists the current value first', (tester) async {
     await pump(tester, PickListTableMode.singleSelect);

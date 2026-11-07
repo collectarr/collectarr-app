@@ -126,6 +126,8 @@ void main() {
 
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
+      await tester.ensureVisible(find.text('Settings'));
+      await pumpUntilSettled(tester);
       await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       expect(find.text('CLR MUSIC'), findsOneWidget);
