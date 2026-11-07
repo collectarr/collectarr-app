@@ -7,6 +7,7 @@
 - Comics' Custom Label shows each label's image inside the field and its menu, and the Select panel chooses, removes and loads label images.
 - Images loaded for list values, such as Custom Label, platform and toy type images, sync across devices; each image is limited to 2 MB.
 - Select Location matches the other pick lists, lists full paths with item counts and creates nested locations.
+- The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
 - On Windows, Install in Settings > Updates starts the installer instead of staying on "Starting the installer...", and reports when it cannot start.

@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/library/workspace/layout/snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/snapshot_provider.dart';
+import 'package:collectarr_app/features/library/ui/kind_loading_gate.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -402,14 +403,16 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
                   ? null
                   : () =>
                       _requestCoverPrewarm(context, loadedShelf, selected.kind),
-              child: _buildCachedKindBody(
-                selected: selected,
-                accent: accent,
-                routeUri: widget.routeUri,
-                visibleTypes: visibleTypes,
-                animationDuration: switchAnimationDuration,
-                switchLayoutSnapshot: _switchLayoutSnapshot,
-              )),
+              child: LibraryKindLoadingGate(
+                  kind: selected.kind,
+                  builder: (_) => _buildCachedKindBody(
+                        selected: selected,
+                        accent: accent,
+                        routeUri: widget.routeUri,
+                        visibleTypes: visibleTypes,
+                        animationDuration: switchAnimationDuration,
+                        switchLayoutSnapshot: _switchLayoutSnapshot,
+                      ))),
         ),
       ],
     );

@@ -91,7 +91,7 @@ abstract final class LibraryPageShellPresenter {
         );
       },
       error: (error, _) => AppErrorCard(message: error.toString()),
-      loading: () => const SkeletonGrid(),
+      loading: () => const LibraryShelfLoading(),
     );
     return LibraryPageShellFrame(
       addButtonInset: _addButtonInset(state, viewState),

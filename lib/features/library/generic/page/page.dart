@@ -58,7 +58,7 @@ import 'package:collectarr_app/features/library/generic/page/sidebar_scope_histo
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
+import 'package:collectarr_app/features/library/ui/kind_loading_gate.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/facet_controller_provider.dart';
