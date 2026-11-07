@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_completeness.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/edit/value_tab.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/collections/repository.dart';
@@ -53,6 +53,44 @@ void main() {
             ], target.id),
         throwsArgumentError);
     expect((await collections.list('game')).single.kind, 'game');
+  });
+  test('revisions and copies of one product stay separate entries', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = GameHardwareEntryRepository(db);
+    // As in CLZ, a revision is its own item titled by its variant and grouped
+    // by Series; each owned copy is its own entry.
+    GameHardwareLibraryEntry copy(String id, String revision, String serial) =>
+        GameHardwareLibraryEntry(
+            id: LibraryEntryId(id),
+            metadata: GameHardwareCatalogMetadata(
+                title: 'Test Deck [$revision]',
+                seriesTitle: 'Test Deck',
+                platform: 'PC',
+                hardwareType: 'Console'),
+            sourceCatalogRef: CatalogItemRef(
+                kind: CatalogMediaKind.gameHardware, id: 'deck-$revision'),
+            personal: GameHardwarePersonalData(
+                details: GameHardwareEntryDetails(serialNumber: serial)),
+            updatedAt: DateTime.utc(2026));
+    final small = copy('deck-1', '256 GB', 'SN-1');
+    final first = copy('deck-2', '512 GB', 'SN-2');
+    final second = copy('deck-3', '512 GB', 'SN-3');
+    await repository.upsertAll([small, first, second]);
+
+    final active = await repository.listActive();
+    expect(active.map((entry) => entry.metadata.seriesTitle).toSet(),
+        {'Test Deck'});
+    expect(active.map((entry) => entry.sourceCatalogRef?.id).toSet(),
+        {'deck-256 GB', 'deck-512 GB'});
+    expect(active.map((entry) => entry.personal.details.serialNumber).toSet(),
+        {'SN-1', 'SN-2', 'SN-3'});
+
+    await repository.markDeleted(first, DateTime.utc(2026, 2));
+    final left = await repository.listActive();
+    expect(left.map((entry) => entry.id.value).toSet(), {'deck-1', 'deck-3'});
+    expect((await repository.findById(second.id))!.personal.details.serialNumber,
+        'SN-3');
   });
   testWidgets(
       'Value selection updates packaging and supports clearing stored ID',
