@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -138,8 +140,9 @@ class ComicInspectorHeader extends StatelessWidget {
               title: heading,
               comic: comic,
               entry: entry,
-              width:
-                  mobile ? (constraints.maxWidth - 58).clamp(0.0, 250.0) : 140);
+              width: mobile
+                  ? (constraints.maxWidth - 58).clamp(0.0, 250.0)
+                  : math.min(140.0, constraints.maxWidth));
           final facts = _ComicFacts(
               comic: comic,
               entry: entry,
@@ -162,6 +165,18 @@ class ComicInspectorHeader extends StatelessWidget {
                   facts,
                   _ComicStatusAndPlot(
                       comic: comic, entry: entry, showStatus: false),
+                ]);
+          }
+          // Beside the cover, the facts need room for their labels and values.
+          if (constraints.maxWidth < 272) {
+            return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  cover,
+                  const SizedBox(height: 12),
+                  facts,
+                  const SizedBox(height: 12),
+                  plot,
                 ]);
           }
           if (constraints.maxWidth < 560) {
