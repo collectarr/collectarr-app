@@ -192,6 +192,7 @@ class LibraryAddSearchPane extends StatelessWidget {
                             onSelectResult: onSelectResult,
                             onToggleResultCheck: onToggleResultCheck,
                             onAddManually: view.onAddManually,
+                            wide: view.wide,
                           ),
               ),
             ),

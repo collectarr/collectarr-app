@@ -87,39 +87,50 @@ class LibraryAddSearchCapability {
   final LibraryAddSearchPresentationCapability presentation;
 }
 
-/// An Add tab a kind contributes. The kind owns its controls and what they
-/// load; the dialog lists the loaded catalog items as a checkable cover grid.
+/// An Add tab a kind contributes. The kind draws everything under the tab
+/// row; items it lists through the request can be checked and added.
 abstract class LibraryAddKindTab {
   const LibraryAddKindTab();
 
   String get label;
   IconData get icon;
 
-  /// The labels around each listed item's cover.
-  LibraryAddCoverBlock coverBlock(CatalogSearchCandidate item);
+  /// The dialog's width while the tab is open.
+  double get dialogWidth;
 
-  /// The row under the tabs. Its controls list catalog items through
-  /// [request].
-  Widget buildControls(BuildContext context, LibraryAddKindTabRequest request);
+  Widget build(BuildContext context, LibraryAddKindTabRequest request);
 }
 
-/// What a [LibraryAddKindTab]'s controls can use.
+/// What a [LibraryAddKindTab] can use.
 class LibraryAddKindTabRequest {
   const LibraryAddKindTabRequest({
     required this.api,
     required this.entries,
+    required this.items,
     required this.isLoading,
+    required this.error,
     required this.list,
+    required this.coverGrid,
   });
 
   final ApiClient? api;
 
-  /// The library's entries of the kind, for controls that narrow to them.
+  /// The library's entries of the kind, for narrowing to them.
   final Iterable<LibraryEntryRecord> entries;
-  final bool isLoading;
 
-  /// Lists the Core search envelopes [rows] resolves to.
+  /// What [list] last loaded.
+  final List<CatalogSearchCandidate> items;
+  final bool isLoading;
+  final String? error;
+
+  /// Loads the Core search envelopes [rows] resolves to as [items].
   final void Function(Future<List<Map<String, dynamic>>> rows) list;
+
+  /// The checkable cover grid of some of [items].
+  final Widget Function(
+    List<CatalogSearchCandidate> items,
+    LibraryAddCoverBlock Function(CatalogSearchCandidate item) block,
+  ) coverGrid;
 }
 
 /// One Core group of catalog items in the Add dialog's browse tab.
@@ -224,8 +235,11 @@ class LibraryAddCoverBlock {
     this.month,
     this.year,
     this.caption,
+    this.title,
   });
 
+  /// Written over the cover, when items of several groups share a grid.
+  final String? title;
   final String badge;
   final String? month;
   final int? year;

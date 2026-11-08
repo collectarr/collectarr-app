@@ -112,6 +112,9 @@ Keep these when matching the reference visually.
 
 ### Deliberate Comics behavior
 
+- NCBD sorts by variant count where the reference sorts by popularity: Core
+  has no popularity data, and the variant count is what a release list can
+  rank honestly.
 - Status marks keep white glyphs where the reference's Covers CSS leaves Wish
   List and For Sale glyphs black.
 - The details panel shows a publisher logo only for the publishers whose logo
@@ -217,7 +220,7 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 
 | Priority | Area | Difference |
 | --- | --- | --- |
-| P1 | Comics NCBD | CLZ: Add Comics has an NCBD tab: a week navigator ("This week", "Week 44 \| Oct 25 - Oct 31", previous/next), All / #1's / My Series / Pull List filters, a chart and sort toggle, "Check out all releases in one list" with the week's count, and one card per issue (publisher, series, "#25" badge, "121 variants"). Collectarr: No NCBD tab. Blocked on data, not UI: Core holds no release calendar, so a week's releases would come back nearly empty. It needs a source of upcoming issues with exact release dates fed into Core, ideally an automated, licence-compatible import or scraper run on a schedule; then a Core week query (issues released in the seven days from a date, by series and issue) and the tab in Add. Pull List also needs a per-user series watch list |
+| P1 | Comics NCBD | The tab matches the reference on the week menu, filters, cards, issue page and All Releases. Open: Core has no release data until a licence-compatible source with exact release dates is ingested; the issue page lacks CLZ's "View all issues" block; CLZ sizes each row to its titles and covers where Collectarr uses one row height; the Pull List stays on the device. |
 | P1 | Missing Comics | It counts only catalog issues already in the library, so one owned issue per series reports nothing; read each series' issues from Core. Hidden series reappear when the dialog reopens |
 | P2 | Main screen layout | The details cover is about 95 px wide against the reference's 165 px, the "Cover:" date is missing, and Creators, Characters and Details are not three side-by-side columns |
 | P2 | Add Comics Series tab | The reference shows a publisher logo where Collectarr writes the publisher, and a 90 % translucent dialog body |

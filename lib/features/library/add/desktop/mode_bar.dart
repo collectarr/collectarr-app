@@ -174,8 +174,9 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
               ? widget.onScanCover
               : null,
         ),
-        if (widget.mode != LibraryAddDialogMode.browse ||
-            widget.browseTab?.tiles == null)
+        if (widget.mode != LibraryAddDialogMode.kindTab &&
+            (widget.mode != LibraryAddDialogMode.browse ||
+                widget.browseTab?.tiles == null))
           _besideSearchRow(ColoredBox(
             color: libraryAddSearchRowBackground(context),
             child: Padding(
@@ -183,9 +184,7 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (widget.mode == LibraryAddDialogMode.kindTab)
-                    widget.kindTabControls ?? const SizedBox.shrink()
-                  else if (widget.mode == LibraryAddDialogMode.code &&
+                  if (widget.mode == LibraryAddDialogMode.code &&
                       widget.listingScope != null)
                     Row(children: [
                       Expanded(flex: 3, child: widget.listingScope!),

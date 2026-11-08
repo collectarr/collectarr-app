@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Add Comics has an NCBD tab listing a week's releases from Core, with All, #1's, My Series and a Pull List of followed series kept on this device.
+- Add Comics has an NCBD tab listing a week's releases from Core, with All, #1's, My Series and a Pull List of followed series kept on this device, sorted by variant count or alphabetically.
 - Settings > Updates opens release notes in a panel with formatted text, images and links, and links to the release on GitHub.
 - Comics' Custom Label shows each label's image inside the field and its menu, and the Select panel chooses, removes and loads label images.
 - Images loaded for list values, such as Custom Label, platform and toy type images, sync across devices; each image is limited to 2 MB.

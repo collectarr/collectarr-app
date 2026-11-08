@@ -69,7 +69,6 @@ class LibraryAddModeBar extends StatefulWidget {
     this.kindTabs = const [],
     this.kindTab = 0,
     this.onKindTab,
-    this.kindTabControls,
     this.onBrowseChanged,
     this.onSearchBrowse,
     this.queryTrailing,
@@ -121,12 +120,10 @@ class LibraryAddModeBar extends StatefulWidget {
   final LibraryAddBrowseCapability? browseTab;
   final TextEditingController? browseQueryController;
 
-  /// The kind's own tabs, after the shared ones; [kindTabControls] is the
-  /// open one's row.
+  /// The kind's own tabs, after the shared ones.
   final List<LibraryAddKindTab> kindTabs;
   final int kindTab;
   final ValueChanged<int>? onKindTab;
-  final Widget? kindTabControls;
 
   /// Each edit of the browse field, for suggestions while typing.
   final ValueChanged<String>? onBrowseChanged;
@@ -443,8 +440,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
             onSubmitted: widget.onSearchCode,
             trailing: widget.queryTrailing,
           ),
-        LibraryAddDialogMode.kindTab =>
-          widget.kindTabControls ?? const SizedBox.shrink(),
+        LibraryAddDialogMode.kindTab => const SizedBox.shrink(),
       };
 
   Widget _buildMobile(

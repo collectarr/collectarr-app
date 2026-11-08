@@ -24,7 +24,11 @@ class LibraryAddCoverBlocks extends StatelessWidget {
     required this.onSelectResult,
     required this.onToggleResultCheck,
     this.onAddManually,
+    this.wide = false,
   });
+
+  /// The larger blocks of a full-width dialog.
+  final bool wide;
 
   static const blockWidth = 163.0;
   static const blockHeight = 299.0;
@@ -32,6 +36,10 @@ class LibraryAddCoverBlocks extends StatelessWidget {
   static const coverWidth = 153.0;
   static const coverHeight = 234.0;
   static const listRowHeight = 71.0;
+  static const _wideBlockWidth = 176.0;
+  static const _wideBlockHeight = 360.0;
+  static const _wideCoverHeight = 270.0;
+  static const _titleHeight = 40.0;
 
   final LibraryAddBlockLayout layout;
   final List<CatalogSearchCandidate> results;
@@ -46,6 +54,11 @@ class LibraryAddCoverBlocks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final desktopCoverHeight = wide ? _wideCoverHeight : null;
+    final width = wide ? _wideBlockWidth : blockWidth;
+    final titled = results.any((item) => block(item).title != null);
+    final height = (wide ? _wideBlockHeight : blockHeight) +
+        (titled ? _titleHeight : 0);
     Widget tile(int index, {double? coverHeight}) {
       final item = results[index];
       final id = item.reference.id;
@@ -58,7 +71,7 @@ class LibraryAddCoverBlocks extends StatelessWidget {
         onToggleCheck: () => onToggleResultCheck(id),
       );
       return layout == LibraryAddBlockLayout.grid
-          ? _GridBlock(args, coverHeight: coverHeight)
+          ? _GridBlock(args, coverHeight: coverHeight ?? desktopCoverHeight)
           : _ListBlock(args);
     }
 
@@ -83,9 +96,9 @@ class LibraryAddCoverBlocks extends StatelessWidget {
           onAddManually: onAddManually,
         );
       }
-      const extent = blockWidth + 2 * blockMargin;
-      final columns =
-          ((constraints.maxWidth - 2 * blockMargin) / tokens.gridMinimumWidth)
+      final extent = width + 2 * blockMargin;
+      final columns = ((constraints.maxWidth - 2 * blockMargin) /
+              (wide ? extent : tokens.gridMinimumWidth))
               .floor()
               .clamp(
                 1,
@@ -95,7 +108,7 @@ class LibraryAddCoverBlocks extends StatelessWidget {
       final spare = constraints.maxWidth - columns * extent;
       final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
-        mainAxisExtent: blockHeight + 2 * blockMargin,
+        mainAxisExtent: height + 2 * blockMargin,
       );
       return GridView.builder(
         key: const ValueKey('library-add-cover-grid'),
@@ -155,6 +168,17 @@ class _GridBlock extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (block.title case final title?)
+                SizedBox(
+                  height: LibraryAddCoverBlocks._titleHeight,
+                  child: Text(title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          height: 20 / 14)),
+                ),
               SizedBox(
                 height: coverHeight ?? LibraryAddCoverBlocks.coverHeight,
                 child: LibraryCoverImage(
@@ -366,8 +390,10 @@ class LibraryAddCoverBlockView {
     required this.descending,
     required this.onDescendingChanged,
     this.onAddManually,
+    this.wide = false,
   });
 
+  final bool wide;
   final LibraryAddCoverBlock Function(CatalogSearchCandidate item) block;
   final VoidCallback? onAddManually;
   final LibraryAddBlockLayout layout;
