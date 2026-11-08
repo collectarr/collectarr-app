@@ -355,6 +355,10 @@ class LibraryWorkspace extends ConsumerWidget {
           accent: accent,
           emptyBuilder: _emptyBuilder,
           coverAspectRatio: fallbackCoverAspectRatio,
+          coverWidth: kLibraryFlowDefaultCoverWidth *
+              viewState.coverSize /
+              defaultCoverSize,
+          spacing: gridSpacing,
           onActivateItem: onActivateItem,
           onOpenItem: onOpenItem,
           onEditItem: onEditItem,

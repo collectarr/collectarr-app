@@ -27,6 +27,8 @@ class LibraryFlowCarousel extends StatefulWidget {
     required this.accent,
     required this.emptyBuilder,
     this.coverAspectRatio = 2 / 3,
+    this.coverWidth = kLibraryFlowDefaultCoverWidth,
+    this.spacing = 10,
     required this.onActivateItem,
     required this.onOpenItem,
     this.onEditItem,
@@ -40,6 +42,12 @@ class LibraryFlowCarousel extends StatefulWidget {
 
   /// Cover width / height of the kind, kept by every card.
   final double coverAspectRatio;
+
+  /// The width of a cover of the kind's shape, while the stage is tall enough.
+  final double coverWidth;
+
+  /// Item Spacing, widened by [_kFlowSpacingScale] between the cards.
+  final double spacing;
   final ValueChanged<String> onActivateItem;
   final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<LibraryProjectionItem>? onEditItem;
@@ -97,10 +105,10 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     }
     return LayoutBuilder(
       builder: (context, constraints) {
-        _syncViewportFraction(constraints.maxWidth);
         final activeItem =
             widget.items[_currentIndex.clamp(0, widget.items.length - 1)];
         final stageHeight = math.min(constraints.maxHeight * 0.72, 560.0);
+        _syncViewportFraction(constraints.maxWidth, stageHeight);
         return Focus(
           autofocus: true,
           focusNode: _focusNode,
@@ -161,6 +169,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                         accent: widget.accent,
                                         coverAspectRatio:
                                             widget.coverAspectRatio,
+                                        coverWidth: widget.coverWidth,
                                         focused: index == _currentIndex,
                                         onTap: () => _handleTap(item, index),
                                         onDoubleTap: () =>
@@ -287,14 +296,16 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     return index >= 0 ? index : 0;
   }
 
-  void _syncViewportFraction(double width) {
-    final nextFraction = width >= 1500
-        ? 0.22
-        : width >= 1200
-            ? 0.26
-            : width >= 900
-                ? 0.34
-                : 0.54;
+  void _syncViewportFraction(double width, double stageHeight) {
+    final coverWidth = math.min(
+        widget.coverWidth,
+        math.max(0.0, stageHeight - _kFlowCardChromeHeight) *
+            widget.coverAspectRatio);
+    final nextFraction = ((coverWidth +
+                _kFlowCardHorizontalPadding +
+                widget.spacing * _kFlowSpacingScale) /
+            math.max(1.0, width))
+        .clamp(0.1, 0.9);
     if ((_viewportFraction - nextFraction).abs() < 0.001 ||
         (_pendingViewportFraction != null &&
             (_pendingViewportFraction! - nextFraction).abs() < 0.001)) {
@@ -521,7 +532,9 @@ class _FlowShelfToggle extends StatelessWidget {
 
 // Flow card metrics: the widest cover, and the card's padding and the title
 // and subtitle beneath the cover.
-const _kFlowCoverMaxWidth = 232.0;
+/// A cover's width at the default Cover Size.
+const kLibraryFlowDefaultCoverWidth = 232.0;
+const _kFlowSpacingScale = 6.0;
 const _kFlowCardHorizontalPadding = 28.0;
 const _kFlowCardChromeHeight = 104.0;
 
@@ -530,6 +543,7 @@ class _FlowCarouselCard extends StatefulWidget {
     required this.item,
     required this.accent,
     required this.coverAspectRatio,
+    required this.coverWidth,
     required this.focused,
     required this.onTap,
     this.onEditTap,
@@ -540,6 +554,7 @@ class _FlowCarouselCard extends StatefulWidget {
   final LibraryProjectionItem item;
   final Color accent;
   final double coverAspectRatio;
+  final double coverWidth;
   final bool focused;
   final VoidCallback onTap;
   final VoidCallback? onEditTap;
@@ -578,8 +593,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
       double aspectRatio,
       ValueChanged<double> onAspectRatio,
     ) {
-      final coverHeight = math.min(
-          _kFlowCoverMaxWidth / widget.coverAspectRatio,
+      final coverHeight = math.min(widget.coverWidth / widget.coverAspectRatio,
           math.max(0.0, constraints.maxHeight - _kFlowCardChromeHeight));
       final coverWidth = math.min(coverHeight * aspectRatio,
           math.max(0.0, constraints.maxWidth - _kFlowCardHorizontalPadding));

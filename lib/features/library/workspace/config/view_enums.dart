@@ -10,9 +10,10 @@ extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
       LibraryViewMode.grid ||
       LibraryViewMode.card ||
       LibraryViewMode.horizontalCards ||
+      LibraryViewMode.cardFlow ||
       LibraryViewMode.shelves =>
         true,
-      LibraryViewMode.cardFlow || LibraryViewMode.list => false,
+      LibraryViewMode.list => false,
     };
   }
 }

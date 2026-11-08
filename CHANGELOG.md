@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features
+- Flow Carousel has the Cover Size and Item Spacing sliders.
 - Add Comics has an NCBD tab listing a week's releases from Core, with All, #1's, My Series and a Pull List of followed series kept on this device, sorted by variant count or alphabetically.
 - Settings > Updates opens release notes in a panel with formatted text, images and links, and links to the release on GitHub.
 - Comics' Custom Label shows each label's image inside the field and its menu, and the Select panel chooses, removes and loads label images.
