@@ -123,6 +123,7 @@ class LibraryCoverImage extends ConsumerWidget {
               borderRadius: borderRadius,
               aspectRatio: fallbackAspectRatio,
               fit: fit,
+              alignment: alignment,
             ),
           )
         : const SizedBox.expand();
@@ -1110,6 +1111,7 @@ class LibraryGeneratedCover extends StatelessWidget {
     this.borderRadius = 4,
     this.aspectRatio = 2 / 3,
     this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
     super.key,
   });
 
@@ -1118,6 +1120,7 @@ class LibraryGeneratedCover extends StatelessWidget {
   final double borderRadius;
   final double aspectRatio;
   final BoxFit fit;
+  final AlignmentGeometry alignment;
 
   @override
   Widget build(BuildContext context) {
@@ -1168,13 +1171,20 @@ class LibraryGeneratedCover extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
-          return FittedBox(
-            fit: fit,
-            clipBehavior: Clip.hardEdge,
-            child: SizedBox(
-              width: 180,
-              height: 180 / aspectRatio,
-              child: cover,
+          // Fills the space it is given: loose constraints alone would leave
+          // the box at its design size.
+          return SizedBox(
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            child: FittedBox(
+              fit: fit,
+              alignment: alignment,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: 180,
+                height: 180 / aspectRatio,
+                child: cover,
+              ),
             ),
           );
         }
