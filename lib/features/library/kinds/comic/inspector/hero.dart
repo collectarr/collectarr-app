@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/localization/app_formats.dart';
@@ -23,6 +22,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/outlined_pill.da
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_formatted_text.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -150,22 +150,25 @@ class ComicInspectorHeader extends ConsumerWidget {
             keyReason.isNotEmpty)
           const SizedBox(height: 10),
         LayoutBuilder(builder: (context, constraints) {
-          final showBack = !mobile && backCover != null;
+          // As in the reference the cover keeps its size: in a narrow panel
+          // the back cover moves behind dots, and a cover that no longer
+          // fits goes away.
+          final backBeside = !mobile &&
+              backCover != null &&
+              constraints.maxWidth + _heroSidePadding >= _backBesideMinPanel;
           final coverWidth = mobile
               ? (constraints.maxWidth - 58).clamp(0.0, 250.0)
-              : math.min(
-                  _coverWidth,
-                  showBack
-                      ? (constraints.maxWidth - _coverGap) / 2
-                      : constraints.maxWidth);
+              : _coverWidth;
           final coversWidth =
-              showBack ? coverWidth * 2 + _coverGap : coverWidth;
+              backBeside ? coverWidth * 2 + _coverGap : coverWidth;
           final cover = _ComicCover(
+              key: ValueKey(entry?.id),
               title: heading,
               comic: comic,
               entry: entry,
               width: coverWidth,
-              backCover: showBack ? backCover.imageData : null);
+              backCover: backCover?.imageData,
+              backBeside: backBeside);
           final facts = _ComicFacts(
               comic: comic,
               entry: entry,
@@ -190,6 +193,11 @@ class ComicInspectorHeader extends ConsumerWidget {
                       comic: comic, entry: entry, showStatus: false),
                 ]);
           }
+          if (constraints.maxWidth < _coverWidth) {
+            return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [facts, const SizedBox(height: 12), plot]);
+          }
           // Beside the cover, the facts need room for their labels and values.
           if (constraints.maxWidth < coversWidth + 132) {
             return Column(
@@ -203,17 +211,15 @@ class ComicInspectorHeader extends ConsumerWidget {
                 ]);
           }
           if (constraints.maxWidth < coversWidth + 420) {
-            return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    cover,
-                    const SizedBox(width: 12),
-                    Expanded(child: facts),
-                  ]),
-                  const SizedBox(height: 12),
-                  plot,
-                ]);
+            return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              cover,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [facts, const SizedBox(height: 12), plot]),
+              ),
+            ]);
           }
           return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             cover,
@@ -230,6 +236,10 @@ class ComicInspectorHeader extends ConsumerWidget {
 
 const _coverWidth = 210.0;
 const _coverGap = 10.0;
+const _heroSidePadding = 28.0;
+
+/// The narrowest details panel that shows the back cover beside the front.
+const _backBesideMinPanel = 780.0;
 
 class _IssueBadge extends StatelessWidget {
   const _IssueBadge(this.label);
@@ -255,13 +265,15 @@ class _IssueBadge extends StatelessWidget {
   }
 }
 
-class _ComicCover extends StatelessWidget {
+class _ComicCover extends StatefulWidget {
   const _ComicCover({
+    super.key,
     required this.title,
     required this.comic,
     required this.entry,
     required this.width,
     required this.backCover,
+    required this.backBeside,
   });
 
   final String title;
@@ -269,22 +281,30 @@ class _ComicCover extends StatelessWidget {
   final ComicLibraryEntry? entry;
   final double width;
   final Uint8List? backCover;
+  final bool backBeside;
 
   @override
-  Widget build(BuildContext context) {
+  State<_ComicCover> createState() => _ComicCoverState();
+}
+
+class _ComicCoverState extends State<_ComicCover> {
+  bool _showingBack = false;
+
+  Widget _front() {
+    final entry = widget.entry;
     final cover = LibraryCoverImage(
-      title: title,
+      title: widget.title,
       mediaKind: CatalogMediaKind.comic,
-      imageUrl: comic?.coverImageUrl,
+      imageUrl: widget.comic?.coverImageUrl,
       libraryEntryRef: entry == null
           ? null
-          : LibraryEntryRef(kind: CatalogMediaKind.comic, id: entry!.id),
+          : LibraryEntryRef(kind: CatalogMediaKind.comic, id: entry.id),
       fallbackAspectRatio: 0.66,
       borderRadius: 0,
     );
     final personal = entry?.personal;
-    final front = SizedBox(
-      width: width,
+    return SizedBox(
+      width: widget.width,
       child: personal != null && personal.details.isSlabbed
           ? ComicSlab(
               grade: personal.grade,
@@ -294,20 +314,62 @@ class _ComicCover extends StatelessWidget {
               child: cover)
           : cover,
     );
-    final back = backCover;
-    if (back == null) return front;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        front,
-        const SizedBox(width: _coverGap),
-        SizedBox(
-          width: width,
-          child:
-              Image.memory(back, fit: BoxFit.fitWidth, gaplessPlayback: true),
+  }
+
+  Widget _back(Uint8List image) => SizedBox(
+        width: widget.width,
+        child: Image.memory(image, fit: BoxFit.fitWidth, gaplessPlayback: true),
+      );
+
+  Widget _dot(String label, {required bool back}) {
+    final color = appPalette(context).textPrimary;
+    void show() => setState(() => _showingBack = back);
+    return Semantics(
+      button: true,
+      label: label,
+      selected: _showingBack == back,
+      onTap: show,
+      excludeSemantics: true,
+      child: AppClickTarget(
+        onClick: show,
+        builder: (context, hovered) => SizedBox.square(
+          dimension: 24,
+          child: Center(
+            child: Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color:
+                    _showingBack == back ? color : color.withValues(alpha: .4),
+              ),
+            ),
+          ),
         ),
-      ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final back = widget.backCover;
+    if (back == null) return _front();
+    if (widget.backBeside) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [_front(), const SizedBox(width: _coverGap), _back(back)],
+      );
+    }
+    return SizedBox(
+      width: widget.width,
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        if (_showingBack) _back(back) else _front(),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          _dot('Front cover', back: false),
+          _dot('Back cover', back: true),
+        ]),
+      ]),
     );
   }
 }
@@ -360,22 +422,22 @@ class _ComicFacts extends ConsumerWidget {
       // the logo instead of its name.
       for (final name in [publisher, imprint])
         if (name.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: switch (comicPublisherLogoAsset(name)) {
-              final asset? => _FilterTap(
-                  value: name,
-                  onFilter: onFilter,
-                  child: ComicPublisherLogo(asset: asset, name: name)),
-              null => _FilterText(
-                  value: name,
-                  onFilter: onFilter,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: kAppBoldFontWeight,
-                      color: palette.textPrimary)),
-            },
-          ),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: switch (comicPublisherLogoAsset(name)) {
+            final asset? => _FilterTap(
+                value: name,
+                onFilter: onFilter,
+                child: ComicPublisherLogo(asset: asset, name: name)),
+            null => _FilterText(
+                value: name,
+                onFilter: onFilter,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: kAppBoldFontWeight,
+                    color: palette.textPrimary)),
+          },
+        ),
       if (barcode.isNotEmpty)
         Padding(
           padding: const EdgeInsets.only(top: 8),
