@@ -64,7 +64,9 @@ class ComicInspectorHeader extends ConsumerWidget {
     final palette = appPalette(context);
     final comic = comicInspectorItem(request);
     final entry = comicInspectorEntry(request);
-    final backCover = entry == null
+    final showBackCover = ref.watch(
+        uiPreferencesProvider.select((value) => value.showInspectorBackCover));
+    final backCover = entry == null || !showBackCover
         ? null
         : ref
             .watch(inspectorItemImagesProvider((
