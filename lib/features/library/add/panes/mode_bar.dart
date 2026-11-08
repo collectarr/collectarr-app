@@ -629,15 +629,16 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
               ),
             ),
           ),
+          // Centred in the strip, whose top padding the tabs sit below.
           Padding(
-            padding: const EdgeInsets.only(bottom: 2),
+            padding: const EdgeInsets.only(bottom: 5),
             child: TextButton(
               key: const ValueKey('library-add-manually'),
               onPressed: onManual,
               style: TextButton.styleFrom(
                 foregroundColor: palette.textPrimary,
                 overlayColor: Colors.transparent,
-                minimumSize: const Size(0, 30),
+                minimumSize: const Size(0, 25),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: const RoundedRectangleBorder(
@@ -648,6 +649,13 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                 ),
+              ).copyWith(
+                backgroundColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.hovered)
+                        ? (palette.isDark
+                            ? const Color(0xff666666)
+                            : palette.panelRaised)
+                        : Colors.transparent),
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,

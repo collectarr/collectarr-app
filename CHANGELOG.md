@@ -17,6 +17,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Add Manually is centred in the Add dialogs' tab row and highlights on hover.
 - Covers and Shelves leave only the gap set by Item Spacing, without extra empty space between covers.
 - Comics details keep CLZ's cover size, showing the back cover beside the front in a wide panel and behind dots in a narrow one.
 - Comics details no longer repeat a publisher logo when the imprint uses the same one.
