@@ -203,9 +203,6 @@ Future<List<ScannedCode>?> showBarcodeBatchScanSheet(BuildContext context) {
     context: context,
     isScrollControlled: true,
     backgroundColor: kAppPanel,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
     builder: (_) => const BarcodeBatchScanSheet(),
   );
 }

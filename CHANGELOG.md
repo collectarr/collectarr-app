@@ -16,6 +16,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- The Scan cover panel has a full-width coloured header with rounded corners, like the other panels.
 - Hardware and Toys show Condition in the Value tab of Edit and Add Manually, beside Value.
 - Text across the library, details, editor, Settings, Statistics, Pick Lists, Loan Manager and Pre-fill uses CLZ's sizes, weights and line heights, and details titles use CLZ's heading blue.
 - Without a local Gilroy font, the bundled font draws text at the size, width and weight of CLZ's instead of larger and heavier.

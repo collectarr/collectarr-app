@@ -7,9 +7,14 @@ class _AppBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
     required super.capturedThemes,
     required super.isScrollControlled,
     super.backgroundColor,
-    super.shape,
     super.useSafeArea,
-  }) : super(isDismissible: false);
+  }) : super(
+          isDismissible: false,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          clipBehavior: Clip.antiAlias,
+        );
 
   @override
   Widget buildModalBarrier() => AnimatedBuilder(
@@ -33,7 +38,6 @@ Future<T?> showAppBottomSheet<T>({
   bool isScrollControlled = false,
   bool useSafeArea = false,
   Color? backgroundColor,
-  ShapeBorder? shape,
 }) {
   final navigator = Navigator.of(context);
   return navigator.push(_AppBottomSheetRoute<T>(
@@ -43,6 +47,5 @@ Future<T?> showAppBottomSheet<T>({
     isScrollControlled: isScrollControlled,
     useSafeArea: useSafeArea,
     backgroundColor: backgroundColor,
-    shape: shape,
   ));
 }

@@ -106,9 +106,6 @@ class CompactLibraryKindPicker extends StatelessWidget {
     showAppBottomSheet<void>(
       context: context,
       backgroundColor: palette.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (sheetContext) {
         return SafeArea(
           child: Padding(

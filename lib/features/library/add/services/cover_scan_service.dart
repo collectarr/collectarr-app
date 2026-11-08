@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/edit/fields/value_fields.dart'
     show LibraryEditTextField;
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -139,39 +140,46 @@ class BottomSheetLibraryCoverScanSourcePrompt
   }) {
     return showAppBottomSheet<LibraryCoverScanAction>(
       context: context,
+      backgroundColor: kAppPanel,
       builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AccentDialogHeader(
-                  title: 'Scan cover',
-                  icon: AppIcons.tabCovers,
-                  onClose: () => Navigator.of(context).pop()),
-              const SizedBox(height: 8),
-              Text(
-                'Import a local cover photo. OCR and image cleanup can be layered in later without sending the image to the server.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AccentDialogHeader(
+                title: 'Scan cover',
+                icon: AppIcons.tabCovers,
+                onClose: () => Navigator.of(context).pop()),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Import a local cover photo. OCR and image cleanup can be layered in later without sending the image to the server.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(context).pop(
+                      LibraryCoverScanAction.importImage,
                     ),
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: const Text('Import image'),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: () => Navigator.of(context).pop(
-                  LibraryCoverScanAction.importImage,
-                ),
-                icon: const Icon(Icons.photo_library_outlined),
-                label: const Text('Import image'),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
