@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/add/panes/manual_chrome.dart';
+import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import 'preview.dart';
 import 'search_controls.dart';
 import '../game_hardware_module_dependencies.dart';
@@ -11,11 +13,10 @@ final gameHardwareKindAdd = StandardLibraryAddCapability<GameHardwareAddDraft>(
     manualPaneBuilder: buildGameHardwareAddManualPane,
     previewPaneBuilder: buildGameHardwareAddPreview,
     chrome: const LibraryAddChromeConfig(
-        supportsTracking: false,
-        dialogTitle: 'Add Hardware',
-        confirmSheetSize: Size(670, 342),
-        plainManualAdd: true,
-        resultTickBoxes: false),
+        dialogTitle: 'Add Hardware', confirmSheetSize: Size(670, 342)),
+    manualChrome: const LibraryAddManualChrome.plain(extraTargets: []),
+    resultPolicy: const LibraryAddResultPolicy(
+        resultsBuilder: buildLibraryAddResultsWithoutTickBoxes),
     search: LibraryAddSearchCapability(
         input: LibraryAddSearchInputCapability(
             initialAdvancedFilters: gameHardwareInitialSearchFilters,

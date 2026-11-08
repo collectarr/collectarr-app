@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import '../movie_module_dependencies.dart';
 import '../config/configuration.dart';
 import '../catalog/movie_catalog_fields.dart';
@@ -71,7 +72,8 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
       controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
-  resultPolicy: const LibraryAddResultPolicy(useGridResults: true),
+  resultPolicy:
+      const LibraryAddResultPolicy(resultsBuilder: buildLibraryAddResultsGrid),
 );
 
 List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(

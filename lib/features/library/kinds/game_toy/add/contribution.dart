@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/add/panes/manual_chrome.dart';
+import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import '../game_toy_module_dependencies.dart';
 import 'preview.dart';
 import 'type_list.dart';
@@ -11,11 +13,10 @@ final gameToyKindAdd = StandardLibraryAddCapability<GameToyAddDraft>(
     manualPaneBuilder: buildGameToyAddManualPane,
     previewPaneBuilder: buildGameToyAddPreview,
     chrome: const LibraryAddChromeConfig(
-        supportsTracking: false,
-        dialogTitle: 'Add Toys',
-        confirmSheetSize: Size(670, 342),
-        plainManualAdd: true,
-        resultTickBoxes: false),
+        dialogTitle: 'Add Toys', confirmSheetSize: Size(670, 342)),
+    manualChrome: const LibraryAddManualChrome.plain(extraTargets: []),
+    resultPolicy: const LibraryAddResultPolicy(
+        resultsBuilder: buildLibraryAddResultsWithoutTickBoxes),
     search: LibraryAddSearchCapability(
         browse: gameToyAddTypes,
         input: const LibraryAddSearchInputCapability(),

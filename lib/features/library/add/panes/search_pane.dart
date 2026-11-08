@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_add_registry.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -227,7 +226,6 @@ class LibraryAddSearchPane extends StatelessWidget {
               ? _SearchResultsList(
                   type: type,
                   accent: selectionColor ?? accent,
-                  useGridResults: false,
                   isBusy: isBusy,
                   error: error,
                   results: results,
@@ -274,7 +272,7 @@ class LibraryAddSearchPane extends StatelessWidget {
             child: _SearchResultsList(
               type: type,
               accent: selectionColor ?? accent,
-              useGridResults: resultPolicy.useGridResults,
+              resultsBuilder: resultPolicy.resultsBuilder,
               isBusy: isBusy,
               error: error,
               results: results,
@@ -889,7 +887,7 @@ class _SearchResultsList extends StatelessWidget {
   const _SearchResultsList({
     required this.type,
     required this.accent,
-    required this.useGridResults,
+    this.resultsBuilder,
     required this.isBusy,
     required this.error,
     required this.results,
@@ -903,7 +901,7 @@ class _SearchResultsList extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final Color accent;
-  final bool useGridResults;
+  final LibraryAddResultsBuilder? resultsBuilder;
   final bool isBusy;
   final String? error;
   final List<CatalogSearchCandidate> results;
@@ -923,10 +921,12 @@ class _SearchResultsList extends StatelessWidget {
     if (results.isEmpty) {
       return ListView(padding: EdgeInsets.zero, children: [notice]);
     }
-    if (useGridResults) {
-      return _SearchResultsGrid(
+    return (resultsBuilder ?? buildLibraryAddResultsList)(
+      context,
+      LibraryAddResultsRequest(
         type: type,
         accent: accent,
+        notice: notice,
         results: results,
         selectedResultId: selectedResultId,
         checkedResultIds: checkedResultIds,
@@ -934,29 +934,65 @@ class _SearchResultsList extends StatelessWidget {
         coreMatchSummary: coreMatchSummary,
         onSelectResult: onSelectResult,
         onToggleResultCheck: onToggleResultCheck,
-      );
-    }
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        notice,
-        for (var i = 0; i < results.length; i++) ...[
-          SearchResultTile(
-            type: type,
-            item: results[i],
-            accent: accent,
-            selected: results[i].reference.id == selectedResultId,
-            checked: checkedResultIds.contains(results[i].reference.id),
-            isEntry: entryCatalogRefs.contains(results[i].reference),
-            matchSummary: coreMatchSummary,
-            onSelect: () => onSelectResult(results[i].reference.id),
-            onToggleCheck: () => onToggleResultCheck(results[i].reference.id),
-          ),
-        ],
-      ],
+      ),
     );
   }
 }
+
+/// The standard rows: a tick box each, so several can be added at once.
+Widget buildLibraryAddResultsList(
+  BuildContext context,
+  LibraryAddResultsRequest request,
+) =>
+    _resultRows(request, tickBoxes: true);
+
+/// Rows that open the confirm sheet and add a single item.
+Widget buildLibraryAddResultsWithoutTickBoxes(
+  BuildContext context,
+  LibraryAddResultsRequest request,
+) =>
+    _resultRows(request, tickBoxes: false);
+
+Widget _resultRows(
+  LibraryAddResultsRequest request, {
+  required bool tickBoxes,
+}) =>
+    ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        request.notice,
+        for (final item in request.results)
+          SearchResultTile(
+            type: request.type,
+            item: item,
+            accent: request.accent,
+            selected: item.reference.id == request.selectedResultId,
+            checked: request.checkedResultIds.contains(item.reference.id),
+            isEntry: request.entryCatalogRefs.contains(item.reference),
+            matchSummary: request.coreMatchSummary,
+            tickBox: tickBoxes,
+            onSelect: () => request.onSelectResult(item.reference.id),
+            onToggleCheck: () => request.onToggleResultCheck(item.reference.id),
+          ),
+      ],
+    );
+
+/// Results as a cover grid.
+Widget buildLibraryAddResultsGrid(
+  BuildContext context,
+  LibraryAddResultsRequest request,
+) =>
+    _SearchResultsGrid(
+      type: request.type,
+      accent: request.accent,
+      results: request.results,
+      selectedResultId: request.selectedResultId,
+      checkedResultIds: request.checkedResultIds,
+      entryCatalogRefs: request.entryCatalogRefs,
+      coreMatchSummary: request.coreMatchSummary,
+      onSelectResult: request.onSelectResult,
+      onToggleResultCheck: request.onToggleResultCheck,
+    );
 
 class _SearchResultsGrid extends StatelessWidget {
   const _SearchResultsGrid({
@@ -1170,10 +1206,12 @@ class SearchResultTile extends StatelessWidget {
     required this.selected,
     required this.checked,
     this.isEntry = false,
+    this.tickBox = true,
     required this.onSelect,
     required this.onToggleCheck,
   });
 
+  final bool tickBox;
   final LibraryKindRegistration type;
   final CatalogSearchCandidate item;
   final Color accent;
@@ -1294,8 +1332,7 @@ class SearchResultTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 20),
-                if (collectarrKindAdds[type.kind]?.chrome.resultTickBoxes ??
-                    true)
+                if (tickBox)
                   Padding(
                     padding: const EdgeInsets.only(top: 20, right: 13),
                     child: LibraryAddResultCheckbox(

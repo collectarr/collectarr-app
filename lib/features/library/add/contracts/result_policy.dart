@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/widgets.dart';
@@ -100,11 +101,44 @@ class LibraryAddVariantFacet {
   final String? Function(CatalogSearchCandidate item) valueOf;
 }
 
+/// The search results a kind's [LibraryAddResultsBuilder] draws.
+@immutable
+class LibraryAddResultsRequest {
+  const LibraryAddResultsRequest({
+    required this.type,
+    required this.accent,
+    required this.notice,
+    required this.results,
+    required this.selectedResultId,
+    required this.checkedResultIds,
+    required this.entryCatalogRefs,
+    required this.coreMatchSummary,
+    required this.onSelectResult,
+    required this.onToggleResultCheck,
+  });
+
+  final LibraryKindRegistration type;
+  final Color accent;
+  final Widget notice;
+  final List<CatalogSearchCandidate> results;
+  final String? selectedResultId;
+  final Set<String> checkedResultIds;
+  final Set<CatalogItemRef> entryCatalogRefs;
+  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
+  final ValueChanged<String> onSelectResult;
+  final ValueChanged<String> onToggleResultCheck;
+}
+
+typedef LibraryAddResultsBuilder = Widget Function(
+  BuildContext context,
+  LibraryAddResultsRequest request,
+);
+
 class LibraryAddResultPolicy {
   const LibraryAddResultPolicy({
     this.options = const [],
     this.initialState = const LibraryAddResultPolicyState(),
-    this.useGridResults = false,
+    this.resultsBuilder,
     this.coreResultVisibility,
     this.grouping,
   });
@@ -113,7 +147,10 @@ class LibraryAddResultPolicy {
 
   final List<LibraryAddResultOption> options;
   final LibraryAddResultPolicyState initialState;
-  final bool useGridResults;
+
+  /// Draws a non-empty result list; null is the standard rows with tick
+  /// boxes.
+  final LibraryAddResultsBuilder? resultsBuilder;
   final LibraryAddCoreResultVisibilityPredicate? coreResultVisibility;
   final LibraryAddResultGrouping? grouping;
 

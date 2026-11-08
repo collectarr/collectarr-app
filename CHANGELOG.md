@@ -36,6 +36,9 @@
 
 ## 1.6.0 - 2026-11-07
 
+### Refactors
+- Each kind now decides how Add Manually and its search results behave, instead of shared switches.
+
 ### Docs
 - The CLZ parity guide lists the size, weight and line height of each CLZ text role.
 - The architecture notes record why the header stays fixed and only library pages have a bottom bar.

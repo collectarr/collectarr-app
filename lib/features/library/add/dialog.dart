@@ -704,9 +704,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   ) async {
     if (_manualDialogOpen) return;
     if (!_hasOpenedManualDialog) {
-      if (!capability.chrome.plainManualAdd) {
-        _manualDraft.kindDraft.catalogTitle = _queryController.text;
-      }
+      final title = capability.manualChrome.initialTitle(_queryController.text);
+      if (title != null) _manualDraft.kindDraft.catalogTitle = title;
       _hasOpenedManualDialog = true;
     }
     _controller.dismissSuggestions();

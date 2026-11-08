@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/add/panes/manual_chrome.dart';
+import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../game_module_dependencies.dart';
 import 'preview.dart';
@@ -96,11 +98,12 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   ),
   manualPaneBuilder: buildGameAddManualPane,
   previewPaneBuilder: buildGameAddPreview,
-  chrome: const LibraryAddChromeConfig(
-      confirmSheetSize: Size(730, 369),
-      plainManualAdd: true,
-      resultTickBoxes: false),
-  resultPolicy: LibraryAddResultPolicy(grouping: gameAddResultGrouping),
+  chrome: const LibraryAddChromeConfig(confirmSheetSize: Size(730, 369)),
+  manualChrome: const LibraryAddManualChrome.plain(),
+  resultPolicy: LibraryAddResultPolicy(
+    grouping: gameAddResultGrouping,
+    resultsBuilder: buildLibraryAddResultsWithoutTickBoxes,
+  ),
 );
 
 bool _gameAddHasSearchInput(LibraryAddSearchContext context) =>

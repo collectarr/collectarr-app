@@ -36,17 +36,13 @@ class LibraryEditChromeConfig {
 class LibraryAddChromeConfig {
   const LibraryAddChromeConfig({
     this.canScanCover = true,
-    this.supportsTracking = true,
     this.kindFilterOptions = const [],
     this.defaultKindFilters = const {},
     this.confirmSheetSize,
     this.dialogTitle,
-    this.plainManualAdd = false,
-    this.resultTickBoxes = true,
   });
 
   final bool canScanCover;
-  final bool supportsTracking;
   final List<LibraryAddKindFilterOption> kindFilterOptions;
   final Set<LibraryAddSearchScope> defaultKindFilters;
 
@@ -56,14 +52,6 @@ class LibraryAddChromeConfig {
 
   /// Replaces the dialog's default "Add ... By:" title.
   final String? dialogTitle;
-
-  /// Add Manually as in the reference: titled "Add game manually", starting
-  /// empty rather than from the search text, with Cancel and Add buttons.
-  final bool plainManualAdd;
-
-  /// Whether search result rows offer a tick box; without one a row opens
-  /// the confirm sheet and adds a single item.
-  final bool resultTickBoxes;
 }
 
 class LibraryAddKindFilterOption {

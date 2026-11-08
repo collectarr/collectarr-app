@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/add/models/kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/library/add/models/tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/kind_add_draft.dart';
+import 'package:collectarr_app/features/library/add/panes/manual_chrome.dart';
 import 'package:collectarr_app/features/library/add/panes/unsupported_pane.dart';
 import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/features/library/add/services/cover_scan_service.dart';
@@ -418,6 +419,7 @@ abstract interface class LibraryAddCapability<
 
   LibraryAddPreviewPaneBuilder? get previewPaneBuilder;
   LibraryAddChromeConfig get chrome;
+  LibraryAddManualChrome get manualChrome;
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
@@ -468,6 +470,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.manualPaneBuilder,
     this.previewPaneBuilder,
     this.chrome = const LibraryAddChromeConfig(),
+    this.manualChrome = const LibraryAddManualChrome(),
     required this.search,
     this.entryPayloadBuilder,
     this.digitalCopyFlagBuilder,
@@ -488,6 +491,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
   @override
   final LibraryAddChromeConfig chrome;
+  @override
+  final LibraryAddManualChrome manualChrome;
   @override
   final LibraryAddSearchCapability search;
   final LibraryAddEntryPayloadBuilder<TDraft>? entryPayloadBuilder;

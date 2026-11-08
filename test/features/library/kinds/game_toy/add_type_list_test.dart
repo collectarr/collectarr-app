@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/add/contribution.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,7 +13,9 @@ void main() {
 
   test('Add Manually follows the reference for toys', () {
     expect(gameToyKindAdd.chrome.dialogTitle, 'Add Toys');
-    expect(gameToyKindAdd.chrome.plainManualAdd, isTrue);
-    expect(gameToyKindAdd.chrome.resultTickBoxes, isFalse);
+    expect(gameToyKindAdd.manualChrome.footer, isNotNull);
+    expect(gameToyKindAdd.manualChrome.extraTargets, isEmpty);
+    expect(gameToyKindAdd.resultPolicy.resultsBuilder,
+        same(buildLibraryAddResultsWithoutTickBoxes));
   });
 }

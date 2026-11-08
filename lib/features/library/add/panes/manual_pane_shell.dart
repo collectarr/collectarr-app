@@ -208,14 +208,11 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         ),
     ];
     final enteredTitle = request.manualDraft.catalogTitle.trim();
-    final headerTitle = (collectarrKindAdds[request.kind]
-                ?.chrome
-                .plainManualAdd ??
-            false)
-        ? 'Add ${request.type.identity.singularLabel.toLowerCase()} manually'
-        : enteredTitle.isEmpty
-            ? 'Add ${request.type.identity.singularLabel}'
-            : enteredTitle;
+    final headerTitle =
+        collectarrKindAdds[request.kind]?.manualChrome.title?.call(request) ??
+            (enteredTitle.isEmpty
+                ? 'Add ${request.type.identity.singularLabel}'
+                : enteredTitle);
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
