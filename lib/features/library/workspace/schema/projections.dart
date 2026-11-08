@@ -23,7 +23,7 @@ class WorkspaceCommonProjection {
       synopsis: synopsis,
       releaseDate: releaseDate,
       currency: item.entrySummary?.currency,
-      coverImageUrl: coverImageUrl ?? item.presentation?.imageUrl,
+      coverImageUrl: coverImageUrl,
     );
   }
 
