@@ -68,6 +68,7 @@ Keep these when matching the reference visually.
 | Dates | Fixed date fields | Partial dates (year, year-month, full) everywhere |
 | Statistics | One tab per collection | Adds an All Collections tab |
 | Views | List, Vertical/Horizontal Cards, Covers, Shelves | Adds Flow Carousel |
+| Cover spacing | Covers reserve about 0.93 of the cover height as cell width, so a narrower cover keeps a wide gap | Cells follow the kind's cover shape, so Item Spacing sets the gap; a cover wider than that shape is slightly shorter |
 | Schema changes | Opaque | Versioned contracts and explicit, ordered migrations |
 | Game valuation | Core Region (US/EU) chooses which PriceCharting prices CLZ fetches | No price fetching (PriceCharting's terms), so no Core Region and no Values from PriceCharting chart; the PriceCharting ID already names the NTSC or PAL release and opens its page |
 | Comic valuation | CovrPrice values and CovrPrice export | No CovrPrice: it is paid and has no public API, so value stays the user's own My Value |
