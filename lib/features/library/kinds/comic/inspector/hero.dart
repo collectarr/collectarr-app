@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -6,6 +7,7 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/inspector/item_images_section.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
@@ -20,6 +22,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
 import 'package:collectarr_app/features/library/workspace/tiles/outlined_pill.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/app_formatted_text.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -51,16 +54,27 @@ ComicLibraryEntry? comicInspectorEntry(LibraryInspectorRequest request) =>
 /// The reference details header: series and issue badge, story arc and
 /// title, key reason, then the cover beside variant, dates, publisher,
 /// barcode and eBay, and the Collection Status beside the plot.
-class ComicInspectorHeader extends StatelessWidget {
+class ComicInspectorHeader extends ConsumerWidget {
   const ComicInspectorHeader({super.key, required this.request});
 
   final LibraryInspectorRequest request;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     final comic = comicInspectorItem(request);
     final entry = comicInspectorEntry(request);
+    final backCover = entry == null
+        ? null
+        : ref
+            .watch(inspectorItemImagesProvider((
+              db: ref.watch(localDatabaseProvider),
+              libraryEntryRef:
+                  LibraryEntryRef(kind: CatalogMediaKind.comic, id: entry.id),
+            )))
+            .value
+            ?.where((image) => image.imageType == 'back_cover')
+            .firstOrNull;
     final series = comic?.seriesTitle?.trim() ?? '';
     final title = comic?.title.trim() ?? '';
     final heading = series.isNotEmpty
@@ -136,13 +150,22 @@ class ComicInspectorHeader extends StatelessWidget {
             keyReason.isNotEmpty)
           const SizedBox(height: 10),
         LayoutBuilder(builder: (context, constraints) {
+          final showBack = !mobile && backCover != null;
+          final coverWidth = mobile
+              ? (constraints.maxWidth - 58).clamp(0.0, 250.0)
+              : math.min(
+                  _coverWidth,
+                  showBack
+                      ? (constraints.maxWidth - _coverGap) / 2
+                      : constraints.maxWidth);
+          final coversWidth =
+              showBack ? coverWidth * 2 + _coverGap : coverWidth;
           final cover = _ComicCover(
               title: heading,
               comic: comic,
               entry: entry,
-              width: mobile
-                  ? (constraints.maxWidth - 58).clamp(0.0, 250.0)
-                  : math.min(140.0, constraints.maxWidth));
+              width: coverWidth,
+              backCover: showBack ? backCover.imageData : null);
           final facts = _ComicFacts(
               comic: comic,
               entry: entry,
@@ -168,7 +191,7 @@ class ComicInspectorHeader extends StatelessWidget {
                 ]);
           }
           // Beside the cover, the facts need room for their labels and values.
-          if (constraints.maxWidth < 272) {
+          if (constraints.maxWidth < coversWidth + 132) {
             return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -179,7 +202,7 @@ class ComicInspectorHeader extends StatelessWidget {
                   plot,
                 ]);
           }
-          if (constraints.maxWidth < 560) {
+          if (constraints.maxWidth < coversWidth + 420) {
             return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -204,6 +227,9 @@ class ComicInspectorHeader extends StatelessWidget {
     );
   }
 }
+
+const _coverWidth = 210.0;
+const _coverGap = 10.0;
 
 class _IssueBadge extends StatelessWidget {
   const _IssueBadge(this.label);
@@ -235,12 +261,14 @@ class _ComicCover extends StatelessWidget {
     required this.comic,
     required this.entry,
     required this.width,
+    required this.backCover,
   });
 
   final String title;
   final ComicCatalogItem? comic;
   final ComicLibraryEntry? entry;
   final double width;
+  final Uint8List? backCover;
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +283,7 @@ class _ComicCover extends StatelessWidget {
       borderRadius: 0,
     );
     final personal = entry?.personal;
-    return SizedBox(
+    final front = SizedBox(
       width: width,
       child: personal != null && personal.details.isSlabbed
           ? ComicSlab(
@@ -265,6 +293,21 @@ class _ComicCover extends StatelessWidget {
               customLabel: personal.details.customLabel,
               child: cover)
           : cover,
+    );
+    final back = backCover;
+    if (back == null) return front;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        front,
+        const SizedBox(width: _coverGap),
+        SizedBox(
+          width: width,
+          child:
+              Image.memory(back, fit: BoxFit.fitWidth, gaplessPlayback: true),
+        ),
+      ],
     );
   }
 }
