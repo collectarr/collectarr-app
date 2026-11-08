@@ -17,6 +17,7 @@
 
 ### Fixes
 - Comics details keep CLZ's cover size, showing the back cover beside the front in a wide panel and behind dots in a narrow one.
+- Comics details no longer repeat a publisher logo when the imprint uses the same one.
 - The Scan cover panel has a full-width coloured header with rounded corners, like the other panels.
 - Hardware and Toys show Condition in the Value tab of Edit and Add Manually, beside Value.
 - Text across the library, details, editor, Settings, Statistics, Pick Lists, Loan Manager and Pre-fill uses CLZ's sizes, weights and line heights, and details titles use CLZ's heading blue.

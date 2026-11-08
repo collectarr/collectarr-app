@@ -410,6 +410,15 @@ class _ComicFacts extends ConsumerWidget {
             Expanded(child: Text(value, style: bold)),
           ]),
         );
+    // An imprint that resolves to the publisher's logo would repeat it.
+    final shownPublishers = <String>{};
+    final publishers = [
+      for (final name in [publisher, imprint])
+        if (name.isNotEmpty &&
+            shownPublishers
+                .add(comicPublisherLogoAsset(name) ?? name.toLowerCase()))
+          name,
+    ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       if (variant.isNotEmpty)
         Padding(
@@ -420,8 +429,7 @@ class _ComicFacts extends ConsumerWidget {
       if (cover.isNotEmpty) dated('Cover', cover),
       // As in the reference, a publisher or imprint with a known logo shows
       // the logo instead of its name.
-      for (final name in [publisher, imprint])
-        if (name.isNotEmpty)
+      for (final name in publishers)
         Padding(
           padding: const EdgeInsets.only(top: 10),
           child: switch (comicPublisherLogoAsset(name)) {
