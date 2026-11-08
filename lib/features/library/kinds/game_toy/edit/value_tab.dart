@@ -1,3 +1,5 @@
+import '../vocabulary/game_toy_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/sections/entry_personal_section.dart';
@@ -17,9 +19,18 @@ abstract interface class GameToyValueBindings {
   String get currency;
   void setDetails(GameToyEntryDetails details);
   void setValueCents(int? value);
+  String? get condition;
+  void setCondition(String? value);
 }
 
 Map<String, Widget> gameToyValueFields(GameToyValueBindings b) => {
+      'condition': LibraryManagedVocabularyField(
+        label: 'Condition',
+        listName: GameToyVocabularies.condition.id.value,
+        mediaKind: 'game_toy',
+        value: b.condition,
+        onChanged: b.setCondition,
+      ),
       'completeness': LibrarySegmentedChoiceField<GameToyCompleteness>(
           label: 'Completeness',
           options: [
@@ -143,4 +154,20 @@ final class _EntryBindings implements GameToyValueBindings {
 
   @override
   void setValueCents(int? value) => draft.set('market_value_cents', value);
+  @override
+  String? get condition {
+    final value = draft.text('condition');
+    return value.isEmpty ? null : value;
+  }
+
+  @override
+  void setCondition(String? value) {
+    draft.set('condition', value);
+    draft.vocabularyEdits.replaceValue(
+      fieldId: 'personal:condition',
+      listName: GameToyVocabularies.condition.id.value,
+      value: value,
+      mediaKind: 'game_toy',
+    );
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game_toy/vocabulary/game_toy_vocabularies.dart';
 import '../entries/game_toy_entry_details.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
@@ -268,6 +269,19 @@ final class _AddValueBindings implements GameToyValueBindings {
   @override
   void setValueCents(int? value) =>
       request.onKindDraftChanged?.call(draft.copyWith(marketValueCents: value));
+  @override
+  String? get condition => request.commonDraft?.condition;
+  @override
+  void setCondition(String? value) {
+    final common = request.commonDraft;
+    if (common != null) {
+      request.onCommonDraftChanged?.call(common.copyWith(condition: value));
+    }
+    request.onVocabularyValueChanged?.call(
+        fieldId: 'condition',
+        listName: GameToyVocabularies.condition.id.value,
+        value: value);
+  }
 }
 
 bool _isCover(ItemImageContent image) =>

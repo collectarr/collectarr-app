@@ -1,3 +1,5 @@
+import '../vocabulary/game_hardware_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/sections/entry_personal_section.dart';
@@ -17,9 +19,18 @@ abstract interface class GameHardwareValueBindings {
   String get currency;
   void setDetails(GameHardwareEntryDetails details);
   void setValueCents(int? value);
+  String? get condition;
+  void setCondition(String? value);
 }
 
 Map<String, Widget> gameHardwareValueFields(GameHardwareValueBindings b) => {
+      'condition': LibraryManagedVocabularyField(
+        label: 'Condition',
+        listName: GameHardwareVocabularies.condition.id.value,
+        mediaKind: 'game_hardware',
+        value: b.condition,
+        onChanged: b.setCondition,
+      ),
       'completeness': LibrarySegmentedChoiceField<GameHardwareCompleteness?>(
           label: 'Completeness',
           options: [
@@ -150,4 +161,20 @@ final class _EntryBindings implements GameHardwareValueBindings {
 
   @override
   void setValueCents(int? value) => draft.set('market_value_cents', value);
+  @override
+  String? get condition {
+    final value = draft.text('condition');
+    return value.isEmpty ? null : value;
+  }
+
+  @override
+  void setCondition(String? value) {
+    draft.set('condition', value);
+    draft.vocabularyEdits.replaceValue(
+      fieldId: 'personal:condition',
+      listName: GameHardwareVocabularies.condition.id.value,
+      value: value,
+      mediaKind: 'game_hardware',
+    );
+  }
 }

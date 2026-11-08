@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game_hardware/vocabulary/game_hardware_vocabularies.dart';
 import '../entries/game_hardware_entry_details.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
@@ -280,6 +281,19 @@ final class _AddValueBindings implements GameHardwareValueBindings {
   @override
   void setValueCents(int? value) =>
       request.onKindDraftChanged?.call(draft.copyWith(marketValueCents: value));
+  @override
+  String? get condition => request.commonDraft?.condition;
+  @override
+  void setCondition(String? value) {
+    final common = request.commonDraft;
+    if (common != null) {
+      request.onCommonDraftChanged?.call(common.copyWith(condition: value));
+    }
+    request.onVocabularyValueChanged?.call(
+        fieldId: 'condition',
+        listName: GameHardwareVocabularies.condition.id.value,
+        value: value);
+  }
 }
 
 bool _isCover(ItemImageContent image) =>
