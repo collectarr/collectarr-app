@@ -630,8 +630,9 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             ),
           ),
           // Centred in the strip, whose top padding the tabs sit below.
-          Padding(
-            padding: const EdgeInsets.only(bottom: 5),
+          Container(
+            height: 25,
+            margin: const EdgeInsets.only(bottom: 5),
             child: TextButton(
               key: const ValueKey('library-add-manually'),
               onPressed: onManual,
