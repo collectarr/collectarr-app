@@ -1,8 +1,27 @@
-# Collectarr
+<div align="center">
+
+<h1>
+  <img src="docs/assets/collectarr-icon.svg" alt="Collectarr Logo" width="128" height="128"><br>
+  Collectarr
+</h1>
 
 Your collection, your way. Collectarr organizes music, comics, games, gaming
 hardware and toys in an offline-first library, with optional self-hosted catalog
 and sync services.
+
+[![Latest release](https://img.shields.io/github/v/release/collectarr/collectarr-app?label=latest&style=flat-square)](https://github.com/collectarr/collectarr-app/releases)
+[![License](https://img.shields.io/badge/License-AGPL--3.0--only-blue?style=flat-square)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/collectarr/collectarr-app/tests.yml?branch=main&style=flat-square&label=CI)](https://github.com/collectarr/collectarr-app/actions/workflows/tests.yml)
+[![Release](https://img.shields.io/github/actions/workflow/status/collectarr/collectarr-app/release.yml?style=flat-square&label=release)](https://github.com/collectarr/collectarr-app/actions/workflows/release.yml)
+
+[![Flutter](https://img.shields.io/badge/Flutter-3.47.7-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev)
+[![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Web-4DBBD5?style=flat-square)](#getting-started)
+[![Manual](https://img.shields.io/badge/Docs-User%20Manual-00b4d8?style=flat-square&logo=gitbook&logoColor=white)](https://collectarr.github.io/collectarr-page/manual/)
+[![Contributing](https://img.shields.io/badge/Contributing-guide-orange?style=flat-square&logo=handshake&logoColor=white)](CONTRIBUTING.md)
+
+</div>
+
+---
 
 **License:** [GNU AGPLv3 only](LICENSE) (`AGPL-3.0-only`), like Collectarr Core
 and Sync. See [contributing](CONTRIBUTING.md) for contribution terms and
