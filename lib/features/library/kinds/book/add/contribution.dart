@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/panes/manual_chrome.dart';
 import '../book_module_dependencies.dart';
 import '../config/configuration.dart';
 import 'manual_candidate.dart';
@@ -92,6 +93,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     ),
   ),
   manualPaneBuilder: buildBookAddManualPane,
+  manualChrome: const LibraryAddManualChrome.plain(),
 );
 
 Iterable<String> getBookFacetValues(

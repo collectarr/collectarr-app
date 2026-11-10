@@ -5,20 +5,28 @@ LibraryFormSectionSpec<TDraft> bookMainFormSection<TDraft>({
   required Iterable<LibraryFieldSpec<TDraft>> fields,
 }) {
   const columns = [
-    LibraryFormColumnSpec(rows: [
+    LibraryFormColumnSpec(fieldFlex: {
+      BookFieldIdentities.seriesId: 2
+    }, rows: [
       ['catalog_title'],
       ['sort_title'],
       [BookFieldIdentities.subtitleId],
-      [BookFieldIdentities.seriesId],
-      ['number', 'volume_name'],
+      [BookFieldIdentities.seriesId, 'number', 'volume_name'],
       ['box_set'],
-      ['authors'],
     ]),
-    LibraryFormColumnSpec(rows: [
-      [BookFieldIdentities.isbnId, BookFieldIdentities.pageCountId],
-      [BookFieldIdentities.publisherId, 'country'],
-      [BookFieldIdentities.formatId, BookFieldIdentities.releaseDateId],
-      ['language', 'publication_place'],
+    LibraryFormColumnSpec(fieldFlex: {
+      BookFieldIdentities.isbnId: 2,
+      BookFieldIdentities.formatId: 3
+    }, rows: [
+      ['authors'],
+      [
+        BookFieldIdentities.isbnId,
+        BookFieldIdentities.pageCountId,
+        BookFieldIdentities.formatId
+      ],
+      [BookFieldIdentities.publisherId, BookFieldIdentities.releaseDateId],
+      ['country', 'language'],
+      ['publication_place'],
       ['genres'],
       ['subjects'],
     ]),
