@@ -93,25 +93,39 @@ List<LibraryFormSectionSpec<TDraft>> bookCreditFormSections<TDraft>(
 ) {
   final byId = {for (final field in fields) field.id: field};
   return [
-    LibraryFormSectionSpec<TDraft>(id: 'credits', label: '', fields: [
-      for (final id in [
-        'credit:Editor',
-        'credit:Illustrator',
-        'credit:Cover Artist',
-        'credit:Photographer',
-        'credit:Foreword Author',
-        'translators',
-        'credit:Ghost Writer'
-      ])
-        byId[id]!,
-    ]),
     LibraryFormSectionSpec<TDraft>(
-        id: 'audiobook',
-        label: 'Audiobook',
-        fields: [
-          byId['credit:Narrator']!,
-          byId['audio_length_minutes']!,
-          byId['audio_abridged']!,
-        ]),
+      id: 'credits_primary',
+      label: '',
+      layoutColumn: 0,
+      maxColumns: 1,
+      fields: [
+        for (final id in [
+          'credit:Editor',
+          'credit:Illustrator',
+          'credit:Cover Artist',
+          'credit:Photographer',
+          'credit:Foreword Author',
+        ])
+          byId[id]!
+      ],
+    ),
+    LibraryFormSectionSpec<TDraft>(
+      id: 'credits_secondary',
+      label: '',
+      layoutColumn: 1,
+      maxColumns: 1,
+      fields: [byId['translators']!, byId['credit:Ghost Writer']!],
+    ),
+    LibraryFormSectionSpec<TDraft>(
+      id: 'audiobook',
+      label: 'Audiobook',
+      layoutColumn: 1,
+      fullWidthFieldIds: const {'credit:Narrator'},
+      fields: [
+        byId['credit:Narrator']!,
+        byId['audio_length_minutes']!,
+        byId['audio_abridged']!
+      ],
+    ),
   ];
 }
