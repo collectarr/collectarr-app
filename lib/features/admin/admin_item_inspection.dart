@@ -35,8 +35,6 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
     return AccentAlertDialog(
       title: Row(
         children: [
-          const Icon(AppIcons.admin, color: Colors.white),
-          const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Inspect: ${item.displayTitle}',
@@ -329,7 +327,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
-      headerIcon: AppIcons.tabImages,
       title: Text('Covers: ${item.displayTitle}'),
       content: SizedBox(
         width: 640,

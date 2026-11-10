@@ -89,7 +89,6 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                           style: librarySelectionFieldStyle,
                           child: Column(children: [
                             AccentDialogHeader(
-                                icon: icon,
                                 title: title,
                                 accent: accent,
                                 minHeight: 38,

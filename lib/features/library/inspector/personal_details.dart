@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart
 import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -688,7 +687,6 @@ class _InspectorTrackingDetailsEditorState
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
-        headerIcon: AppIcons.warning,
         backgroundColor: appPalette(context).panel,
         title: const Text('Stop tracking'),
         content: const Text(

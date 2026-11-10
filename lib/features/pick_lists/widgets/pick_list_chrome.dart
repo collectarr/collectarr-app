@@ -49,8 +49,8 @@ class PickListHeader extends StatelessWidget {
   final VoidCallback? onClose;
 
   @override
-  Widget build(BuildContext context) => AccentDialogHeader(
-      icon: icon, minHeight: 38, title: title, onClose: onClose);
+  Widget build(BuildContext context) =>
+      AccentDialogHeader(minHeight: 38, title: title, onClose: onClose);
 }
 
 ButtonStyle pickListButtonStyle(BuildContext context,

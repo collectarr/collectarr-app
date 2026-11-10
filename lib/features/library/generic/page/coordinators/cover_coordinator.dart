@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/context.dart';
@@ -65,7 +64,6 @@ class LibraryPageCoverCoordinator {
     await showAppDialog<void>(
       context: _page.context,
       builder: (dialogContext) => AccentAlertDialog(
-        headerIcon: AppIcons.tabImages,
         backgroundColor: appPalette(dialogContext).panel,
         title: const Text('Cover Matches'),
         content: ConstrainedBox(

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/barcode/barcode_camera_view.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
@@ -81,7 +80,6 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
           children: [
             AccentDialogHeader(
                 title: widget.title,
-                icon: AppIcons.barcode,
                 trailing: _scannedBarcodes.isEmpty
                     ? null
                     : Text('${_scannedBarcodes.length}',

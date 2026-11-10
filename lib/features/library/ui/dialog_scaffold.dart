@@ -31,7 +31,6 @@ class LibraryDialogScaffold extends StatelessWidget {
     super.key,
     this.header,
     this.title,
-    this.headerIcon,
     this.contextBar,
     this.sidePanel,
     this.sidePanelPosition = LibraryDialogSidePanelPosition.end,
@@ -63,7 +62,6 @@ class LibraryDialogScaffold extends StatelessWidget {
 
   final Widget? header;
   final Widget? title;
-  final IconData? headerIcon;
   final Widget? contextBar;
   final Widget? sidePanel;
   final LibraryDialogSidePanelPosition sidePanelPosition;
@@ -124,10 +122,6 @@ class LibraryDialogScaffold extends StatelessWidget {
                     child: IconTheme(
                       data: const IconThemeData(color: Colors.white),
                       child: Row(children: [
-                        if (headerIcon != null) ...[
-                          Icon(headerIcon, size: 20, color: Colors.white),
-                          const SizedBox(width: 10),
-                        ],
                         Expanded(child: title!),
                       ]),
                     ),

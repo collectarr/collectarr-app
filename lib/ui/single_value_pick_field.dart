@@ -99,7 +99,6 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         final palette = appPalette(context);
         final currentValue = _emptyToNull(widget.controller.text);
         return AccentAlertDialog(
-          headerIcon: AppIcons.pickLists,
           backgroundColor: palette.panel,
           title: Text('Pick ${widget.label}'),
           contentPadding: EdgeInsets.zero,

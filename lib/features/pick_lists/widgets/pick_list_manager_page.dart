@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'pick_list_chrome.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'dart:async';
@@ -270,7 +269,6 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
       await showAppDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
-                  headerIcon: AppIcons.pickLists,
                   title: Text(title),
                   headerOnClose: () => Navigator.pop(context, false),
                   content: SizedBox(width: 440, child: Text(message)),

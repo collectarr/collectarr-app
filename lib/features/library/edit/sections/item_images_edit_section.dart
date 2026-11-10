@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/fields/dialog_widgets.dart';
@@ -464,7 +463,6 @@ class _ImageEditorDialogState extends State<_ImageEditorDialog> {
     final previewWidth = (viewport.width - 96).clamp(280.0, 680.0);
     final previewHeight = (viewport.height * 0.42).clamp(180.0, 420.0);
     return AccentAlertDialog(
-      headerIcon: AppIcons.inlineEdit,
       title: const Text('Edit image'),
       content: SizedBox(
         width: previewWidth,
@@ -774,7 +772,6 @@ class _ImageCropDialogState extends State<_ImageCropDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
-      headerIcon: AppIcons.tabImages,
       title: const Text('Crop image'),
       content: SizedBox(
         width: 420,

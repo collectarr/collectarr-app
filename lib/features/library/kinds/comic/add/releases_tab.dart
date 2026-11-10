@@ -123,9 +123,10 @@ Future<Map<String, int>> loadComicReleaseCounts(
     for (final period in periods)
       period.title: rows.fold<int>(
         0,
-        (total, row) => period.includes(DateTime.parse('${row['date']}T00:00:00Z'))
-            ? total + (row['count'] as int)
-            : total,
+        (total, row) =>
+            period.includes(DateTime.parse('${row['date']}T00:00:00Z'))
+                ? total + (row['count'] as int)
+                : total,
       ),
   };
 }
@@ -1015,7 +1016,6 @@ class _ComicPullListDialogState extends State<_ComicPullListDialog> {
 
   @override
   Widget build(BuildContext context) => AccentAlertDialog(
-        headerIcon: AppIcons.calendar,
         title: const Text('Pull List'),
         content: SizedBox(
           width: 420,

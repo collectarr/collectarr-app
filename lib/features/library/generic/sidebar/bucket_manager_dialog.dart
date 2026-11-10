@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -134,7 +133,6 @@ class _LibraryBucketManagerDialogState
       widget.type,
     );
     return LibraryDialogScaffold(
-      headerIcon: AppIcons.pickLists,
       title: Text(title),
       onClose: _submitting ? null : () => Navigator.of(context).pop(),
       maxWidth: 760,
@@ -341,7 +339,6 @@ class _LibraryBucketManagerDialogState
     final nextLabel = await showAppDialog<String>(
       context: context,
       builder: (context) => AccentAlertDialog(
-        headerIcon: AppIcons.inlineEdit,
         title: Text(
             'Rename ${genericGroupModeLabel(widget.groupMode, widget.type)}'),
         content: TextField(
@@ -388,7 +385,6 @@ class _LibraryBucketManagerDialogState
     final confirmed = await showAppDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
-            headerIcon: AppIcons.delete,
             title: Text('Delete ${entry.label}?'),
             content: Text(
               'Remove this ${genericGroupModeLabel(widget.groupMode, widget.type).toLowerCase()} value from all items currently bucketed under it?',
@@ -444,7 +440,6 @@ class _LibraryBucketManagerDialogState
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AccentAlertDialog(
-          headerIcon: AppIcons.merge,
           title: Text('Merge ${entry.label} into...'),
           content: CompactSearchDropdownFormField<String>(
             initialValue: targetLabel,

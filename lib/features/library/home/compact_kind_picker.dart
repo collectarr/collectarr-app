@@ -1,6 +1,5 @@
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/features/library/home/catalog.dart';
@@ -127,7 +126,6 @@ class CompactLibraryKindPicker extends StatelessWidget {
                 const SizedBox(height: 12),
                 AccentDialogHeader(
                     title: 'Switch Library',
-                    icon: AppIcons.libraries,
                     onClose: () => Navigator.of(sheetContext).pop()),
                 const SizedBox(height: 8),
                 Flexible(

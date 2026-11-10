@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -300,7 +299,6 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
       final confirmed = await showAppDialog<bool>(
         context: context,
         builder: (ctx) => AccentAlertDialog(
-          headerIcon: AppIcons.backupRestore,
           title: const Text('Restore database'),
           content: Text(
             'This will replace ALL local data with the backup contents. '
@@ -364,7 +362,6 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
     final firstConfirm = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
         title: const Text('Clear database'),
         content: Text(
           'This will delete ALL local data. '
@@ -391,7 +388,6 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
     final secondConfirm = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
         title: const Text('Are you absolutely sure?'),
         content: const Text(
           'All collection data, tracking history, custom fields, '

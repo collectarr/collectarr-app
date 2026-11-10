@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -136,7 +135,6 @@ class _SeriesPickerDialogState extends State<_SeriesPickerDialog> {
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       title: AccentDialogHeader(
         title: 'Select Series',
-        icon: Icons.collections_bookmark_outlined,
         trailing: _SeriesCountChip(
           label: '${_entries.length} series',
           emphasized: true,
@@ -321,7 +319,6 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AccentAlertDialog(
-              headerIcon: AppIcons.merge,
               backgroundColor: kAppPanel,
               title: Text('Merge ${source.title} Into'),
               content: CompactSearchDropdownFormField<String>(
@@ -374,7 +371,6 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       title: AccentDialogHeader(
         title: 'Manage Series',
-        icon: Icons.library_books_outlined,
         trailing: _SeriesCountChip(
           label: '${_entries.length} entries',
           emphasized: true,
@@ -512,9 +508,6 @@ class _SeriesEditDialogState extends State<_SeriesEditDialog> {
       actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       title: AccentDialogHeader(
         title: widget.initialTitle == null ? 'New Series' : 'Edit Series',
-        icon: widget.initialTitle == null
-            ? Icons.add_circle_outline
-            : Icons.edit_outlined,
       ),
       content: SizedBox(
         width: 420,

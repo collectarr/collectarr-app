@@ -52,7 +52,8 @@ class ReleaseNotesPanel extends StatelessWidget {
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           AccentDialogHeader(
-              title: '${release.name} - $date', icon: Icons.article_outlined),
+            title: '${release.name} - $date',
+          ),
           Expanded(
             child: Markdown(
               data: release.body,

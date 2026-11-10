@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/edit/session/navigation_guard.dart';
@@ -228,7 +227,6 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
       formKey: _formKey,
       accent: widget.accent,
       mobileSystemBarColor: widget.mobileSystemBarColor,
-      icon: AppIcons.inlineEdit,
       title: widget.title,
       badges: widget.badges,
       footerContent: entry == null || widget.inlineCollectionStatus

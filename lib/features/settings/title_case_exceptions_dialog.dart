@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +14,6 @@ Future<List<String>?> showTitleCaseExceptionsDialog(
   return showAppDialog<List<String>>(
     context: context,
     builder: (context) => AccentAlertDialog(
-      headerIcon: AppIcons.edit,
       title: const Text('Manage Exceptions'),
       content: SizedBox(
         width: 360,

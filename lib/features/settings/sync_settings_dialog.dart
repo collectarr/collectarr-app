@@ -100,7 +100,6 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   Widget _header() {
     return AccentDialogHeader(
       title: 'Sync Settings',
-      icon: Icons.sync,
       trailing: TextButton(
         style: TextButton.styleFrom(
           foregroundColor: Colors.white,

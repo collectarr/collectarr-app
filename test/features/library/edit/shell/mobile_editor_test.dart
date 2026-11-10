@@ -111,7 +111,6 @@ class _EditorHarnessState extends State<_EditorHarness>
   Widget build(BuildContext context) => LibraryEditDialogScaffold(
         formKey: form,
         accent: Colors.teal,
-        icon: Icons.edit,
         title: 'Edit item',
         badges: const [],
         tabController: tabs,

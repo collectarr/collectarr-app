@@ -233,7 +233,6 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
                                 result = await showAppDialog<String>(
                                     context: context,
                                     builder: (ctx) => AccentAlertDialog(
-                                          headerIcon: AppIcons.sortAlpha,
                                           title: const Text('Sort Name'),
                                           content: LibraryTextFormControl(
                                               controller: controller,

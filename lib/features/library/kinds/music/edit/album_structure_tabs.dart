@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/disc_tab_button.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
@@ -241,7 +240,6 @@ final class _MusicAlbumStructureTabState
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
         title: Text('Remove Disc ${disc.discNumber}?'),
         content: Text(
           'This removes ${disc.tracks.length} track entries from the release. '

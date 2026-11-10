@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
@@ -193,7 +192,6 @@ class _SmartListFieldRulesDialogState
     final otherKinds =
         widget.kinds.where((kind) => kind != widget.kind.apiValue);
     return AccentAlertDialog(
-      headerIcon: AppIcons.inlineEdit,
       backgroundColor: palette.panel,
       title: const Text('Edit field rules'),
       content: SizedBox(

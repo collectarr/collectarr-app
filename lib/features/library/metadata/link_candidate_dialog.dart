@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 
@@ -45,7 +44,6 @@ class _LibraryLinkCandidateDialogState
 
   @override
   Widget build(BuildContext context) => AccentAlertDialog(
-          headerIcon: AppIcons.link,
           title: const Text('Link manually'),
           content: SizedBox(
               width: 700,

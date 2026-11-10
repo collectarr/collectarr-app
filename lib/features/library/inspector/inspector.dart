@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/item_confirmation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -619,7 +618,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         builder: (context) => Theme(
             data: libraryAccentTheme(context, widget.accent),
             child: AccentAlertDialog(
-              headerIcon: AppIcons.tabDetails,
               title: const Text('Unlink from Core'),
               content: const Text(
                   'Keep this item and all local data, and remove its link to Core?'),
@@ -650,7 +648,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         builder: (context) => Theme(
             data: libraryAccentTheme(context, widget.accent),
             child: AccentAlertDialog(
-              headerIcon: AppIcons.upload,
               title: const Text('Submit to Core'),
               content: Text(
                   'Send "$title" to Core reviewers as a new ${singular.toLowerCase()}? It '
@@ -729,7 +726,6 @@ class _InspectorReadingQueueActionButtonState
     await showAppDialog<void>(
       context: context,
       builder: (context) => AccentAlertDialog(
-        headerIcon: AppIcons.readingQueue,
         title: const Text('Reading Queue'),
         content: SizedBox(
           width: 360,

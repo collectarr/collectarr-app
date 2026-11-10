@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/covers/provider_cover_downloads.
 import 'package:collectarr_app/features/library/covers/provider_cover_fetch.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,7 +39,6 @@ class _DownloadCoversDialogState extends ConsumerState<_DownloadCoversDialog> {
     final download = ref.watch(providerCoverDownloadsProvider);
     final current = download?.kind == widget.kind ? download : null;
     return AccentAlertDialog(
-      headerIcon: AppIcons.downloadCovers,
       title: const Text('Download Covers'),
       alignment: Alignment.center,
       content: ConstrainedBox(

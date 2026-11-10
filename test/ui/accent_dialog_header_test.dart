@@ -20,7 +20,6 @@ void main() {
             child: Scaffold(
               body: AccentDialogHeader(
                 title: 'Test Modal',
-                icon: Icons.album,
                 onClose: () => closed = true,
               ),
             ),
@@ -37,11 +36,7 @@ void main() {
       expect(textWidget.style?.fontWeight, FontWeight.w700);
       expect(textWidget.style?.height, 1);
 
-      // Verify icon is white
-      final iconFinder = find.byIcon(Icons.album);
-      expect(iconFinder, findsOneWidget);
-      final iconWidget = tester.widget<Icon>(iconFinder);
-      expect(iconWidget.color, Colors.white);
+      expect(find.byType(Icon), findsNothing);
 
       // Verify close button is present and white
       // The reference's close control is a plain "×", drawn so it stays
@@ -77,8 +72,7 @@ void main() {
                   showDialog<void>(
                     context: context,
                     builder: (_) => const Dialog(
-                      child: AccentDialogHeader(
-                          icon: Icons.settings, title: 'Dialog Title'),
+                      child: AccentDialogHeader(title: 'Dialog Title'),
                     ),
                   );
                 },
@@ -107,7 +101,6 @@ void main() {
         const MaterialApp(
           home: Scaffold(
             body: AccentDialogHeader(
-              icon: Icons.settings,
               title: 'No Close',
               showCloseButton: false,
             ),

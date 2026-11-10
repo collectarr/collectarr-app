@@ -1343,7 +1343,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       header: AccentDialogHeader(
         title: libraryAddForKind(widget.type.kind).chrome.dialogTitle ??
             'Add ${widget.type.identity.pluralLabel} By:',
-        icon: widget.type.identity.icon,
         onClose: _closeDialog,
       ),
       contextBar: contextBar,

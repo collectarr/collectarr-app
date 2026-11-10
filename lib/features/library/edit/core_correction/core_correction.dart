@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'dart:convert';
 
@@ -252,7 +251,6 @@ final class _LibraryCoreCorrectionReviewDialogState
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
-      headerIcon: AppIcons.inlineEdit,
       title: Text(
           'Propose to Core — ${widget.source.request.kindItem.summary.primaryLabel}'),
       content: SizedBox(

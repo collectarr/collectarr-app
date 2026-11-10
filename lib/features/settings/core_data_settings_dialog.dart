@@ -120,9 +120,9 @@ class _CoreDataSettingsDialogState extends State<CoreDataSettingsDialog> {
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 720),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           AccentDialogHeader(
-              title: 'Add/Update from Core Settings',
-              accent: widget.accent,
-              icon: Icons.cloud_download_outlined),
+            title: 'Add/Update from Core Settings',
+            accent: widget.accent,
+          ),
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: AppPageTabs(

@@ -232,7 +232,6 @@ class _MusicListeningSection extends ConsumerWidget {
       final shouldSave = await showAppDialog<bool>(
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
-          headerIcon: AppIcons.tabMain,
           title: const Text('Log listen'),
           content: LibraryEditTextField(
             controller: notesController,
@@ -354,7 +353,6 @@ class _MusicListenEventTile extends ConsumerWidget {
       final shouldSave = await showAppDialog<bool>(
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
-          headerIcon: AppIcons.inlineEdit,
           title: const Text('Edit listen'),
           content: LibraryEditTextField(
             controller: notesController,
@@ -402,7 +400,6 @@ class _MusicListenEventTile extends ConsumerWidget {
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
         title: const Text('Delete listen?'),
         content: const Text('This listen will be removed from active history.'),
         actions: [

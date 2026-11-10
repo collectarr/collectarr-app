@@ -103,8 +103,6 @@ class _LibraryMetadataRefreshDialogState
     return LibraryDialogScaffold(
       title: Row(
         children: [
-          const Icon(AppIcons.sync, size: 20),
-          const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Refresh ${widget.type.identity.pluralLabel.toLowerCase()} metadata',

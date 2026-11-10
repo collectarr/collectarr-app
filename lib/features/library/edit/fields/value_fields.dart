@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/dropdown_pick_field.dart';
@@ -131,7 +130,6 @@ Future<DateTime?> showLibraryDateEntryDialog(
       var selectedDate = initialDate;
       return StatefulBuilder(
         builder: (context, setDialogState) => AccentAlertDialog(
-          headerIcon: AppIcons.inlineEdit,
           title: Text(label),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),

@@ -625,7 +625,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     final result = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
-        headerIcon: AppIcons.admin,
         title: const Text('Approve proposal?'),
         content: SizedBox(
           width: 560,

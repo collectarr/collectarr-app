@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/session/commit_scope.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/entries/store.dart';
@@ -152,7 +151,6 @@ class _LibraryEntryEditorFrameState extends State<_LibraryEntryEditorFrame> {
         }
         if (snapshot.hasError) {
           return AccentAlertDialog(
-            headerIcon: AppIcons.warning,
             title: const Text('Could not open entry'),
             content: Text('${snapshot.error}'),
             actions: [
@@ -289,7 +287,6 @@ class _DeferredLibraryEditDialogState
         }
         if (snapshot.hasError) {
           return AccentAlertDialog(
-            headerIcon: AppIcons.warning,
             title: const Text('Could not open editor'),
             content: Text(
               'Failed to load edit data for ${widget.initialRequest.kindItem.summary.primaryLabel}.',
@@ -303,7 +300,6 @@ class _DeferredLibraryEditDialogState
           );
         }
         return AccentAlertDialog(
-          headerIcon: AppIcons.tabDetails,
           title: const Text('Opening editor'),
           content: SizedBox(
             width: 340,

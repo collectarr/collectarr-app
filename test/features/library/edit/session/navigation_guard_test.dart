@@ -29,7 +29,6 @@ void main() {
                       return LibraryEditDialogScaffold(
                         formKey: GlobalKey<FormState>(),
                         accent: Colors.orange,
-                        icon: Icons.edit,
                         title: 'Test editor',
                         badges: const [],
                         body: const Text('Edited content'),

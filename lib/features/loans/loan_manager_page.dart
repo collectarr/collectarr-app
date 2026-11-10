@@ -1097,7 +1097,6 @@ class _LibraryEntryPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
-      headerIcon: AppIcons.loans,
       title: Text('Choose copy for $title'),
       content: SizedBox(
         width: 520,
@@ -1134,7 +1133,6 @@ class _ActiveLoanPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
-      headerIcon: AppIcons.loans,
       title: Text('Choose active loan for $title'),
       content: SizedBox(
         width: 520,
@@ -1222,7 +1220,8 @@ class _LoanBarButton extends StatelessWidget {
             Text(label.toUpperCase(),
                 style:
                     // The reference's 14 px small capitals: capitals at 70 %.
-                    const TextStyle(fontSize: 9.8, fontWeight: FontWeight.w400)),
+                    const TextStyle(
+                        fontSize: 9.8, fontWeight: FontWeight.w400)),
             if (caret) ...[
               const SizedBox(width: 3),
               const Icon(AppIcons.caretDown, size: 11),

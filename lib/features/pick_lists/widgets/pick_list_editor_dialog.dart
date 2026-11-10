@@ -108,7 +108,6 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Edit ${widget.label} Values',
-        icon: Icons.list,
         onClose: () => Navigator.of(context).pop(),
       ),
       content: SizedBox(

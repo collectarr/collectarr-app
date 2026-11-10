@@ -30,7 +30,6 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     super.key,
     required this.formKey,
     required this.accent,
-    required this.icon,
     required this.title,
     required this.badges,
     this.tabController,
@@ -67,7 +66,6 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final Color accent;
   final Color? mobileSystemBarColor;
-  final IconData icon;
   final String title;
   final List<Widget> badges;
   final TabController? tabController;
@@ -368,7 +366,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                     )
                   : LibraryDialogScaffold(
                       header: _LibraryEditTitleBar(
-                        icon: widget.icon,
                         title: widget.title,
                         badges: widget.badges,
                         onClose: widget.onClose,
@@ -494,7 +491,6 @@ final class LibraryEditTabNavigationScope extends InheritedWidget {
 
 class _LibraryEditTitleBar extends StatelessWidget {
   const _LibraryEditTitleBar({
-    required this.icon,
     required this.title,
     required this.badges,
     required this.onClose,
@@ -503,7 +499,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.isBusy,
   });
 
-  final IconData icon;
   final String title;
   final List<Widget> badges;
   final VoidCallback onClose;
@@ -527,8 +522,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: Colors.white),
-            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

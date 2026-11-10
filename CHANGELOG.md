@@ -17,6 +17,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Dialog headers show their titles without a leading icon.
 - The navigation drawer shows the active library's icon.
 - Items without a cover show their placeholder at the full cover size, without black bars.
 - A removed cover disappears from Covers, Shelves and the other views after saving.

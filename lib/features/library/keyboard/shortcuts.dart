@@ -137,7 +137,6 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
       titlePadding: EdgeInsets.zero,
       title: const AccentDialogHeader(
         title: 'Keyboard Shortcuts',
-        icon: Icons.keyboard,
       ),
       content: SizedBox(
         width: 380,

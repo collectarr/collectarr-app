@@ -1,6 +1,5 @@
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -149,7 +148,6 @@ class BottomSheetLibraryCoverScanSourcePrompt
           children: [
             AccentDialogHeader(
                 title: 'Scan cover',
-                icon: AppIcons.tabCovers,
                 onClose: () => Navigator.of(context).pop()),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
@@ -671,7 +669,6 @@ class _LibraryCoverScanReviewDialogState
           children: [
             AccentDialogHeader(
               title: 'Review imported cover',
-              icon: Icons.image_search_outlined,
               onClose: () => Navigator.of(context).pop(),
             ),
             Flexible(

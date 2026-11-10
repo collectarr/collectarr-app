@@ -1,7 +1,6 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
@@ -92,7 +91,6 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
         backgroundColor: appPalette(ctx).panel,
         title: const Text('Delete Folder'),
         content: Text(
@@ -132,7 +130,6 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     return showAppDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.folderOpen,
         backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextFormField(
@@ -228,8 +225,6 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
       backgroundColor: palette.panel,
       title: Row(
         children: [
-          const Icon(Icons.folder_outlined, size: 20),
-          const SizedBox(width: 8),
           const Expanded(child: Text('Folders')),
           IconButton(
             icon: const Icon(Icons.add, size: 20),

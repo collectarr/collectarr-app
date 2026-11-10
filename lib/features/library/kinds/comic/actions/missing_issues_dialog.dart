@@ -115,7 +115,6 @@ class _MissingComicsDialogState extends State<_MissingComicsDialog> {
       insetPadding: const EdgeInsets.all(_windowInset),
       header: AccentDialogHeader(
         title: 'Missing Comics',
-        icon: AppIcons.missing,
         onClose: () => Navigator.of(context).pop(),
       ),
       contextBar: _FilterBar(

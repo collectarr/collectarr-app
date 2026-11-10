@@ -1,6 +1,5 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -130,7 +129,6 @@ class InspectorItemImagesSection extends ConsumerWidget {
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
         title: const Text('Delete image?'),
         content: const Text('This image will be removed from your collection.'),
         actions: [

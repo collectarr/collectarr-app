@@ -97,7 +97,6 @@ class _LibraryMultiValueOptionsDialogState<TValue>
       ),
       title: AccentDialogHeader(
         title: 'Select ${widget.label}',
-        icon: Icons.list_alt_outlined,
         onClose: () => Navigator.of(context).pop(),
       ),
       content: SizedBox(

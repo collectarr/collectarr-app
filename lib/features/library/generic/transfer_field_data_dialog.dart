@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_checkbox.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -451,7 +450,6 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                 AccentDialogHeader(
                     title: 'Transfer Field Data',
                     showCloseButton: !_executing,
-                    icon: AppIcons.transferFieldData,
                     minHeight: 38,
                     onClose:
                         _executing ? null : () => Navigator.of(context).pop()),
@@ -630,7 +628,6 @@ class _TransferFieldPickerState extends State<_TransferFieldPicker> {
   final Map<bool, bool> _expanded = {false: true, true: true};
   @override
   Widget build(BuildContext context) => AccentAlertDialog(
-      headerIcon: AppIcons.transferFieldData,
       title: Text(widget.title),
       headerOnClose: () => Navigator.of(context).pop(),
       contentPadding: const EdgeInsets.all(15),

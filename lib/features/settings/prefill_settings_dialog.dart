@@ -470,7 +470,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     return AccentDialogHeader(
       title: _title,
       accent: widget.accent,
-      icon: Icons.auto_fix_high,
     );
   }
 

@@ -330,7 +330,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final name = await showAppDialog<String>(
         context: context,
         builder: (context) => AccentAlertDialog(
-                headerIcon: AppIcons.sortAlpha,
                 title: const Text('Save Sorting Favorite'),
                 content: TextFormField(
                     initialValue: label,

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
@@ -395,7 +394,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       accent: widget.accent,
       mobileSystemBarColor: widget.type.identity.mobileChromeDark,
       isBusy: _isSaving,
-      icon: AppIcons.inlineEdit,
       title: title,
       badges: const <Widget>[],
       tabController: _tabController,

@@ -1024,7 +1024,6 @@ void showLibraryCompactCoverSizeSheet(
           children: [
             AccentDialogHeader(
                 title: 'View & Layout',
-                icon: AppIcons.toolbarTools,
                 onClose: () => Navigator.of(context).pop()),
             ListTile(
               leading: const Icon(Icons.grid_view),

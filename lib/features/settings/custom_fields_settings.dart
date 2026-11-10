@@ -252,7 +252,6 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
         title: const Text('Delete custom field?'),
         content: Text(
           'This will permanently remove "${def.name}" and all its values from every item.',

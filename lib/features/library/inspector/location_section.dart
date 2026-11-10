@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -205,7 +204,6 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
     final result = await showAppDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.location,
         backgroundColor: appPalette(ctx).panel,
         title: const Text('New Location'),
         content: TextField(

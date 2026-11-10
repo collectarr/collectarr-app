@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/settings/settings_layout.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,7 +127,6 @@ class _SettingsAutomaticBackupsPanelState
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
-        headerIcon: AppIcons.backupRestore,
         title: const Text('Restore backup'),
         content: Text(
           'Replace all local data with the backup from '

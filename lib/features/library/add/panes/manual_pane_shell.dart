@@ -218,7 +218,6 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       formKey: _formKey,
       accent: request.accent,
       mobileSystemBarColor: request.type.identity.mobileChromeDark,
-      icon: request.type.identity.icon,
       title: headerTitle,
       badges: badges,
       tabController: _tabController,

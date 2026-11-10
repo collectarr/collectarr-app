@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +33,6 @@ class SyncConflictReviewDialog extends ConsumerWidget {
     final controller = ref.read(syncControllerProvider.notifier);
     final changes = sync.rejectedChanges;
     return AccentAlertDialog(
-      headerIcon: AppIcons.sync,
       title: const Text('Sync conflicts'),
       content: SizedBox(
         width: 560,

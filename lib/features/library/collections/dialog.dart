@@ -41,7 +41,6 @@ Future<String?> chooseLibraryCollection(BuildContext context,
           data: libraryAccentTheme(context,
               libraryAccentForKind(catalogMediaKindFromApiValue(kind))),
           child: AccentAlertDialog(
-              headerIcon: AppIcons.collections,
               title: Text(title),
               content: SizedBox(
                   width: 380,
@@ -177,7 +176,6 @@ final class _CollectionsDialog extends ConsumerWidget {
                     children: [
                       AccentDialogHeader(
                           title: 'Manage Collections',
-                          icon: AppIcons.collections,
                           accent: accent,
                           minHeight: 38,
                           onClose: () => Navigator.of(context).pop()),
@@ -234,7 +232,6 @@ final class _CollectionsDialog extends ConsumerWidget {
     final confirmed = await showAppDialog<bool>(
         context: context,
         builder: (context) => AccentAlertDialog(
-                headerIcon: AppIcons.delete,
                 title: Text('Delete ${collection.name}?'),
                 content: Text(
                     '${collection.count} item${collection.count == 1 ? '' : 's'} will move to ${values.firstWhere((c) => c.id == destination).name}.'),
@@ -303,8 +300,6 @@ final class _CollectionNameDialogState extends State<_CollectionNameDialog> {
   @override
   Widget build(BuildContext context) => AccentAlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          headerIcon:
-              widget.collection == null ? AppIcons.add : AppIcons.inlineEdit,
           title: Text(
               widget.collection == null ? 'Add Collection' : 'Edit Collection'),
           contentPadding: const EdgeInsets.all(15),

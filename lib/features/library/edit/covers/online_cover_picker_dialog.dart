@@ -1,6 +1,5 @@
 import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -116,7 +115,6 @@ final class _LibraryOnlineCoverPickerDialogState
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             AccentDialogHeader(
                 title: 'Find Cover',
-                icon: AppIcons.tabImages,
                 onClose: () => Navigator.of(context).pop()),
             Padding(
                 padding: const EdgeInsets.fromLTRB(15, 14, 15, 8),

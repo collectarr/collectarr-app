@@ -192,7 +192,6 @@ class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
         child: LibraryEditDialogScaffold(
           formKey: _formKey,
           accent: Colors.teal,
-          icon: Icons.library_music,
           title: 'Edit album',
           badges: const [],
           tabController: _tabController,
