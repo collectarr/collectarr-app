@@ -13,6 +13,7 @@ final class BookManualReadHistory extends StatefulWidget {
 
 final class _BookManualReadHistoryState extends State<BookManualReadHistory> {
   late final BookReadingDraft _draft;
+  bool _syncing = false;
   @override
   void initState() {
     super.initState();
@@ -26,6 +27,21 @@ final class _BookManualReadHistoryState extends State<BookManualReadHistory> {
   }
 
   @override
+  void didUpdateWidget(covariant BookManualReadHistory oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final tracking = widget.request.trackingDraft;
+    _syncing = true;
+    _draft.status = tracking.readStatus;
+    _draft.startedAt = tracking.startedAt;
+    _draft.finishedAt = tracking.finishedAt;
+    final rating = tracking.rating?.toString() ?? '';
+    final notes = tracking.notes ?? '';
+    if (_draft.rating.text != rating) _draft.rating.text = rating;
+    if (_draft.notes.text != notes) _draft.notes.text = notes;
+    _syncing = false;
+  }
+
+  @override
   void dispose() {
     _draft.dispose();
     super.dispose();
@@ -34,15 +50,18 @@ final class _BookManualReadHistoryState extends State<BookManualReadHistory> {
   @override
   Widget build(BuildContext context) => BookReadHistoryTab(
         draft: _draft,
-        onChanged: () => widget.request.onTrackingDraftChanged?.call(
-          LibraryAddTrackingDraft(
-            readStatus: _draft.status,
-            rating: int.tryParse(_draft.rating.text),
-            notes: _draft.notes.text,
-            startedAt: _draft.startedAt,
-            finishedAt: _draft.finishedAt,
-          ),
-        ),
+        onChanged: () {
+          if (_syncing) return;
+          widget.request.onTrackingDraftChanged?.call(
+            LibraryAddTrackingDraft(
+              readStatus: _draft.status,
+              rating: int.tryParse(_draft.rating.text),
+              notes: _draft.notes.text,
+              startedAt: _draft.startedAt,
+              finishedAt: _draft.finishedAt,
+            ),
+          );
+        },
       );
 }
 
@@ -55,6 +74,7 @@ final class BookManualRatingField extends StatefulWidget {
 
 final class _BookManualRatingFieldState extends State<BookManualRatingField> {
   late final TextEditingController _controller;
+  bool _syncing = false;
   @override
   void initState() {
     super.initState();
@@ -63,10 +83,25 @@ final class _BookManualRatingFieldState extends State<BookManualRatingField> {
     )..addListener(_changed);
   }
 
-  void _changed() => widget.request.onTrackingDraftChanged?.call(
-        widget.request.trackingDraft
-            .copyWith(rating: int.tryParse(_controller.text)),
-      );
+  @override
+  void didUpdateWidget(covariant BookManualRatingField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final rating = widget.request.trackingDraft.rating?.toString() ?? '';
+    if (_controller.text != rating) {
+      _syncing = true;
+      _controller.text = rating;
+      _syncing = false;
+    }
+  }
+
+  void _changed() {
+    if (_syncing) return;
+    widget.request.onTrackingDraftChanged?.call(
+      widget.request.trackingDraft
+          .copyWith(rating: int.tryParse(_controller.text)),
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();
