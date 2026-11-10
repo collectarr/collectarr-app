@@ -79,7 +79,8 @@ final class _BookReadHistoryTabState extends State<BookReadHistoryTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (draft.status != 'Read')
+            if (bookTrackingProfile.normalizeStorageValue(draft.status) !=
+                'Read')
               TextButton(
                 onPressed: () => _change(() {
                   draft.status = 'Read';
@@ -99,13 +100,13 @@ final class _BookReadHistoryTabState extends State<BookReadHistoryTab> {
                 label: 'Started Date',
                 date: draft.startedAt,
                 onDateChanged: (value) =>
-                    setState(() => draft.startedAt = value)),
+                    _change(() => draft.startedAt = value)),
             const SizedBox(height: 12),
             LibraryPartialDateField.fullDate(
                 label: 'Finished Date',
                 date: draft.finishedAt,
                 onDateChanged: (value) =>
-                    setState(() => draft.finishedAt = value)),
+                    _change(() => draft.finishedAt = value)),
             const SizedBox(height: 12),
             LibraryFormField(
                 label: 'Notes',
