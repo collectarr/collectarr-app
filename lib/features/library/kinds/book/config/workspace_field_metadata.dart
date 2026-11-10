@@ -241,6 +241,7 @@ abstract final class BookWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'genres[]',
     filterable: true,
+    groupable: true,
   );
 
   static const subject = LibraryKindFieldMetadata(
@@ -251,6 +252,7 @@ abstract final class BookWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'subjects[]',
     filterable: true,
+    groupable: true,
   );
 
   static const country = LibraryKindFieldMetadata(
@@ -261,6 +263,7 @@ abstract final class BookWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'country',
     filterable: true,
+    groupable: true,
   );
 
   static const language = LibraryKindFieldMetadata(
@@ -271,6 +274,7 @@ abstract final class BookWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'language',
     filterable: true,
+    groupable: true,
   );
 
   static const releaseYear = LibraryKindFieldMetadata(

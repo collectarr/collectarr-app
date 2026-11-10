@@ -47,6 +47,20 @@ final bookCatalogItemDetailsWorkspaceFieldDefinitions = [
 ];
 
 final bookCatalogItemDetailsWorkspaceGroupDefinitions = [
+  for (final (id, label, value)
+      in <(String, String, Object? Function(BookWorkspaceDto))>[
+    ('book.genre', 'Genre', (dto) => dto.metadata.genres),
+    ('book.subject', 'Subject', (dto) => dto.metadata.subjects),
+    ('book.country', 'Country', (dto) => dto.country),
+    ('book.language', 'Language', (dto) => dto.language),
+  ])
+    LibraryGroupDefinition<BookKind, BookWorkspaceDto, Object?>(
+      id: LibraryGroupId<BookKind, Object?>(id),
+      label: label,
+      sidebarTitle: label,
+      icon: Icons.folder_outlined,
+      getValue: (context) => value(context.dto),
+    ),
   if (BookFieldIdentities.publisher.groupable)
     groupFromField<BookKind, BookWorkspaceDto, String?>(
       BookCatalogItemDetailsWorkspaceFields.publisher,

@@ -34,6 +34,10 @@ void main() {
     expect(
         groups,
         containsAll([
+          'book.genre',
+          'book.subject',
+          'book.country',
+          'book.language',
           'book.translator',
           'book.editor',
           'book.illustrator',
