@@ -66,6 +66,12 @@ final bookCatalogItemDetailsWorkspaceGroupDefinitions = [
 ];
 
 final bookCatalogItemDetailsWorkspaceSortDefinitions = [
+  for (final field in [
+    BookCatalogItemDetailsWorkspaceFields.publisher,
+    BookCatalogItemDetailsWorkspaceFields.format,
+    BookCatalogItemDetailsWorkspaceFields.isbn
+  ])
+    sortFromField<BookKind, BookWorkspaceDto, String>(field),
   if (BookFieldIdentities.releaseDate.sortable)
     sortFromField<BookKind, BookWorkspaceDto, DateTime>(
       BookCatalogItemDetailsWorkspaceFields.releaseDate,
@@ -99,6 +105,12 @@ final bookCatalogItemDetailsWorkspaceColumnDefinitions = [
     group: 'Details',
     defaultWidth: 150,
     maxWidth: 240,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, num?>(
+    BookCatalogItemDetailsWorkspaceFields.pageCount,
+    group: 'Details',
+    isNumeric: true,
+    defaultWidth: 90,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemDetailsWorkspaceFields.format,

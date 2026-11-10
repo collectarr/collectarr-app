@@ -81,6 +81,17 @@ final bookCatalogItemWorkspaceGroupDefinitions = [
     sidebarTitle: 'Authors',
     icon: Icons.person_outline,
   ),
+  for (final (field, title) in [
+    (BookCatalogItemWorkspaceFields.translator, 'Translators'),
+    (BookCatalogItemWorkspaceFields.editor, 'Editors'),
+    (BookCatalogItemWorkspaceFields.illustrator, 'Illustrators'),
+    (BookCatalogItemWorkspaceFields.coverArtist, 'Cover Artists'),
+  ])
+    groupFromField<BookKind, BookWorkspaceDto, String?>(
+      field,
+      sidebarTitle: title,
+      icon: Icons.person_outline,
+    ),
   if (BookFieldIdentities.series.groupable)
     groupFromField<BookKind, BookWorkspaceDto, String?>(
       BookCatalogItemWorkspaceFields.series,
@@ -95,6 +106,14 @@ final bookCatalogItemWorkspaceSortDefinitions = [
       BookCatalogItemWorkspaceFields.title),
   sortFromField<BookKind, BookWorkspaceDto, String>(
       BookCatalogItemWorkspaceFields.author),
+  for (final field in [
+    BookCatalogItemWorkspaceFields.series,
+    BookCatalogItemWorkspaceFields.translator,
+    BookCatalogItemWorkspaceFields.editor,
+    BookCatalogItemWorkspaceFields.illustrator,
+    BookCatalogItemWorkspaceFields.coverArtist,
+  ])
+    sortFromField<BookKind, BookWorkspaceDto, String>(field),
 ];
 
 final bookCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -132,6 +151,26 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
     BookCatalogItemWorkspaceFields.subtitle,
     group: 'Details',
     defaultWidth: 180,
+  ),
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, Iterable<String>>(
+    id: const LibraryFieldId<BookKind, Iterable<String>>('book.genre'),
+    metadata: BookWorkspaceFieldMetadata.genre,
+    getValue: (context) => context.dto.metadata.genres,
+    cellValue: (context) => Text(context.dto.metadata.genres.join(' | ')),
+    group: 'Details',
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
+    defaultWidth: 180,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookCatalogItemWorkspaceFields.series,
+    group: 'Details',
+    defaultWidth: 150,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookCatalogItemWorkspaceFields.coverArtist,
+    group: 'Credits',
+    defaultWidth: 130,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemWorkspaceFields.translator,

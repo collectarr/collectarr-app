@@ -40,6 +40,7 @@ abstract final class BookFieldIdentities {
     sourcePath: 'series_title',
     filterable: true,
     groupable: true,
+    sortable: true,
     editable: true,
   );
   static const publisher = LibraryKindFieldMetadata(
@@ -52,6 +53,7 @@ abstract final class BookFieldIdentities {
     searchable: true,
     filterable: true,
     groupable: true,
+    sortable: true,
     editable: true,
     vocabulary: publisherVocabulary,
   );
@@ -73,6 +75,7 @@ abstract final class BookFieldIdentities {
     source: LibraryFieldSource.derived,
     sourcePath: 'isbn',
     searchable: true,
+    sortable: true,
     editable: true,
   );
   static const releaseDate = LibraryKindFieldMetadata(
@@ -94,6 +97,7 @@ abstract final class BookFieldIdentities {
     sourcePath: 'physical_format',
     filterable: true,
     groupable: true,
+    sortable: true,
     editable: true,
     vocabulary: formatVocabulary,
   );

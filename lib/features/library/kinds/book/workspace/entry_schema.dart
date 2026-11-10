@@ -110,6 +110,15 @@ final bookLibraryEntryWorkspaceGroupDefinitions = [
     sidebarTitle: 'Conditions',
     icon: Icons.verified_outlined,
   ),
+  for (final (field, title) in [
+    (BookLibraryEntryWorkspaceFields.readStatus, 'Read Status'),
+    (BookLibraryEntryWorkspaceFields.signedBy, 'Signed By'),
+  ])
+    groupFromField<BookKind, BookWorkspaceDto, String?>(
+      field,
+      sidebarTitle: title,
+      icon: Icons.label_outline,
+    ),
   groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookLibraryEntryWorkspaceFields.location,
     sidebarTitle: 'Locations',
@@ -118,6 +127,22 @@ final bookLibraryEntryWorkspaceGroupDefinitions = [
 ];
 
 final bookLibraryEntryWorkspaceSortDefinitions = [
+  for (final field in [
+    BookLibraryEntryWorkspaceFields.condition,
+    BookLibraryEntryWorkspaceFields.location,
+    BookLibraryEntryWorkspaceFields.readStatus,
+    BookLibraryEntryWorkspaceFields.signedBy
+  ])
+    sortFromField<BookKind, BookWorkspaceDto, String>(field),
+  for (final field in [
+    BookLibraryEntryWorkspaceFields.rating,
+    BookLibraryEntryWorkspaceFields.pricePaid
+  ])
+    sortFromField<BookKind, BookWorkspaceDto, num>(field),
+  sortFromField<BookKind, BookWorkspaceDto, DateTime>(
+      BookLibraryEntryWorkspaceFields.addedAt),
+  sortFromField<BookKind, BookWorkspaceDto, DateTime>(
+      BookLibraryEntryWorkspaceFields.updatedAt),
   LibrarySortDefinition<BookKind, BookWorkspaceDto>(
     id: BookSortIds.status,
     compare: (left, right) {
@@ -175,6 +200,11 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
     defaultWidth: 80,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookLibraryEntryWorkspaceFields.signedBy,
+    group: 'Personal',
+    defaultWidth: 130,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookLibraryEntryWorkspaceFields.condition,
     group: 'Personal',
     defaultWidth: 118,
@@ -202,6 +232,12 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, DateTime?>(
+    BookLibraryEntryWorkspaceFields.addedAt,
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
   ),
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, DateTime>(
     id: BookFieldIds.updatedAt,
