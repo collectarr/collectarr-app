@@ -19,7 +19,7 @@ Opera and a release Web build with the same albums imported.
 - Read History still differs from CLZ's read-event table and Settings-driven Mark as read behavior; verify date clearing and repeat reads.
 - Match ISBN and Author / Title search, scanner activation and search result selection in Add Books.
 - Compare all workspace layouts, columns, sorting, grouping, details, statistics and settings using isolated Books storage.
-- Implement and verify CLZ Books import; Books currently has no guided import sources.
+- Implement and verify guided CLZ Books XML import; mapped CSV is available for selected fields.
 
 ## How to compare
 

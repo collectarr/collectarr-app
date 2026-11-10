@@ -4,6 +4,10 @@ Music is the released kind. Imports create complete local albums and personal
 values; they never publish metadata to Core or infer a Core link from an
 external product ID.
 
+## Books
+
+Books supports mapped Text / CSV imports for catalog, credit, personal, value and loan fields. A Title mapping is required. CLZ Books XML is not yet supported.
+
 ## External Music exports
 
 | Source | Accepted export |

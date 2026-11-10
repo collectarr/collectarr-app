@@ -41,10 +41,10 @@ void main() {
       }
     });
 
-    test('Books does not advertise unverified import formats', () {
+    test('Books offers mapped CSV without unverified guided formats', () {
       final capability = libraryImportForKind(CatalogMediaKind.book);
-      expect(capability.sources, isEmpty);
-      expect(capability.mappedCsvImporter, isNull);
+      expect(capability.sources.map((source) => source.id), ['text']);
+      expect(capability.mappedCsvImporter, isNotNull);
     });
 
     test('games import sources follow the reference order', () {
