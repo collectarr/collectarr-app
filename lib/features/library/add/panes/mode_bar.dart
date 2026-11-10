@@ -425,8 +425,12 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
         LibraryAddDialogMode.identifier => _LibraryAddModeTextField(
             fieldKey: const ValueKey('library-add-barcode-field'),
             controller: widget.identifierController,
-            label: 'Barcode / UPC / ISBN',
-            hintText: 'Enter barcode...',
+            label: libraryPresentationForKind(widget.type.kind)
+                .searchFieldLabels
+                .identifierFieldLabel,
+            hintText: libraryPresentationForKind(widget.type.kind)
+                .searchFieldLabels
+                .identifierHint,
             keyboardType: TextInputType.number,
             onSubmitted: widget.onLookupIdentifier,
             trailing:
@@ -452,6 +456,9 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       canScanCover: widget.canScanCover,
       isScanningCover: widget.isScanningCover,
       searchLabel: searchLabel,
+      identifierLabel: libraryPresentationForKind(widget.type.kind)
+          .searchFieldLabels
+          .identifierTabLabel,
       browseLabel: widget.browseTab?.label,
       codeLabel: widget.codeSearchTab?.label,
       kindTabLabels: [for (final tab in widget.kindTabs) tab.label],
@@ -530,6 +537,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
 class _LibraryAddModeTabStrip extends StatelessWidget {
   const _LibraryAddModeTabStrip({
     required this.searchLabel,
+    required this.identifierLabel,
+    required this.identifierFirst,
     required this.searchIcon,
     required this.mode,
     required this.onModeChanged,
@@ -544,6 +553,8 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   });
 
   final String searchLabel;
+  final String identifierLabel;
+  final bool identifierFirst;
   final IconData searchIcon;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
@@ -559,6 +570,17 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final identifierTab = LibraryAddModeTab(
+      icon: SvgPicture.asset(
+        AppIcons.barcodeScanSvg,
+        width: 20,
+        height: 16,
+        colorFilter: ColorFilter.mode(palette.textPrimary, BlendMode.srcIn),
+      ),
+      label: identifierLabel,
+      selected: mode == LibraryAddDialogMode.identifier,
+      onTap: () => onModeChanged(LibraryAddDialogMode.identifier),
+    );
     return Container(
       height: 35,
       color: palette.isDark ? const Color(0xff383838) : palette.panelRaised,
@@ -572,6 +594,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  if (identifierFirst) identifierTab,
                   if (browseTab case final tab?)
                     LibraryAddModeTab(
                       icon: Icon(tab.icon),
@@ -586,18 +609,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                       selected: mode == LibraryAddDialogMode.search,
                       onTap: () => onModeChanged(LibraryAddDialogMode.search),
                     ),
-                  LibraryAddModeTab(
-                    icon: SvgPicture.asset(
-                      AppIcons.barcodeScanSvg,
-                      width: 20,
-                      height: 16,
-                      colorFilter: ColorFilter.mode(
-                          palette.textPrimary, BlendMode.srcIn),
-                    ),
-                    label: 'Barcode',
-                    selected: mode == LibraryAddDialogMode.identifier,
-                    onTap: () => onModeChanged(LibraryAddDialogMode.identifier),
-                  ),
+                  if (!identifierFirst) identifierTab,
                   if (codeSearchTab case final tab?)
                     LibraryAddModeTab(
                       icon: Icon(tab.icon ?? AppIcons.tags),

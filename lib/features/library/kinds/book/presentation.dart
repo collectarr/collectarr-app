@@ -142,7 +142,13 @@ final bookLibraryMediaPresentation = LibraryMediaPresentation(
         ]),
   ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, creator, or keyword...',
+    queryHint: 'Enter author or title...',
+    addSearchTabLabel: 'Author / Title',
+    identifierTabLabel: 'ISBN',
+    identifierFieldLabel: 'ISBN',
+    identifierHint: 'Scan or enter ISBN...',
+    identifierFirst: true,
+    libraryHint: 'Search books...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
   filterLabels: const LibraryPresentationLabels(

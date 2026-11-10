@@ -5,6 +5,15 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_label",
+      "kind": "book",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
       "kind": "comic",
       "label": "Physical format label",
       "section": "internal",
@@ -50,6 +59,15 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_media_family",
+      "kind": "book",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
       "kind": "comic",
       "label": "Physical format media family",
       "section": "internal",
@@ -95,6 +113,15 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_variant_type",
+      "kind": "book",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
       "kind": "comic",
       "label": "Physical format variant type",
       "section": "internal",
@@ -140,6 +167,15 @@
       "editable": false,
       "input": "text",
       "key": "format_templateimage",
+      "kind": "book",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
       "kind": "comic",
       "label": "Format template image",
       "section": "internal",
@@ -185,6 +221,15 @@
       "editable": false,
       "input": "text",
       "key": "format_scaledimage",
+      "kind": "book",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
       "kind": "comic",
       "label": "Format scaled image",
       "section": "internal",
@@ -230,6 +275,15 @@
       "editable": false,
       "input": "text",
       "key": "country_scaledimage",
+      "kind": "book",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
       "kind": "comic",
       "label": "Country scaled image",
       "section": "internal",
@@ -275,6 +329,15 @@
       "editable": false,
       "input": "text",
       "key": "language_scaledimage",
+      "kind": "book",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
       "kind": "comic",
       "label": "Language scaled image",
       "section": "internal",
@@ -320,6 +383,15 @@
       "editable": false,
       "input": "text",
       "key": "audiencerating_templateimage",
+      "kind": "book",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
       "kind": "comic",
       "label": "Audience rating template image",
       "section": "internal",
@@ -365,6 +437,15 @@
       "editable": false,
       "input": "text",
       "key": "region_scaledimage",
+      "kind": "book",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
       "kind": "comic",
       "label": "Region scaled image",
       "section": "internal",
@@ -410,6 +491,15 @@
       "editable": false,
       "input": "text",
       "key": "audio_templateimage",
+      "kind": "book",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
       "kind": "comic",
       "label": "Audio template image",
       "section": "internal",
@@ -455,6 +545,15 @@
       "editable": false,
       "input": "text",
       "key": "associated_image_id",
+      "kind": "book",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
       "kind": "comic",
       "label": "Associated image",
       "section": "internal",
@@ -500,6 +599,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_delivery_url",
+      "kind": "book",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
       "kind": "comic",
       "label": "Cover delivery URL",
       "section": "internal",
@@ -545,6 +653,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_policy",
+      "kind": "book",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
       "kind": "comic",
       "label": "Cover policy",
       "section": "internal",
@@ -590,6 +707,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_source_url",
+      "kind": "book",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
       "kind": "comic",
       "label": "Cover source URL",
       "section": "internal",
@@ -635,6 +761,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_status",
+      "kind": "book",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
       "kind": "comic",
       "label": "Cover status",
       "section": "internal",
@@ -673,6 +808,15 @@
       "key": "cover_status",
       "kind": "music",
       "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "book",
+      "label": "Cover storage",
       "section": "internal",
       "valueType": "string"
     },
@@ -725,6 +869,15 @@
       "editable": true,
       "input": "text",
       "key": "physical_format",
+      "kind": "book",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
       "kind": "comic",
       "label": "Physical format",
       "section": "publishing",
@@ -756,6 +909,15 @@
       "label": "Physical format",
       "section": "publishing",
       "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "book",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
     },
     {
       "editable": true,
@@ -801,6 +963,321 @@
       "label": "Genres",
       "section": "relations",
       "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "imprint",
+      "kind": "book",
+      "label": "Imprint",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "imprint",
+      "kind": "comic",
+      "label": "Imprint",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_group",
+      "kind": "book",
+      "label": "Series group",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_group",
+      "kind": "comic",
+      "label": "Series group",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "page_count",
+      "kind": "book",
+      "label": "Page count",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "page_count",
+      "kind": "comic",
+      "label": "Page count",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "book",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "game",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "first_publication_date",
+      "kind": "book",
+      "label": "First publication date",
+      "section": "publishing",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "original_publication_date",
+      "kind": "book",
+      "label": "Original publication date",
+      "section": "publishing",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "subjects",
+      "kind": "book",
+      "label": "Subjects",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "distributor",
+      "kind": "book",
+      "label": "Distributor",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "region",
+      "kind": "book",
+      "label": "Region",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_statement",
+      "kind": "book",
+      "label": "Edition statement",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "dimensions",
+      "kind": "book",
+      "label": "Dimensions",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "first_edition",
+      "kind": "book",
+      "label": "First edition",
+      "section": "item",
+      "valueType": "boolean"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "audio_length_minutes",
+      "kind": "book",
+      "label": "Audio length (minutes)",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "binding",
+      "kind": "book",
+      "label": "Binding",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "back_cover_image_url",
+      "kind": "book",
+      "label": "Back cover image URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "box_set",
+      "kind": "book",
+      "label": "Box Set",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publication_place",
+      "kind": "book",
+      "label": "Publication Place",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "printed_by",
+      "kind": "book",
+      "label": "Printed By",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "paper_type",
+      "kind": "book",
+      "label": "Paper Type",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "number_line",
+      "kind": "book",
+      "label": "Number Line",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_subtitle",
+      "kind": "book",
+      "label": "Original Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_country",
+      "kind": "book",
+      "label": "Original Country",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_publisher",
+      "kind": "book",
+      "label": "Original Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_publication_place",
+      "kind": "book",
+      "label": "Original Publication Place",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "printing_number",
+      "kind": "book",
+      "label": "Printing",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "width_mm",
+      "kind": "book",
+      "label": "Width (mm)",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "height_mm",
+      "kind": "book",
+      "label": "Height (mm)",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "spine_thickness_mm",
+      "kind": "book",
+      "label": "Spine Thickness (mm)",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "weight_grams",
+      "kind": "book",
+      "label": "Weight (g)",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "extras",
+      "kind": "book",
+      "label": "Extras",
+      "section": "publishing",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audio_abridged",
+      "kind": "book",
+      "label": "Audiobook Abridged",
+      "section": "technical",
+      "valueType": "boolean"
     },
     {
       "editable": true,
@@ -904,33 +1381,6 @@
     {
       "editable": true,
       "input": "text",
-      "key": "imprint",
-      "kind": "comic",
-      "label": "Imprint",
-      "section": "publishing",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "series_group",
-      "kind": "comic",
-      "label": "Series group",
-      "section": "publishing",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "number",
-      "key": "page_count",
-      "kind": "comic",
-      "label": "Page count",
-      "section": "publishing",
-      "valueType": "integer"
-    },
-    {
-      "editable": true,
-      "input": "text",
       "key": "crossover",
       "kind": "comic",
       "label": "Crossover",
@@ -989,15 +1439,6 @@
       "kind": "game",
       "label": "Franchise",
       "section": "relations",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "original_language",
-      "kind": "game",
-      "label": "Original language",
-      "section": "regional",
       "valueType": "string"
     },
     {
@@ -1112,6 +1553,15 @@
       "editable": true,
       "input": "text",
       "key": "title",
+      "kind": "book",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
       "kind": "comic",
       "label": "Title",
       "section": "item",
@@ -1157,6 +1607,15 @@
       "editable": true,
       "input": "text",
       "key": "original_title",
+      "kind": "book",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
       "kind": "comic",
       "label": "Original title",
       "section": "item",
@@ -1193,6 +1652,15 @@
       "editable": true,
       "input": "text",
       "key": "localized_title",
+      "kind": "book",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
       "kind": "comic",
       "label": "Localized title",
       "section": "item",
@@ -1229,6 +1697,15 @@
       "editable": true,
       "input": "text",
       "key": "title_extension",
+      "kind": "book",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
       "kind": "comic",
       "label": "Title extension",
       "section": "item",
@@ -1265,6 +1742,15 @@
       "editable": true,
       "input": "text",
       "key": "sort_key",
+      "kind": "book",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
       "kind": "comic",
       "label": "Sort key",
       "section": "item",
@@ -1296,6 +1782,15 @@
       "label": "Sort key",
       "section": "item",
       "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "book",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
     },
     {
       "editable": true,
@@ -1337,6 +1832,15 @@
       "editable": true,
       "input": "text",
       "key": "item_number",
+      "kind": "book",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
       "kind": "game",
       "label": "Item number",
       "section": "item",
@@ -1357,6 +1861,15 @@
       "key": "item_number",
       "kind": "game_toy",
       "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "book",
+      "label": "Series title",
       "section": "item",
       "valueType": "string"
     },
@@ -1400,6 +1913,15 @@
       "editable": true,
       "input": "text",
       "key": "edition_title",
+      "kind": "book",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
       "kind": "comic",
       "label": "Edition title",
       "section": "item",
@@ -1431,6 +1953,15 @@
       "label": "Edition title",
       "section": "item",
       "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "book",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
     },
     {
       "editable": true,
@@ -1481,6 +2012,15 @@
       "editable": true,
       "input": "text",
       "key": "publisher",
+      "kind": "book",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
       "kind": "comic",
       "label": "Publisher",
       "section": "publishing",
@@ -1510,6 +2050,15 @@
       "key": "publisher",
       "kind": "game_toy",
       "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "book",
+      "label": "Subtitle",
       "section": "publishing",
       "valueType": "string"
     },
@@ -1555,6 +2104,15 @@
       "key": "subtitle",
       "kind": "music",
       "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "book",
+      "label": "Barcode",
       "section": "publishing",
       "valueType": "string"
     },
@@ -1607,6 +2165,15 @@
       "editable": true,
       "input": "text",
       "key": "variant_name",
+      "kind": "book",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
       "kind": "game",
       "label": "Primary variant",
       "section": "publishing",
@@ -1634,6 +2201,15 @@
       "editable": true,
       "input": "text",
       "key": "catalog_number",
+      "kind": "book",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
       "kind": "comic",
       "label": "Catalog number",
       "section": "technical",
@@ -1679,6 +2255,15 @@
       "editable": true,
       "input": "text",
       "key": "release_status",
+      "kind": "book",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
       "kind": "comic",
       "label": "Release status",
       "section": "technical",
@@ -1709,6 +2294,15 @@
       "kind": "game_toy",
       "label": "Release status",
       "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "book",
+      "label": "Country",
+      "section": "regional",
       "valueType": "string"
     },
     {
@@ -1760,6 +2354,15 @@
       "editable": true,
       "input": "text",
       "key": "language",
+      "kind": "book",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
       "kind": "comic",
       "label": "Language",
       "section": "regional",
@@ -1796,6 +2399,15 @@
       "editable": true,
       "input": "text",
       "key": "age_rating",
+      "kind": "book",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
       "kind": "comic",
       "label": "Age rating",
       "section": "regional",
@@ -1832,6 +2444,15 @@
       "editable": true,
       "input": "text",
       "key": "audience_rating",
+      "kind": "book",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
       "kind": "comic",
       "label": "Audience rating",
       "section": "regional",
@@ -1868,6 +2489,15 @@
       "editable": true,
       "input": "list",
       "key": "series_tags",
+      "kind": "book",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
       "kind": "comic",
       "label": "Series tags",
       "section": "regional",
@@ -1899,6 +2529,15 @@
       "label": "Series tags",
       "section": "regional",
       "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "book",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
     },
     {
       "editable": true,
@@ -1942,6 +2581,15 @@
       "key": "cover_image_url",
       "kind": "music",
       "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "book",
+      "label": "Thumbnail URL",
       "section": "artwork",
       "valueType": "string"
     },
@@ -1994,6 +2642,15 @@
       "editable": true,
       "input": "multiline",
       "key": "synopsis",
+      "kind": "book",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
       "kind": "comic",
       "label": "Synopsis",
       "section": "artwork",
@@ -2030,6 +2687,15 @@
       "editable": true,
       "input": "multiline",
       "key": "plot_summary",
+      "kind": "book",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
       "kind": "comic",
       "label": "Plot summary",
       "section": "artwork",
@@ -2059,6 +2725,15 @@
       "key": "plot_summary",
       "kind": "game_toy",
       "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "book",
+      "label": "Plot description",
       "section": "artwork",
       "valueType": "string"
     },
@@ -2122,6 +2797,15 @@
       "key": "trailer_urls",
       "kind": "game_toy",
       "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "book",
+      "label": "External links",
       "section": "relations",
       "valueType": "link_list"
     },
@@ -2171,5 +2855,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-11-05T21:34:26.111484Z"
+  "generatedAt": "2026-11-10T19:13:37.476759Z"
 }

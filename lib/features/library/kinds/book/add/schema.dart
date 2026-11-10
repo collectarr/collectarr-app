@@ -1,4 +1,9 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show setEquals;
+import '../forms/main_form_section.dart';
+import '../forms/detail_sections.dart';
+import '../forms/publication_fields.dart';
+import '../forms/catalog_form_field_ids.dart';
 
 import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/add/schema/catalog_title_field.dart';
@@ -41,6 +46,7 @@ LibraryFormSchema<TDraft>
         id: 'edition',
         label: 'Edition',
         fields: [
+          ...bookPublicationFields<TDraft>(values: values),
           libraryAddCatalogTitleField<TDraft>(),
           ...bookCatalogIdentityFields(
             values: values,
@@ -53,10 +59,20 @@ LibraryFormSchema<TDraft>
           ),
           LibraryTextFieldSpec<TDraft>(
             id: 'number',
-            label: 'Number',
+            label: 'Issue',
             value: (draft) => values(draft).number,
             setValue: (draft, value) => values(draft).number = value,
           ),
+          LibraryTextFieldSpec<TDraft>(
+              id: 'volume_name',
+              label: 'Volume',
+              value: (draft) => values(draft).volumeName,
+              setValue: (draft, value) => values(draft).volumeName = value),
+          LibraryTextFieldSpec<TDraft>(
+              id: 'volume_number',
+              label: 'Volume Number',
+              value: (draft) => values(draft).volumeNumber,
+              setValue: (draft, value) => values(draft).volumeNumber = value),
           LibraryTextFieldSpec<TDraft>(
             id: 'variant',
             label: 'Variant',
@@ -112,6 +128,23 @@ LibraryFormSchema<TDraft>
         label: 'Publication and metadata',
         fields: [
           LibraryTextFieldSpec<TDraft>(
+              id: 'lc_control_number',
+              label: 'LC Control No.',
+              value: (draft) => values(draft).lcControlNumber,
+              setValue: (draft, value) =>
+                  values(draft).lcControlNumber = value),
+          LibraryTextFieldSpec<TDraft>(
+              id: 'lc_classification',
+              label: 'LC Classification',
+              value: (draft) => values(draft).lcClassification,
+              setValue: (draft, value) =>
+                  values(draft).lcClassification = value),
+          LibraryTextFieldSpec<TDraft>(
+              id: 'dewey',
+              label: 'Dewey',
+              value: (draft) => values(draft).dewey,
+              setValue: (draft, value) => values(draft).dewey = value),
+          LibraryTextFieldSpec<TDraft>(
             id: 'series_group',
             label: 'Series group',
             value: (draft) => values(draft).seriesGroup,
@@ -127,19 +160,37 @@ LibraryFormSchema<TDraft>
           ),
           LibraryCustomFieldSpec<TDraft>(
             id: 'authors',
-            label: 'Authors',
+            label: 'Author',
             builder: (context, draft) => BookPersonCreditsField(
-              label: 'Authors',
+              label: 'Author',
               role: 'Author',
               credits: values(draft).authors,
               onChanged: (credits) => values(draft).authors = credits,
             ),
           ),
+          for (final role in bookContributorRoles)
+            LibraryCustomFieldSpec<TDraft>(
+              id: 'credit:$role',
+              label: role,
+              builder: (context, draft) => BookPersonCreditsField(
+                label: role,
+                role: role,
+                credits: values(draft)
+                    .otherContributors
+                    .where((credit) => credit.role == role)
+                    .toList(),
+                onChanged: (credits) => values(draft).otherContributors = [
+                  for (final credit in values(draft).otherContributors)
+                    if (credit.role != role) credit,
+                  ...credits,
+                ],
+              ),
+            ),
           LibraryCustomFieldSpec<TDraft>(
             id: 'translators',
-            label: 'Translators',
+            label: 'Translator',
             builder: (context, draft) => BookPersonCreditsField(
-              label: 'Translators',
+              label: 'Translator',
               role: 'Translator',
               credits: values(draft).translators,
               onChanged: (credits) => values(draft).translators = credits,
@@ -168,12 +219,14 @@ LibraryFormSchema<TDraft>
             value: (draft) => values(draft).ageRating,
             setValue: (draft, value) => values(draft).ageRating = value,
           ),
-          LibraryTextFieldSpec<TDraft>(
-            id: 'country',
-            label: 'Country',
-            value: (draft) => values(draft).country,
-            setValue: (draft, value) => values(draft).country = value,
-          ),
+          LibraryVocabularyFieldSpec<TDraft, String>(
+              id: 'country',
+              label: 'Country',
+              value: (draft) =>
+                  values(draft).country.isEmpty ? null : values(draft).country,
+              setValue: (draft, value) => values(draft).country = value ?? '',
+              options: const [],
+              pickListKey: BookVocabularyIds.country.value),
           ...bookCatalogIdentityFields(
             values: values,
             include: {'description'},
@@ -196,6 +249,21 @@ List<LibraryFormSectionSpec<TDraft>> _filterSections<TDraft>(
   Map<String, String> sectionLabels,
   List<LibraryFormSectionSpec<TDraft>> sections,
 ) {
+  if (fieldIds != null && setEquals(fieldIds, bookMainFieldIds)) {
+    return [
+      bookMainFormSection<TDraft>(fields: [
+        for (final section in sections) ...section.fields,
+      ])
+    ];
+  }
+  if (fieldIds != null && setEquals(fieldIds, bookDetailsFieldIds)) {
+    return bookDetailsFormSections<TDraft>(
+        [for (final section in sections) ...section.fields]);
+  }
+  if (fieldIds != null && setEquals(fieldIds, bookCreditFieldIds)) {
+    return bookCreditFormSections<TDraft>(
+        [for (final section in sections) ...section.fields]);
+  }
   if (fieldIds == null && sectionLabels.isEmpty) return sections;
   return [
     for (final section in sections)

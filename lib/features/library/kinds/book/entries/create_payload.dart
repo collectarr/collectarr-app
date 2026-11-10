@@ -12,6 +12,9 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
   const BookLibraryEntryCreatePayload({
     required this.details,
     this.condition,
+    this.marketValueCents,
+    this.sellPriceCents,
+    this.soldAt,
     this.grade,
     this.purchaseDate,
     this.pricePaidCents,
@@ -31,6 +34,9 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     return BookLibraryEntryCreatePayload(
       details: BookEntryDetailsCodec().draftFromDetails(item.personal.details),
       condition: item.personal.condition,
+      marketValueCents: item.personal.marketValueCents,
+      sellPriceCents: item.personal.sellPriceCents,
+      soldAt: item.personal.soldAt,
       grade: item.personal.grade,
       purchaseDate: item.personal.purchaseDate,
       pricePaidCents: item.personal.pricePaidCents,
@@ -50,6 +56,9 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
   @override
   BookEntryDetailsDraft get detailsDraft => details;
   final String? condition;
+  final int? marketValueCents;
+  final int? sellPriceCents;
+  final DateTime? soldAt;
   final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
@@ -90,6 +99,9 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),
         condition: condition,
+        marketValueCents: marketValueCents,
+        sellPriceCents: sellPriceCents,
+        soldAt: soldAt,
         grade: grade,
         purchaseDate: purchaseDate,
         pricePaidCents: pricePaidCents,

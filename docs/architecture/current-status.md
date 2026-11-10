@@ -1,28 +1,33 @@
 # Current Architecture Status
 
-Last reviewed: 2026-11-02. Run `dart run tool/run_tests.dart` and the
+Run `dart run tool/run_tests.dart` and the
 architecture checker for current findings; this page records structure, not
 test counts. UI differences from the reference app live in
 [CLZ parity](../clz-parity.md).
 
 ## Release scope
 
-`library_release_scope.dart` activates Music, Comics and the Games family
-(Game, Game Hardware, Game Toy), matching published v1.5.0. Hardware and Toys
+`library_release_scope.dart` activates Books, Music, Comics and the Games family
+(Game, Game Hardware, Game Toy). Hardware and Toys
 are separate kinds with their own collections, models and Core catalogs.
-Book, Board Game and Movie remain dormant source modules. Active kinds share
+Board Game and Movie remain dormant source modules. Active kinds share
 library entry storage and contribute their own catalog, tracking and field
 contracts; a new kind must be explicitly registered and verified.
 
 ## Local data
 
-The Drift root is `lib/core/db/local_database.dart`, schema version 6, stored
-as `collectarr-library.sqlite` in application support. Published v1.5.0 uses
-schema 5. The next migration starts from that released baseline and adds
-user-supplied list-value images and the Comics grade cleanup. Earlier ordered
+The Drift root is `lib/core/db/local_database.dart`, schema version 7, stored
+as `collectarr-library.sqlite` in application support. Published v1.6.0 uses
+schema 6. The next migration starts from that released baseline and adds
+Books tracking tables and queues existing custom definitions and list-value
+images for sync. Earlier ordered
 migrations retain Music/Games data and introduce Comics reading/tracking.
 No intermediate unreleased schema is a migration baseline, and an upgrade
 never resets a database. See [local persistence](local-persistence.md).
+
+Books Add and Edit share kind-owned form fields and column layouts. The typed
+editor composes the shared Personal, Custom Fields, Covers and My Images
+lifecycles; Book rules and transport mappings remain in its own folder.
 
 ## Catalog and entries
 

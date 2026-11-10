@@ -14,6 +14,12 @@ import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocab
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import '../edit/covers_tab.dart';
+import '../edit/personal_form_layout.dart';
+import 'draft.dart';
+import 'copy_fields.dart';
+import 'read_history.dart';
+import 'package:collectarr_app/features/library/add/panes/manual_personal_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BookAddManualPane extends ConsumerStatefulWidget {
@@ -92,6 +98,8 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
   Widget build(BuildContext context) {
     final draft = widget.request.manualDraftAs<BookAddManualDraft>();
     final request = widget.request;
+    final copyDraft =
+        request.kindDraft as BookAddDraft? ?? const BookAddDraft();
 
     LibraryFormSchema<BookCatalogFormDraft> schemaFor(
       Set<String> fieldIds, {
@@ -140,16 +148,21 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           validateSchema: validateSchema,
         );
 
-    final identifierTab = schemaTab(
-      id: 'links',
-      label: 'Links',
-      icon: Icons.public,
-      fieldIds: bookLinkFieldIds,
-      sectionLabels: const {'edition': 'Identifiers'},
-    );
-
     return LibraryAddManualPaneShell(
       request: request,
+      tabOrder: const [
+        'main',
+        'details',
+        'credits',
+        'personal',
+        'custom_fields',
+        'read_history',
+        'value',
+        'covers',
+        'my_images',
+        'plot',
+        'links'
+      ],
       tabs: [
         schemaTab(
           id: 'main',
@@ -163,6 +176,62 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           },
         ),
         schemaTab(
+          id: 'details',
+          label: 'Details',
+          icon: Icons.info_outline,
+          fieldIds: bookDetailsFieldIds,
+        ),
+        LibraryAddManualPaneTab(
+          id: 'personal',
+          label: 'Personal',
+          icon: Icons.person_outline,
+          content: LibraryAddManualPersonalTab(
+            request: request,
+            fieldKeys: const {
+              'owner_label',
+              'condition',
+              'location_id',
+              'tags',
+              'personal_notes'
+            },
+            kindSpecificFields: [
+              BookManualRatingField(request: request),
+              BookManualCopyFields(
+                draft: copyDraft,
+                onChanged: (value) {
+                  request.onKindDraftChanged?.call(value);
+                  setState(() {});
+                },
+              )
+            ],
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'read_history',
+          label: 'Read History',
+          icon: Icons.auto_stories_outlined,
+          content: BookManualReadHistory(request: request),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'value',
+          label: 'Value',
+          icon: Icons.attach_money,
+          content: LibraryAddManualPersonalTab(
+            request: request,
+            title: 'Value',
+            fieldKeys: const {
+              'purchase_date',
+              'price_paid_cents',
+              'purchase_store'
+            },
+            layoutBuilder: bookValueFormLayout,
+            fieldOverrides: bookManualValueFields(copyDraft, (value) {
+              request.onKindDraftChanged?.call(value);
+              setState(() {});
+            }),
+          ),
+        ),
+        schemaTab(
           id: 'credits',
           label: 'Credits',
           icon: Icons.groups_2_outlined,
@@ -170,32 +239,35 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           sectionLabels: const {'publication': 'Credits'},
         ),
         LibraryAddManualPaneTab(
-          id: identifierTab.id,
-          label: identifierTab.label,
-          icon: identifierTab.icon,
-          validate: identifierTab.validate,
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              identifierTab.content,
-              const SizedBox(height: 12),
-              BookExternalLinksEditor(
-                links: draft.externalLinks,
-                accent: request.accent,
-                onChanged: request.onManualDraftChanged,
-              ),
-            ],
-          ),
+          id: 'links',
+          label: 'Links',
+          icon: Icons.public,
+          content: BookExternalLinksEditor(
+              links: draft.externalLinks,
+              accent: request.accent,
+              onChanged: request.onManualDraftChanged),
         ),
-        schemaTab(
+        LibraryAddManualPaneTab(
           id: 'covers',
           label: 'Covers',
           icon: Icons.photo_camera_outlined,
-          fieldIds: bookCoverFieldIds,
-          sectionLabels: const {
-            'edition': 'Front cover',
-            'publication': 'Back cover',
-          },
+          content: BookCoversTab(
+            images: request.itemImages,
+            coverImageUrl: draft.values.coverImageUrl,
+            originalCoverImageUrl: '',
+            backCoverImageUrl: draft.values.backCoverImageUrl,
+            originalBackCoverImageUrl: '',
+            onBackCoverImageUrlChanged: (value) {
+              draft.values.backCoverImageUrl = value;
+              request.onManualDraftChanged?.call();
+            },
+            onCoverImageUrlChanged: (url) {
+              draft.values.coverImageUrl = url;
+              request.onManualDraftChanged?.call();
+            },
+            onEdits: request.onItemImagesChanged ?? (_) {},
+            searchTitle: () => draft.catalogTitle,
+          ),
         ),
         schemaTab(
           id: 'plot',

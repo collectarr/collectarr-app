@@ -26,6 +26,7 @@ class LibraryAddManualPaneShell extends StatefulWidget {
     required this.tabs,
     this.identityDetails,
     this.footerContent,
+    this.tabOrder = const [],
   }) : assert(tabs.length > 0);
 
   final LibraryAddManualPaneRequest request;
@@ -33,6 +34,7 @@ class LibraryAddManualPaneShell extends StatefulWidget {
   /// Optional kind-specific identity controls shown before the active tab.
   final Widget? identityDetails;
   final Widget? footerContent;
+  final List<String> tabOrder;
   final List<LibraryAddManualPaneTab> tabs;
 
   @override
@@ -118,6 +120,14 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
           ),
         ),
       );
+    }
+    if (shell.tabOrder.isNotEmpty) {
+      int position(String id) {
+        final index = shell.tabOrder.indexOf(id);
+        return index < 0 ? shell.tabOrder.length : index;
+      }
+
+      tabs.sort((a, b) => position(a.id).compareTo(position(b.id)));
     }
     return tabs;
   }

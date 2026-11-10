@@ -48,7 +48,7 @@ final bookKindIdentity = const LibraryKindIdentity(
   title: 'Books',
   icon: Icons.book_outlined,
   coverPlaceholderIcon: AppIcons.book,
-  accent: Color(0xFFC78446),
+  accent: Color(0xFF9B6296),
   preferencePrefix: 'books',
   routeSegments: ['books', 'book'],
   mediaFamily: 'print',

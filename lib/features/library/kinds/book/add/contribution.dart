@@ -1,6 +1,7 @@
 import '../book_module_dependencies.dart';
 import '../config/configuration.dart';
 import 'manual_candidate.dart';
+import 'package:collectarr_app/features/library/add/shared.dart';
 
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   kind: CatalogMediaKind.book,
@@ -12,6 +13,9 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
       BookLibraryEntryCreatePayload(
     details: details as BookEntryDetailsDraft,
     condition: common.condition,
+    marketValueCents: draft.marketValueCents,
+    sellPriceCents: draft.sellPriceCents,
+    soldAt: draft.soldAt,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
@@ -36,6 +40,7 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   },
   search: LibraryAddSearchCapability(
     input: LibraryAddSearchInputCapability(
+      initialMode: LibraryAddDialogMode.identifier,
       advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
     ),
     core: LibraryAddCoreSearchCapability(

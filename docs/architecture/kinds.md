@@ -1,9 +1,10 @@
 # Typed kind architecture
 
 The source tree has eight kinds: Comic, Book, Game, Game Hardware,
-Game Toy, BoardGame, Movie, and Music. Music, Comics and the Games family
+Game Toy, BoardGame, Movie, and Music. Books, Music, Comics and the Games family
 (Game, Game Hardware, Game Toy) are in the release scope
-(`library_release_scope.dart`; the published schema baseline is 5). Hardware and Toys are
+(`library_release_scope.dart`; the published schema baseline is 6). Books tracking
+tables join the pending schema 7 migration. Hardware and Toys are
 independent kinds that share the Games collection family and tab bar but never
 import the Game kind. The others stay isolated source modules without database
 tables until each is released with its own migration. Each

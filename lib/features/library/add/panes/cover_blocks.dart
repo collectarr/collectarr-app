@@ -57,8 +57,8 @@ class LibraryAddCoverBlocks extends StatelessWidget {
     final desktopCoverHeight = wide ? _wideCoverHeight : null;
     final width = wide ? _wideBlockWidth : blockWidth;
     final titled = results.any((item) => block(item).title != null);
-    final height = (wide ? _wideBlockHeight : blockHeight) +
-        (titled ? _titleHeight : 0);
+    final height =
+        (wide ? _wideBlockHeight : blockHeight) + (titled ? _titleHeight : 0);
     Widget tile(int index, {double? coverHeight}) {
       final item = results[index];
       final id = item.reference.id;
@@ -99,11 +99,11 @@ class LibraryAddCoverBlocks extends StatelessWidget {
       final extent = width + 2 * blockMargin;
       final columns = ((constraints.maxWidth - 2 * blockMargin) /
               (wide ? extent : tokens.gridMinimumWidth))
-              .floor()
-              .clamp(
-                1,
-                1 << 20,
-              );
+          .floor()
+          .clamp(
+            1,
+            1 << 20,
+          );
       // Fixed-width blocks flow from the left, as in the reference.
       final spare = constraints.maxWidth - columns * extent;
       final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(

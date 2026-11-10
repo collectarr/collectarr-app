@@ -22,9 +22,11 @@ void main() {
       '{"kept":true}',
       1
     ]);
-    // All other tables match released schema 4; only these tables are new in 5.
+    // Remove tables introduced after released schema 4.
     for (final table in [
       'comic_reading_rows',
+      'book_tracking_rows',
+      'book_tracking_unit_rows',
       'comic_tracking_rows',
       'comic_tracking_unit_rows'
     ]) {
@@ -98,7 +100,7 @@ void main() {
           .get();
       final names = tables.map((row) => row.data['name'] as String).toSet();
       expect(names, db.allTables.map((table) => table.actualTableName).toSet());
-      expect(names, hasLength(26));
+      expect(names, hasLength(28));
       expect(names.where((name) => name.endsWith('_rows')).toSet(), {
         'music_tracking_rows',
         'music_listen_events_rows',
@@ -106,6 +108,8 @@ void main() {
         'comic_reading_rows',
         'comic_tracking_unit_rows',
         'comic_tracking_rows',
+        'book_tracking_rows',
+        'book_tracking_unit_rows',
       });
       final columns = await db
           .customSelect('PRAGMA table_info(pick_list_values_cache)')
@@ -341,6 +345,8 @@ void main() {
     addTearDown(db.close);
 
     final queued = await db.select(db.syncQueue).get();
+    expect(await db.select(db.bookTrackingRows).get(), isEmpty);
+    expect(await db.select(db.bookTrackingUnitRows).get(), isEmpty);
     expect(queued.map((row) => row.entityType).toSet(),
         {'list_value_image', 'custom_field_definition'});
     expect(queued, hasLength(2));

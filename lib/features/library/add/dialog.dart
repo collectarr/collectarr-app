@@ -403,6 +403,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       type: widget.type,
       commonDraft: state.commonDraft,
       kindDraft: state.manualDraft,
+      trackingDraft: state.trackingDraft,
+      onTrackingDraftChanged: (draft) =>
+          _controller.updateTrackingDraft((_) => draft),
       personalFields: personalFieldContributorFor(widget.type.kind).fields,
       manualDraft: _manualDraft.kindDraft,
       onCommonDraftChanged: (common) =>

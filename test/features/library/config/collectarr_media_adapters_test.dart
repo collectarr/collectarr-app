@@ -9,8 +9,8 @@ void main() {
     expect(runtime.identity.kind, equals(CatalogMediaKind.music));
     expect(libraryKindRegistration(CatalogMediaKind.comic).identity.kind,
         CatalogMediaKind.comic);
-    expect(() => libraryKindRegistration(CatalogMediaKind.book),
-        throwsArgumentError);
+    expect(libraryKindRegistration(CatalogMediaKind.book).identity.kind,
+        CatalogMediaKind.book);
   });
 
   test('Music uses square cover grid geometry', () {

@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/features/library/add/services/cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/chrome_config.dart';
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/features/library/add/shared.dart';
 
 export 'result_policy.dart';
 
@@ -291,6 +292,7 @@ class LibraryAddListingTab {
 
 class LibraryAddSearchInputCapability {
   const LibraryAddSearchInputCapability({
+    this.initialMode,
     this.initialAdvancedFilters = const {},
     this.advancedFilterDescriptorsBuilder = _noAdvancedFilters,
     this.searchInputPredicate,
@@ -298,6 +300,7 @@ class LibraryAddSearchInputCapability {
   });
 
   final Map<LibraryAddFilterId, LibraryAddFilterValue> initialAdvancedFilters;
+  final LibraryAddDialogMode? initialMode;
 
   /// An extra tab that searches Core by a code the kind names.
   final LibraryAddCodeSearchTab? codeSearchTab;

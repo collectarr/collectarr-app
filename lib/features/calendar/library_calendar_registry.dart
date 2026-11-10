@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/config/calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
@@ -13,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 final Map<CatalogMediaKind, LibraryCalendarContributor>
     libraryCalendarContributorsByKind = {
   CatalogMediaKind.music: const MusicCalendarContributor(),
+  CatalogMediaKind.book: const BookCalendarContributor(),
   CatalogMediaKind.game: const GameCalendarContributor(),
   CatalogMediaKind.comic: const ComicCalendarContributor(),
   CatalogMediaKind.gameHardware: const GameHardwareCalendarContributor(),

@@ -36,9 +36,15 @@ void main() {
     });
 
     test('unreleased kinds cannot borrow Music import semantics', () {
-      for (final kind in [CatalogMediaKind.book, CatalogMediaKind.movie]) {
+      for (final kind in [CatalogMediaKind.movie]) {
         expect(() => libraryImportForKind(kind), throwsArgumentError);
       }
+    });
+
+    test('Books does not advertise unverified import formats', () {
+      final capability = libraryImportForKind(CatalogMediaKind.book);
+      expect(capability.sources, isEmpty);
+      expect(capability.mappedCsvImporter, isNull);
     });
 
     test('games import sources follow the reference order', () {

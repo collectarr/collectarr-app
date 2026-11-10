@@ -46,9 +46,10 @@ void main() {
 
     for (final runtime in collectarrKindRegistrationsList) {
       expect(runtime.kind, isNot(CatalogMediaKind.unknown));
-      // Music and Game have dedicated editors and do not participate in the
+      // Books, Music and Games have dedicated editors and do not participate in the
       // retired generic edit-tab renderer.
       if (runtime.kind == CatalogMediaKind.music ||
+          runtime.kind == CatalogMediaKind.book ||
           runtime.kind == CatalogMediaKind.game ||
           runtime.kind == CatalogMediaKind.gameHardware ||
           runtime.kind == CatalogMediaKind.gameToy) {

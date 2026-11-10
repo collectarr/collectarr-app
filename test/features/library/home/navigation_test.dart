@@ -18,7 +18,8 @@ void main() {
   test('navigation normalizes released kinds and rejects inactive kinds', () {
     expect(canonicalLibraryNavKind('  MUSIC  '), 'music');
     expect(canonicalLibraryNavKind('COMIC'), 'comic');
-    for (final kind in ['movie', 'book', 'unknown', '']) {
+    expect(canonicalLibraryNavKind('BOOK'), 'book');
+    for (final kind in ['movie', 'unknown', '']) {
       expect(canonicalLibraryNavKind(kind), isNull);
     }
     expect(canonicalLibraryNavKind(null), isNull);

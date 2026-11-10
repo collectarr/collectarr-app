@@ -28,7 +28,7 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
                     ),
                     _LibraryAddModeActionButton(
                       icon: Icons.qr_code_2,
-                      label: 'Barcode',
+                      label: searchLabels.identifierTabLabel,
                       accent: widget.accent,
                       onPressed: () =>
                           widget.onModeChanged(LibraryAddDialogMode.identifier),
@@ -108,8 +108,8 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
                         child: _LibraryAddModeTextField(
                           fieldKey: const ValueKey('library-add-barcode-field'),
                           controller: widget.identifierController,
-                          label: 'Barcode / UPC / ISBN',
-                          hintText: 'Scan or enter barcode / UPC / ISBN...',
+                          label: searchLabels.identifierFieldLabel,
+                          hintText: searchLabels.identifierHint,
                           keyboardType: TextInputType.number,
                           onSubmitted: widget.onLookupIdentifier,
                         ),
@@ -160,6 +160,8 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
       children: [
         _LibraryAddModeTabStrip(
           searchLabel: searchLabels.addSearchTabLabel,
+          identifierLabel: searchLabels.identifierTabLabel,
+          identifierFirst: searchLabels.identifierFirst,
           searchIcon: searchLabels.addSearchTabIcon ?? AppIcons.search,
           mode: widget.mode,
           onModeChanged: widget.onModeChanged,

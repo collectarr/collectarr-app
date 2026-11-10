@@ -11,6 +11,16 @@ do not record finished work here. The changelog and git history hold that.
 Last full Music pass: 2026-10-15/16, 1844 × 945, signed-in CLZ Music Web in
 Opera and a release Web build with the same albums imported.
 
+## Books
+
+- Compare Main and Details field widths, pick-list panels and spacing with CLZ Books, on desktop and narrow layouts.
+- Verify Credits' role pickers, First Edition and Audiobook Abridged controls and audio duration spacing against CLZ.
+- Personal, Value and Covers still need a full pixel comparison of both Add and Edit.
+- Read History still differs from CLZ's read-event table and Settings-driven Mark as read behavior; verify date clearing and repeat reads.
+- Match ISBN and Author / Title search, scanner activation and search result selection in Add Books.
+- Compare all workspace layouts, columns, sorting, grouping, details, statistics and settings using isolated Books storage.
+- Implement and verify CLZ Books import; Books currently has no guided import sources.
+
 ## How to compare
 
 CLZ is inspected read-only. Open editors and dialogs, then Cancel; never save

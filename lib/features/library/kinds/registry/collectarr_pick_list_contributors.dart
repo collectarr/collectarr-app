@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
@@ -9,6 +10,14 @@ import 'package:collectarr_app/features/pick_lists/pick_list_registry.dart';
 
 /// Generated composition of the vocabulary contributors entry by each kind.
 const defaultPickListDefinitionContributors = <PickListDefinitionContributor>[
+  VocabularyPickListDefinitionContributor(
+    kind: CatalogMediaKind.book,
+    vocabularies: BookVocabularies.all,
+    entryOptionLoader: BookVocabularies.entryOptions,
+    entryUsageCounter: BookVocabularies.entryUsageCounts,
+    entryMergePreviewer: BookVocabularies.previewEntryMerge,
+    entryMerger: BookVocabularies.applyEntryMerge,
+  ),
   VocabularyPickListDefinitionContributor(
     kind: CatalogMediaKind.comic,
     vocabularies: ComicVocabularies.all,

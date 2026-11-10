@@ -3,41 +3,17 @@ import '../entries/transfer.dart';
 
 final bookKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryTargetEditRegistry(
-      catalogItem: buildBookLibraryEditDialog,
-      libraryEntry: buildBookLibraryEditDialog),
+      catalogItem: buildBookItemEditDialog,
+      libraryEntry: buildBookItemEditDialog),
   vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
-  presentation: const LibraryEditPresentation(
-    builder: BookCatalogItemEditPresentationBuilder(),
-    catalogItemBuilder: BookCatalogItemEditPresentationBuilder(),
-    sharedTabs: [
-      LibraryEditTabContribution(
-        tab: LibraryEditTabSpec(
-          id: 'custom',
-          icon: Icons.edit_note,
-          label: 'Custom Fields',
-          sectionIds: ['book_custom_fields'],
-        ),
-        afterTabId: 'credits',
-      ),
-      LibraryEditTabContribution(
-        tab: LibraryEditTabSpec(
-          id: 'links',
-          icon: Icons.public,
-          label: 'Links',
-          sectionIds: ['book_identifiers_links'],
-        ),
-        afterTabId: 'plot',
-      ),
-    ],
-  ),
+  presentation: bookTypedEditPresentation,
   conditions: BookVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     BookLibraryEntry item => item.personal.grade,
     _ => null,
   },
-  defaultCondition: 'Near Mint',
-  defaultCollectionValue: 'Ungraded',
-  createSession: createBookEditDraft,
+  defaultCondition: '',
+  defaultCollectionValue: '',
   entryDigitalFlagResolver: resolveBookEntryDigitalFlag,
   entryFormatHintResolver: resolveBookEntryFormatHint,
   entryIndexUpdatePayloadBuilder: (_, indexNumber) =>

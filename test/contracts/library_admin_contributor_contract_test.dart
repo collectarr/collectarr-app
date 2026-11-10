@@ -45,7 +45,7 @@ void main() {
   });
 
   test('unreleased kinds register no admin operations', () {
-    expect(libraryAdminContributorForKind(CatalogMediaKind.book), isNull);
+    expect(libraryAdminContributorForKind(CatalogMediaKind.movie), isNull);
   });
 
   test('Music owns the track proposal payload codec and validation', () {

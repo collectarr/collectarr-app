@@ -49,6 +49,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.extraTabs = const [],
     this.contributions = const LibraryEditSchemaContributions(),
     this.inlineCollectionStatus = false,
+    this.extraTabOrder = const [],
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -74,6 +75,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final List<EditSchemaExtraTab> extraTabs;
   final LibraryEditSchemaContributions contributions;
   final bool inlineCollectionStatus;
+  final List<String> extraTabOrder;
 
   @override
   State<LibraryEditSchemaDialog<TModel, TDraft>> createState() =>
@@ -222,6 +224,14 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
         ),
         afterTabId: links.afterTabId,
       );
+    }
+    if (widget.extraTabOrder.isNotEmpty) {
+      int position(String id) {
+        final index = widget.extraTabOrder.indexOf(id);
+        return index < 0 ? widget.extraTabOrder.length : index;
+      }
+
+      extraTabs.sort((a, b) => position(a.id).compareTo(position(b.id)));
     }
     return LibraryEditDialogScaffold(
       formKey: _formKey,

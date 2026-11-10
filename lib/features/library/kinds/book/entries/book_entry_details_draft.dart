@@ -6,14 +6,17 @@ class BookEntryDetailsDraft implements JsonEncodable {
     this.signedBy,
     this.dustJacketPresent = false,
     this.dustJacketCondition,
+    this.retailPriceCents,
   });
 
   final String? signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
+  final int? retailPriceCents;
 
   BookEntryDetails toDetails() => BookEntryDetails(
         signedBy: signedBy,
+        retailPriceCents: retailPriceCents,
         dustJacketPresent: dustJacketPresent,
         dustJacketCondition: dustJacketCondition,
       );

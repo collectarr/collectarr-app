@@ -4,6 +4,22 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 final class BookCatalogFormValues {
   BookCatalogFormValues({
     this.title = '',
+    this.boxSet = '',
+    this.publicationPlace = '',
+    this.printedBy = '',
+    this.paperType = '',
+    this.numberLine = '',
+    this.originalSubtitle = '',
+    this.originalCountry = '',
+    this.originalPublisher = '',
+    this.originalPublicationPlace = '',
+    this.printingNumber,
+    this.widthMm,
+    this.heightMm,
+    this.spineThicknessMm,
+    this.weightGrams,
+    this.audioAbridged = false,
+    this.extras = const [],
     this.sortTitle = '',
     this.subtitle = '',
     this.originalTitle = '',
@@ -16,11 +32,14 @@ final class BookCatalogFormValues {
     this.subjects = const [],
     this.searchAliases = const [],
     this.number = '',
+    this.volumeName = '',
+    this.volumeNumber = '',
     this.variant = '',
     this.seriesTitle = '',
     this.seriesGroup = '',
     this.authors = const [],
     this.translators = const [],
+    this.otherContributors = const [],
     this.characters = '',
     this.ageRating = '',
     this.country = '',
@@ -40,6 +59,9 @@ final class BookCatalogFormValues {
     this.releaseStatus = '',
     this.editionStatement = '',
     this.dimensions = '',
+    this.lcControlNumber = '',
+    this.lcClassification = '',
+    this.dewey = '',
     this.firstEdition = false,
     this.audioLengthMinutes,
     this.coverImageUrl = '',
@@ -48,6 +70,22 @@ final class BookCatalogFormValues {
   });
 
   String title;
+  String boxSet;
+  String publicationPlace;
+  String printedBy;
+  String paperType;
+  String numberLine;
+  String originalSubtitle;
+  String originalCountry;
+  String originalPublisher;
+  String originalPublicationPlace;
+  int? printingNumber;
+  int? widthMm;
+  int? heightMm;
+  int? spineThicknessMm;
+  int? weightGrams;
+  bool audioAbridged;
+  List<String> extras;
   String sortTitle;
   String subtitle;
   String originalTitle;
@@ -61,11 +99,14 @@ final class BookCatalogFormValues {
   List<String> searchAliases;
 
   String number;
+  String volumeName;
+  String volumeNumber;
   String variant;
   String seriesTitle;
   String seriesGroup;
   List<BookCatalogCredit> authors;
   List<BookCatalogCredit> translators;
+  List<BookCatalogCredit> otherContributors;
   String characters;
   String ageRating;
   String country;
@@ -86,6 +127,9 @@ final class BookCatalogFormValues {
   String releaseStatus;
   String editionStatement;
   String dimensions;
+  String lcControlNumber;
+  String lcClassification;
+  String dewey;
   bool firstEdition;
   int? audioLengthMinutes;
   String coverImageUrl;

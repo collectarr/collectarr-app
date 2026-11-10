@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
@@ -13,6 +14,15 @@ abstract final class BookVocabularyIds {
   static const binding = VocabularyId<String>('book.binding');
   static const language = VocabularyId<String>('book.language');
   static const condition = VocabularyId<String>('book.condition');
+  static const genre = VocabularyId<String>('book.genre');
+  static const boxSet = VocabularyId<String>('book.box_set');
+  static const publicationPlace =
+      VocabularyId<String>('book.publication_place');
+  static const printedBy = VocabularyId<String>('book.printed_by');
+  static const paperType = VocabularyId<String>('book.paper_type');
+  static const extras = VocabularyId<String>('book.extras');
+  static const subject = VocabularyId<String>('book.subject');
+  static const country = VocabularyId<String>('book.country');
 }
 
 abstract final class BookVocabularies {
@@ -68,11 +78,74 @@ abstract final class BookVocabularies {
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
+    String? replace(String? value) => value != null &&
+            normalizedSourceValues.contains(normalizePickListValue(value))
+        ? targetValue
+        : value;
     switch (semanticName) {
+      case 'genre':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                genres: replacePickListValueInList(item.metadata.genres,
+                    normalizedSourceValues, targetValue)));
+      case 'subject':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                subjects: replacePickListValueInList(item.metadata.subjects,
+                    normalizedSourceValues, targetValue)));
+      case 'publisher':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                publisher: replace(item.metadata.publisher),
+                originalPublisher: replace(item.metadata.originalPublisher)));
+      case 'country':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                country: replace(item.metadata.country),
+                originalCountry: replace(item.metadata.originalCountry)));
+      case 'language':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                language: replace(item.metadata.language),
+                originalLanguage: replace(item.metadata.originalLanguage)));
+      case 'publication_place':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                publicationPlace: replace(item.metadata.publicationPlace),
+                originalPublicationPlace:
+                    replace(item.metadata.originalPublicationPlace)));
+      case 'box_set':
+        return item.copyWith(
+            metadata:
+                item.metadata.copyWith(boxSet: replace(item.metadata.boxSet)));
+      case 'printed_by':
+        return item.copyWith(
+            metadata: item.metadata
+                .copyWith(printedBy: replace(item.metadata.printedBy)));
+      case 'paper_type':
+        return item.copyWith(
+            metadata: item.metadata
+                .copyWith(paperType: replace(item.metadata.paperType)));
+      case 'extras':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                extras: replacePickListValueInList(item.metadata.extras,
+                    normalizedSourceValues, targetValue)));
+      case 'binding':
+        return item.copyWith(
+            metadata: item.metadata
+                .copyWith(binding: replace(item.metadata.binding)));
+      case 'format':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                physicalFormat: replace(item.metadata.physicalFormat)));
       case 'condition':
         return item.copyWith(
-          personal: item.personal.copyWith(condition: targetValue),
-        );
+            personal: item.personal.copyWith(
+                condition: replace(item.personal.condition),
+                details: item.personal.details.copyWith(
+                    dustJacketCondition:
+                        replace(item.personal.details.dustJacketCondition))));
       case 'grade':
         return item.copyWith(
             personal: item.personal.copyWith(grade: targetValue));
@@ -111,6 +184,15 @@ abstract final class BookVocabularies {
     BookLibraryEntry item,
     String semanticName,
   ) sync* {
+    if (semanticName == 'condition') {
+      yield item.personal.condition;
+      yield item.personal.details.dustJacketCondition;
+      return;
+    }
+    if (semanticName == 'binding') {
+      yield item.metadata.binding;
+      return;
+    }
     final standard = switch (semanticName) {
       'condition' => item.personal.condition,
       'grade' => item.personal.grade,
@@ -223,18 +305,70 @@ abstract final class BookVocabularies {
     ],
   );
 
+  static const genre = VocabularyDefinition<String>(
+    id: BookVocabularyIds.genre,
+    label: 'Genre',
+    valuesFrom:
+        TypedVocabularyProjector<BookCatalogMetadata>(_genreCatalogValues),
+  );
+  static const subject = VocabularyDefinition<String>(
+    id: BookVocabularyIds.subject,
+    label: 'Subject',
+    valuesFrom:
+        TypedVocabularyProjector<BookCatalogMetadata>(_subjectCatalogValues),
+  );
+  static const country = VocabularyDefinition<String>(
+    id: BookVocabularyIds.country,
+    label: 'Country',
+    valuesFrom:
+        TypedVocabularyProjector<BookCatalogMetadata>(_countryCatalogValues),
+  );
+  static const boxSet = VocabularyDefinition<String>(
+      id: BookVocabularyIds.boxSet,
+      label: 'Box Set',
+      valuesFrom:
+          TypedVocabularyProjector<BookCatalogMetadata>(_boxSetCatalogValues));
+  static const publicationPlace = VocabularyDefinition<String>(
+      id: BookVocabularyIds.publicationPlace,
+      label: 'Publication Place',
+      valuesFrom: TypedVocabularyProjector<BookCatalogMetadata>(
+          _publicationPlaceCatalogValues));
+  static const printedBy = VocabularyDefinition<String>(
+      id: BookVocabularyIds.printedBy,
+      label: 'Printed By',
+      valuesFrom: TypedVocabularyProjector<BookCatalogMetadata>(
+          _printedByCatalogValues));
+  static const paperType = VocabularyDefinition<String>(
+      id: BookVocabularyIds.paperType,
+      label: 'Paper Type',
+      valuesFrom: TypedVocabularyProjector<BookCatalogMetadata>(
+          _paperTypeCatalogValues));
+  static const extras = VocabularyDefinition<String>(
+      id: BookVocabularyIds.extras,
+      label: 'Extras',
+      valuesFrom:
+          TypedVocabularyProjector<BookCatalogMetadata>(_extrasCatalogValues));
   static const all = <VocabularyDefinition<dynamic>>[
     publisher,
     format,
     binding,
     language,
     condition,
+    boxSet,
+    publicationPlace,
+    printedBy,
+    paperType,
+    extras,
+    genre,
+    subject,
+    country,
   ];
 }
 
 Iterable<String?> _publisherCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.publisher,
+    metadata.originalPublisher,
   ]);
 }
 
@@ -247,5 +381,29 @@ Iterable<String?> _formatCatalogValues(BookCatalogMetadata metadata) sync* {
 Iterable<String?> _languageCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.language,
+    metadata.originalLanguage,
   ]);
 }
+
+Iterable<String?> _genreCatalogValues(BookCatalogMetadata metadata) =>
+    metadata.genres;
+Iterable<String?> _subjectCatalogValues(BookCatalogMetadata metadata) =>
+    metadata.subjects;
+Iterable<String?> _countryCatalogValues(BookCatalogMetadata metadata) =>
+    [metadata.country, metadata.originalCountry];
+
+Iterable<String?> _boxSetCatalogValues(BookCatalogMetadata metadata) =>
+    [metadata.boxSet];
+
+Iterable<String?> _publicationPlaceCatalogValues(
+        BookCatalogMetadata metadata) =>
+    [metadata.publicationPlace, metadata.originalPublicationPlace];
+
+Iterable<String?> _printedByCatalogValues(BookCatalogMetadata metadata) =>
+    [metadata.printedBy];
+
+Iterable<String?> _paperTypeCatalogValues(BookCatalogMetadata metadata) =>
+    [metadata.paperType];
+
+Iterable<String?> _extrasCatalogValues(BookCatalogMetadata metadata) =>
+    metadata.extras;

@@ -77,6 +77,8 @@ class LocalDatabase extends _$LocalDatabase {
         comicTrackingUnitRows,
         comicTrackingRows,
         listValueImagesCache,
+        bookTrackingRows,
+        bookTrackingUnitRows,
       ];
 
   @override
@@ -190,6 +192,8 @@ class LocalDatabase extends _$LocalDatabase {
             }
           }
           if (from < 7) {
+            await migrator.createTable(bookTrackingRows);
+            await migrator.createTable(bookTrackingUnitRows);
             // 7: Sync carries custom field definitions and list value images;
             // send the ones already here. Images above its limit predate it
             // and stay on this device.

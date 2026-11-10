@@ -15,6 +15,9 @@ final class LibraryCoverImagesTab extends StatefulWidget {
     required this.images,
     required this.coverImageUrl,
     required this.originalCoverImageUrl,
+    this.backCoverImageUrl = '',
+    this.originalBackCoverImageUrl = '',
+    this.onBackCoverImageUrlChanged,
     required this.onCoverImageUrlChanged,
     required this.onEdits,
     required this.frontLabel,
@@ -33,6 +36,9 @@ final class LibraryCoverImagesTab extends StatefulWidget {
   final Future<LibraryOnlineCover?> Function(BuildContext context)? findOnline;
   final String coverImageUrl;
   final String originalCoverImageUrl;
+  final String backCoverImageUrl;
+  final String originalBackCoverImageUrl;
+  final ValueChanged<String>? onBackCoverImageUrlChanged;
   final ValueChanged<String> onCoverImageUrlChanged;
 
   /// Replacement edits for the covers changed so far.
@@ -46,6 +52,7 @@ final class _LibraryCoverImagesTabState extends State<LibraryCoverImagesTab> {
   /// Changed covers by image type; a null value removes the cover.
   final Map<String, LibraryCoverBytes?> _changed = {};
   late String _coverImageUrl = widget.coverImageUrl;
+  late String _backCoverImageUrl = widget.backCoverImageUrl;
 
   ItemImageContent? _existing(String type) =>
       widget.images.where((image) => image.imageType == type).firstOrNull;
@@ -79,20 +86,29 @@ final class _LibraryCoverImagesTabState extends State<LibraryCoverImagesTab> {
     ]);
   }
 
-  void _setCoverImageUrl(String value) {
-    setState(() => _coverImageUrl = value);
-    widget.onCoverImageUrlChanged(value);
+  void _setCoverImageUrl(String type, String value) {
+    if (type == _front) {
+      setState(() => _coverImageUrl = value);
+      widget.onCoverImageUrlChanged(value);
+    } else {
+      setState(() => _backCoverImageUrl = value);
+      widget.onBackCoverImageUrlChanged?.call(value);
+    }
   }
 
   Widget _panel(String title, String type) => LibraryCoverEditor(
         title: title,
         image: _current(type),
-        coreCoverUrl: type == _front ? _coverImageUrl : null,
-        restoreCoreCoverUrl:
-            type == _front ? widget.originalCoverImageUrl : null,
-        onRestoreCoreCover: () =>
-            _setCoverImageUrl(widget.originalCoverImageUrl),
-        onRemoveCoreCover: () => _setCoverImageUrl(''),
+        coreCoverUrl: type == _front ? _coverImageUrl : _backCoverImageUrl,
+        restoreCoreCoverUrl: type == _front
+            ? widget.originalCoverImageUrl
+            : widget.originalBackCoverImageUrl,
+        onRestoreCoreCover: () => _setCoverImageUrl(
+            type,
+            type == _front
+                ? widget.originalCoverImageUrl
+                : widget.originalBackCoverImageUrl),
+        onRemoveCoreCover: () => _setCoverImageUrl(type, ''),
         onChanged: (value) => _change(type, value),
         placeholderIcon: widget.placeholderIcon,
         findOnline: widget.findOnline,

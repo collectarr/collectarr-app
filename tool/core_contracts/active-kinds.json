@@ -1,7 +1,8 @@
 {
   "contractVersion": "1.0.0",
-  "generatedAt": "2026-11-05T21:34:26.111484Z",
+  "generatedAt": "2026-11-10T19:13:37.476759Z",
   "kinds": [
+    "book",
     "comic",
     "game",
     "music"

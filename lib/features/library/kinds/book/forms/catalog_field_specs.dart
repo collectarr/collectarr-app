@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
+import 'audio_length_field.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
@@ -44,7 +47,7 @@ List<LibraryFieldSpec<TDraft>> bookCatalogIdentityFields<TDraft>({
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'original_title',
-        label: 'Original Title',
+        label: 'Title',
         value: (draft) => values(draft).originalTitle,
         setValue: (draft, value) => values(draft).originalTitle = value,
       ),
@@ -63,7 +66,7 @@ List<LibraryFieldSpec<TDraft>> bookPublicationHistoryFields<TDraft>({
     [
       LibraryTextFieldSpec<TDraft>(
         id: 'original_language',
-        label: 'Original language',
+        label: 'Language',
         value: (draft) => values(draft).originalLanguage,
         setValue: (draft, value) => values(draft).originalLanguage = value,
       ),
@@ -75,22 +78,28 @@ List<LibraryFieldSpec<TDraft>> bookPublicationHistoryFields<TDraft>({
       ),
       LibraryDateFieldSpec<TDraft>(
         id: 'original_publication_date',
-        label: 'Original publication date',
+        label: 'Publication Date',
         value: (draft) => values(draft).originalPublicationDate,
         setValue: (draft, value) =>
             values(draft).originalPublicationDate = value,
       ),
-      LibraryTextFieldSpec<TDraft>(
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: 'genres',
-        label: 'Genres',
-        value: (draft) => values(draft).genres.join(', '),
-        setValue: (draft, value) => values(draft).genres = _split(value),
+        label: 'Genre',
+        pluralLabel: 'Genres',
+        values: (draft) => values(draft).genres.toSet(),
+        setValues: (draft, next) => values(draft).genres = next.toList(),
+        options: const [],
+        pickListKey: BookVocabularyIds.genre.value,
       ),
-      LibraryTextFieldSpec<TDraft>(
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: 'subjects',
-        label: 'Subjects',
-        value: (draft) => values(draft).subjects.join(', '),
-        setValue: (draft, value) => values(draft).subjects = _split(value),
+        label: 'Subject',
+        pluralLabel: 'Subjects',
+        values: (draft) => values(draft).subjects.toSet(),
+        setValues: (draft, next) => values(draft).subjects = next.toList(),
+        options: const [],
+        pickListKey: BookVocabularyIds.subject.value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'search_aliases',
@@ -205,7 +214,7 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'edition_statement',
-        label: 'Edition statement',
+        label: 'Edition',
         value: (draft) => values(draft).editionStatement,
         setValue: (draft, value) => values(draft).editionStatement = value,
       ),
@@ -228,20 +237,22 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         value: (draft) => values(draft).seriesTitle,
         setValue: (draft, value) => values(draft).seriesTitle = value,
       ),
-      LibraryToggleFieldSpec<TDraft>(
-        id: 'first_edition',
-        label: 'First edition',
-        value: (draft) => values(draft).firstEdition,
-        setValue: (draft, value) => values(draft).firstEdition = value,
-      ),
-      LibraryNumberFieldSpec<TDraft>(
-        id: 'audio_length_minutes',
-        label: 'Audio length (minutes)',
-        value: (draft) => values(draft).audioLengthMinutes?.toDouble(),
-        setValue: (draft, value) =>
-            values(draft).audioLengthMinutes = value?.toInt(),
-        minimum: 0,
-      ),
+      LibraryCustomFieldSpec<TDraft>(
+          id: 'first_edition',
+          label: 'First Edition',
+          builder: (context, draft) => StatefulBuilder(
+              builder: (context, setState) => LibrarySegmentedChoiceField<bool>(
+                  label: 'First Edition',
+                  options: const [(false, 'No'), (true, 'Yes')],
+                  value: values(draft).firstEdition,
+                  onChanged: (value) =>
+                      setState(() => values(draft).firstEdition = value)))),
+      LibraryCustomFieldSpec<TDraft>(
+          id: 'audio_length_minutes',
+          label: 'Audiobook Length',
+          builder: (context, draft) => BookAudioLengthField(
+              minutes: values(draft).audioLengthMinutes,
+              onChanged: (value) => values(draft).audioLengthMinutes = value)),
       LibraryTextFieldSpec<TDraft>(
         id: 'cover_image_url',
         label: 'Cover image URL',

@@ -1,27 +1,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_signature_details.dart';
 
 const Object _bookDetailsUnset = Object();
 
 @immutable
 class BookEntryDetails implements JsonEncodable {
   const BookEntryDetails({
-    this.signature = const BookSignatureDetails(),
-    String? signedBy,
+    this.signedBy,
     this.dustJacketPresent = false,
     this.dustJacketCondition,
-  }) : _signedBy = signedBy;
+    this.retailPriceCents,
+  });
 
-  final BookSignatureDetails signature;
-  final String? _signedBy;
+  final String? signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
-
-  String? get signedBy => _signedBy ?? signature.signedBy;
+  final int? retailPriceCents;
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
+        if (retailPriceCents != null) 'retail_price_cents': retailPriceCents,
         if (signedBy != null) 'signed_by': signedBy,
         if (dustJacketPresent) 'dust_jacket_present': true,
         if (dustJacketCondition != null)
@@ -30,24 +28,29 @@ class BookEntryDetails implements JsonEncodable {
 
   factory BookEntryDetails.fromJson(Map<String, dynamic> json) =>
       BookEntryDetails(
-        signature: BookSignatureDetails.fromJson(json),
+        signedBy: json['signed_by'] as String?,
+        retailPriceCents: (json['retail_price_cents'] as num?)?.toInt(),
         dustJacketPresent: json['dust_jacket_present'] as bool? ?? false,
         dustJacketCondition: json['dust_jacket_condition'] as String?,
       );
 
   BookEntryDetails copyWith({
     Object? signedBy = _bookDetailsUnset,
-    BookSignatureDetails? signature,
     bool? dustJacketPresent,
-    String? dustJacketCondition,
+    Object? dustJacketCondition = _bookDetailsUnset,
+    Object? retailPriceCents = _bookDetailsUnset,
   }) {
     return BookEntryDetails(
       signedBy: identical(signedBy, _bookDetailsUnset)
           ? this.signedBy
           : signedBy as String?,
-      signature: signature ?? this.signature,
+      retailPriceCents: identical(retailPriceCents, _bookDetailsUnset)
+          ? this.retailPriceCents
+          : retailPriceCents as int?,
       dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
-      dustJacketCondition: dustJacketCondition ?? this.dustJacketCondition,
+      dustJacketCondition: identical(dustJacketCondition, _bookDetailsUnset)
+          ? this.dustJacketCondition
+          : dustJacketCondition as String?,
     );
   }
 
@@ -57,12 +60,14 @@ class BookEntryDetails implements JsonEncodable {
       other is BookEntryDetails &&
           runtimeType == other.runtimeType &&
           signedBy == other.signedBy &&
+          retailPriceCents == other.retailPriceCents &&
           dustJacketPresent == other.dustJacketPresent &&
           dustJacketCondition == other.dustJacketCondition;
 
   @override
   int get hashCode => Object.hash(
         signedBy,
+        retailPriceCents,
         dustJacketPresent,
         dustJacketCondition,
       );

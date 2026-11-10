@@ -636,6 +636,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
 
 /// The reference opens Add on its browse tab (Series) when the kind has one.
 LibraryAddDialogMode _initialMode(CatalogMediaKind kind) =>
-    libraryAddForKind(kind).search.browse == null
+    libraryAddForKind(kind).search.input.initialMode ??
+    (libraryAddForKind(kind).search.browse == null
         ? LibraryAddDialogMode.search
-        : LibraryAddDialogMode.browse;
+        : LibraryAddDialogMode.browse);

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features
+- Books is available as its own library, with ISBN search, full edition details, contributor credits, personal and value fields, reading tracking, covers and personal images.
 - Flow Carousel has the Cover Size and Item Spacing sliders.
 - Add Comics has an NCBD tab listing a week's releases from Core, with All, #1's, My Series and a Pull List of followed series kept on this device, sorted by variant count or alphabetically.
 - Settings > Updates opens release notes in a panel with formatted text, images and links, and links to the release on GitHub.

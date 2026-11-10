@@ -7,9 +7,17 @@ class LibraryMediaSearchFieldLabels {
     this.libraryHint,
     this.addSearchTabLabel = 'Title',
     this.addSearchTabIcon,
+    this.identifierTabLabel = 'Barcode',
+    this.identifierFieldLabel = 'Barcode / UPC / ISBN',
+    this.identifierHint = 'Scan or enter barcode / UPC / ISBN...',
+    this.identifierFirst = false,
   });
 
   final String queryHint;
+  final String identifierTabLabel;
+  final String identifierFieldLabel;
+  final String identifierHint;
+  final bool identifierFirst;
 
   /// The Add dialog's text-search tab, such as "Artist & Title".
   final String addSearchTabLabel;

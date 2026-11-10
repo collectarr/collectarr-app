@@ -330,6 +330,22 @@ final class BookExternalLink implements JsonEncodable {
 final class BookCatalogMetadata implements JsonEncodable {
   const BookCatalogMetadata({
     required this.title,
+    this.boxSet,
+    this.publicationPlace,
+    this.printedBy,
+    this.paperType,
+    this.numberLine,
+    this.originalSubtitle,
+    this.originalCountry,
+    this.originalPublisher,
+    this.originalPublicationPlace,
+    this.printingNumber,
+    this.widthMm,
+    this.heightMm,
+    this.spineThicknessMm,
+    this.weightGrams,
+    this.audioAbridged,
+    this.extras = const [],
     this.transportId,
     this.ageRating,
     this.audienceRating,
@@ -390,6 +406,23 @@ final class BookCatalogMetadata implements JsonEncodable {
     this.volumeName,
     this.volumeNumber,
   });
+
+  final String? boxSet;
+  final String? publicationPlace;
+  final String? printedBy;
+  final String? paperType;
+  final String? numberLine;
+  final String? originalSubtitle;
+  final String? originalCountry;
+  final String? originalPublisher;
+  final String? originalPublicationPlace;
+  final int? printingNumber;
+  final int? widthMm;
+  final int? heightMm;
+  final int? spineThicknessMm;
+  final int? weightGrams;
+  final bool? audioAbridged;
+  final List<String> extras;
 
   final String? transportId;
   final String title;
@@ -480,6 +513,23 @@ final class BookCatalogMetadata implements JsonEncodable {
   Map<String, dynamic> toJson() => {
         if (transportId != null) 'id': transportId,
         'title': title,
+        if (boxSet != null) 'box_set': boxSet,
+        if (publicationPlace != null) 'publication_place': publicationPlace,
+        if (printedBy != null) 'printed_by': printedBy,
+        if (paperType != null) 'paper_type': paperType,
+        if (numberLine != null) 'number_line': numberLine,
+        if (originalSubtitle != null) 'original_subtitle': originalSubtitle,
+        if (originalCountry != null) 'original_country': originalCountry,
+        if (originalPublisher != null) 'original_publisher': originalPublisher,
+        if (originalPublicationPlace != null)
+          'original_publication_place': originalPublicationPlace,
+        if (printingNumber != null) 'printing_number': printingNumber,
+        if (widthMm != null) 'width_mm': widthMm,
+        if (heightMm != null) 'height_mm': heightMm,
+        if (spineThicknessMm != null) 'spine_thickness_mm': spineThicknessMm,
+        if (weightGrams != null) 'weight_grams': weightGrams,
+        if (audioAbridged != null) 'audio_abridged': audioAbridged,
+        if (extras.isNotEmpty) 'extras': extras,
         if (ageRating != null) 'age_rating': ageRating,
         if (audienceRating != null) 'audience_rating': audienceRating,
         if (barcode != null) 'barcode': barcode,
@@ -560,6 +610,22 @@ final class BookCatalogMetadata implements JsonEncodable {
 
   BookCatalogMetadata copyWith({
     String? title,
+    Object? boxSet = _bookMetadataUnset,
+    Object? publicationPlace = _bookMetadataUnset,
+    Object? printedBy = _bookMetadataUnset,
+    Object? paperType = _bookMetadataUnset,
+    Object? numberLine = _bookMetadataUnset,
+    Object? originalSubtitle = _bookMetadataUnset,
+    Object? originalCountry = _bookMetadataUnset,
+    Object? originalPublisher = _bookMetadataUnset,
+    Object? originalPublicationPlace = _bookMetadataUnset,
+    Object? printingNumber = _bookMetadataUnset,
+    Object? widthMm = _bookMetadataUnset,
+    Object? heightMm = _bookMetadataUnset,
+    Object? spineThicknessMm = _bookMetadataUnset,
+    Object? weightGrams = _bookMetadataUnset,
+    Object? audioAbridged = _bookMetadataUnset,
+    List<String>? extras,
     Object? ageRating = _bookMetadataUnset,
     Object? audienceRating = _bookMetadataUnset,
     Object? barcode = _bookMetadataUnset,
@@ -622,6 +688,28 @@ final class BookCatalogMetadata implements JsonEncodable {
       BookCatalogMetadata(
         transportId: transportId,
         title: title ?? this.title,
+        boxSet: _copyBookNullable(boxSet, this.boxSet),
+        publicationPlace:
+            _copyBookNullable(publicationPlace, this.publicationPlace),
+        printedBy: _copyBookNullable(printedBy, this.printedBy),
+        paperType: _copyBookNullable(paperType, this.paperType),
+        numberLine: _copyBookNullable(numberLine, this.numberLine),
+        originalSubtitle:
+            _copyBookNullable(originalSubtitle, this.originalSubtitle),
+        originalCountry:
+            _copyBookNullable(originalCountry, this.originalCountry),
+        originalPublisher:
+            _copyBookNullable(originalPublisher, this.originalPublisher),
+        originalPublicationPlace: _copyBookNullable(
+            originalPublicationPlace, this.originalPublicationPlace),
+        printingNumber: _copyBookNullable(printingNumber, this.printingNumber),
+        widthMm: _copyBookNullable(widthMm, this.widthMm),
+        heightMm: _copyBookNullable(heightMm, this.heightMm),
+        spineThicknessMm:
+            _copyBookNullable(spineThicknessMm, this.spineThicknessMm),
+        weightGrams: _copyBookNullable(weightGrams, this.weightGrams),
+        audioAbridged: _copyBookNullable(audioAbridged, this.audioAbridged),
+        extras: extras ?? this.extras,
         ageRating: _copyBookNullable(ageRating, this.ageRating),
         audienceRating: _copyBookNullable(audienceRating, this.audienceRating),
         barcode: _copyBookNullable(barcode, this.barcode),
@@ -705,6 +793,22 @@ final class BookCatalogMetadata implements JsonEncodable {
       throw const FormatException('Book catalog metadata title must be text.');
     }
     return BookCatalogMetadata(
+      boxSet: json['box_set'] as String?,
+      publicationPlace: json['publication_place'] as String?,
+      printedBy: json['printed_by'] as String?,
+      paperType: json['paper_type'] as String?,
+      numberLine: json['number_line'] as String?,
+      originalSubtitle: json['original_subtitle'] as String?,
+      originalCountry: json['original_country'] as String?,
+      originalPublisher: json['original_publisher'] as String?,
+      originalPublicationPlace: json['original_publication_place'] as String?,
+      printingNumber: (json['printing_number'] as num?)?.toInt(),
+      widthMm: (json['width_mm'] as num?)?.toInt(),
+      heightMm: (json['height_mm'] as num?)?.toInt(),
+      spineThicknessMm: (json['spine_thickness_mm'] as num?)?.toInt(),
+      weightGrams: (json['weight_grams'] as num?)?.toInt(),
+      audioAbridged: json['audio_abridged'] as bool?,
+      extras: List<String>.from(json['extras'] as List? ?? const []),
       transportId: json['id'] as String?,
       title: rawTitle,
       ageRating: json['age_rating'] as String?,

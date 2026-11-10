@@ -177,7 +177,7 @@ void main() {
 
   testWidgets('dialog says so when Core has no catalog for the kind',
       (tester) async {
-    await pumpDialog(tester, CatalogMediaKind.book);
+    await pumpDialog(tester, CatalogMediaKind.movie);
 
     expect(find.text('Core has no catalog for this kind yet.'), findsOneWidget);
     expect(find.text('Download'), findsNothing);

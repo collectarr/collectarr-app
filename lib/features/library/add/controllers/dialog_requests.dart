@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
+import '../models/tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/selection_fields.dart';
@@ -31,6 +32,8 @@ class LibraryAddManualPaneRequest {
     required this.type,
     this.commonDraft,
     this.kindDraft,
+    this.trackingDraft = const LibraryAddTrackingDraft(),
+    this.onTrackingDraftChanged,
     this.personalFields = const <PersonalLibraryFieldSpec>[],
     this.onCommonDraftChanged,
     this.onKindDraftChanged,
@@ -73,6 +76,8 @@ class LibraryAddManualPaneRequest {
   final LibraryKindRegistration type;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddKindDraft? kindDraft;
+  final LibraryAddTrackingDraft trackingDraft;
+  final ValueChanged<LibraryAddTrackingDraft>? onTrackingDraftChanged;
   final List<PersonalLibraryFieldSpec> personalFields;
   final LibraryKindAddDraft manualDraft;
   final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;

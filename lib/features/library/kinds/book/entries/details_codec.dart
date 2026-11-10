@@ -17,6 +17,7 @@ final class BookEntryDetailsCodec {
   BookEntryDetailsDraft draftFromDetails(BookEntryDetails details) =>
       BookEntryDetailsDraft(
         signedBy: details.signedBy,
+        retailPriceCents: details.retailPriceCents,
         dustJacketPresent: details.dustJacketPresent,
         dustJacketCondition: details.dustJacketCondition,
       );

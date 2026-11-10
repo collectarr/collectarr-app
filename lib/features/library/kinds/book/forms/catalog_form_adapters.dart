@@ -15,18 +15,36 @@ BookCatalogMetadata bookMetadataFromManualFormValues({
     transportId: id,
     title: title.trim(),
     sortTitle: _optional(values.sortTitle),
+    boxSet: _optional(values.boxSet),
+    publicationPlace: _optional(values.publicationPlace),
+    printedBy: _optional(values.printedBy),
+    paperType: _optional(values.paperType),
+    numberLine: _optional(values.numberLine),
+    originalSubtitle: _optional(values.originalSubtitle),
+    originalCountry: _optional(values.originalCountry),
+    originalPublisher: _optional(values.originalPublisher),
+    originalPublicationPlace: _optional(values.originalPublicationPlace),
+    printingNumber: values.printingNumber,
+    widthMm: values.widthMm,
+    heightMm: values.heightMm,
+    spineThicknessMm: values.spineThicknessMm,
+    weightGrams: values.weightGrams,
+    audioAbridged: values.audioAbridged,
+    extras: List.of(values.extras),
     subtitle: _optional(values.subtitle),
     editionTitle: _optional(values.editionTitle),
     editionStatement: _optional(values.editionStatement),
     seriesTitle: _optional(values.seriesTitle),
     seriesGroup: _optional(values.seriesGroup),
     itemNumber: _optional(values.number),
+    volumeName: _optional(values.volumeName),
+    volumeNumber: _optional(values.volumeNumber),
     publisher: _optional(values.publisher),
     distributor: _optional(values.distributor),
     imprint: _optional(values.imprint),
     pageCount: values.pageCount,
     creators: values.authors,
-    contributors: values.translators,
+    contributors: [...values.translators, ...values.otherContributors],
     characters: [
       for (final name in _split(values.characters))
         BookCatalogCharacter(name: name),
@@ -66,6 +84,7 @@ BookCatalogMetadata bookMetadataFromManualFormValues({
     localizedTitle: _optional(values.localizedTitle),
     releaseStatus: _optional(values.releaseStatus),
     dimensions: _optional(values.dimensions),
+    identifiers: _classificationIdentifiers(const [], values),
     firstEdition: values.firstEdition,
     audioLengthMinutes: values.audioLengthMinutes,
   );
@@ -82,6 +101,22 @@ BookCatalogFormValues bookCatalogFormValuesFromMetadata(
       .toList(growable: false);
   return BookCatalogFormValues(
     title: metadata.title,
+    boxSet: metadata.boxSet ?? '',
+    publicationPlace: metadata.publicationPlace ?? '',
+    printedBy: metadata.printedBy ?? '',
+    paperType: metadata.paperType ?? '',
+    numberLine: metadata.numberLine ?? '',
+    originalSubtitle: metadata.originalSubtitle ?? '',
+    originalCountry: metadata.originalCountry ?? '',
+    originalPublisher: metadata.originalPublisher ?? '',
+    originalPublicationPlace: metadata.originalPublicationPlace ?? '',
+    printingNumber: metadata.printingNumber,
+    widthMm: metadata.widthMm,
+    heightMm: metadata.heightMm,
+    spineThicknessMm: metadata.spineThicknessMm,
+    weightGrams: metadata.weightGrams,
+    audioAbridged: metadata.audioAbridged ?? false,
+    extras: List.of(metadata.extras),
     sortTitle: metadata.sortTitle ?? '',
     subtitle: metadata.subtitle ?? '',
     originalTitle: metadata.originalTitle ?? '',
@@ -96,11 +131,19 @@ BookCatalogFormValues bookCatalogFormValuesFromMetadata(
     subjects: List.of(metadata.subjects),
     searchAliases: List.of(metadata.searchAliases),
     number: metadata.itemNumber ?? '',
+    volumeName: metadata.volumeName ?? '',
+    volumeNumber: metadata.volumeNumber ?? '',
     variant: metadata.variant ?? '',
     seriesTitle: metadata.seriesTitle ?? '',
     seriesGroup: metadata.seriesGroup ?? '',
     authors: authors.isEmpty ? List.of(metadata.creators) : authors,
     translators: translators,
+    otherContributors: [
+      for (final credit in metadata.contributors)
+        if (!_isBookCreditRole(credit.role, 'author') &&
+            !_isBookCreditRole(credit.role, 'translator'))
+          credit,
+    ],
     characters: metadata.characters.map((value) => value.name).join(', '),
     ageRating: metadata.ageRating ?? '',
     country: metadata.country ?? '',
@@ -121,6 +164,9 @@ BookCatalogFormValues bookCatalogFormValuesFromMetadata(
     releaseStatus: metadata.releaseStatus ?? '',
     editionStatement: metadata.editionStatement ?? '',
     dimensions: metadata.dimensions ?? '',
+    lcControlNumber: _identifierValue(metadata, 'lccn'),
+    lcClassification: _identifierValue(metadata, 'lcc'),
+    dewey: _identifierValue(metadata, 'dewey'),
     firstEdition: metadata.firstEdition ?? false,
     audioLengthMinutes: metadata.audioLengthMinutes,
     coverImageUrl: metadata.coverImageUrl ?? '',
@@ -164,6 +210,22 @@ BookCatalogMetadata applyBookCatalogFormValues({
   return current.copyWith(
     title: title.trim(),
     sortTitle: _optional(values.sortTitle),
+    boxSet: _optional(values.boxSet),
+    publicationPlace: _optional(values.publicationPlace),
+    printedBy: _optional(values.printedBy),
+    paperType: _optional(values.paperType),
+    numberLine: _optional(values.numberLine),
+    originalSubtitle: _optional(values.originalSubtitle),
+    originalCountry: _optional(values.originalCountry),
+    originalPublisher: _optional(values.originalPublisher),
+    originalPublicationPlace: _optional(values.originalPublicationPlace),
+    printingNumber: values.printingNumber,
+    widthMm: values.widthMm,
+    heightMm: values.heightMm,
+    spineThicknessMm: values.spineThicknessMm,
+    weightGrams: values.weightGrams,
+    audioAbridged: values.audioAbridged,
+    extras: List.of(values.extras),
     subtitle: _optional(values.subtitle),
     originalTitle: _optional(values.originalTitle),
     localizedTitle: _optional(values.localizedTitle),
@@ -177,6 +239,8 @@ BookCatalogMetadata applyBookCatalogFormValues({
     description:
         plotTextChanged ? _optional(values.description) : current.description,
     itemNumber: _optional(values.number),
+    volumeName: _optional(values.volumeName),
+    volumeNumber: _optional(values.volumeNumber),
     variant: _optional(values.variant),
     seriesTitle: _optional(values.seriesTitle),
     seriesGroup: _optional(values.seriesGroup),
@@ -191,6 +255,7 @@ BookCatalogMetadata applyBookCatalogFormValues({
     editionTitle: _optional(values.editionTitle),
     editionStatement: _optional(values.editionStatement),
     dimensions: _optional(values.dimensions),
+    identifiers: _classificationIdentifiers(current.identifiers, values),
     physicalFormat: _optional(values.format),
     binding: _optional(values.binding),
     language: _optional(values.language),
@@ -221,10 +286,7 @@ BookCatalogMetadata applyBookCatalogFormValues({
       ..._withBookRole(values.authors, 'Author'),
     ],
     contributors: [
-      for (final credit in current.contributors)
-        if (!_isBookCreditRole(credit.role, 'author') &&
-            !_isBookCreditRole(credit.role, 'translator'))
-          credit,
+      ...values.otherContributors,
       ..._withBookRole(values.translators, 'Translator'),
     ],
   );
@@ -297,3 +359,43 @@ List<String> _split(String value) => value
     .map((entry) => entry.trim())
     .where((entry) => entry.isNotEmpty)
     .toList(growable: false);
+
+String _identifierValue(BookCatalogMetadata metadata, String type) =>
+    metadata.identifiers
+        .where((item) => item.identifierType == type)
+        .firstOrNull
+        ?.value ??
+    '';
+
+List<BookCatalogIdentifier> _classificationIdentifiers(
+  List<BookCatalogIdentifier> original,
+  BookCatalogFormValues values,
+) {
+  final changes = {
+    'lccn': values.lcControlNumber,
+    'lcc': values.lcClassification,
+    'dewey': values.dewey
+  };
+  final remaining = Map.of(changes);
+  final result = <BookCatalogIdentifier>[];
+  for (final identifier in original) {
+    final type = identifier.identifierType;
+    final next = remaining.remove(type);
+    if (next == null || next.trim() == identifier.value) {
+      result.add(identifier);
+    } else if (next.trim().isNotEmpty) {
+      result.add(BookCatalogIdentifier(
+          value: next.trim(),
+          identifierType: type,
+          id: identifier.id,
+          isPrimary: identifier.isPrimary));
+    }
+  }
+  for (final entry in remaining.entries) {
+    if (entry.value.trim().isNotEmpty) {
+      result.add(BookCatalogIdentifier(
+          identifierType: entry.key, value: entry.value.trim()));
+    }
+  }
+  return result;
+}

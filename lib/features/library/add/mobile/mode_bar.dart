@@ -12,6 +12,7 @@ class LibraryAddMobileModeBar extends StatelessWidget {
     required this.canScanCover,
     required this.isScanningCover,
     required this.searchLabel,
+    this.identifierLabel = 'Barcode',
     required this.browseLabel,
     required this.codeLabel,
     this.kindTabLabels = const [],
@@ -29,6 +30,7 @@ class LibraryAddMobileModeBar extends StatelessWidget {
   final bool canScanCover;
   final bool isScanningCover;
   final String searchLabel;
+  final String identifierLabel;
   final String? browseLabel;
   final String? codeLabel;
 
@@ -47,7 +49,7 @@ class LibraryAddMobileModeBar extends StatelessWidget {
       LibraryAddMobileSearchControls<Object?>(
         tabs: [
           if (canScanCover) (value: null, label: 'Cover'),
-          (value: LibraryAddDialogMode.identifier, label: 'Barcode'),
+          (value: LibraryAddDialogMode.identifier, label: identifierLabel),
           if (browseLabel != null)
             (value: LibraryAddDialogMode.browse, label: browseLabel!),
           (value: LibraryAddDialogMode.search, label: searchLabel),

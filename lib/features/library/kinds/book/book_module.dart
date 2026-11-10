@@ -2,6 +2,7 @@ export 'add/contribution.dart';
 export 'edit/contribution.dart';
 export 'config/capabilities.dart';
 export 'config/configuration.dart';
+export 'config/import_sources.dart';
 export 'workspace/contribution.dart';
 export 'admin/book_admin_contributor.dart';
 export 'barcode/book_isbn_resolver.dart';

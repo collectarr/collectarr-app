@@ -23,18 +23,24 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     this.kindSpecificFields = const [],
     this.fieldOverrides = const {},
     this.layoutBuilder,
+    this.fieldKeys,
+    this.title = 'Personal',
   });
 
   final LibraryAddManualPaneRequest request;
   final List<Widget> kindSpecificFields;
   final Map<String, Widget> fieldOverrides;
   final LibraryPersonalLayoutBuilder? layoutBuilder;
+  final Set<String>? fieldKeys;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     final current = request.commonDraft ?? const LibraryAddCommonDraft();
     final specs = request.personalFields
-        .where((field) => field.manualAddOrder != null)
+        .where((field) =>
+            field.manualAddOrder != null &&
+            (fieldKeys == null || fieldKeys!.contains(field.key)))
         .toList()
       ..sort((left, right) =>
           left.manualAddOrder!.compareTo(right.manualAddOrder!));
@@ -60,7 +66,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     final gridFields = fields.take(fullWidthStart).toList(growable: false);
     final fullWidthFields = fields.skip(fullWidthStart).toList(growable: false);
     return EditSection(
-      title: 'Personal',
+      title: title,
       accent: request.accent,
       child: LibraryPersonalFieldsLayout(
         fields: gridFields,
