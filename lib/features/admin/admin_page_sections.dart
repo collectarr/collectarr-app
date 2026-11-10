@@ -171,14 +171,6 @@ extension _AdminPageSections on _AdminPageState {
       padding: const EdgeInsets.all(16),
       children: [
         AdminPanel(
-          icon: Icons.account_tree_outlined,
-          title: 'Collection schema',
-          child: CollectionSchemaManagementPanel(
-            db: ref.read(localDatabaseProvider),
-          ),
-        ),
-        const SizedBox(height: 12),
-        AdminPanel(
           icon: Icons.people_outline,
           title: 'User management',
           child: const AdminUsersPanel(),

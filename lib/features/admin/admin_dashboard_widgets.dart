@@ -1,10 +1,8 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
 import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
-import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:flutter/material.dart';
 
 // Dashboard widgets
@@ -501,7 +499,6 @@ class AdminDashboardTab extends StatelessWidget {
     super.key,
     required this.isReindexing,
     required this.isLoadingDashboard,
-    required this.db,
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
@@ -516,7 +513,6 @@ class AdminDashboardTab extends StatelessWidget {
 
   final bool isReindexing;
   final bool isLoadingDashboard;
-  final LocalDatabase db;
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
@@ -579,12 +575,6 @@ class AdminDashboardTab extends StatelessWidget {
             history: proposalHistory,
             errorMessage: dashboardErrorMessage,
           ),
-        ),
-        const SizedBox(height: 12),
-        AdminPanel(
-          icon: Icons.account_tree_outlined,
-          title: 'Collection schema',
-          child: CollectionSchemaManagementPanel(db: db),
         ),
       ],
     );

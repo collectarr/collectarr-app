@@ -18,6 +18,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Admin tabs are centered and local collection management no longer appears in admin.
 - Dialog headers show their titles without a leading icon.
 - The navigation drawer shows the active library's icon.
 - Items without a cover show their placeholder at the full cover size, without black bars.

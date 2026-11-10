@@ -43,10 +43,8 @@ import 'package:collectarr_app/features/library/config/admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
-import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:dio/dio.dart';
@@ -153,7 +151,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             title: Text(isAdmin ? 'Admin' : 'Manage'),
             bottom: TabBar(
               isScrollable: true,
-              tabAlignment: TabAlignment.start,
+              tabAlignment: TabAlignment.center,
               tabs: tabs,
             )),
         body: AppManagementContent(child: TabBarView(children: tabViews)),
@@ -166,7 +164,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return AdminDashboardTab(
       isReindexing: _isReindexing,
       isLoadingDashboard: _isLoadingDashboard,
-      db: ref.read(localDatabaseProvider),
       summary: _summary,
       searchStatus: _searchStatus,
       lastReindex: _lastReindex,
