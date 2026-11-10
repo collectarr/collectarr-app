@@ -18,7 +18,7 @@ Opera and a release Web build with the same albums imported.
 - Personal, Value and Covers still need a full pixel comparison of both Add and Edit.
 - Read History still differs from CLZ's read-event table and Settings-driven Mark as read behavior; verify date clearing and repeat reads.
 - Match ISBN and Author / Title search, scanner activation and search result selection in Add Books.
-- Compare all workspace layouts, columns, sorting, grouping, details, statistics and settings using isolated Books storage.
+- Compare workspace layouts, sorting, grouping, details, statistics and settings using isolated Books storage. The observed CLZ List defaults are Author, Title, ISBN, Format, Pages, Publisher, Publication Date, Genre and Added Date; compare their order and values with Collectarr.
 - Implement and verify guided CLZ Books XML import; mapped CSV is available for selected fields.
 
 ## How to compare

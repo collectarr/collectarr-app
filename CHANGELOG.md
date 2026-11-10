@@ -49,6 +49,7 @@
 - Each kind now decides how Add Manually and its search results behave, instead of shared switches.
 
 ### Docs
+- Document the remaining Books list comparison.
 - The README adds the project logo, badges and documentation links.
 - The CLZ parity guide lists the size, weight and line height of each CLZ text role.
 - The architecture notes record why the header stays fixed and only library pages have a bottom bar.
