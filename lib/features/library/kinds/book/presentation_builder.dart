@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/details/field_table.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
 

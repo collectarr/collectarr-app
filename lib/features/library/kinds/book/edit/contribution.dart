@@ -1,5 +1,5 @@
 import '../book_module_dependencies.dart';
-import '../entries/book_transfer_library_entry.dart';
+import '../entries/transfer.dart';
 
 final bookKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryTargetEditRegistry(

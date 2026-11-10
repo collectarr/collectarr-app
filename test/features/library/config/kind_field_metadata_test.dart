@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/facets.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/facets.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/field_identities.dart';

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
 import 'package:collectarr_app/features/library/config/facet_types.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 
 final bookLibraryFacetDefinitions =
