@@ -102,6 +102,18 @@ class _DashboardSummary extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           // ── Coverage ──
+          if (summary.itemsByKind.isNotEmpty) ...[
+            _DashboardSection(
+              title: 'Items by kind',
+              children: [
+                for (final entry in summary.itemsByKind.entries)
+                  AdminStatusChip(
+                      icon: Icons.category_outlined,
+                      label: '${_statsKindLabel(entry.key)}: ${entry.value}')
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
           _DashboardSection(
             title: 'Coverage',
             children: [
