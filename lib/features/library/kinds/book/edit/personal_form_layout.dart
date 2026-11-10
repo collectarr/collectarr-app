@@ -76,22 +76,53 @@ Map<String, Widget> bookValueAdditionalFields(LibraryEntryEditDraft draft) => {
           )),
     };
 
-Widget bookPersonalFormLayout(Map<String, Widget> fields, Widget? history) =>
-    LibraryPersonalFieldsLayout(
-      fields: [
-        for (final key in [
-          'owner_label',
-          'condition',
-          'dust_jacket',
-          'dust_jacket_condition'
-        ])
-          if (fields[key] != null) fields[key]!
-      ],
-      fullWidthFields: [
-        for (final key in ['tags', 'rating', 'personal_notes'])
-          if (fields[key] != null) fields[key]!
-      ],
-    );
+Widget bookPersonalFormLayout(Map<String, Widget> fields, Widget? history) {
+  Widget stack(List<Widget> children) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            children[i],
+          ]
+        ],
+      );
+  Widget? field(String key) => fields[key];
+  return LayoutBuilder(builder: (context, constraints) {
+    final jacket = [
+      if (field('dust_jacket') case final item?) item,
+      if (field('dust_jacket_condition') case final item?) item
+    ];
+    final left = <Widget>[
+      if (field('owner_label') case final item?) item,
+      if (field('condition') case final item?) item,
+      if (jacket.isNotEmpty)
+        LayoutBuilder(
+            builder: (context, constraints) => constraints.maxWidth < 300
+                ? stack(jacket)
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var i = 0; i < jacket.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 14),
+                        Expanded(child: jacket[i]),
+                      ]
+                    ],
+                  )),
+      if (field('tags') case final item?) item,
+    ];
+    final right = <Widget>[
+      if (field('rating') case final item?) item,
+      if (field('personal_notes') case final item?) item,
+      if (history != null) history,
+    ];
+    if (constraints.maxWidth < 680) return stack([...left, ...right]);
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Expanded(child: stack(left)),
+      const SizedBox(width: 14),
+      Expanded(child: stack(right)),
+    ]);
+  });
+}
 
 Widget bookValueFormLayout(Map<String, Widget> fields, Widget? history) =>
     LibraryPersonalFieldsLayout(

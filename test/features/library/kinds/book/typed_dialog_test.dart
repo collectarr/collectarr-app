@@ -91,6 +91,16 @@ void main() {
       await tester.tap(find.text(name).first);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: name);
+      if (name == 'Personal') {
+        final condition = tester.getTopLeft(find.text('Book Condition').first);
+        final rating = tester.getTopLeft(find.text('My Rating').first);
+        final jacket = tester.getTopLeft(find.text('Dust Jacket').first);
+        final jacketCondition =
+            tester.getTopLeft(find.text('Dust Jacket Condition').first);
+        expect(rating.dx, greaterThan(condition.dx));
+        expect(jacketCondition.dx, greaterThan(jacket.dx));
+        expect((jacketCondition.dy - jacket.dy).abs(), lessThan(2));
+      }
       if (name == 'Details') {
         final edition = tester.getTopLeft(find.text('Edition').first);
         final classification =

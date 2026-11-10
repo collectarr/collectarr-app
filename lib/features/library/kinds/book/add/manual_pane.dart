@@ -194,16 +194,14 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
               'tags',
               'personal_notes'
             },
-            kindSpecificFields: [
-              BookManualRatingField(request: request),
-              BookManualCopyFields(
-                draft: copyDraft,
-                onChanged: (value) {
-                  request.onKindDraftChanged?.call(value);
-                  setState(() {});
-                },
-              )
-            ],
+            layoutBuilder: bookPersonalFormLayout,
+            fieldOverrides: {
+              'rating': BookManualRatingField(request: request),
+              ...bookManualCopyFields(copyDraft, (value) {
+                request.onKindDraftChanged?.call(value);
+                setState(() {});
+              }),
+            },
           ),
         ),
         LibraryAddManualPaneTab(
