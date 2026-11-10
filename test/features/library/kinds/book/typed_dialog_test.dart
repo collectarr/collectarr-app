@@ -102,11 +102,19 @@ void main() {
         expect((jacketCondition.dy - jacket.dy).abs(), lessThan(2));
       }
       if (name == 'Details') {
+        expect(find.text('Additional metadata'), findsNothing);
         final edition = tester.getTopLeft(find.text('Edition').first);
         final classification =
             tester.getTopLeft(find.text('Classification').first);
         final dimensions = tester.getTopLeft(find.text('Dimensions').first);
         final original = tester.getTopLeft(find.text('Original').first);
+        final printed = tester.getTopLeft(find.text('Printed By').first);
+        final paper = tester.getTopLeft(find.text('Paper Type').first);
+        expect(printed.dx, greaterThan(paper.dx));
+        final width = tester.getTopLeft(find.text('Width (mm)').first);
+        final height = tester.getTopLeft(find.text('Height (mm)').first);
+        expect(height.dx, greaterThan(width.dx));
+        expect((height.dy - width.dy).abs(), lessThan(2));
         expect(classification.dx, greaterThan(edition.dx));
         expect(dimensions.dy, greaterThan(edition.dy));
         expect(original.dy, greaterThan(classification.dy));

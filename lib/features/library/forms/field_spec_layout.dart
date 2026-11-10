@@ -17,10 +17,12 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
     required this.fieldColumnSpans,
     required this.rightAlignedFieldIds,
     this.columns = const <LibraryFormColumnSpec>[],
+    this.columnBreakpoint = 680,
   });
 
   final List<LibraryFieldSpec<TDraft>> fields;
   final TDraft draft;
+  final double columnBreakpoint;
   final Widget Function(LibraryFieldSpec<TDraft> field) buildField;
   final int maxColumns;
   final Set<String> fullWidthFieldIds;
@@ -87,12 +89,13 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
         return LibraryResponsiveFieldLayout(
           maxColumns: columns.length,
           spacing: 14,
-          columnBreakpoints: const {2: 680},
+          columnBreakpoints: {2: columnBreakpoint},
           children: columnWidgets,
         );
       }
       return LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth < 680
+        builder: (context, constraints) => constraints.maxWidth <
+                columnBreakpoint
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: columnWidgets,
@@ -122,7 +125,7 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
     return LibraryResponsiveFieldLayout(
       maxColumns: maxColumns,
       columnBreakpoints: {
-        if (maxColumns >= 2) 2: 680,
+        if (maxColumns >= 2) 2: columnBreakpoint,
         if (maxColumns > 2) maxColumns: 960,
       },
       spacing: 12,

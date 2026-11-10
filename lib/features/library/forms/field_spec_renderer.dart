@@ -89,29 +89,43 @@ class _LibraryFieldSpecRendererState<TDraft>
     BuildContext context,
     List<LibraryFormSectionSpec<TDraft>> sections,
   ) {
-    Widget buildSection(LibraryFormSectionSpec<TDraft> section) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (section.label.trim().isNotEmpty) ...[
-              Text(section.label,
-                  style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-            ],
-            LibraryFieldSpecLayout<TDraft>(
-              fields: section.fields,
-              draft: widget.draft,
-              buildField: _buildField,
-              maxColumns: section.maxColumns,
-              fullWidthFieldIds: section.fullWidthFieldIds,
-              fieldColumnSpans: section.fieldColumnSpans,
-              rightAlignedFieldIds: section.rightAlignedFieldIds,
-              columns: section.wideColumns.isNotEmpty &&
-                      MediaQuery.sizeOf(context).width >= 600
-                  ? section.wideColumns
-                  : section.columns,
-            ),
+    Widget buildSection(LibraryFormSectionSpec<TDraft> section) {
+      final content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!section.outlined && section.label.trim().isNotEmpty) ...[
+            Text(section.label, style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
           ],
-        );
+          LibraryFieldSpecLayout<TDraft>(
+            columnBreakpoint: section.columnBreakpoint,
+            fields: section.fields,
+            draft: widget.draft,
+            buildField: _buildField,
+            maxColumns: section.maxColumns,
+            fullWidthFieldIds: section.fullWidthFieldIds,
+            fieldColumnSpans: section.fieldColumnSpans,
+            rightAlignedFieldIds: section.rightAlignedFieldIds,
+            columns: section.wideColumns.isNotEmpty &&
+                    MediaQuery.sizeOf(context).width >= 600
+                ? section.wideColumns
+                : section.columns,
+          ),
+        ],
+      );
+      if (!section.outlined) return content;
+      return InputDecorator(
+        decoration: InputDecoration(
+          label: Center(child: Text(section.label)),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          border: const OutlineInputBorder(),
+          enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Theme.of(context).dividerColor)),
+          contentPadding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
+        ),
+        child: content,
+      );
+    }
 
     Widget column(List<LibraryFormSectionSpec<TDraft>> items) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

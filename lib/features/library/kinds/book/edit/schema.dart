@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/schema/schema.dart';
 import '../domain/book_metadata.dart';
 import '../add/schema.dart';
@@ -16,9 +16,9 @@ final bookItemEditSchema = EditSchema<BookCatalogMetadata, BookItemEditDraft>(
       bookAddSchemaFor<BookItemEditDraft>().validate?.call(draft),
   tabs: [
     for (final tab in [
-      ('main', 'Main', Icons.menu_book, bookMainFieldIds),
-      ('details', 'Details', Icons.info_outline, bookDetailsFieldIds),
-      ('credits', 'Credits', Icons.groups_2, bookCreditFieldIds),
+      ('main', 'Main', AppIcons.book, bookMainFieldIds),
+      ('details', 'Details', AppIcons.tabDetails, bookDetailsFieldIds),
+      ('credits', 'Credits', AppIcons.tabCredits, bookCreditFieldIds),
     ])
       EditTabSpec<BookItemEditDraft>(
         id: tab.$1,

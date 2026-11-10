@@ -152,7 +152,7 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
           EditSchemaExtraTab(
             id: 'read_history',
             label: 'Read History',
-            icon: Icons.auto_stories_outlined,
+            icon: AppIcons.bookReader,
             content: BookReadHistoryTab(draft: _reading),
           ),
         if (personal != null)

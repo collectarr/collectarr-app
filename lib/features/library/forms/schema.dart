@@ -29,6 +29,8 @@ final class LibraryFormSectionSpec<TDraft> {
     this.wideColumns = const <LibraryFormColumnSpec>[],
     this.visibleWhen,
     this.layoutColumn,
+    this.columnBreakpoint = 680,
+    this.outlined = false,
   }) : assert(layoutColumn == null || layoutColumn == 0 || layoutColumn == 1);
 
   final String id;
@@ -48,6 +50,8 @@ final class LibraryFormSectionSpec<TDraft> {
 
   /// Optional column for consecutive sections in a responsive two-column group.
   final int? layoutColumn;
+  final double columnBreakpoint;
+  final bool outlined;
   final LibraryFieldVisibility<TDraft>? visibleWhen;
 
   bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;
@@ -111,6 +115,8 @@ List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
                 ]),
           ],
           layoutColumn: section.layoutColumn,
+          columnBreakpoint: section.columnBreakpoint,
+          outlined: section.outlined,
           visibleWhen: section.visibleWhen,
         ),
   ];

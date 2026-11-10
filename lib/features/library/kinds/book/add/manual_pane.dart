@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -167,7 +168,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
         schemaTab(
           id: 'main',
           label: 'Main',
-          icon: Icons.edit_note_outlined,
+          icon: AppIcons.book,
           fieldIds: bookMainFieldIds,
           validateSchema: true,
           sectionLabels: const {
@@ -178,13 +179,13 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
         schemaTab(
           id: 'details',
           label: 'Details',
-          icon: Icons.info_outline,
+          icon: AppIcons.tabDetails,
           fieldIds: bookDetailsFieldIds,
         ),
         LibraryAddManualPaneTab(
           id: 'personal',
           label: 'Personal',
-          icon: Icons.person_outline,
+          icon: AppIcons.tabPersonal,
           content: LibraryAddManualPersonalTab(
             request: request,
             fieldKeys: const {
@@ -207,13 +208,13 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
         LibraryAddManualPaneTab(
           id: 'read_history',
           label: 'Read History',
-          icon: Icons.auto_stories_outlined,
+          icon: AppIcons.bookReader,
           content: BookManualReadHistory(request: request),
         ),
         LibraryAddManualPaneTab(
           id: 'value',
           label: 'Value',
-          icon: Icons.attach_money,
+          icon: AppIcons.tabValue,
           content: LibraryAddManualPersonalTab(
             request: request,
             title: 'Value',
@@ -232,14 +233,14 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
         schemaTab(
           id: 'credits',
           label: 'Credits',
-          icon: Icons.groups_2_outlined,
+          icon: AppIcons.tabCredits,
           fieldIds: bookCreditFieldIds,
           sectionLabels: const {'publication': 'Credits'},
         ),
         LibraryAddManualPaneTab(
           id: 'links',
           label: 'Links',
-          icon: Icons.public,
+          icon: AppIcons.tabLinks,
           content: BookExternalLinksEditor(
               links: draft.externalLinks,
               accent: request.accent,
@@ -248,7 +249,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
         LibraryAddManualPaneTab(
           id: 'covers',
           label: 'Covers',
-          icon: Icons.photo_camera_outlined,
+          icon: AppIcons.tabCovers,
           content: BookCoversTab(
             images: request.itemImages,
             coverImageUrl: draft.values.coverImageUrl,
@@ -270,7 +271,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
         schemaTab(
           id: 'plot',
           label: 'Plot',
-          icon: Icons.description_outlined,
+          icon: AppIcons.tabDescription,
           fieldIds: bookPlotFieldIds,
           sectionLabels: const {'publication': 'Plot'},
         ),

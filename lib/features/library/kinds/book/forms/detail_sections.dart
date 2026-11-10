@@ -30,31 +30,14 @@ List<LibraryFormSectionSpec<TDraft>> bookDetailsFormSections<TDraft>(
       'original_publication_date',
       'original_publication_place'
     ],
-    'Additional metadata': [
-      'title',
-      'binding',
-      'dimensions',
-      'localized_title',
-      'variant',
-      'series_group',
-      'volume_number',
-      'imprint',
-      'distributor',
-      'first_publication_date',
-      'search_aliases',
-      'characters',
-      'age_rating',
-      'region',
-      'release_status',
-      'publication_year',
-      'barcode'
-    ],
   };
   return [
     for (final group in groups.entries)
       LibraryFormSectionSpec<TDraft>(
         id: group.key.toLowerCase().replaceAll(' ', '_'),
         label: group.key,
+        columnBreakpoint: 300,
+        outlined: true,
         layoutColumn: switch (group.key) {
           'Edition' || 'Dimensions' => 0,
           'Classification' || 'Original' => 1,
