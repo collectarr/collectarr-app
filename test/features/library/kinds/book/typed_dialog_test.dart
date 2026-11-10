@@ -91,6 +91,16 @@ void main() {
       await tester.tap(find.text(name).first);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: name);
+      if (name == 'Details') {
+        final edition = tester.getTopLeft(find.text('Edition').first);
+        final classification =
+            tester.getTopLeft(find.text('Classification').first);
+        final dimensions = tester.getTopLeft(find.text('Dimensions').first);
+        final original = tester.getTopLeft(find.text('Original').first);
+        expect(classification.dx, greaterThan(edition.dx));
+        expect(dimensions.dy, greaterThan(edition.dy));
+        expect(original.dy, greaterThan(classification.dy));
+      }
     }
     await tester.ensureVisible(find.text('Personal').first);
     await tester.tap(find.text('Personal').first);

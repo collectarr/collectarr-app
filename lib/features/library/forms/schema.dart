@@ -28,7 +28,8 @@ final class LibraryFormSectionSpec<TDraft> {
     this.columns = const <LibraryFormColumnSpec>[],
     this.wideColumns = const <LibraryFormColumnSpec>[],
     this.visibleWhen,
-  });
+    this.layoutColumn,
+  }) : assert(layoutColumn == null || layoutColumn == 0 || layoutColumn == 1);
 
   final String id;
   final String label;
@@ -44,6 +45,9 @@ final class LibraryFormSectionSpec<TDraft> {
   /// Independently stacked columns; each row contains one or more field IDs.
   /// Empty means the section uses the regular responsive field grid.
   final List<LibraryFormColumnSpec> columns;
+
+  /// Optional column for consecutive sections in a responsive two-column group.
+  final int? layoutColumn;
   final LibraryFieldVisibility<TDraft>? visibleWhen;
 
   bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;
@@ -106,6 +110,7 @@ List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
                       ],
                 ]),
           ],
+          layoutColumn: section.layoutColumn,
           visibleWhen: section.visibleWhen,
         ),
   ];

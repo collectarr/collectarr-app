@@ -55,6 +55,34 @@ List<LibraryFormSectionSpec<TDraft>> bookDetailsFormSections<TDraft>(
       LibraryFormSectionSpec<TDraft>(
         id: group.key.toLowerCase().replaceAll(' ', '_'),
         label: group.key,
+        layoutColumn: switch (group.key) {
+          'Edition' || 'Dimensions' => 0,
+          'Classification' || 'Original' => 1,
+          _ => null,
+        },
+        fullWidthFieldIds: switch (group.key) {
+          'Classification' => const {'dewey'},
+          'Original' => const {
+              'original_title',
+              'original_subtitle',
+              'original_publication_place'
+            },
+          _ => const {},
+        },
+        columns: group.key == 'Edition'
+            ? const [
+                LibraryFormColumnSpec(rows: [
+                  ['edition_statement'],
+                  ['paper_type'],
+                  ['extras']
+                ]),
+                LibraryFormColumnSpec(rows: [
+                  ['printed_by'],
+                  ['printing_number', 'first_edition'],
+                  ['number_line']
+                ]),
+              ]
+            : const [],
         fields: [for (final id in group.value) byId[id]!],
       )
   ];

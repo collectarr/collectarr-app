@@ -89,33 +89,66 @@ class _LibraryFieldSpecRendererState<TDraft>
     BuildContext context,
     List<LibraryFormSectionSpec<TDraft>> sections,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final section in sections) ...[
-          // Spacing separates sections; none trails the last one.
-          if (section != sections.first)
-            SizedBox(height: widget.sectionSpacing),
-          if (section.label.trim().isNotEmpty) ...[
-            Text(section.label, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
+    Widget buildSection(LibraryFormSectionSpec<TDraft> section) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (section.label.trim().isNotEmpty) ...[
+              Text(section.label,
+                  style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+            ],
+            LibraryFieldSpecLayout<TDraft>(
+              fields: section.fields,
+              draft: widget.draft,
+              buildField: _buildField,
+              maxColumns: section.maxColumns,
+              fullWidthFieldIds: section.fullWidthFieldIds,
+              fieldColumnSpans: section.fieldColumnSpans,
+              rightAlignedFieldIds: section.rightAlignedFieldIds,
+              columns: section.wideColumns.isNotEmpty &&
+                      MediaQuery.sizeOf(context).width >= 600
+                  ? section.wideColumns
+                  : section.columns,
+            ),
           ],
-          LibraryFieldSpecLayout<TDraft>(
-            fields: section.fields,
-            draft: widget.draft,
-            buildField: _buildField,
-            maxColumns: section.maxColumns,
-            fullWidthFieldIds: section.fullWidthFieldIds,
-            fieldColumnSpans: section.fieldColumnSpans,
-            rightAlignedFieldIds: section.rightAlignedFieldIds,
-            columns: section.wideColumns.isNotEmpty &&
-                    MediaQuery.sizeOf(context).width >= 600
-                ? section.wideColumns
-                : section.columns,
-          ),
-        ],
-      ],
-    );
+        );
+
+    Widget column(List<LibraryFormSectionSpec<TDraft>> items) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < items.length; i++) ...[
+              if (i > 0) SizedBox(height: widget.sectionSpacing),
+              buildSection(items[i]),
+            ],
+          ],
+        );
+
+    final children = <Widget>[];
+    for (var i = 0; i < sections.length;) {
+      if (children.isNotEmpty) {
+        children.add(SizedBox(height: widget.sectionSpacing));
+      }
+      if (sections[i].layoutColumn == null) {
+        children.add(buildSection(sections[i++]));
+        continue;
+      }
+      final group = <LibraryFormSectionSpec<TDraft>>[];
+      while (i < sections.length && sections[i].layoutColumn != null) {
+        group.add(sections[i++]);
+      }
+      children.add(LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth < 680) return column(group);
+        return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+              child: column(group.where((s) => s.layoutColumn == 0).toList())),
+          const SizedBox(width: 14),
+          Expanded(
+              child: column(group.where((s) => s.layoutColumn == 1).toList())),
+        ]);
+      }));
+    }
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
   }
 
   Widget _buildField(LibraryFieldSpec<TDraft> field) =>
