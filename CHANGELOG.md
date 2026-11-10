@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- The admin dashboard shows server catalog totals by kind.
+- The admin dashboard shows server catalog totals and catalog table storage by kind.
 - Books is available as its own library, with ISBN search, reference-aligned Main, Details, Credits and Personal forms, full edition details, contributor credits, personal and value fields, reading tracking, covers, personal images, mapped CSV import, and workspace sorting, columns and folders including genre, subject, country and language.
 - Flow Carousel has the Cover Size and Item Spacing sliders.
 - Add Comics has an NCBD tab listing a week's releases from Core, with All, #1's, My Series and a Pull List of followed series kept on this device, sorted by variant count or alphabetically.

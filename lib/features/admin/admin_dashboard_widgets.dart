@@ -114,6 +114,10 @@ class _DashboardSummary extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
+          if (summary.catalogTableBytesByKind.isNotEmpty) ...[
+            _CatalogTableStorage(sizes: summary.catalogTableBytesByKind),
+            const SizedBox(height: 12),
+          ],
           _DashboardSection(
             title: 'Coverage',
             children: [
@@ -230,6 +234,40 @@ class _DashboardSummary extends StatelessWidget {
       ],
     );
   }
+}
+
+class _CatalogTableStorage extends StatelessWidget {
+  const _CatalogTableStorage({required this.sizes});
+  final Map<String, int> sizes;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _DashboardSection(title: 'Catalog table storage', children: [
+            for (final entry in sizes.entries)
+              AdminStatusChip(
+                  icon: Icons.storage_outlined,
+                  label:
+                      '${_statsKindLabel(entry.key)}: ${_formatCatalogBytes(entry.value)}'),
+          ]),
+          const SizedBox(height: 4),
+          const Text(
+              'Includes table data and indexes; excludes shared data and external images.'),
+        ],
+      );
+}
+
+String _formatCatalogBytes(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  var value = bytes.toDouble();
+  var unit = 0;
+  const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit++;
+  }
+  return '${value.toStringAsFixed(1)} ${units[unit]}';
 }
 
 class _DashboardSection extends StatelessWidget {

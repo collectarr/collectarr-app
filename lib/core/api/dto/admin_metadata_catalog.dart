@@ -6,6 +6,7 @@ class AdminCatalogSummary {
   const AdminCatalogSummary({
     required this.items,
     this.itemsByKind = const <String, int>{},
+    this.catalogTableBytesByKind = const <String, int>{},
     required this.series,
     required this.volumes,
     required this.editions,
@@ -18,6 +19,7 @@ class AdminCatalogSummary {
 
   final int items;
   final Map<String, int> itemsByKind;
+  final Map<String, int> catalogTableBytesByKind;
   final int series;
   final int volumes;
   final int editions;
@@ -34,6 +36,7 @@ class AdminCatalogSummary {
 
   factory AdminCatalogSummary.fromJson(Map<String, dynamic> json) {
     final byKind = json['items_by_kind'];
+    final tableBytes = json['catalog_table_bytes_by_kind'];
     return AdminCatalogSummary(
       items: json['items'] as int? ?? 0,
       itemsByKind: byKind is Map<String, dynamic>
@@ -43,6 +46,10 @@ class AdminCatalogSummary {
                 (value as num?)?.toInt() ?? 0,
               ),
             )
+          : const <String, int>{},
+      catalogTableBytesByKind: tableBytes is Map<String, dynamic>
+          ? tableBytes
+              .map((key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0))
           : const <String, int>{},
       series: json['series'] as int? ?? 0,
       volumes: json['volumes'] as int? ?? 0,

@@ -74,6 +74,13 @@
       },
       "AdminCatalogSummaryResponse": {
         "properties": {
+          "catalog_table_bytes_by_kind": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Catalog Table Bytes By Kind",
+            "type": "object"
+          },
           "duplicate_candidate_groups": {
             "title": "Duplicate Candidate Groups",
             "type": "integer"
