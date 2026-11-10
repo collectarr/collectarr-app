@@ -39,7 +39,7 @@ void main() {
     await pumpUntilSettled(tester);
     await tester.tap(find.byKey(const Key('app.open-navigation')));
     await pumpUntilSettled(tester);
-    expect(find.byKey(const Key('drawer.app-logo')), findsOneWidget);
+    expect(find.byKey(const Key('drawer.kind-icon')), findsOneWidget);
     expect(find.byTooltip('Close navigation'), findsNothing);
     expect(find.text('Collectarr Account:'), findsOneWidget);
     await tester.tap(find.byKey(const Key('drawer.account')));

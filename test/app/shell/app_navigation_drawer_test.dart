@@ -50,9 +50,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('CLR MUSIC'), findsOneWidget);
-    final logo = tester.widget<Image>(find.byKey(const Key('drawer.app-logo')));
-    expect((logo.image as AssetImage).assetName, AppIcons.appLogoPng);
-    expect(find.byKey(const Key('drawer.kind-icon')), findsNothing);
+    final logo = tester.widget<Icon>(find.byKey(const Key('drawer.kind-icon')));
+    expect(logo.icon,
+        libraryKindRegistration(CatalogMediaKind.music).identity.icon);
+    expect(find.byKey(const Key('drawer.app-logo')), findsNothing);
     expect(find.byTooltip('Close navigation'), findsNothing);
     expect(find.text('v1.5.0'), findsOneWidget);
 

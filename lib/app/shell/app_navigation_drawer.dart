@@ -309,12 +309,10 @@ class _DrawerBrandHeaderState extends State<_DrawerBrandHeader> {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.fromLTRB(10, 5, 8, 5),
         child: Row(children: [
-          Image.asset(
-            AppIcons.appLogoPng,
-            key: const Key('drawer.app-logo'),
-            width: 38,
-            height: 38,
-          ),
+          Icon(widget.type.identity.icon,
+              key: const Key('drawer.kind-icon'),
+              size: 38,
+              color: Colors.white),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
