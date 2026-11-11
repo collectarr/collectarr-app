@@ -15,7 +15,8 @@ Opera and a release Web build with the same albums imported.
 
 - Compare Main and Details field widths, pick-list panels and spacing with CLZ Books, on desktop and narrow layouts.
 - Verify Credits' role pickers, First Edition and Audiobook Abridged controls and audio duration spacing against CLZ.
-- Personal, Value and Covers still need a full pixel comparison of both Add and Edit.
+- Personal, Value and Covers still need a full pixel comparison of both Add and Edit. Books Add currently offers generic condition choices and labels its owner as "Owner label"; align its condition vocabulary and labels with Edit.
+- Books inspector still lacks CLZ's box-set contents block and per-read reader names and pages; quantity is not yet represented on Book entries. Compare the author-photo case and cover controls at narrow widths.
 - Read History still differs from CLZ's read-event table and Settings-driven Mark as read behavior; verify date clearing and repeat reads.
 - Match ISBN and Author / Title search, scanner activation and search result selection in Add Books.
 - Compare workspace layouts, sorting, grouping, details, statistics and settings using isolated Books storage. The observed CLZ List defaults are Author, Title, ISBN, Format, Pages, Publisher, Publication Date, Genre and Added Date; compare their order and values with Collectarr.
@@ -309,8 +310,8 @@ behavior.
 - Add flows: Barcode results of Games, Hardware and Toys, ticking several Platform or Toy rows, the Add/Update from Core settings and the result of adding, since nothing was saved in CLZ.
 - Games: Add Games Title results beside CLZ's in one session, every sort/group combination with populated records, every Personal
   pick-list save path, native file selection in Covers, trailer playback.
-- Comics: a comic with every field filled in the details panel, rows for
-  unlinked comics in Link Comics, and Submit to Core's wording. The reference
-  account has none of these, and producing them means saving there.
+- Comics: rows for unlinked comics in Link Comics and Submit to Core's wording.
+- Book/Comic My Images: CLZ accepts named image types such as Signature; Collectarr's editor still offers a fixed generic list, including Disc and Label. Compare kind-owned type lists and custom type creation.
+- Comic inspector: Crossover appears in Collectarr's Details table but in CLZ's subtitle; align its placement without duplicating it.
 - The header account label appears only while signed in to Sync, so it is
   covered by tests rather than the signed-out comparison build.

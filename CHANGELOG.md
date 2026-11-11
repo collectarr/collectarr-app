@@ -51,6 +51,9 @@
 - Library modules use explicit shared contracts without unused default implementations.
 - Comic editing keeps catalog, custom-field and image changes together when saving or cancelling.
 
+### Docs
+- Document the remaining Books and Comics differences found with populated reference entries.
+
 
 ## 1.6.0 - 2026-11-07
 
