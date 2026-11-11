@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_retry.dart';
+import 'package:collectarr_app/core/sync/sync_error_message.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -63,9 +64,7 @@ class SyncController extends Notifier<SyncState> {
 
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
-      final result = await const SyncRetryPolicy().run(
-        () => _repo.performSync(deviceId),
-      );
+      final result = await _repo.performSync(deviceId);
       await _repo.saveLastSyncedAt(result.serverTime);
       final conflicts = _conflictsAfter(result);
       await _repo.saveConflicts(conflicts);
@@ -92,6 +91,14 @@ class SyncController extends Notifier<SyncState> {
       );
 
       if (!ref.mounted) return;
+      final warning = SyncWarningFormatter.rejectedChanges(conflicts);
+      if (warning != null) {
+        ref.read(appLogProvider.notifier).warn('sync', warning,
+            timestamp: result.serverTime,
+            detail: conflicts
+                .map((change) => '${change.key}: ${change.reason}')
+                .join('\n'));
+      }
       // --- Success: enter SyncIdle ---
       state = SyncIdle(
         pendingCount: count,
@@ -101,6 +108,7 @@ class SyncController extends Notifier<SyncState> {
         syncLog: log,
       );
     } catch (error, stackTrace) {
+      final failureTime = DateTime.now().toUtc();
       developer.log(
         'Collectarr personal sync failed',
         name: 'collectarr.sync',
@@ -112,6 +120,7 @@ class SyncController extends Notifier<SyncState> {
               'sync',
               'Sync failed: $error',
               detail: stackTrace.toString(),
+              timestamp: failureTime,
             );
       } catch (_) {}
 
@@ -123,7 +132,7 @@ class SyncController extends Notifier<SyncState> {
       } catch (_) {}
       final log = _appendLog(
         SyncLogEntry(
-          timestamp: DateTime.now().toUtc(),
+          timestamp: failureTime,
           success: false,
           pushed: preSyncPending,
           errorMessage: error.toString(),
@@ -134,7 +143,7 @@ class SyncController extends Notifier<SyncState> {
 
       // --- Failure: enter SyncFailure ---
       state = SyncFailure(
-        errorMessage: error.toString(),
+        errorMessage: syncErrorMessage(error),
         pendingCount: count,
         isOffline: isOfflineSyncError(error),
         lastSyncedAt: state.lastSyncedAt,

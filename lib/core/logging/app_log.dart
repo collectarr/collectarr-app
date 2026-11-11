@@ -49,9 +49,10 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
     String source,
     String message, {
     String? detail,
+    DateTime? timestamp,
   }) {
     final entry = AppLogEntry(
-      timestamp: DateTime.now(),
+      timestamp: timestamp ?? DateTime.now(),
       level: level,
       source: source,
       message: message,
@@ -67,11 +68,15 @@ class AppLogNotifier extends Notifier<List<AppLogEntry>> {
   void info(String source, String message, {String? detail}) =>
       log(AppLogLevel.info, source, message, detail: detail);
 
-  void warn(String source, String message, {String? detail}) =>
-      log(AppLogLevel.warning, source, message, detail: detail);
+  void warn(String source, String message,
+          {String? detail, DateTime? timestamp}) =>
+      log(AppLogLevel.warning, source, message,
+          detail: detail, timestamp: timestamp);
 
-  void error(String source, String message, {String? detail}) =>
-      log(AppLogLevel.error, source, message, detail: detail);
+  void error(String source, String message,
+          {String? detail, DateTime? timestamp}) =>
+      log(AppLogLevel.error, source, message,
+          detail: detail, timestamp: timestamp);
 
   void clear() {
     _entries.clear();

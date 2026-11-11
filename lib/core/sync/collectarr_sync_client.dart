@@ -7,11 +7,17 @@ class CollectarrSyncClient {
     required String baseUrl,
     required String syncKey,
     String? accountToken,
-    SyncRetryPolicy retryPolicy = const SyncRetryPolicy(),
+    SyncRetryPolicy retryPolicy =
+        const SyncRetryPolicy(isRetryable: _retrySyncResponse),
   })  : _syncKey = syncKey,
         _accountToken = accountToken,
         _retryPolicy = retryPolicy,
-        _dio = Dio(BaseOptions(baseUrl: baseUrl));
+        _dio = Dio(BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(seconds: 3),
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ));
 
   final Dio _dio;
   final String _syncKey;
@@ -49,13 +55,15 @@ class CollectarrSyncClient {
   }
 
   Future<Map<String, dynamic>> health() async {
-    return _retryPolicy.run(() async {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/health',
-        options: _options(),
-      );
-      return _responseData(response, '/health');
-    });
+    // Discovery must fail promptly when the service is stopped or unresponsive.
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/health',
+      options: _options().copyWith(
+        sendTimeout: const Duration(seconds: 3),
+        receiveTimeout: const Duration(seconds: 3),
+      ),
+    );
+    return _responseData(response, '/health');
   }
 
   Future<Map<String, dynamic>> status() async {
@@ -114,3 +122,8 @@ class CollectarrSyncClient {
     return data;
   }
 }
+
+// A scheduled or manual sync can retry a broken connection later. Retrying it
+// immediately only delays reporting that the service cannot be reached.
+bool _retrySyncResponse(Object error) =>
+    isTransientSyncError(error) && !isOfflineSyncError(error);
