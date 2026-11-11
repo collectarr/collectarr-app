@@ -6,8 +6,71 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
+import 'package:collectarr_app/ui/app_formatted_text.dart';
 
 abstract final class GameCatalogWorkspaceFields {
+  static final coreId =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.core_id'),
+    metadata: GameWorkspaceFieldMetadata.coreId,
+    getValue: (context) {
+      if (context.item.libraryEntryDispatch != null) {
+        return GameLibraryEntryProjection.fromDispatch(
+                context.item.libraryEntryDispatch)
+            ?.sourceCatalogRef
+            ?.id;
+      }
+      if (context.item.entrySummary != null) {
+        return context.item.entrySummary?.sourceCatalogRef?.id;
+      }
+      return switch (context.item.target) {
+        CatalogTargetRef(:final ref) => ref.id,
+        _ => null,
+      };
+    },
+  );
+
+  static final description = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.description'),
+    metadata: GameWorkspaceFieldMetadata.description,
+    getValue: (dto) {
+      final source = dto.metadata.description ?? dto.metadata.synopsis;
+      return source == null
+          ? null
+          : parseAppFormattedText(source).map((block) => block.text).join('\n');
+    },
+  );
+
+  static final country = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.country'),
+    metadata: GameWorkspaceFieldMetadata.country,
+    getValue: (dto) => dto.country,
+  );
+
+  static final language = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.language'),
+    metadata: GameWorkspaceFieldMetadata.language,
+    getValue: (dto) => dto.language,
+  );
+
+  static final releaseMonth =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.release_month'),
+    metadata: GameWorkspaceFieldMetadata.releaseMonth,
+    getValue: (context) => context.dto.metadata.releaseDateParts?.month,
+  );
+
+  static final backCover =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.back_cover'),
+    metadata: GameWorkspaceFieldMetadata.backCover,
+    getValue: (context) => context.personal.images
+        .where((image) => image.imageType == 'back_cover')
+        .firstOrNull
+        ?.id,
+  );
   static final title = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.title,
     metadata: GameWorkspaceFieldMetadata.title,
@@ -128,6 +191,12 @@ abstract final class GameCatalogWorkspaceFields {
       _imageFlag(GameWorkspaceFieldMetadata.hasBack, 'back_cover');
 
   static final all = [
+    coreId,
+    description,
+    country,
+    language,
+    releaseMonth,
+    backCover,
     audienceRating,
     sortTitle,
     format,

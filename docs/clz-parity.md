@@ -68,6 +68,8 @@ Keep these when matching the reference visually.
 | Area | CLZ | Collectarr |
 | --- | --- | --- |
 | Data ownership | Cloud account is the source of truth | Offline-first local library; Core catalog and Sync are optional and self-hostable |
+| Catalog link columns | Core GameID and Core MediaID in Games | A single Core ID identifies the linked release in Collectarr Core; unlinked local entries leave it empty |
+| Games field scopes | Hardware and Toy groups also appear in the Games field choosers | Sort and column fields belong to the active Games, Hardware or Toys kind |
 | Value tab of Games, Hardware and Toys | Value beside Completeness, PriceCharting ID under the price chart | PriceCharting ID beside Completeness and Value beside Condition |
 | Hardware Type | A free text field | A pick list without Sort Names, starting with Console, Controller and Accessory, so types stay consistent and can be renamed or merged |
 | Description editing | The Description field edits raw HTML | Games, Hardware, Toys and Comics also offer a Rich mode with format buttons, next to Raw; Rich saves the same light HTML |
@@ -296,7 +298,7 @@ navigation, larger system text and light appearance.
 | P2 | Import sources | Delicious Library, Game Collector, PriceCharting and Game Collector user-defined fields appear as unavailable placeholders until verified exports are available; CLZ supports those imports |
 | P3 | Add Games collection filter | CLZ's In Collection lists matches at once; Core does not know the local collection, so Collectarr filters the loaded pages and offers Load more instead of fetching a whole platform |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |
-| P3 | Column chooser gaps | Games has no Back Cover image, Description, eBay, Core GameID/MediaID or Toy NFCID columns. Collectarr keeps its Status, Wishlist, Franchise and Box/Manual Only value columns |
+| P3 | Field chooser gaps | Games has no eBay link column and does not sort by cover filenames (personal images are stored as bytes). CLZ's sort chooser lists Storage and Storage Device separately; Collectarr currently has one storage-device value plus Storage Slot, so verify that distinction before adding another field. Toys still has no NFCID field |
 | P3 | Add manual tabs | CLZ lists Personal last; Collectarr lists it after Value |
 
 ## Not yet compared live

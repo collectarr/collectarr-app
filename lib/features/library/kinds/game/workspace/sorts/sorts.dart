@@ -4,10 +4,59 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_value_sum
 import 'package:collectarr_app/features/library/kinds/game/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/ids.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/personal_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/core/utils/natural_text_compare.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/columns/catalog_columns.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/columns/columns.dart';
+
+/// Keep the chooser and table sorting in sync with the Games column registry.
+/// Explicit sorts retain their IDs, directions and domain-specific ordering.
+List<LibrarySortDefinition<GameKind, GameWorkspaceDto>> gameWorkspaceSorts({
+  required bool personal,
+}) {
+  final result = [
+    ...gameCatalogWorkspaceSorts,
+    ...gameCatalogExtraSortDefinitions,
+    if (personal) ...gamePersonalWorkspaceSorts,
+    if (personal) ...gamePersonalSortDefinitions,
+  ];
+  final defined = result.map((sort) => sort.id.value).toSet();
+  for (final column in [
+    ...gameCatalogWorkspaceColumns,
+    if (personal) ...gamePersonalWorkspaceColumns,
+    if (personal) ...gameLoanWorkspaceColumns,
+  ]) {
+    final id = column.sortId?.value ?? column.id.value;
+    if (!column.sortable || !defined.add(id)) continue;
+    result.add(LibrarySortDefinition<GameKind, GameWorkspaceDto>(
+      id: LibrarySortId(id),
+      label: column.resolvedDisplayName,
+      group: column.group,
+      compare: (left, right) =>
+          _compareColumnValues(column.getValue(left), column.getValue(right)),
+    ));
+  }
+  return result;
+}
+
+int _compareColumnValues(Object? left, Object? right) {
+  if (left == null) return right == null ? 0 : 1;
+  if (right == null) return -1;
+  return switch ((left, right)) {
+    (num a, num b) => a.compareTo(b),
+    (DateTime a, DateTime b) => a.compareTo(b),
+    (PartialDate a, PartialDate b) =>
+      _compareColumnValues(a.isoString, b.isoString),
+    (bool a, bool b) => (a ? 1 : 0).compareTo(b ? 1 : 0),
+    (Iterable<String> a, Iterable<String> b) => compareNaturalText(
+        (a.toList()..sort(compareNaturalText)).join(' | '),
+        (b.toList()..sort(compareNaturalText)).join(' | ')),
+    _ => compareNaturalText(left.toString(), right.toString()),
+  };
+}
 
 typedef _GameSortValue = Comparable<Object?>? Function(
     LibraryProjectionContext<GameWorkspaceDto> context,
@@ -26,10 +75,12 @@ final gameCatalogWorkspaceSorts = [
       defaultAscending: false,
     ),
   sortFromField<GameKind, GameWorkspaceDto, String>(
-      GameCatalogWorkspaceFields.edition),
+      GameCatalogWorkspaceFields.edition,
+      group: 'Edition'),
   if (GameFieldIdentities.barcode.sortable)
     sortFromField<GameKind, GameWorkspaceDto, String>(
       GameCatalogWorkspaceFields.barcode,
+      group: 'Edition',
     ),
 ];
 
@@ -47,15 +98,13 @@ final gamePersonalWorkspaceSorts = [
       return res != 0 ? res : left.dto.title.compareTo(right.dto.title);
     },
     label: 'Status',
+    group: 'Personal',
   ),
-  sortFromField<GameKind, GameWorkspaceDto, num>(
-    GamePersonalWorkspaceFields.loosePrice,
-    defaultAscending: false,
-  ),
-  sortFromField<GameKind, GameWorkspaceDto, num>(
-    GamePersonalWorkspaceFields.cibPrice,
-    defaultAscending: false,
-  ),
+  _sort('loose_price', 'Value Loose', 'Value',
+      (context, _) => context.dto.loosePrice,
+      ascending: false),
+  _sort('cib_price', 'Value CiB', 'Value', (context, _) => context.dto.cibPrice,
+      ascending: false),
 ];
 
 /// Catalog sort fields of the reference Games sort menu that the catalog

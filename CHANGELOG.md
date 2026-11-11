@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features
+- Games offers more sort and column fields, including date parts, Description, Back Cover and Core ID; Hardware and Toys keep their own fields.
 - Account in the main menu opens My Account directly, with Logout on that page.
 - The admin dashboard shows server catalog totals and catalog table storage by kind.
 - Books is available as its own library, with ISBN search, reference-aligned forms and inspector, full edition and copy details, reading tracking, covers, personal images, mapped CSV import, and workspace sorting, columns and folders. Plot keeps rich text, and its form panels match the other libraries.

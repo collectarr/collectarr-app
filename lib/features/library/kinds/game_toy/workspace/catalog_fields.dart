@@ -4,8 +4,35 @@ import 'package:collectarr_app/features/library/kinds/game_toy/workspace/dto.dar
 import 'package:collectarr_app/features/library/kinds/game_toy/workspace/groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/ui/app_formatted_text.dart';
 
 abstract final class GameToyCatalogWorkspaceFields {
+  static final coreId =
+      LibraryFieldDefinition<GameToyKind, GameToyWorkspaceDto, String?>(
+    id: const LibraryFieldId('game_toy.core_id'),
+    metadata: const LibraryKindFieldMetadata(
+      id: 'game_toy.core_id',
+      label: 'Core ID',
+      valueType: LibraryFieldValueType.text,
+      cardinality: LibraryFieldCardinality.one,
+      source: LibraryFieldSource.catalog,
+      sourcePath: 'source_catalog_ref.id',
+      sortable: true,
+    ),
+    getValue: (context) => context.dto.entry != null
+        ? context.dto.entry!.sourceCatalogRef?.id
+        : switch (context.item.target) {
+            CatalogTargetRef(:final ref) => ref.id,
+            _ => null,
+          },
+  );
+  static final description = _text('description', 'Description', (dto) {
+    final source = dto.metadata.description;
+    return source == null
+        ? null
+        : parseAppFormattedText(source).map((block) => block.text).join('\n');
+  }, groupable: false);
   static final title =
       _text('title', 'Title', (dto) => dto.metadata.title, groupable: false);
   static final sortTitle = _text('sort_title', 'Sort Title',
@@ -37,6 +64,8 @@ abstract final class GameToyCatalogWorkspaceFields {
 
   /// Text fields listed in the column chooser and sort menu.
   static final all = [
+    coreId,
+    description,
     hasFront,
     hasBoxImage,
     title,

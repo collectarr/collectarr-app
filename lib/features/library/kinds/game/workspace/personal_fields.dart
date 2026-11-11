@@ -10,6 +10,51 @@ import 'package:collectarr_app/features/library/workspace/config/typed_field_def
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
 abstract final class GamePersonalWorkspaceFields {
+  static final purchaseMonth =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.purchase_month'),
+    metadata: GameWorkspaceFieldMetadata.purchaseMonth,
+    getValue: (context) => _purchase(context)?.month,
+  );
+
+  static final addedMonth =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.added_month'),
+    metadata: GameWorkspaceFieldMetadata.addedMonth,
+    getValue: (context) =>
+        (_entry(context)?.createdAt ?? context.addedAt)?.month,
+  );
+
+  static final modifiedMonth =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.modified_month'),
+    metadata: GameWorkspaceFieldMetadata.modifiedMonth,
+    getValue: (context) =>
+        (_entry(context)?.updatedAt ?? context.updatedAt).month,
+  );
+
+  static final modifiedYear =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.modified_year'),
+    metadata: GameWorkspaceFieldMetadata.modifiedYear,
+    getValue: (context) =>
+        (_entry(context)?.updatedAt ?? context.updatedAt).year,
+  );
+
+  static final completedMonth =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.completed_month'),
+    metadata: GameWorkspaceFieldMetadata.completedMonth,
+    getValue: (context) =>
+        _entry(context)?.personal.details.completedDate?.month,
+  );
+
+  static final storageSlot =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.storage_slot'),
+    metadata: GameWorkspaceFieldMetadata.storageSlot,
+    getValue: (context) => _entry(context)?.personal.details.storageSlot,
+  );
   static final condition =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.condition,
@@ -277,6 +322,12 @@ abstract final class GamePersonalWorkspaceFields {
   );
 
   static final all = [
+    purchaseMonth,
+    addedMonth,
+    modifiedMonth,
+    modifiedYear,
+    completedMonth,
+    storageSlot,
     loanedTo,
     loanDate,
     dueDate,

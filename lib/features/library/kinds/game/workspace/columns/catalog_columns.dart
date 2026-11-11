@@ -8,8 +8,46 @@ import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 final gameCatalogWorkspaceColumns = [
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogWorkspaceFields.backCover,
+    group: 'Images',
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
+    defaultWidth: 48,
+    minWidth: 44,
+    cellValue: (context) => SizedBox(
+      width: 32,
+      height: 32,
+      child: LibraryCoverImage(
+        title: context.dto.title,
+        mediaKind: CatalogMediaKind.game,
+        libraryEntryRef: context.item.libraryEntryDispatch?.ref,
+        localImageType: 'back_cover',
+        showPlaceholder: false,
+        borderRadius: 0,
+      ),
+    ),
+  ),
+  for (final field in [
+    GameCatalogWorkspaceFields.coreId,
+    GameCatalogWorkspaceFields.description,
+  ])
+    columnFromField<GameKind, GameWorkspaceDto, String?>(field),
+  for (final field in [
+    GameCatalogWorkspaceFields.country,
+    GameCatalogWorkspaceFields.language,
+  ])
+    columnFromField<GameKind, GameWorkspaceDto, String?>(field,
+        group: 'Edition'),
+  columnFromField<GameKind, GameWorkspaceDto, int?>(
+    GameCatalogWorkspaceFields.releaseMonth,
+    isNumeric: true,
+    defaultWidth: 96,
+  ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.cover,
     metadata: GameWorkspaceFieldMetadata.cover,

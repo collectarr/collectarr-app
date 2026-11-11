@@ -16,10 +16,7 @@ final gameCatalogItemWorkspaceSchema =
     ...gameSmartListFacetFields,
   ],
   columns: gameCatalogWorkspaceColumns,
-  sorts: [
-    ...gameCatalogWorkspaceSorts,
-    ...gameCatalogExtraSortDefinitions,
-  ],
+  sorts: gameWorkspaceSorts(personal: false),
   groups: gameWorkspaceGroupDefinitions(includePersonal: false),
   primaryColumn: GameFieldIds.title,
   defaultVisibleColumns: {

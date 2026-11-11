@@ -248,6 +248,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.derived,
     sourcePath: 'images.has_back',
     groupable: true,
+    sortable: true,
   );
 
   static const hasFront = LibraryKindFieldMetadata(
@@ -258,6 +259,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.derived,
     sourcePath: 'images.has_front',
     groupable: true,
+    sortable: true,
   );
 
   static const imageType = LibraryKindFieldMetadata(
@@ -414,6 +416,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'audience_rating',
     groupable: true,
+    sortable: true,
   );
 
   static const sortTitle = LibraryKindFieldMetadata(
@@ -467,6 +470,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.derived,
     sourcePath: 'purchase_date_parts.year',
     groupable: true,
+    sortable: true,
   );
 
   static const value = LibraryKindFieldMetadata(
@@ -497,6 +501,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.derived,
     sourcePath: 'created_at.year',
     groupable: true,
+    sortable: true,
   );
 
   static const modifiedDateTime = LibraryKindFieldMetadata(
@@ -528,6 +533,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.derived,
     sourcePath: 'completed_date.year',
     groupable: true,
+    sortable: true,
   );
 
   static const index = LibraryKindFieldMetadata(
@@ -589,6 +595,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.libraryEntry,
     sourcePath: 'tags[]',
     groupable: true,
+    sortable: true,
   );
 
   static const loanedTo = LibraryKindFieldMetadata(
@@ -598,6 +605,7 @@ abstract final class GameWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'loans[].borrower_name',
+    sortable: true,
   );
 
   static const loanDate = LibraryKindFieldMetadata(
@@ -607,6 +615,7 @@ abstract final class GameWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'loans[].lent_date',
+    sortable: true,
   );
 
   static const dueDate = LibraryKindFieldMetadata(
@@ -616,9 +625,125 @@ abstract final class GameWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'loans[].due_date',
+    sortable: true,
+  );
+
+  static const coreId = LibraryKindFieldMetadata(
+    id: 'game.core_id',
+    label: 'Core ID',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'source_catalog_ref.id',
+    sortable: true,
+  );
+
+  static const description = LibraryKindFieldMetadata(
+    id: 'game.description',
+    label: 'Description',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'description',
+    sortable: true,
+  );
+
+  static const backCover = LibraryKindFieldMetadata(
+    id: 'game.back_cover',
+    label: 'Back Cover',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'images.back_cover',
+    sortable: false,
+  );
+
+  static const releaseMonth = LibraryKindFieldMetadata(
+    id: 'game.release_month',
+    label: 'Release Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.month',
+    sortable: true,
+    groupable: true,
+  );
+
+  static const purchaseMonth = LibraryKindFieldMetadata(
+    id: 'game.purchase_month',
+    label: 'Purchase Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'purchase_date.month',
+    sortable: true,
+    groupable: true,
+  );
+
+  static const addedMonth = LibraryKindFieldMetadata(
+    id: 'game.added_month',
+    label: 'Added Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'created_at.month',
+    sortable: true,
+    groupable: true,
+  );
+
+  static const modifiedMonth = LibraryKindFieldMetadata(
+    id: 'game.modified_month',
+    label: 'Modified Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'updated_at.month',
+    sortable: true,
+    groupable: true,
+  );
+
+  static const modifiedYear = LibraryKindFieldMetadata(
+    id: 'game.modified_year',
+    label: 'Modified Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'updated_at.year',
+    sortable: true,
+  );
+
+  static const completedMonth = LibraryKindFieldMetadata(
+    id: 'game.completed_month',
+    label: 'Completed Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'completed_date.month',
+    sortable: true,
+    groupable: true,
+  );
+
+  static const storageSlot = LibraryKindFieldMetadata(
+    id: 'game.storage_slot',
+    label: 'Storage Slot',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'storage_slot',
+    sortable: true,
   );
 
   static const all = <LibraryKindFieldMetadata>[
+    coreId,
+    description,
+    backCover,
+    releaseMonth,
+    purchaseMonth,
+    addedMonth,
+    modifiedMonth,
+    modifiedYear,
+    completedMonth,
+    storageSlot,
     loanedTo,
     loanDate,
     dueDate,
@@ -689,6 +814,7 @@ abstract final class GameWorkspaceFieldMetadata {
     sourcePath: 'genres[]',
     filterable: true,
     groupable: true,
+    sortable: true,
   );
 
   static const country = LibraryKindFieldMetadata(
@@ -699,6 +825,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'country',
     filterable: true,
+    sortable: true,
   );
 
   static const language = LibraryKindFieldMetadata(
@@ -709,6 +836,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'language',
     filterable: true,
+    sortable: true,
   );
 
   static const releaseYear = LibraryKindFieldMetadata(
@@ -720,5 +848,6 @@ abstract final class GameWorkspaceFieldMetadata {
     sourcePath: 'release_date.year',
     groupable: true,
     filterable: true,
+    sortable: true,
   );
 }

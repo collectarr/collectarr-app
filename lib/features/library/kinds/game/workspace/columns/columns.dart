@@ -18,6 +18,19 @@ import 'package:flutter/material.dart';
 /// and groups follow the reference Games column chooser; dates align right,
 /// as in the reference list.
 final gamePersonalWorkspaceColumns = [
+  _datePartColumn(GamePersonalWorkspaceFields.purchaseMonth, 'Value'),
+  for (final field in [
+    GamePersonalWorkspaceFields.addedMonth,
+    GamePersonalWorkspaceFields.modifiedMonth,
+    GamePersonalWorkspaceFields.modifiedYear,
+    GamePersonalWorkspaceFields.completedMonth,
+  ])
+    _datePartColumn(field, 'Personal'),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GamePersonalWorkspaceFields.storageSlot,
+    group: 'Personal',
+    defaultWidth: 100,
+  ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.status,
     metadata: GameWorkspaceFieldMetadata.status,
@@ -92,7 +105,7 @@ final gamePersonalWorkspaceColumns = [
     group: 'Value',
     defaultWidth: 130,
   ),
-  _yearColumn(GamePersonalWorkspaceFields.purchaseYear, 'Value'),
+  _datePartColumn(GamePersonalWorkspaceFields.purchaseYear, 'Value'),
   columnFromField<GameKind, GameWorkspaceDto, int?>(
     GamePersonalWorkspaceFields.value,
     cellValue: (context) => Text(formatGameCents(
@@ -102,7 +115,8 @@ final gamePersonalWorkspaceColumns = [
     isNumeric: true,
     defaultWidth: 100,
   ),
-  _yesNoColumn(GamePersonalWorkspaceFields.valueLocked, 'Value Locked', null),
+  _yesNoColumn(GamePersonalWorkspaceFields.valueLocked, 'Value Locked',
+      'game.value_locked'),
   for (final (field, label) in [
     (GamePersonalWorkspaceFields.loosePrice, 'Value Loose'),
     (GamePersonalWorkspaceFields.cibPrice, 'Value CiB'),
@@ -130,7 +144,7 @@ final gamePersonalWorkspaceColumns = [
     isNumeric: true,
     defaultWidth: 150,
   ),
-  _yearColumn(GamePersonalWorkspaceFields.addedYear, 'Personal'),
+  _datePartColumn(GamePersonalWorkspaceFields.addedYear, 'Personal'),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
     GamePersonalWorkspaceFields.completionStatus,
     cellValue: (context) {
@@ -156,7 +170,7 @@ final gamePersonalWorkspaceColumns = [
     isNumeric: true,
     defaultWidth: 118,
   ),
-  _yearColumn(GamePersonalWorkspaceFields.completedYear, 'Personal'),
+  _datePartColumn(GamePersonalWorkspaceFields.completedYear, 'Personal'),
   columnFromField<GameKind, GameWorkspaceDto, int?>(
     GamePersonalWorkspaceFields.index,
     group: 'Personal',
@@ -267,7 +281,7 @@ LibraryColumnDefinition<GameKind, GameWorkspaceDto, bool?> _yesNoColumn(
       defaultWidth: 84,
     );
 
-LibraryColumnDefinition<GameKind, GameWorkspaceDto, int?> _yearColumn(
+LibraryColumnDefinition<GameKind, GameWorkspaceDto, int?> _datePartColumn(
   LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?> field,
   String group,
 ) =>

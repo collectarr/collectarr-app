@@ -25,12 +25,7 @@ final gameLibraryEntryWorkspaceSchema =
     ...gamePersonalWorkspaceColumns,
     ...gameLoanWorkspaceColumns,
   ],
-  sorts: [
-    ...gameCatalogWorkspaceSorts,
-    ...gameCatalogExtraSortDefinitions,
-    ...gamePersonalWorkspaceSorts,
-    ...gamePersonalSortDefinitions,
-  ],
+  sorts: gameWorkspaceSorts(personal: true),
   groups: gameWorkspaceGroupDefinitions(includePersonal: true),
   primaryColumn: GameFieldIds.title,
   defaultVisibleColumns: {
