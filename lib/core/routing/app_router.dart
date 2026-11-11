@@ -170,6 +170,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     state.uri.queryParameters['section'],
                   ),
                   initialKind: state.uri.queryParameters['settingsKind'],
+                  initialLogTimestamp: DateTime.tryParse(
+                      state.uri.queryParameters['logTime'] ?? ''),
                 )),
           ),
           if (!appPresentationPlatform.isNativeMobile) detailRoute,

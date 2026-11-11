@@ -113,11 +113,13 @@ class SettingsPage extends ConsumerStatefulWidget {
     this.showWebSyncWarning = kIsWeb,
     this.initialSection,
     this.initialKind,
+    this.initialLogTimestamp,
   });
 
   final bool showWebSyncWarning;
   final SettingsSection? initialSection;
   final String? initialKind;
+  final DateTime? initialLogTimestamp;
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
@@ -609,12 +611,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Widget _buildLogsSection() {
-    return const SettingsTabBody(
+    return SettingsTabBody(
       children: [
         SettingsPanel(
           icon: Icons.bug_report_outlined,
           title: 'Application log',
-          child: AppLogViewerPanel(),
+          child:
+              AppLogViewerPanel(initialTimestamp: widget.initialLogTimestamp),
         ),
       ],
     );

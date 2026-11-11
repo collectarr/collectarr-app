@@ -20,6 +20,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Sync error and warning banners highlight their close button on hover and open the full diagnostic in Logs.
 - Unavailable sync services fail promptly with a clear message while preserving local changes and full diagnostic logs.
 - View and Layout menus open below the toolbar separator and dim unselected choices; Layout omits the checkmark and its extra space.
 - Selecting a Location from its picker keeps location names in the dropdown instead of adding internal IDs.

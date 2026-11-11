@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 /// The close control of dialog and panel headers. Like the reference it is
 /// a plain 10 px "×", without hover, press or ripple effect; callers may pass
-/// an [icon] instead.
+/// an [icon] instead. Notifications can supply [hoverColor] for hover and focus.
 class AppCloseButton extends StatelessWidget {
   const AppCloseButton({
     super.key,
     required this.onPressed,
     this.color,
+    this.tooltip = 'Close',
+    this.hoverColor,
     this.size = 24,
     this.iconSize = 16,
     this.icon,
@@ -15,13 +17,15 @@ class AppCloseButton extends StatelessWidget {
 
   final VoidCallback? onPressed;
   final Color? color;
+  final String tooltip;
+  final Color? hoverColor;
   final double size;
   final double iconSize;
   final IconData? icon;
 
   @override
   Widget build(BuildContext context) => IconButton(
-        tooltip: 'Close',
+        tooltip: tooltip,
         onPressed: onPressed,
         constraints: BoxConstraints.tightFor(width: size, height: size),
         padding: EdgeInsets.zero,
@@ -37,7 +41,11 @@ class AppCloseButton extends StatelessWidget {
           maximumSize: Size(size, size),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ).copyWith(
-            overlayColor: const WidgetStatePropertyAll(Colors.transparent)),
+            overlayColor: WidgetStateProperty.resolveWith((states) =>
+                states.contains(WidgetState.hovered) ||
+                        states.contains(WidgetState.focused)
+                    ? hoverColor ?? Colors.transparent
+                    : Colors.transparent)),
         icon: icon == null
             ? Builder(
                 builder: (context) => CustomPaint(

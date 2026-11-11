@@ -1,3 +1,7 @@
+import 'package:collectarr_app/core/logging/app_log.dart';
+import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
+import 'package:collectarr_app/ui/app_close_button.dart';
 import 'dart:ui';
 import 'package:collectarr_app/features/sync/presentation/sync_conflict_review.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -13,6 +17,38 @@ class SyncStatusOverlay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
     final palette = appPalette(context);
+    void openLogs({required bool error}) {
+      final lastSyncTime = sync.syncLog.lastOrNull?.timestamp;
+      final existing = ref
+          .read(appLogProvider)
+          .where((entry) =>
+              entry.source == 'sync' &&
+              (error
+                  ? entry.level == AppLogLevel.error &&
+                      lastSyncTime != null &&
+                      entry.timestamp.isAtSameMomentAs(lastSyncTime)
+                  : entry.level == AppLogLevel.warning &&
+                      entry.message == sync.warningMessage))
+          .lastOrNull;
+      var timestamp = existing?.timestamp;
+      if (existing == null) {
+        timestamp = DateTime.now().toUtc();
+        final logger = ref.read(appLogProvider.notifier);
+        if (error) {
+          logger.error('sync',
+              sync.syncLog.lastOrNull?.errorMessage ?? sync.errorMessage!,
+              timestamp: timestamp);
+        } else {
+          logger.warn('sync', sync.warningMessage!, timestamp: timestamp);
+        }
+      }
+      context.openPage(AppRoutes.forKind(
+          AppRoutes.settings, ref.read(selectedLibraryKindProvider),
+          parameters: {
+            'section': 'logs',
+            'logTime': timestamp!.toIso8601String(),
+          }));
+    }
 
     final showAny = sync.isSyncing ||
         sync.errorMessage != null ||
@@ -123,38 +159,25 @@ class SyncStatusOverlay extends ConsumerWidget {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Sync Connection Issue',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: palette.isDark
-                                      ? Colors.white
-                                      : Colors.red.shade900,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                sync.errorMessage!,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: palette.isDark
-                                      ? Colors.red.shade100
-                                      : Colors.red.shade800,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                          child: _SyncBannerMessage(
+                            title: sync.isOffline
+                                ? 'Sync Connection Issue'
+                                : 'Sync could not finish',
+                            message: sync.errorMessage!,
+                            color: palette.isDark
+                                ? Colors.red.shade100
+                                : Colors.red.shade900,
+                            onOpenLogs: () => openLogs(error: true),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        IconButton(
-                          icon: const Icon(Icons.close, size: 18),
+                        AppCloseButton(
+                          size: 32,
+                          hoverColor:
+                              (palette.isDark ? Colors.white : Colors.black)
+                                  .withValues(alpha: 0.12),
+                          icon: Icons.close,
+                          iconSize: 18,
                           color: palette.isDark
                               ? Colors.white70
                               : Colors.red.shade800,
@@ -210,31 +233,13 @@ class SyncStatusOverlay extends ConsumerWidget {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Sync Conflict/Warning',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: palette.isDark
-                                      ? Colors.white
-                                      : Colors.orange.shade900,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                sync.warningMessage!,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: palette.isDark
-                                      ? Colors.orange.shade100
-                                      : Colors.orange.shade800,
-                                ),
-                              ),
-                            ],
+                          child: _SyncBannerMessage(
+                            title: 'Sync Conflict/Warning',
+                            message: sync.warningMessage!,
+                            color: palette.isDark
+                                ? Colors.orange.shade100
+                                : Colors.orange.shade900,
+                            onOpenLogs: () => openLogs(error: false),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -249,8 +254,13 @@ class SyncStatusOverlay extends ConsumerWidget {
                             ),
                             child: const Text('Review'),
                           ),
-                        IconButton(
-                          icon: const Icon(Icons.close, size: 18),
+                        AppCloseButton(
+                          size: 32,
+                          hoverColor:
+                              (palette.isDark ? Colors.white : Colors.black)
+                                  .withValues(alpha: 0.12),
+                          icon: Icons.close,
+                          iconSize: 18,
                           tooltip: 'Keep the other version',
                           color: palette.isDark
                               ? Colors.white70
@@ -271,4 +281,48 @@ class SyncStatusOverlay extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _SyncBannerMessage extends StatelessWidget {
+  const _SyncBannerMessage(
+      {required this.title,
+      required this.message,
+      required this.color,
+      required this.onOpenLogs});
+  final String title;
+  final String message;
+  final Color color;
+  final VoidCallback onOpenLogs;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+        message: 'View full message in Logs',
+        child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              onTap: onOpenLogs,
+              mouseCursor: SystemMouseCursors.click,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(title,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: color)),
+                    const SizedBox(height: 2),
+                    Text(message,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 13, color: color)),
+                    const SizedBox(height: 4),
+                    Text('View in Logs',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: color,
+                            decoration: TextDecoration.underline)),
+                  ]),
+            )),
+      );
 }

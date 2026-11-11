@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Full-featured log viewer shown inside the Settings → Logs tab.
 class AppLogViewerPanel extends ConsumerStatefulWidget {
-  const AppLogViewerPanel({super.key});
+  const AppLogViewerPanel({super.key, this.initialTimestamp});
+
+  final DateTime? initialTimestamp;
 
   @override
   ConsumerState<AppLogViewerPanel> createState() => _AppLogViewerPanelState();
@@ -17,6 +19,18 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
   AppLogLevel? _levelFilter;
   String? _sourceFilter;
   String? _expandedId;
+  final _focusedEntryKey = GlobalKey();
+  DateTime? _focusedTimestamp;
+
+  @override
+  void didUpdateWidget(covariant AppLogViewerPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTimestamp != widget.initialTimestamp) {
+      _focusedTimestamp = null;
+      _levelFilter = null;
+      _sourceFilter = null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,9 +201,23 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final e = entries[index];
-              final id = '${e.timestamp.microsecondsSinceEpoch}_$index';
+              final id = '${e.timestamp.microsecondsSinceEpoch}_${e.source}';
+              final focused = widget.initialTimestamp != null &&
+                  e.timestamp.isAtSameMomentAs(widget.initialTimestamp!);
+              if (focused && _focusedTimestamp != widget.initialTimestamp) {
+                _focusedTimestamp = widget.initialTimestamp;
+                _expandedId = id;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final entryContext = _focusedEntryKey.currentContext;
+                  if (entryContext != null) {
+                    Scrollable.ensureVisible(entryContext,
+                        duration: const Duration(milliseconds: 200));
+                  }
+                });
+              }
               final isExpanded = _expandedId == id;
               return InkWell(
+                key: focused ? _focusedEntryKey : null,
                 mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: e.detail != null
                     ? () => setState(() => _expandedId = isExpanded ? null : id)
