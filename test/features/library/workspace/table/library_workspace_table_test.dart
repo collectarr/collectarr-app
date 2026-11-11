@@ -1,4 +1,7 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/ui/primitives/selection_mark.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'dart:ui' as ui;
@@ -122,12 +125,20 @@ void main() {
       columns: const ['Platform Icon', 'Platform'],
       sortColumn: 'Platform',
       sortAscending: true,
-      columnWidthFor: (id) => id == 'Platform' ? 120 : 36,
-      defaultColumnWidthFor: (id) => id == 'Platform' ? 120 : 36,
+      columnWidthFor: (id) => id == 'Platform' ? 120 : 24,
+      defaultColumnWidthFor: (id) => id == 'Platform' ? 120 : 24,
+      columnCanResize: (id) => id == 'Platform',
+      columnCellPaddingFor: (id) =>
+          id == 'Platform Icon' ? EdgeInsets.zero : null,
       columnSortFor: (id) => id,
       columnLabelFor: (id) => id,
       columnIsNumeric: (_) => false,
-      cellBuilder: (_, id) => const SizedBox.shrink(),
+      cellBuilder: (_, id) => id == 'Platform Icon'
+          ? ProviderScope(overrides: [
+              listValueImageProvider
+                  .overrideWith((ref, key) => Stream.value(null))
+            ], child: buildPlatformIcon('PC', fillWidth: true))
+          : const SizedBox.shrink(),
       isSelected: (_) => false,
       onEntryTap: (_) {},
       onSortChanged: (_) {},
@@ -136,6 +147,11 @@ void main() {
 
     expect(find.text('Platform'), findsOneWidget);
     expect(find.text('Platform Icon'), findsNothing);
+    expect(find.byKey(const ValueKey('resize-column-Platform Icon')),
+        findsNothing);
+    expect(
+        find.byKey(const ValueKey('resize-column-Platform')), findsOneWidget);
+    expect(tester.getSize(find.byType(PlatformIcon)).width, 24);
     expect(tester.takeException(), isNull);
   });
 

@@ -110,7 +110,7 @@ class LibraryColumnPresetStore {
     final colDef = fields.findColumnDefinition(
       fields.decodeColumnId(id),
     );
-    return colDef?.id.value;
+    return colDef == null || colDef.alwaysVisible ? null : colDef.id.value;
   }
 
   LibraryFieldRegistry<LibraryWorkspaceDto> get _fields =>

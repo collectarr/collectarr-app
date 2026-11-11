@@ -21,6 +21,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Platform icons stay visible in a fixed, unnamed column and fill its width, without appearing in column selection.
 - Sorting favorites start as editable saved defaults; the last favorite cannot be deleted, and saving an empty selection retains its first field.
 - Sorting favorites menus use heavier text and align with the toolbar separator under the full Change Sorting control.
 - Startup waits for saved connection settings before requesting media types, avoiding connection errors against the default Core address.

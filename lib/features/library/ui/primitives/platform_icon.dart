@@ -214,9 +214,16 @@ class PlatformIcon extends ConsumerWidget {
 }
 
 /// Builds the platform icon cell of a list, as in the reference Games list.
-Widget buildPlatformIcon(String? platform) {
+Widget buildPlatformIcon(String? platform, {bool fillWidth = false}) {
   if (platform == null || platform.trim().isEmpty) {
     return const SizedBox.shrink();
   }
-  return Center(heightFactor: 1, child: PlatformIcon(platform.trim()));
+  if (!fillWidth) {
+    return Center(heightFactor: 1, child: PlatformIcon(platform.trim()));
+  }
+  return LayoutBuilder(
+      builder: (context, constraints) => Center(
+            heightFactor: 1,
+            child: PlatformIcon(platform.trim(), size: constraints.maxWidth),
+          ));
 }

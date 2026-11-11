@@ -20,6 +20,10 @@ double standardMediaTableWidthForColumns({
   return libraryTableWidthForColumns(
     columns: columns,
     defaultColumns: fields.defaultVisibleColumns,
+    requiredColumns: {
+      for (final column in fields.columns)
+        if (column.alwaysVisible) column.id,
+    },
     customWidths: customWidths,
     sizing: (column) => standardMediaTableColumnSizing(fields, column),
     columnSpacing: kStandardMediaTableColumnSpacing,
@@ -56,8 +60,9 @@ LibraryTableColumnSizing standardMediaTableColumnSizing(
 ) {
   return LibraryTableColumnSizing(
     defaultWidth: defaultPlannedMediaTableColumnWidth(fields, columnId),
-    minWidth: 50,
-    maxWidth: double.infinity,
+    minWidth: _tableColumnDefinition(fields, columnId)?.minWidth ?? 50,
+    maxWidth:
+        _tableColumnDefinition(fields, columnId)?.maxWidth ?? double.infinity,
   );
 }
 

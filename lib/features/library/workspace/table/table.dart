@@ -42,6 +42,8 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     required this.columnSortFor,
     required this.columnLabelFor,
     required this.columnIsNumeric,
+    this.columnCanResize,
+    this.columnCellPaddingFor,
     required this.cellBuilder,
     required this.isSelected,
     required this.onEntryTap,
@@ -91,6 +93,8 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final LibraryColumnSortFor columnSortFor;
   final LibraryColumnLabelFor columnLabelFor;
   final LibraryColumnNumericFor columnIsNumeric;
+  final bool Function(String)? columnCanResize;
+  final EdgeInsets? Function(String)? columnCellPaddingFor;
   final LibraryColumnCellBuilder<T> cellBuilder;
   final bool Function(T entry) isSelected;
   final ValueChanged<T> onEntryTap;
@@ -225,6 +229,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
               columnSortFor: widget.columnSortFor,
               columnLabelFor: widget.columnLabelFor,
               columnIsNumeric: widget.columnIsNumeric,
+              columnCanResize: widget.columnCanResize,
               onSortChanged: widget.onSortChanged,
               onColumnWidthChanged: widget.onColumnWidthChanged,
               onColumnAutoSize: widget.onColumnAutoSize,
@@ -289,6 +294,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
                                   widget.onEntrySecondaryTapUp!(entry, details),
                           columnWidthFor: widget.columnWidthFor,
                           columnIsNumeric: widget.columnIsNumeric,
+                          columnCellPaddingFor: widget.columnCellPaddingFor,
                           cellBuilder: widget.cellBuilder,
                           showCheckbox: widget.showCheckbox,
                           isEntryChecked: widget.isEntryChecked,
@@ -337,6 +343,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.columnSortFor,
     required this.columnLabelFor,
     required this.columnIsNumeric,
+    this.columnCanResize,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnAutoSize,
@@ -364,6 +371,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   final LibraryColumnSortFor columnSortFor;
   final LibraryColumnLabelFor columnLabelFor;
   final LibraryColumnNumericFor columnIsNumeric;
+  final bool Function(String)? columnCanResize;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
   final ValueChanged<String>? onColumnAutoSize;
@@ -436,6 +444,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
               for (var index = 0; index < columns.length; index += 1) ...[
                 _LibraryWorkspaceTableHeaderCell(
                   column: columns[index],
+                  canResize: columnCanResize?.call(columns[index]) ?? true,
                   width: columnWidthFor(columns[index]),
                   defaultWidth: defaultColumnWidthFor(columns[index]),
                   onAutoSize: onColumnAutoSize,
@@ -486,6 +495,7 @@ const _minResizedColumnWidth = 50.0;
 class _LibraryWorkspaceTableHeaderCell extends StatefulWidget {
   const _LibraryWorkspaceTableHeaderCell({
     required this.column,
+    required this.canResize,
     required this.width,
     required this.defaultWidth,
     this.onAutoSize,
@@ -503,6 +513,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatefulWidget {
   });
 
   final String column;
+  final bool canResize;
   final double width;
   final double defaultWidth;
   final ValueChanged<String>? onAutoSize;
@@ -549,14 +560,16 @@ class _LibraryWorkspaceTableHeaderCellState
             : widget.headerColor,
         child: Stack(children: [
           Positioned.fill(
-              right: 5,
+              right: widget.canResize ? 5 : 0,
               child: InkWell(
                 hoverColor: appPalette(context).isDark
                     ? null
                     : libraryWorkspaceTableSortedHeaderColor(context),
                 mouseCursor: _dragging
                     ? SystemMouseCursors.resizeColumn
-                    : WidgetStateMouseCursor.clickable,
+                    : widget.sort == null
+                        ? SystemMouseCursors.basic
+                        : WidgetStateMouseCursor.clickable,
                 onTap: _dragging || widget.sort == null
                     ? null
                     : () => widget.onSortChanged(widget.sort!),
@@ -596,47 +609,49 @@ class _LibraryWorkspaceTableHeaderCellState
                   ]),
                 ),
               )),
-          Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: MouseRegion(
-                cursor: SystemMouseCursors.resizeColumn,
-                onEnter: (_) => setState(() => _hovered = true),
-                onExit: (_) => setState(() => _hovered = false),
-                child: Semantics(
-                    label: 'Resize column: ${widget.label}',
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      dragStartBehavior: DragStartBehavior.down,
-                      onHorizontalDragStart: (details) {
-                        _startX = details.globalPosition.dx;
-                        _startWidth = widget.width;
-                        setState(() => _dragging = true);
-                      },
-                      onHorizontalDragUpdate: (details) {
-                        final width =
-                            (_startWidth + details.globalPosition.dx - _startX)
-                                .clamp(_minResizedColumnWidth, double.infinity);
-                        widget.onColumnWidthChanged(
-                            widget.column, width.toDouble());
-                      },
-                      onHorizontalDragEnd: (_) =>
-                          setState(() => _dragging = false),
-                      onHorizontalDragCancel: () =>
-                          setState(() => _dragging = false),
-                      onDoubleTap: () => widget.onAutoSize != null
-                          ? widget.onAutoSize!(widget.column)
-                          : widget.onColumnWidthChanged(
-                              widget.column, widget.defaultWidth),
-                      child: Container(
-                          key: ValueKey('resize-column-${widget.column}'),
-                          width: 5,
-                          color: _dragging || _hovered
-                              ? widget.accentColor
-                              : Colors.transparent),
-                    )),
-              )),
+          if (widget.canResize)
+            Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeColumn,
+                  onEnter: (_) => setState(() => _hovered = true),
+                  onExit: (_) => setState(() => _hovered = false),
+                  child: Semantics(
+                      label: 'Resize column: ${widget.label}',
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        dragStartBehavior: DragStartBehavior.down,
+                        onHorizontalDragStart: (details) {
+                          _startX = details.globalPosition.dx;
+                          _startWidth = widget.width;
+                          setState(() => _dragging = true);
+                        },
+                        onHorizontalDragUpdate: (details) {
+                          final width = (_startWidth +
+                                  details.globalPosition.dx -
+                                  _startX)
+                              .clamp(_minResizedColumnWidth, double.infinity);
+                          widget.onColumnWidthChanged(
+                              widget.column, width.toDouble());
+                        },
+                        onHorizontalDragEnd: (_) =>
+                            setState(() => _dragging = false),
+                        onHorizontalDragCancel: () =>
+                            setState(() => _dragging = false),
+                        onDoubleTap: () => widget.onAutoSize != null
+                            ? widget.onAutoSize!(widget.column)
+                            : widget.onColumnWidthChanged(
+                                widget.column, widget.defaultWidth),
+                        child: Container(
+                            key: ValueKey('resize-column-${widget.column}'),
+                            width: 5,
+                            color: _dragging || _hovered
+                                ? widget.accentColor
+                                : Colors.transparent),
+                      )),
+                )),
         ]),
       ),
     );
@@ -708,6 +723,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
     this.onSecondaryTapUp,
     required this.columnWidthFor,
     required this.columnIsNumeric,
+    this.columnCellPaddingFor,
     required this.cellBuilder,
     this.showCheckbox = false,
     this.isEntryChecked,
@@ -739,6 +755,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   final GestureTapUpCallback? onSecondaryTapUp;
   final LibraryColumnWidthFor columnWidthFor;
   final LibraryColumnNumericFor columnIsNumeric;
+  final EdgeInsets? Function(String)? columnCellPaddingFor;
   final LibraryColumnCellBuilder<T> cellBuilder;
   final bool showCheckbox;
   final bool Function(T entry)? isEntryChecked;
@@ -864,11 +881,13 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                       ? Alignment.topRight
                       : Alignment.topLeft,
                   child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                          5,
-                          math.max(0, (lineRowHeight - _cellLineHeight) / 2),
-                          5,
-                          0),
+                      padding: columnCellPaddingFor?.call(column) ??
+                          EdgeInsets.fromLTRB(
+                              5,
+                              math.max(
+                                  0, (lineRowHeight - _cellLineHeight) / 2),
+                              5,
+                              0),
                       child: selected
                           ? _SelectedCellText(child: cellBuilder(entry, column))
                           : cellBuilder(entry, column)),

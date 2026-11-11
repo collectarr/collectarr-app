@@ -476,11 +476,17 @@ Set<LibraryFieldIdRuntime> _decodeVisibleColumns(
     final definition = fields.findColumnDefinition(
       fields.decodeColumnId(column),
     );
-    if (definition != null) {
+    if (definition != null && !definition.alwaysVisible) {
       decoded.add(definition.id);
     }
   }
-  return decoded.isEmpty ? fields.defaultVisibleColumns : decoded;
+  return decoded.isEmpty
+      ? {
+          for (final column in fields.defaultVisibleColumns)
+            if (fields.findColumnDefinition(column)?.alwaysVisible != true)
+              column
+        }
+      : decoded;
 }
 
 Map<LibraryFieldIdRuntime, double> _decodeColumnWidths(

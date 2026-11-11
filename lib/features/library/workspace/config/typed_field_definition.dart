@@ -236,6 +236,8 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.minWidth,
     this.maxWidth,
     this.minRowHeight,
+    this.alwaysVisible = false,
+    this.cellPadding,
   })  : sortable = metadata.sortable && allowSortInteraction,
         groupable = metadata.groupable && allowGroupInteraction;
 
@@ -252,6 +254,10 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final double? defaultWidth;
   final double? minWidth;
   final double? maxWidth;
+
+  /// Structural columns stay first and are excluded from field selection.
+  final bool alwaysVisible;
+  final EdgeInsets? cellPadding;
 
   /// List rows grow to this height while the column is visible, e.g. for
   /// cover images.

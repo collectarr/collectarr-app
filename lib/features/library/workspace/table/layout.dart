@@ -13,10 +13,13 @@ class LibraryTableColumnSizing {
 List<T> orderedLibraryTableColumns<T>({
   required Set<T> columns,
   required Set<T> defaultColumns,
+  Set<T> requiredColumns = const {},
 }) {
   final effective = columns.isEmpty ? defaultColumns : columns;
   return [
-    for (final column in effective) column,
+    ...requiredColumns,
+    for (final column in effective)
+      if (!requiredColumns.contains(column)) column,
   ];
 }
 
@@ -43,6 +46,7 @@ double clampLibraryTableColumnWidth(
 double libraryTableWidthForColumns<T>({
   required Set<T> columns,
   required Set<T> defaultColumns,
+  Set<T> requiredColumns = const {},
   required Map<T, double> customWidths,
   required LibraryTableColumnSizing Function(T column) sizing,
   required double columnSpacing,
@@ -51,6 +55,7 @@ double libraryTableWidthForColumns<T>({
   final orderedColumns = orderedLibraryTableColumns(
     columns: columns,
     defaultColumns: defaultColumns,
+    requiredColumns: requiredColumns,
   );
   final contentWidth = orderedColumns
       .map(

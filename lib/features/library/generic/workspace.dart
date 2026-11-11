@@ -409,6 +409,7 @@ class LibraryWorkspace extends ConsumerWidget {
         final registration = type;
         final workspace = libraryKindWorkspaceForKind(registration.kind);
         final schemaNode = items.first.target;
+        final tableFields = workspace.fieldsForTarget(schemaNode);
         final visibleColumns = workspace.orderedTableColumns(
           viewState.visibleColumnIds,
           target: schemaNode,
@@ -512,6 +513,17 @@ class LibraryWorkspace extends ConsumerWidget {
                         ),
                     ],
                     columnWidthFor: widthFor,
+                    columnCanResize: (column) {
+                      final definition = tableFields.findColumnDefinition(
+                          tableFields.decodeColumnId(column));
+                      return definition?.minWidth == null ||
+                          definition?.maxWidth == null ||
+                          definition!.minWidth != definition.maxWidth;
+                    },
+                    columnCellPaddingFor: (column) => tableFields
+                        .findColumnDefinition(
+                            tableFields.decodeColumnId(column))
+                        ?.cellPadding,
                     defaultColumnWidthFor: (column) =>
                         workspace.defaultTableColumnWidth(
                       workspace
@@ -526,7 +538,7 @@ class LibraryWorkspace extends ConsumerWidget {
                                 .decodeColumnId(column),
                             target: schemaNode)
                         ?.value,
-                    columnLabelFor: (column) => workspace.columnLabel(
+                    columnLabelFor: (column) => workspace.columnDisplayName(
                       workspace
                           .fieldsForTarget(schemaNode)
                           .decodeColumnId(column),

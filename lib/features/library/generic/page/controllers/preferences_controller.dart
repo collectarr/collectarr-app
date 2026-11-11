@@ -255,8 +255,10 @@ abstract final class LibraryPagePreferencesControllerOps {
     final viewState =
         state._session.preferences.viewState ?? state._viewProfile.defaults();
     for (final preset in state._columnFavoritePresets) {
-      if (setEquals(state._viewProfile.decodeColumnIds(preset.columns),
-          viewState.visibleColumnIds)) {
+      if (setEquals(
+          state._viewProfile.decodeColumnIds(preset.columns),
+          state._viewProfile.decodeColumnIds(
+              viewState.visibleColumnIds.map((id) => id.value)))) {
         return preset.label;
       }
     }

@@ -347,6 +347,10 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     return orderedLibraryTableColumns(
       columns: columns,
       defaultColumns: schema.defaultVisibleColumns,
+      requiredColumns: {
+        for (final column in schema.columns)
+          if (column.alwaysVisible) column.id,
+      },
     );
   }
 

@@ -23,30 +23,41 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   }
   final workspace = libraryKindWorkspaceForKind(type.kind);
   final fields = workspace.workspaceFields;
+  final knownColumns = {for (final column in fields.columns) column.id.value};
   final availableColumns = {
-    for (final column in fields.columns) column.id.value
+    for (final column in fields.columns)
+      if (!column.alwaysVisible) column.id.value
   };
+  LibraryTableColumnPreset selectablePreset(LibraryTableColumnPreset preset) =>
+      LibraryTableColumnPreset(
+          id: preset.id,
+          label: preset.label,
+          columns: preset.columns.where(availableColumns.contains).toSet());
   final labels = {
     for (final column in fields.columns) column.id.value: column.metadata.label
   };
   final presets = libraryPresentationForKind(type.kind)
       .columnFavorites
       .where(
-        (preset) => availableColumns.containsAll(preset.columns),
+        (preset) => knownColumns.containsAll(preset.columns),
       )
+      .map(selectablePreset)
       .toList(growable: false);
   return showAppPageOrDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
       showFavorites: manageFavorites,
       availableColumns: [
-        for (final def in fields.columns) def.id.value,
+        for (final def in fields.columns)
+          if (!def.alwaysVisible) def.id.value,
       ],
       selectedColumns: {
-        for (final column in viewState.visibleColumnIds) column.value,
+        for (final column in viewState.visibleColumnIds)
+          if (availableColumns.contains(column.value)) column.value,
       },
       defaultColumns: {
-        for (final column in fields.defaultVisibleColumns) column.value,
+        for (final column in fields.defaultVisibleColumns)
+          if (availableColumns.contains(column.value)) column.value,
       },
       primaryColumn: null,
       presets: presets,
