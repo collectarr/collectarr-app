@@ -546,17 +546,18 @@ class _LibraryEntryStatusStripState
           ),
       ],
       onChanged: (value) => draft.set(field.key, value),
-      openPicker: (
-          {required label, required selectedValue, required options}) async {
+      onManage: () async {
         final selected = await showLocationPickerDialog(
           context: context,
           db: db,
           currentLocationId: selectedId.isEmpty ? null : selectedId,
         );
-        if (selected == null) return null;
+        if (!mounted) return;
         await _loadLocations();
-        return selected;
+        if (!mounted || selected == null) return;
+        draft.set(field.key, selected.isEmpty ? null : selected);
       },
+      manageTooltip: 'Select ${field.label}',
     );
   }
 }
