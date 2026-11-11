@@ -78,4 +78,39 @@ void main() {
     });
   }
 
+  testWidgets('Games initializes one editable favorite without built-in UI',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.game);
+    Set<String>? result;
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: Builder(
+      builder: (context) => TextButton(
+          onPressed: () async => result = await showSortFavoritesManagerDialog(
+              context: context,
+              type: type,
+              favorites: [],
+              initialPinnedIds: {}),
+          child: const Text('Open')),
+    ))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('sortFavorite_platform_title')),
+        findsOneWidget);
+    expect(find.text('Add Built-in Favorite'), findsNothing);
+    expect(find.byTooltip('Remove favorite'), findsNothing);
+    expect(find.text('Edit'), findsOneWidget);
+    await tester.tap(find.text('Edit'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Sorting favorites'), findsNothing);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sortFavoritesCloseButton')));
+    await tester.pumpAndSettle();
+    expect(result, {'platform_title'});
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

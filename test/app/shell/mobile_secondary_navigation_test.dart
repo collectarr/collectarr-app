@@ -72,10 +72,12 @@ void main() {
       final favorites = librarySortFavoritesForType(type);
       if (favorites.isEmpty) continue;
       final savedLabel = 'Saved ${favorites.first.label}';
-      await LibrarySortPresetStore(type).savePreset(
-          id: 'test-${type.kind.name}',
-          label: savedLabel,
-          rules: favorites.first.rules);
+      await LibrarySortPresetStore(type).saveFavorites([
+        LibrarySortPreset(
+            id: 'test-${type.kind.name}',
+            label: savedLabel,
+            rules: favorites.first.rules),
+      ]);
       List<LibrarySortRule>? result;
       await tester.pumpWidget(MaterialApp(
           home: Builder(

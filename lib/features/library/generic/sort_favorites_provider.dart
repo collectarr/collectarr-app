@@ -16,13 +16,3 @@ final librarySavedSortFavoritesProvider =
                   rules: preset.rules,
                 ),
             ]);
-
-List<LibrarySortFavorite> mergeLibrarySortFavorites(
-    LibraryKindRegistration type, List<LibrarySortFavorite> saved) {
-  final overrides = {for (final favorite in saved) favorite.id: favorite};
-  return {
-    for (final favorite in librarySortFavoritesForType(type))
-      favorite.id: overrides[favorite.id] ?? favorite,
-    for (final favorite in saved) favorite.id: favorite,
-  }.values.toList(growable: false);
-}

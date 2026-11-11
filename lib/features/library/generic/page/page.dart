@@ -546,9 +546,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return LibraryPagePreferencesControllerOps.activeColumnFavoriteLabel(this);
   }
 
-  List<LibrarySortFavorite> get _sortFavorites => mergeLibrarySortFavorites(
-      widget.type,
-      ref.read(librarySavedSortFavoritesProvider(widget.type)).value ?? []);
+  List<LibrarySortFavorite> get _sortFavorites =>
+      ref.read(librarySavedSortFavoritesProvider(widget.type)).value ?? [];
 
   LibrarySortFavorite? get _activeSortFavorite {
     return LibraryPagePreferencesControllerOps.activeSortFavorite(this);

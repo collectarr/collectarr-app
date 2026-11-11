@@ -109,10 +109,13 @@ abstract final class _LibraryPageLifecycleControllerOps {
                     : savedFolder);
       }
       final validPinnedSortFavoriteIds = sanitizeLibraryPinnedSortFavoriteIds(
-        state.widget.type,
         pinnedSortFavoriteIds,
-        additionalFavorites: savedSortFavorites,
+        favorites: savedSortFavorites,
       );
+      // Every saved favorite belongs to the same editable list. Preserve its
+      // existing order and append saved favorites not in the old pin list.
+      validPinnedSortFavoriteIds
+          .addAll(savedSortFavorites.map((favorite) => favorite.id));
       final validPinnedColumnFavoriteKeys =
           sanitizeLibraryPinnedColumnFavoriteKeys(
         state.widget.type,
@@ -237,11 +240,10 @@ abstract final class _LibraryPageLifecycleControllerOps {
             : libraryDefaultPinnedViewPresetsForType(state.widget.type);
     state._session.preferences.pinnedSortFavoriteIds =
         sanitizeLibraryPinnedSortFavoriteIds(
-      state.widget.type,
       state._viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
           ? state._viewPrefs.cachedPinnedSortFavoriteIds
           : libraryDefaultPinnedSortFavoriteIdsForType(state.widget.type),
-      additionalFavorites: state.ref
+      favorites: state.ref
               .read(librarySavedSortFavoritesProvider(state.widget.type))
               .value ??
           [],

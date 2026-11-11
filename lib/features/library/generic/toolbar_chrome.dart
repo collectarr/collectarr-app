@@ -144,16 +144,14 @@ Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
 ) {
   final favorites = librarySortFavoritesForType(type);
   return {
-    for (final favorite in favorites.take(2)) favorite.id,
+    for (final favorite in favorites) favorite.id,
   };
 }
 
-Set<String> sanitizeLibraryPinnedSortFavoriteIds(
-    LibraryKindRegistration type, Iterable<String> ids,
-    {List<LibrarySortFavorite> additionalFavorites = const []}) {
+Set<String> sanitizeLibraryPinnedSortFavoriteIds(Iterable<String> ids,
+    {required List<LibrarySortFavorite> favorites}) {
   final availableIds = {
-    for (final favorite in librarySortFavoritesForType(type)) favorite.id,
-    for (final favorite in additionalFavorites) favorite.id,
+    for (final favorite in favorites) favorite.id,
   };
   return ids.where(availableIds.contains).toSet();
 }

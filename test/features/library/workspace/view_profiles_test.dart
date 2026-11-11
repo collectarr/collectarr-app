@@ -104,8 +104,8 @@ void main() {
 
     expect(
       sanitizeLibraryPinnedSortFavoriteIds(
-        registration,
         {'series_issue', 'publisher_date', 'recent'},
+        favorites: librarySortFavoritesForType(registration),
       ),
       {'recent'},
     );

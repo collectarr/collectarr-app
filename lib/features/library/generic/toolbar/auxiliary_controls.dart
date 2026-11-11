@@ -29,7 +29,18 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
   String? activeFavoriteId,
-}) {
+}) async {
+  if (favorites.isEmpty) {
+    favorites = [
+      for (final preset in await LibrarySortPresetStore(type).read())
+        LibrarySortFavorite(
+            id: preset.id!,
+            label: preset.label,
+            icon: AppIcons.sortAlpha,
+            rules: preset.rules),
+    ];
+  }
+  if (!context.mounted) return null;
   return showAppPageOrDialog<Set<String>>(
     context: context,
     builder: (context) => _SortFavoritesManagerDialog(
@@ -460,26 +471,44 @@ class _SortFavoritesManagerDialog extends StatefulWidget {
 
 class _SortFavoritesManagerDialogState
     extends State<_SortFavoritesManagerDialog> {
-  late final List<LibrarySortFavorite> _allFavorites;
-  late final List<LibrarySortFavorite> _pinnedFavorites;
+  late final List<LibrarySortFavorite> _favorites;
   bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    _allFavorites = List.of(widget.favorites);
-    _pinnedFavorites =
-        _orderedPinnedSortFavorites(widget.favorites, widget.initialPinnedIds);
+    _favorites = _orderedPinnedSortFavorites(widget.favorites, {
+      ...widget.initialPinnedIds,
+      ...widget.favorites.map((favorite) => favorite.id)
+    });
   }
 
-  void _close() => Navigator.of(context).pop(LinkedHashSet<String>.from(
-      _pinnedFavorites.map((favorite) => favorite.id)));
+  Future<void> _close() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await LibrarySortPresetStore(widget.type).saveFavorites([
+        for (final favorite in _favorites)
+          LibrarySortPreset(
+              id: favorite.id, label: favorite.label, rules: favorite.rules),
+      ]);
+      if (!mounted) return;
+      Navigator.of(context).pop(LinkedHashSet<String>.from(
+          _favorites.map((favorite) => favorite.id)));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not save sorting favorites.')));
+    }
+  }
 
   Future<void> _edit([LibrarySortFavorite? favorite]) async {
     final rules = await showLibrarySortDialog(
         context: context,
         type: widget.type,
-        currentRules: favorite?.rules ?? []);
+        currentRules: favorite?.rules ?? [],
+        showFavorites: false);
     if (rules == null || !mounted) return;
     setState(() => _busy = true);
     try {
@@ -501,18 +530,11 @@ class _SortFavoritesManagerDialogState
           icon: AppIcons.sortAlpha,
           rules: preset.rules);
       setState(() {
-        final allIndex = _allFavorites.indexWhere((f) => f.id == updated.id);
-        if (allIndex < 0) {
-          _allFavorites.add(updated);
-        } else {
-          _allFavorites[allIndex] = updated;
-        }
-        final pinnedIndex =
-            _pinnedFavorites.indexWhere((f) => f.id == updated.id);
+        final pinnedIndex = _favorites.indexWhere((f) => f.id == updated.id);
         if (pinnedIndex < 0) {
-          _pinnedFavorites.add(updated);
+          _favorites.add(updated);
         } else {
-          _pinnedFavorites[pinnedIndex] = updated;
+          _favorites[pinnedIndex] = updated;
         }
       });
     } catch (error) {
@@ -535,9 +557,6 @@ class _SortFavoritesManagerDialogState
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final isDark = palette.isDark;
-    final available = _allFavorites
-        .where((f) => !_pinnedFavorites.any((p) => p.id == f.id))
-        .toList();
     if (appPresentationPlatform.isNativeMobile) {
       return PopScope(
         canPop: false,
@@ -557,13 +576,12 @@ class _SortFavoritesManagerDialogState
             ),
           ],
           body: ReorderableListView.builder(
-            itemCount: _pinnedFavorites.length,
+            itemCount: _favorites.length,
             onReorderItem: (oldIndex, newIndex) => setState(() {
-              _pinnedFavorites.insert(
-                  newIndex, _pinnedFavorites.removeAt(oldIndex));
+              _favorites.insert(newIndex, _favorites.removeAt(oldIndex));
             }),
             itemBuilder: (context, index) {
-              final favorite = _pinnedFavorites[index];
+              final favorite = _favorites[index];
               return ListTile(
                 key: ValueKey('sortFavorite_${favorite.id}'),
                 leading: ReorderableDragStartListener(
@@ -576,36 +594,20 @@ class _SortFavoritesManagerDialogState
                   onSelected: (action) {
                     if (action == 'edit') {
                       _edit(favorite);
-                    } else {
-                      setState(() => _pinnedFavorites.removeAt(index));
+                    } else if (_favorites.length > 1) {
+                      setState(() => _favorites.removeAt(index));
                     }
                   },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'remove', child: Text('Remove')),
+                  itemBuilder: (_) => [
+                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    if (_favorites.length > 1)
+                      const PopupMenuItem(
+                          value: 'remove', child: Text('Remove')),
                   ],
                 ),
               );
             },
           ),
-          footer: available.isEmpty
-              ? null
-              : SafeArea(
-                  top: false,
-                  child: PopupMenuButton<LibrarySortFavorite>(
-                    tooltip: 'Add Favorite',
-                    onSelected: (favorite) =>
-                        setState(() => _pinnedFavorites.add(favorite)),
-                    itemBuilder: (_) => [
-                      for (final favorite in available)
-                        PopupMenuItem(
-                            value: favorite, child: Text(favorite.label)),
-                    ],
-                    child: const ListTile(
-                      leading: Icon(Icons.add),
-                      title: Text('Add Favorite'),
-                    ),
-                  )),
         ),
       );
     }
@@ -620,7 +622,7 @@ class _SortFavoritesManagerDialogState
       child: SizedBox(
         width: 600,
         // Sized to its rows: 217 px for one favorite, as in the reference.
-        height: math.min(168.0 + 49 * math.max(_pinnedFavorites.length, 1),
+        height: math.min(168.0 + 49 * math.max(_favorites.length, 1),
             math.max(0.0, MediaQuery.sizeOf(context).height - 60)),
         child: DefaultTextStyle.merge(
           style: TextStyle(
@@ -662,30 +664,20 @@ class _SortFavoritesManagerDialogState
                           ]),
                         ),
                         const SizedBox(height: 15),
-                        if (_pinnedFavorites.isEmpty)
-                          Container(
-                            height: 44,
-                            alignment: Alignment.center,
-                            child: Text('No sorting favorites.',
-                                style: TextStyle(
-                                    color:
-                                        libraryToolbarMenuMutedText(context))),
-                          )
-                        else
-                          Expanded(
-                            child: LibraryFolderReorderList(
-                              padding: EdgeInsets.zero,
-                              placeholderColor: const Color(0xff808080),
-                              rowSpacing: 5,
-                              itemCount: _pinnedFavorites.length,
-                              onReorder: (oldIndex, newIndex) => setState(() {
-                                _pinnedFavorites.insert(newIndex,
-                                    _pinnedFavorites.removeAt(oldIndex));
-                              }),
-                              itemBuilder: (context, index) =>
-                                  _buildFavorite(context, index),
-                            ),
+                        Expanded(
+                          child: LibraryFolderReorderList(
+                            padding: EdgeInsets.zero,
+                            placeholderColor: const Color(0xff808080),
+                            rowSpacing: 5,
+                            itemCount: _favorites.length,
+                            onReorder: (oldIndex, newIndex) => setState(() {
+                              _favorites.insert(
+                                  newIndex, _favorites.removeAt(oldIndex));
+                            }),
+                            itemBuilder: (context, index) =>
+                                _buildFavorite(context, index),
                           ),
+                        ),
                       ]),
                 ),
               ),
@@ -700,29 +692,6 @@ class _SortFavoritesManagerDialogState
                     Border(top: BorderSide(color: pickListDivider(context))),
               ),
               child: Row(children: [
-                // Re-adds a built-in favorite that was removed.
-                if (available.isNotEmpty)
-                  PopupMenuButton<LibrarySortFavorite>(
-                    popUpAnimationStyle: AnimationStyle.noAnimation,
-                    tooltip: 'Add Favorite',
-                    onSelected: (favorite) =>
-                        setState(() => _pinnedFavorites.add(favorite)),
-                    itemBuilder: (context) => [
-                      for (final favorite in available)
-                        PopupMenuItem(
-                            value: favorite,
-                            child: _SortFavoriteRules(
-                                rules: favorite.rules, fieldLabel: _fieldLabel))
-                    ],
-                    child: const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Row(children: [
-                          Icon(AppIcons.add, size: 14),
-                          SizedBox(width: 6),
-                          Text('Add Favorite'),
-                          Icon(AppIcons.chevronDown, size: 12)
-                        ])),
-                  ),
                 const Spacer(),
                 FilledButton(
                   key: const ValueKey('sortFavoritesCloseButton'),
@@ -740,7 +709,7 @@ class _SortFavoritesManagerDialogState
   }
 
   Widget _buildFavorite(BuildContext context, int index) {
-    final favorite = _pinnedFavorites[index];
+    final favorite = _favorites[index];
     final isDark = appPalette(context).isDark;
     final rowColor = isDark
         ? const Color(0xff444444)
@@ -785,22 +754,24 @@ class _SortFavoritesManagerDialogState
           label: const Text('Edit'),
         ),
         const SizedBox(width: 5),
-        Tooltip(
-          message: 'Remove favorite',
-          child: FilledButton(
-            onPressed: _busy
-                ? null
-                : () => setState(() => _pinnedFavorites.removeAt(index)),
-            style: pickListButtonStyle(context).copyWith(
-              backgroundColor: const WidgetStatePropertyAll(Color(0xffd9534f)),
-              foregroundColor: const WidgetStatePropertyAll(Colors.white),
-              minimumSize: const WidgetStatePropertyAll(Size(28, 32)),
-              fixedSize: const WidgetStatePropertyAll(Size(28, 32)),
-              padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+        if (_favorites.length > 1)
+          Tooltip(
+            message: 'Remove favorite',
+            child: FilledButton(
+              onPressed: _busy
+                  ? null
+                  : () => setState(() => _favorites.removeAt(index)),
+              style: pickListButtonStyle(context).copyWith(
+                backgroundColor:
+                    const WidgetStatePropertyAll(Color(0xffd9534f)),
+                foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                minimumSize: const WidgetStatePropertyAll(Size(28, 32)),
+                fixedSize: const WidgetStatePropertyAll(Size(28, 32)),
+                padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+              ),
+              child: const Icon(AppIcons.removeAction, size: 14),
             ),
-            child: const Icon(AppIcons.removeAction, size: 14),
           ),
-        ),
       ]),
     );
   }

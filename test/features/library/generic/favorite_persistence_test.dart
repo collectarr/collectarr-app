@@ -25,17 +25,21 @@ void main() {
       LibrarySortRule(column: 'music.release_date', ascending: false),
       LibrarySortRule(column: 'music.title', ascending: true),
     ]))
-        .single;
+        .last;
     await restartPreferences();
     final restored =
-        (await const LibrarySortPresetStore(MusicRegistration()).read()).single;
+        (await const LibrarySortPresetStore(MusicRegistration()).read())
+            .singleWhere((preset) => preset.id == saved.id);
     expect(restored.id, saved.id);
     expect(restored.rules, saved.rules);
     expect(
-        await const LibrarySortPresetStore(BookRegistration()).read(), isEmpty);
+        (await const LibrarySortPresetStore(BookRegistration()).read())
+            .where((preset) => preset.id == saved.id),
+        isEmpty);
     await store.deletePreset(saved.id!);
     await restartPreferences();
-    expect(await store.read(), isEmpty);
+    expect(
+        (await store.read()).where((preset) => preset.id == saved.id), isEmpty);
   });
 
   test('column favorite retains exact order and deletion after storage restart',

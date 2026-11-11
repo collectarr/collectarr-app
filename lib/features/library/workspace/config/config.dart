@@ -66,16 +66,14 @@ class LibrarySortPreset {
     required this.label,
     required this.rules,
     this.icon,
-    this.isBuiltIn = false,
   });
 
   final String? id;
   final String label;
   final List<LibrarySortRule> rules;
   final IconData? icon;
-  final bool isBuiltIn;
 
-  bool get isSaved => id != null && !isBuiltIn;
+  bool get isSaved => id != null;
 }
 
 enum LibraryTableColumnGroup {

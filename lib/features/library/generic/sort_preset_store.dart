@@ -15,11 +15,11 @@ class LibrarySortPresetStore {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(config.identity.preferenceKey('sort_presets'));
     if (raw == null || raw.trim().isEmpty) {
-      return const [];
+      return _initializeFavorites();
     }
     final decoded = jsonDecode(raw);
     if (decoded is! List) {
-      return const [];
+      return _initializeFavorites();
     }
 
     final presets = <LibrarySortPreset>[];
@@ -33,11 +33,41 @@ class LibrarySortPresetStore {
         continue;
       }
       final preset = _presetFromJson(json);
-      if (preset.rules.isNotEmpty) {
+      if (preset.id != null &&
+          preset.id!.isNotEmpty &&
+          preset.rules.isNotEmpty) {
         presets.add(preset);
       }
     }
-    return presets;
+    return presets.isEmpty ? _initializeFavorites() : presets;
+  }
+
+  Future<List<LibrarySortPreset>> _initializeFavorites() async {
+    final defaults = libraryPresentationForKind(config.kind).sortFavorites;
+    final initial = [
+      for (final favorite in defaults)
+        LibrarySortPreset(
+            id: favorite.id, label: favorite.label, rules: favorite.rules),
+    ];
+    if (initial.isEmpty) {
+      final field = _fields.sortDefinitionFor(_fields.defaultSort);
+      initial.add(LibrarySortPreset(id: 'default', label: field.label, rules: [
+        LibrarySortRule(
+            column: field.id.value, ascending: field.defaultAscending)
+      ]));
+    }
+    await _write(initial);
+    return initial;
+  }
+
+  Future<void> saveFavorites(List<LibrarySortPreset> favorites) async {
+    if (favorites.isEmpty ||
+        favorites.any((favorite) =>
+            favorite.id == null || _dedupeRules(favorite.rules).isEmpty)) {
+      throw ArgumentError(
+          'Keep at least one favorite and one field per favorite.');
+    }
+    await _write(favorites);
   }
 
   Future<List<LibrarySortPreset>> savePreset({
@@ -46,7 +76,8 @@ class LibrarySortPresetStore {
     required List<LibrarySortRule> rules,
   }) async {
     final normalizedLabel = label.trim();
-    if (normalizedLabel.isEmpty) {
+    final normalizedRules = _dedupeRules(rules);
+    if (normalizedLabel.isEmpty || normalizedRules.isEmpty) {
       return read();
     }
 
@@ -55,7 +86,7 @@ class LibrarySortPresetStore {
       id: id ??
           '${_slug(normalizedLabel)}-${DateTime.now().microsecondsSinceEpoch}',
       label: normalizedLabel,
-      rules: List<LibrarySortRule>.unmodifiable(_dedupeRules(rules)),
+      rules: List<LibrarySortRule>.unmodifiable(normalizedRules),
     );
     final existingIndex =
         next.indexWhere((preset) => preset.id == nextPreset.id);
@@ -69,8 +100,10 @@ class LibrarySortPresetStore {
   }
 
   Future<List<LibrarySortPreset>> deletePreset(String id) async {
+    final current = await read();
+    if (current.length <= 1) return current;
     final next = [
-      for (final preset in await read())
+      for (final preset in current)
         if (preset.id != id) preset,
     ];
     await _write(next);

@@ -504,7 +504,7 @@ void main() {
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
-      'sort favorites manager keeps one compact list and adds available favorites',
+      'sort favorites manager keeps one editable list without built-in choices',
       (
     tester,
   ) async {
@@ -552,10 +552,7 @@ void main() {
         findsWidgets);
     expect(
         find.byKey(const ValueKey('sortFavoritesAddButton')), findsOneWidget);
-    await tester.tap(find.byTooltip('Add Favorite'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(PopupMenuItem<LibrarySortFavorite>).last);
-    await tester.pumpAndSettle();
+    expect(find.text('Add Built-in Favorite'), findsNothing);
     expect(find.byKey(ValueKey('sortFavorite_${secondFavorite.id}')),
         findsOneWidget);
     expect(find.text('Edit'), findsNWidgets(2));

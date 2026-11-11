@@ -4,10 +4,12 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('native sort favorites can be removed and saved from a page',
+  testWidgets('native sort favorites preserve the last editable favorite',
       (tester) async {
+    SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -32,11 +34,15 @@ void main() {
     expect(find.text(favorite.label), findsWidgets);
     await tester.tap(find.byTooltip('Favorite actions'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Remove'));
+    expect(find.text('Remove'), findsNothing);
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Add Built-in Favorite'), findsNothing);
+    await tester.tap(find.text('Edit'));
     await tester.pumpAndSettle();
-    expect(find.text('Add Favorite'), findsOneWidget);
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    expect(result, isEmpty);
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(result, {favorite.id});
   }, variant: TargetPlatformVariant({TargetPlatform.android}));
 }

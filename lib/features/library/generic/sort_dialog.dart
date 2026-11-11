@@ -5,7 +5,6 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/sort_preset_store.dart';
-import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
 import 'package:collectarr_app/features/library/generic/folder_reorder_list.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -75,6 +74,7 @@ class _LibrarySortDialog extends StatefulWidget {
 
 class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   late List<LibrarySortRule> _rules;
+  late final LibrarySortRule _fallbackRule;
   late final TextEditingController _presetNameController;
   late final LibrarySortPresetStore _presetStore;
   List<LibrarySortPreset> _savedPresets = const [];
@@ -90,9 +90,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     super.initState();
     _presetNameController = TextEditingController();
     _presetStore = LibrarySortPresetStore(widget.type);
-    _rules = widget.currentRules.isEmpty
-        ? [_defaultRule()]
-        : List<LibrarySortRule>.from(widget.currentRules);
+    _rules = List<LibrarySortRule>.from(widget.currentRules);
+    _fallbackRule = _rules.firstOrNull ?? _defaultRule();
     if (widget.showFavorites) _loadPresets();
   }
 
@@ -130,10 +129,18 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
             child: ListTile(
               title: Text(_sortRuleSummary(widget.type, _rules)),
               trailing: ToggleButtons(
-                isSelected: [_rules.first.ascending, !_rules.first.ascending],
+                isSelected: [
+                  (_rules.firstOrNull ?? _fallbackRule).ascending,
+                  !(_rules.firstOrNull ?? _fallbackRule).ascending
+                ],
                 onPressed: (index) {
-                  setState(() =>
-                      _rules[0] = _rules.first.copyWith(ascending: index == 0));
+                  setState(() {
+                    _rules = [
+                      (_rules.firstOrNull ?? _fallbackRule)
+                          .copyWith(ascending: index == 0),
+                      ..._rules.skip(1)
+                    ];
+                  });
                   _saveAndClose();
                 },
                 constraints: const BoxConstraints(minHeight: 34),
@@ -165,7 +172,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                     icon: const Icon(Icons.edit_outlined)),
                 IconButton(
                     tooltip: 'Delete ${preset.label}',
-                    onPressed: preset.id == null
+                    onPressed: preset.id == null || _savedPresets.length <= 1
                         ? null
                         : () => _deletePreset(preset.id!),
                     icon: const Icon(Icons.delete_outline)),
@@ -231,7 +238,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                           message: _sortRuleSummary(
                                               widget.type, preset.rules),
                                           child: Text(preset.label))),
-                                  if (preset.isSaved)
+                                  if (preset.isSaved &&
+                                      _savedPresets.length > 1)
                                     IconButton(
                                         tooltip: 'Delete favorite',
                                         icon: const Icon(Icons.delete_outline,
@@ -246,9 +254,12 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (widget.description == null)
             Text(
-                _rules
-                    .map((rule) => _sortColumnLabel(widget.type, rule.column))
-                    .join(' / '),
+                _rules.isEmpty
+                    ? 'Select one or more fields'
+                    : _rules
+                        .map((rule) =>
+                            _sortColumnLabel(widget.type, rule.column))
+                        .join(' / '),
                 style: librarySelectionFieldStyle.copyWith(
                     fontSize: 18, height: 1.25)),
           if (widget.description != null) ...[
@@ -314,12 +325,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                       ascending: rule.ascending,
                       onToggleDirection: () => setState(() => _rules[index] =
                           rule.copyWith(ascending: !rule.ascending)),
-                      removeTooltip: _rules.length > 1
-                          ? 'Remove sort field'
-                          : 'At least one sort field is required',
-                      onRemove: _rules.length > 1
-                          ? () => setState(() => _rules.removeAt(index))
-                          : null);
+                      removeTooltip: 'Remove sort field',
+                      onRemove: () => setState(() => _rules.removeAt(index)));
                 }),
           )),
         ]));
@@ -394,21 +401,10 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                 definition.id.value,
             ])
         .toSet();
-    return [
-      for (final favorite in librarySortFavoritesForType(widget.type).where(
-          (favorite) =>
-              !_savedPresets.any((preset) => preset.id == favorite.id)))
-        if (favorite.rules.every((rule) => available.contains(rule.column)))
-          LibrarySortPreset(
-            id: favorite.id,
-            label: favorite.label,
-            rules: favorite.rules,
-            icon: favorite.icon,
-            isBuiltIn: true,
-          ),
-      ..._savedPresets.where((preset) =>
-          preset.rules.every((rule) => available.contains(rule.column))),
-    ];
+    return _savedPresets
+        .where((preset) =>
+            preset.rules.every((rule) => available.contains(rule.column)))
+        .toList();
   }
 
   List<String> _filteredColumns() {
@@ -461,13 +457,13 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   // Selects every field of the group, or clears them when all are selected.
-  // At least one sort field always remains.
+  // The editor may be empty; Save retains its initial first field.
   void _toggleGroup(List<String> columns) {
     setState(() {
       if (_groupCheck(columns) == LibraryFieldCheckState.all) {
         final remaining =
             _rules.where((rule) => !columns.contains(rule.column)).toList();
-        if (remaining.isNotEmpty) _rules = remaining;
+        _rules = remaining;
         return;
       }
       _rules = _dedupeRules([
@@ -484,9 +480,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final existingIndex = _rules.indexWhere((rule) => rule.column == column);
     setState(() {
       if (existingIndex >= 0) {
-        if (_rules.length > 1) {
-          _rules.removeAt(existingIndex);
-        }
+        _rules.removeAt(existingIndex);
         return;
       }
       _rules = _dedupeRules([
@@ -556,7 +550,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     if (!mounted) {
       return;
     }
-    Navigator.of(context).pop(_dedupeRules(_rules));
+    Navigator.of(context)
+        .pop(_dedupeRules(_rules.isEmpty ? [_fallbackRule] : _rules));
   }
 }
 
