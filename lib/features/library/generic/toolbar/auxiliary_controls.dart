@@ -232,7 +232,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
     }
     final menuTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontSize: 14,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w700,
         );
     double labelWidth(String label) => measureLibraryToolbarDropdownWidth(
           context,
@@ -260,114 +260,110 @@ class LibraryToolbarSortButton extends StatelessWidget {
     }
     final menuWidth = measuredMenuWidth.ceilToDouble().clamp(
         180.0, (MediaQuery.sizeOf(context).width - 16).clamp(180.0, 900.0));
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: libraryToolbarControlSurface(context),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Tooltip(
-            message: 'Change Sorting',
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                mouseCursor: WidgetStateMouseCursor.clickable,
-                onTap: onPressed,
-                hoverColor: libraryToolbarControlHover(context),
-                borderRadius: kLibraryToolbarHoverRadius,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: iconOnly ? 7 : 10, vertical: 7),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(AppIcons.sortAlpha, size: 16),
-                      if (!iconOnly) ...[
-                        const SizedBox(width: 7),
-                        Text(
-                          activeFavorite?.label ?? 'Sort By',
-                          style:
-                              Theme.of(context).textTheme.labelLarge?.copyWith(
-                                    color: palette.textPrimary,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.1,
-                                  ),
+    final changeSortingButton = Tooltip(
+      message: 'Change Sorting',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          mouseCursor: WidgetStateMouseCursor.clickable,
+          onTap: onPressed,
+          hoverColor: libraryToolbarControlHover(context),
+          borderRadius: kLibraryToolbarHoverRadius,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: iconOnly ? 7 : 10, vertical: 7),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(AppIcons.sortAlpha, size: 16),
+                if (!iconOnly) ...[
+                  const SizedBox(width: 7),
+                  Text(
+                    activeFavorite?.label ?? 'Sort By',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: palette.textPrimary,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
                         ),
-                      ],
-                    ],
                   ),
-                ),
-              ),
+                ],
+              ],
             ),
           ),
-          PopupMenuButton<Object>(
-            key: const ValueKey('library-sort-split-button-menu'),
-            popUpAnimationStyle: AnimationStyle.noAnimation,
-            tooltip: 'Sorting Favorites',
-            padding: EdgeInsets.zero,
-            color: libraryToolbarMenuSurface(context),
-            surfaceTintColor: Colors.transparent,
-            shadowColor: Colors.black.withValues(alpha: 0.22),
-            menuPadding: EdgeInsets.zero,
-            constraints:
-                BoxConstraints(minWidth: menuWidth, maxWidth: menuWidth),
-            position: PopupMenuPosition.under,
-            shape: libraryToolbarDropdownMenuShape(context),
-            onSelected: (value) {
-              if (value == libraryManageSortFavoritesMenuValue) {
-                onManageFavoritesPressed?.call();
-                return;
-              }
-              if (value is LibrarySortFavorite) {
-                onSortFavoriteSelected?.call(value);
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem<Object>(
-                value: libraryManageSortFavoritesMenuValue,
-                height: kLibraryToolbarPopupItemHeight,
-                padding: const EdgeInsets.symmetric(horizontal: 7),
-                child: const _LibraryToolbarSortMenuRow(
-                  label: 'Manage Favorites',
-                  icon: null,
-                  trailingIcon: AppIcons.settings,
-                ),
-              ),
-              if (pinnedFavorites.isNotEmpty)
-                PopupMenuItem<Object>(
-                  enabled: false,
-                  height: 22,
-                  child: Text('Favorites',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: palette.isDark
-                              ? const Color(0xff666666)
-                              : palette.textMuted)),
-                ),
-              for (final favorite in pinnedFavorites)
-                PopupMenuItem<Object>(
-                  value: favorite,
-                  height: kLibraryToolbarPopupItemHeight,
-                  padding: const EdgeInsets.symmetric(horizontal: 7),
-                  child: _LibraryToolbarSortMenuRow(
-                    label: favorite.label,
-                    icon: null,
-                    rules: favorite.rules,
-                    fieldLabel: fieldLabel,
-                    active: favorite.id == activeSortFavoriteId,
-                  ),
-                ),
-            ],
-            child: const LibraryToolbarHoverSurface(
-              child: SizedBox(
-                  width: 18,
-                  height: 30,
-                  child: Center(child: Icon(AppIcons.chevronDown, size: 12))),
+        ),
+      ),
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(color: libraryToolbarControlSurface(context)),
+      child: PopupMenuButton<Object>(
+        key: const ValueKey('library-sort-split-button-menu'),
+        popUpAnimationStyle: AnimationStyle.noAnimation,
+        tooltip: 'Sorting Favorites',
+        padding: EdgeInsets.zero,
+        color: libraryToolbarMenuSurface(context),
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.black.withValues(alpha: 0.22),
+        menuPadding: EdgeInsets.zero,
+        constraints: BoxConstraints(minWidth: menuWidth, maxWidth: menuWidth),
+        position: PopupMenuPosition.under,
+        offset: const Offset(-4, 4),
+        elevation: 6,
+        shape: libraryToolbarDropdownMenuShape(context),
+        onSelected: (value) {
+          if (value == libraryManageSortFavoritesMenuValue) {
+            onManageFavoritesPressed?.call();
+            return;
+          }
+          if (value is LibrarySortFavorite) {
+            onSortFavoriteSelected?.call(value);
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem<Object>(
+            value: libraryManageSortFavoritesMenuValue,
+            height: kLibraryToolbarPopupItemHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            child: const _LibraryToolbarSortMenuRow(
+              label: 'Manage Favorites',
+              icon: null,
+              trailingIcon: AppIcons.settings,
             ),
           ),
+          if (pinnedFavorites.isNotEmpty)
+            PopupMenuItem<Object>(
+              enabled: false,
+              height: 22,
+              child: Text('Favorites',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: palette.isDark
+                          ? const Color(0xff666666)
+                          : palette.textMuted)),
+            ),
+          for (final favorite in pinnedFavorites)
+            PopupMenuItem<Object>(
+              value: favorite,
+              height: kLibraryToolbarPopupItemHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              child: _LibraryToolbarSortMenuRow(
+                label: favorite.label,
+                icon: null,
+                rules: favorite.rules,
+                fieldLabel: fieldLabel,
+                active: favorite.id == activeSortFavoriteId,
+              ),
+            ),
         ],
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          changeSortingButton,
+          const LibraryToolbarHoverSurface(
+            child: SizedBox(
+                width: 18,
+                height: 30,
+                child: Center(child: Icon(AppIcons.chevronDown, size: 12))),
+          ),
+        ]),
       ),
     );
   }
@@ -395,7 +391,8 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
     final palette = appPalette(context);
     final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontSize: 14,
-          fontWeight: FontWeight.w400,
+          color: libraryToolbarMenuText(context),
+          fontWeight: FontWeight.w700,
         );
     return Row(children: [
       if (rules.isNotEmpty || active || icon != null)
