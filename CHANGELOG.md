@@ -19,6 +19,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Comics and Games can save reading and play tracking through their kind codecs.
 - Admin tabs are centered and local collection management no longer appears in admin.
 - Dialog headers show their titles without a leading icon.
 - The navigation drawer shows the active library's icon.
