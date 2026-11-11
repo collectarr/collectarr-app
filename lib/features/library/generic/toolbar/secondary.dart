@@ -583,7 +583,9 @@ class _LibraryColumnLauncher extends StatelessWidget {
       const LibraryDenseMenuEntry<Object>(
         value: _LibraryColumnLauncherAction.manage,
         label: 'Manage Favorites',
-        icon: Icons.settings_outlined,
+        icon: null,
+        trailingIcon: AppIcons.settings,
+        reserveLeadingSpace: false,
       ),
     ];
     final presets = [...pinnedPresets, ...overflowPresets];

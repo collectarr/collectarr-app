@@ -17,6 +17,8 @@ class LibraryDenseMenuEntry<T> {
     this.enabled = true,
     this.trailingLabel,
     this.section,
+    this.trailingIcon,
+    this.reserveLeadingSpace = true,
   });
 
   final T value;
@@ -26,6 +28,8 @@ class LibraryDenseMenuEntry<T> {
   final bool enabled;
   final String? trailingLabel;
   final String? section;
+  final IconData? trailingIcon;
+  final bool reserveLeadingSpace;
 }
 
 class LibraryDenseButton extends StatefulWidget {
@@ -264,7 +268,6 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = LibraryAccentScope.accentOf(context);
     return PopupMenuButton<T>(
       popUpAnimationStyle: AnimationStyle.noAnimation,
       tooltip: tooltip ?? label,
@@ -283,7 +286,7 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
             enabled: entry.enabled,
             height: kLibraryToolbarPopupItemHeight,
             padding: const EdgeInsets.symmetric(horizontal: 7),
-            child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
+            child: _LibraryDenseMenuItemRow(entry: entry),
           ),
       ],
       child: LibraryDenseButton(
@@ -338,83 +341,84 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
       decoration: BoxDecoration(
         color: background,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Semantics(
-            label: iconOnly ? label : null,
-            button: iconOnly,
-            child: Tooltip(
-              message: tooltip ?? label,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  mouseCursor: WidgetStateMouseCursor.clickable,
-                  onTap: onPressed,
-                  hoverColor: libraryToolbarControlHover(context),
-                  borderRadius: kLibraryToolbarHoverRadius,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: iconOnly ? 7 : 10,
-                        vertical: iconOnly ? 7 : 5),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(icon, size: iconOnly ? 16 : 14, color: foreground),
-                        if (!iconOnly) ...[
-                          const SizedBox(width: 7),
-                          Text(
-                            label,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                  color: foreground,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.1,
-                                ),
-                          ),
+      child: PopupMenuButton<T>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
+        tooltip: tooltip ?? label,
+        padding: EdgeInsets.zero,
+        onSelected: onSelected,
+        color: libraryToolbarMenuSurface(context),
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.black.withValues(alpha: 0.22),
+        menuPadding: EdgeInsets.zero,
+        position: PopupMenuPosition.under,
+        offset: const Offset(-4, 4),
+        elevation: 6,
+        shape: libraryToolbarDropdownMenuShape(context),
+        itemBuilder: (context) => [
+          for (final entry in entries) ...[
+            if (entry.section != null)
+              PopupMenuItem<T>(
+                enabled: false,
+                height: 22,
+                padding: const EdgeInsets.symmetric(horizontal: 7),
+                child: LibraryToolbarMenuSection(entry.section!),
+              ),
+            PopupMenuItem<T>(
+              value: entry.value,
+              enabled: entry.enabled,
+              height: kLibraryToolbarPopupItemHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              child: _LibraryDenseMenuItemRow(entry: entry),
+            ),
+          ],
+        ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Semantics(
+              label: iconOnly ? label : null,
+              button: iconOnly,
+              child: Tooltip(
+                message: tooltip ?? label,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    mouseCursor: WidgetStateMouseCursor.clickable,
+                    onTap: onPressed,
+                    hoverColor: libraryToolbarControlHover(context),
+                    borderRadius: kLibraryToolbarHoverRadius,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: iconOnly ? 7 : 10,
+                          vertical: iconOnly ? 7 : 5),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(icon,
+                              size: iconOnly ? 16 : 14, color: foreground),
+                          if (!iconOnly) ...[
+                            const SizedBox(width: 7),
+                            Text(
+                              label,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                    color: foreground,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.1,
+                                  ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          // The reference joins both halves without a rule.
-          PopupMenuButton<T>(
-            popUpAnimationStyle: AnimationStyle.noAnimation,
-            tooltip: tooltip ?? label,
-            padding: EdgeInsets.zero,
-            onSelected: onSelected,
-            color: libraryToolbarMenuSurface(context),
-            surfaceTintColor: Colors.transparent,
-            shadowColor: Colors.black.withValues(alpha: 0.22),
-            menuPadding: EdgeInsets.zero,
-            position: PopupMenuPosition.under,
-            shape: libraryToolbarDropdownMenuShape(context),
-            itemBuilder: (context) => [
-              for (final entry in entries) ...[
-                if (entry.section != null)
-                  PopupMenuItem<T>(
-                      enabled: false,
-                      height: 24,
-                      padding: const EdgeInsets.symmetric(horizontal: 7),
-                      child: Text(entry.section!,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: libraryToolbarMenuMutedText(context)))),
-                PopupMenuItem<T>(
-                  value: entry.value,
-                  enabled: entry.enabled,
-                  height: kLibraryToolbarPopupItemHeight,
-                  padding: const EdgeInsets.symmetric(horizontal: 7),
-                  child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
-                ),
-              ],
-            ],
-            child: LibraryToolbarHoverSurface(
+            // The reference joins both halves without a rule.
+            LibraryToolbarHoverSurface(
               child: SizedBox(
                   width: 18,
                   height: 30,
@@ -422,18 +426,17 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
                       child: Icon(AppIcons.chevronDown,
                           size: 12, color: foreground))),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
-  const _LibraryDenseMenuItemRow({required this.entry, required this.accent});
+  const _LibraryDenseMenuItemRow({required this.entry});
 
   final LibraryDenseMenuEntry<T> entry;
-  final Color accent;
 
   @override
   Widget build(BuildContext context) {
@@ -442,21 +445,25 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
     return LibraryWorkspaceMenuRow(
       label: entry.label,
       padding: EdgeInsets.zero,
-      leadingSpacing: 7,
-      leading: Icon(entry.active ? Icons.check : entry.icon,
-          size: 14,
-          color: entry.enabled
-              ? (entry.active ? accent : foreground)
-              : palette.textMuted),
+      leadingWidth:
+          entry.reserveLeadingSpace ? kLibraryToolbarMenuMarkWidth : null,
+      leadingSpacing: kLibraryToolbarMenuMarkSpacing,
+      leading: entry.reserveLeadingSpace
+          ? Icon(entry.active ? AppIcons.check : entry.icon,
+              size: 14,
+              color: entry.active && palette.isDark ? Colors.white : foreground)
+          : null,
       textStyle: TextStyle(
-          color: foreground, fontWeight: FontWeight.w500, fontSize: 14),
-      trailing: entry.trailingLabel == null
-          ? null
-          : Text(entry.trailingLabel!,
-              style: TextStyle(
-                  color: palette.textMuted,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13)),
+          color: foreground, fontWeight: FontWeight.w700, fontSize: 14),
+      trailing: entry.trailingIcon != null
+          ? Icon(entry.trailingIcon, size: 14, color: foreground)
+          : entry.trailingLabel == null
+              ? null
+              : Text(entry.trailingLabel!,
+                  style: TextStyle(
+                      color: palette.textMuted,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13)),
     );
   }
 }

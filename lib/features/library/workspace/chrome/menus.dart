@@ -2,6 +2,37 @@ import 'package:flutter/material.dart';
 
 import '../config/tokens.dart';
 
+const kLibraryToolbarMenuMarkWidth = 14.0;
+const kLibraryToolbarMenuMarkSpacing = 7.0;
+
+class LibraryToolbarMenuSection extends StatelessWidget {
+  const LibraryToolbarMenuSection(this.label, {super.key});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        Expanded(
+            child: Divider(
+                height: 1,
+                thickness: 1,
+                color: libraryToolbarMenuBorder(context))),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Text(label,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: libraryToolbarMenuBorder(context))),
+        ),
+        Expanded(
+            child: Divider(
+                height: 1,
+                thickness: 1,
+                color: libraryToolbarMenuBorder(context))),
+      ]);
+}
+
 BoxDecoration libraryToolbarMenuPanelDecoration(BuildContext context) {
   return BoxDecoration(
     color: libraryToolbarMenuSurface(context),

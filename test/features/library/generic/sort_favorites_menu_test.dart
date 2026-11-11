@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -71,6 +72,17 @@ void main() {
           FontWeight.w700);
       expect(find.text('Platform'), findsOneWidget);
       expect(find.text('Title'), findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(LibraryToolbarMenuSection),
+              matching: find.byType(Divider)),
+          findsNWidgets(2));
+      final check = find.byIcon(AppIcons.check);
+      expect(tester.widget<Icon>(check).color, Colors.white);
+      expect(
+          tester.getTopLeft(find.text('Platform')).dx -
+              tester.getTopRight(check).dx,
+          closeTo(kLibraryToolbarMenuMarkSpacing, 0.01));
       await tester.tap(find.text('Platform'));
       await tester.pumpAndSettle();
       expect(selected?.id, 'platform_title');

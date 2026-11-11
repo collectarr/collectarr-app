@@ -266,7 +266,10 @@ class LibraryToolbarSortButton extends StatelessWidget {
               ) +
               (favorite.rules.length - 1).clamp(0, double.infinity) *
                   (labelWidth('|') + 12);
-      final width = 14 + 18 + 4 + contentWidth;
+      final width = 14 +
+          kLibraryToolbarMenuMarkWidth +
+          kLibraryToolbarMenuMarkSpacing +
+          contentWidth;
       if (width > measuredMenuWidth) measuredMenuWidth = width;
     }
     final menuWidth = measuredMenuWidth.ceilToDouble().clamp(
@@ -344,13 +347,8 @@ class LibraryToolbarSortButton extends StatelessWidget {
             PopupMenuItem<Object>(
               enabled: false,
               height: 22,
-              child: Text('Favorites',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: palette.isDark
-                          ? const Color(0xff666666)
-                          : palette.textMuted)),
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              child: const LibraryToolbarMenuSection('Favorites'),
             ),
           for (final favorite in pinnedFavorites)
             PopupMenuItem<Object>(
@@ -408,13 +406,18 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
     return Row(children: [
       if (rules.isNotEmpty || active || icon != null)
         SizedBox(
-            width: 18,
+            width: kLibraryToolbarMenuMarkWidth,
             child: active
-                ? Icon(AppIcons.check, size: 14, color: palette.accent)
+                ? Icon(AppIcons.check,
+                    size: 14,
+                    color: palette.isDark
+                        ? Colors.white
+                        : libraryToolbarMenuText(context))
                 : icon == null
                     ? null
                     : Icon(icon, size: 14, color: palette.textMuted)),
-      if (rules.isNotEmpty || active || icon != null) const SizedBox(width: 4),
+      if (rules.isNotEmpty || active || icon != null)
+        const SizedBox(width: kLibraryToolbarMenuMarkSpacing),
       Expanded(
           child: fieldLabel == null || rules.isEmpty
               ? Text(label, style: textStyle)

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/dense_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/controls.dart';
 import 'package:flutter/material.dart';
@@ -304,19 +305,41 @@ void main() {
     expect(
         splitButton.entries.map((entry) => entry.active), [false, true, false]);
 
-    splitButton.onPressed?.call();
+    await tester.tap(find.descendant(
+      of: find.byKey(const ValueKey('library-column-split-button')),
+      matching: find.byIcon(AppIcons.columns),
+    ));
     await tester.pump();
 
     expect(manageColumnsCount, 1);
+    expect(find.text('Manage Favorites'), findsNothing);
 
-    final popupButton = tester.widget<PopupMenuButton<Object>>(
-      find.descendant(
-        of: find.byKey(const ValueKey('library-column-split-button')),
-        matching: find.byType(PopupMenuButton<Object>),
-      ),
-    );
-    popupButton.onSelected?.call(pricingPreset);
-    await tester.pump();
+    final trigger = find.byKey(const ValueKey('library-column-split-button'));
+    await tester.tap(find.descendant(
+        of: trigger, matching: find.byIcon(AppIcons.chevronDown)));
+    await tester.pumpAndSettle();
+    final menuRows = find.byType(PopupMenuItem<Object>);
+    expect(tester.getTopLeft(menuRows.first).dx,
+        closeTo(tester.getTopLeft(trigger).dx - 4, 0.01));
+    expect(tester.getTopLeft(menuRows.first).dy,
+        closeTo(tester.getBottomLeft(trigger).dy + 4, 0.01));
+    expect(tester.widget<Text>(find.text('Manage Favorites')).style!.fontWeight,
+        FontWeight.w700);
+    expect(tester.widget<Text>(find.text('Essential')).style!.fontWeight,
+        FontWeight.w700);
+    expect(
+        find.descendant(
+            of: find.byType(LibraryToolbarMenuSection),
+            matching: find.byType(Divider)),
+        findsNWidgets(2));
+    final check = find.byIcon(AppIcons.check);
+    expect(tester.widget<Icon>(check).color, Colors.white);
+    expect(
+        tester.getTopLeft(find.text('Essential')).dx -
+            tester.getTopRight(check).dx,
+        closeTo(kLibraryToolbarMenuMarkSpacing, 0.01));
+    await tester.tap(find.text('Pricing'));
+    await tester.pumpAndSettle();
 
     expect(appliedPreset, 'Pricing');
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
