@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/forms/schema_validation.dart';
 import 'package:collectarr_app/features/library/forms/field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/forms/schema_text_controller_store.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 /// Shared visual structure for kind-entry manual Add forms.
 ///
@@ -88,7 +89,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         LibraryAddManualPaneTab(
           id: 'custom_fields',
           label: 'Custom Fields',
-          icon: Icons.edit_note_outlined,
+          icon: AppIcons.tabCustomFields,
           content: CustomFieldsEditSection(
             definitions: request.customFieldDefinitions,
             values: request.customFieldValues,
