@@ -8,8 +8,8 @@ import 'kind_settings.dart';
 
 /// Shared editor mechanics; declarations and specialized editors belong to kinds.
 class KindSettingsControls extends ConsumerWidget {
-  const KindSettingsControls({super.key, this.kind});
-  final CatalogMediaKind? kind;
+  const KindSettingsControls({super.key, required this.kind});
+  final CatalogMediaKind kind;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.watch(libraryNavPreferencesProvider);
@@ -17,24 +17,10 @@ class KindSettingsControls extends ConsumerWidget {
       for (final e in collectarrKindSettings.entries)
         if (nav.isVisible(e.key.apiValue)) e.key: e.value
     };
-    final definitions = <String, KindSetting<Object?>>{};
-    if (kind != null) {
-      for (final setting in collectarrKindSettings[kind]?.settings ??
-          const <KindSetting<Object?>>[]) {
-        definitions[setting.id] = setting;
-      }
-    } else {
-      for (final contribution in compatible.values) {
-        for (final setting in contribution.settings) {
-          if (setting.scope == KindSettingScope.kindOverridable) {
-            definitions[setting.id] = setting;
-          }
-        }
-      }
-    }
-    if (definitions.isEmpty) return const SizedBox.shrink();
-    final settings = definitions.values.toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
+    final settings = [
+      ...?collectarrKindSettings[kind]?.settings,
+    ]..sort((a, b) => a.order.compareTo(b.order));
+    if (settings.isEmpty) return const SizedBox.shrink();
     Future<void> save(Future<void> operation) async {
       try {
         await operation;
@@ -56,14 +42,10 @@ class KindSettingsControls extends ConsumerWidget {
           ]),
           data: (values) =>
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (kind == null) const Text('Shared Defaults'),
             for (final setting in settings)
               Builder(builder: (context) {
-                final value = kind == null
-                    ? values.sharedValue(setting)
-                    : values.resolve(setting, kind: kind);
-                final overridden =
-                    kind != null && values.hasOverride(setting, kind!);
+                final value = values.resolve(setting, kind: kind);
+                final overridden = values.hasOverride(setting, kind);
                 final controller = ref.read(kindSettingsProvider.notifier);
                 return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,22 +55,20 @@ class KindSettingsControls extends ConsumerWidget {
                         setting.buildEditor(
                             context,
                             value,
-                            (next) => save(kind == null
-                                ? controller.setShared(setting, next)
-                                : controller.setOverride(setting, kind!, next)))
+                            (next) => save(
+                                controller.setOverride(setting, kind, next)))
                       ]),
-                      if (kind != null &&
-                          setting.scope ==
-                              KindSettingScope.kindOverridable) ...[
+                      if (setting.scope ==
+                          KindSettingScope.kindOverridable) ...[
                         Text(overridden
                             ? 'Overridden for this kind'
                             : 'Inherited shared setting'),
                         Wrap(children: [
                           TextButton(
                               onPressed: () => save(overridden
-                                  ? controller.reset(setting, kind!)
+                                  ? controller.reset(setting, kind)
                                   : controller.setOverride(
-                                      setting, kind!, value)),
+                                      setting, kind, value)),
                               child: Text(overridden
                                   ? 'Use shared setting / Reset override'
                                   : 'Set for this kind')),

@@ -20,6 +20,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Trailer video controls appear under Games settings instead of General, with separate choices for Games, Hardware and Toys.
 - The main menu aligns the library name with its icon and shows a larger version number at the bottom right of its header.
 - Add Manually uses the same Custom Fields tab icon as Edit.
 - Comics and Games can save reading and play tracking through their kind codecs.

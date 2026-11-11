@@ -124,10 +124,6 @@ class KindSettingsValues {
     return setting.defaultValue;
   }
 
-  Object? sharedValue(KindSetting<Object?> setting) =>
-      shared.containsKey(setting.id)
-          ? setting.checked(shared[setting.id])
-          : setting.defaultValue;
   String encode() =>
       jsonEncode({'version': 1, 'shared': shared, 'kinds': kinds});
 }

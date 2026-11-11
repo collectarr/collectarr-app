@@ -73,6 +73,15 @@ void main() {
     await _openSettingsTab(tester, 'Customization');
     expect(find.widgetWithText(Tab, 'General'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
+    expect(find.text('Show trailer videos'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('settings.kind.tab.games')));
+    await pumpUntilSettled(tester);
+    expect(find.text('Show trailer videos'), findsNWidgets(3));
+    await tester.tap(find.byKey(const ValueKey('settings.kind.tab.music')));
+    await pumpUntilSettled(tester);
+    expect(find.text('Show trailer videos'), findsNothing);
+    await tester.tap(find.widgetWithText(Tab, 'General'));
+    await pumpUntilSettled(tester);
     expect(find.text('Reset customization defaults'), findsOneWidget);
 
     await _openSettingsTab(tester, 'Data');

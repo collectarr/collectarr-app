@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
-import 'kind_settings_controls.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/localization/app_languages.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -119,7 +118,6 @@ class _SettingsAppearanceSectionState
             ),
           ),
           const SettingsLegend('Details Panel'),
-          const KindSettingsControls(),
           SettingsCheck(
               label: 'Show backdrop',
               value: preferences.showInspectorBackdrop,
