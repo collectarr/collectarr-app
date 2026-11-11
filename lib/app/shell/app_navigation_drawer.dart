@@ -307,44 +307,48 @@ class _DrawerBrandHeaderState extends State<_DrawerBrandHeader> {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(10, 5, 8, 5),
-        child: Row(children: [
-          Icon(widget.type.identity.icon,
-              key: const Key('drawer.kind-icon'),
-              size: 38,
-              color: Colors.white),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              key: const Key('drawer.brand-group'),
               children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: AppShellBrand(
-                      icon: widget.type.identity.icon,
-                      kindTitle: widget.type.identity.title,
-                      iconKey: const Key('drawer.kind-icon'),
-                      titleKey: const Key('drawer.brand-title'),
-                      showIcon: false,
-                    ),
-                  ),
-                ),
-                FutureBuilder<String>(
-                  future: _version,
-                  builder: (context, snapshot) => Text(
-                    snapshot.hasData && snapshot.data!.isNotEmpty
-                        ? 'v${snapshot.data}'
-                        : '',
-                    key: const Key('drawer.version'),
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                Icon(widget.type.identity.icon,
+                    key: const Key('drawer.kind-icon'),
+                    size: 32,
+                    color: Colors.white),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: AppShellBrand(
+                    icon: widget.type.identity.icon,
+                    kindTitle: widget.type.identity.title,
+                    iconKey: const Key('drawer.kind-icon'),
+                    titleKey: const Key('drawer.brand-title'),
+                    showIcon: false,
                   ),
                 ),
               ],
             ),
-          ),
-        ]),
+            const SizedBox(height: 2),
+            FutureBuilder<String>(
+              future: _version,
+              builder: (context, snapshot) => Align(
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  snapshot.hasData && snapshot.data!.isNotEmpty
+                      ? 'v${snapshot.data}'
+                      : '',
+                  key: const Key('drawer.version'),
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                      color: Colors.white, fontSize: 16, height: 1.2),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
 }
 

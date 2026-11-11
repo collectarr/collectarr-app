@@ -56,6 +56,21 @@ void main() {
     expect(find.byKey(const Key('drawer.app-logo')), findsNothing);
     expect(find.byTooltip('Close navigation'), findsNothing);
     expect(find.text('v1.5.0'), findsOneWidget);
+    final header = find.byKey(const Key('drawer.header'));
+    final brand = find.byKey(const Key('drawer.brand-group'));
+    final version = find.byKey(const Key('drawer.version'));
+    expect(tester.getTopLeft(brand).dx,
+        closeTo(tester.getTopLeft(header).dx + 10, 1));
+    expect(tester.getBottomRight(version).dx,
+        closeTo(tester.getBottomRight(header).dx - 10, 1));
+    expect(tester.getBottomRight(version).dy,
+        closeTo(tester.getBottomRight(header).dy - 5, 1));
+    expect(
+        tester.getCenter(find.byKey(const Key('drawer.kind-icon'))).dy,
+        closeTo(
+            tester.getCenter(find.byKey(const Key('drawer.brand-title'))).dy,
+            1));
+    expect(tester.widget<Text>(version).style!.fontSize, 16);
 
     // Verify headers exist
     expect(find.text('Collection'), findsOneWidget);
