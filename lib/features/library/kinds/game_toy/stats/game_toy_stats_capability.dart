@@ -12,7 +12,7 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Toy statistics open as the Toys tab of the Games family page.
-class GameToyStatsCapability extends DefaultLibraryStatsCapability
+class GameToyStatsCapability extends LibraryStatsCapabilityBase
     implements LibraryCollectionStatsContributor {
   const GameToyStatsCapability();
 

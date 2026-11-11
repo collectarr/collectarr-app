@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/kind_drilldown.dart';
-import 'package:collectarr_app/features/library/generic/page.dart';
+import 'package:collectarr_app/features/library/generic/page/page.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
 import 'package:flutter/material.dart';

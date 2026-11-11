@@ -19,13 +19,3 @@ abstract interface class LibraryValueCapability {
     Iterable<LibraryWorkspaceContext> entries,
   );
 }
-
-class DefaultLibraryValueCapability implements LibraryValueCapability {
-  const DefaultLibraryValueCapability();
-
-  @override
-  LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<LibraryWorkspaceContext> entries,
-  ) =>
-      null;
-}

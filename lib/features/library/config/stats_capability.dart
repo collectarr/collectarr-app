@@ -106,8 +106,8 @@ abstract interface class LibraryStatsCapability {
   );
 }
 
-class DefaultLibraryStatsCapability implements LibraryStatsCapability {
-  const DefaultLibraryStatsCapability();
+abstract class LibraryStatsCapabilityBase implements LibraryStatsCapability {
+  const LibraryStatsCapabilityBase();
 
   @override
   LibraryEntryFinancialSummary buildEntryFinancialSummary(

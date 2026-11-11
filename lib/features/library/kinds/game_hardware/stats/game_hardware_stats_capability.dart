@@ -13,7 +13,7 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Hardware statistics open as the Hardware tab of the Games family page.
-class GameHardwareStatsCapability extends DefaultLibraryStatsCapability
+class GameHardwareStatsCapability extends LibraryStatsCapabilityBase
     implements LibraryCollectionStatsContributor {
   const GameHardwareStatsCapability();
 

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/generic/page.dart';
+import 'package:collectarr_app/features/library/generic/page/page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GameToyLibraryPage extends GenericLibraryPage {

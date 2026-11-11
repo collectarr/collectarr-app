@@ -12,17 +12,6 @@ abstract interface class LibraryLinkedMetadataCapability {
       LibraryWorkspaceContext source);
 }
 
-class DefaultLibraryLinkedMetadataCapability
-    extends LibraryLinkedMetadataCapability {
-  const DefaultLibraryLinkedMetadataCapability();
-
-  @override
-  Iterable<LibraryLinkedMetadataValue> valuesForEntry(
-      LibraryWorkspaceContext source) sync* {
-    yield* _commonValues(source);
-  }
-}
-
 class TypedLibraryLinkedMetadataCapability<TMetadata>
     extends LibraryLinkedMetadataCapability {
   const TypedLibraryLinkedMetadataCapability(

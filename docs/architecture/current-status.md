@@ -33,6 +33,8 @@ order-independent custom-field comparisons, pending cover/image edits and the
 structural save selection. Catalog reconstruction, entry/tracking rules and
 Core field maps stay in each kind; Core correction review and validation already
 live in the shared correction boundary. The dialogs remain independent.
+The statistics base is abstract; unused no-op value/linked-metadata defaults
+and the forwarding-only page barrel are absent.
 
 ## Catalog and entries
 
