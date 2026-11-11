@@ -62,6 +62,7 @@
 - Comic editing keeps catalog, custom-field and image changes together when saving or cancelling.
 
 ### Docs
+- Document Windows accessibility startup checks and the limits of known Flutter AXTree issues.
 - Document the remaining Books and Comics differences found with populated reference entries.
 
 

@@ -152,3 +152,23 @@ reproduces the Windows AXTree rejection described in
 Regression tests cover push/dialog/pop, pointer and keyboard input, accessible
 increase/decrease actions, and toolbar sizing. The native startup flow uses
 an in-memory database, mocked sessions/sync and disabled automatic backups.
+
+`startup_semantics_updates_test.dart` checks serialized updates throughout
+startup with semantics already enabled, with and without session restoration.
+It covers an empty Music library and 40 in-memory Games entries. This checks
+reachability of updated nodes, not all native AXTree validation rules.
+
+For Windows `accessibility_bridge.cc(114)` errors, preserve the first rejection:
+later messages can follow from an earlier rejected tree update. Flutter 3.47.7
+lacks the missing traversal-parent fix merged in
+[flutter/flutter#193372](https://github.com/flutter/flutter/pull/193372).
+The fix is also absent from the official `3.50.0` stable and
+`3.50.0-0.4.pre` beta tags; it is present on Flutter's `main` branch. Check the
+actual SDK revision before expecting an upgrade to resolve this failure.
+The distinct Tooltip traversal issue is tracked in
+[flutter/flutter#182444](https://github.com/flutter/flutter/issues/182444).
+Neither identifies an application trigger by itself. Isolated native startup
+with an empty library or 40 Games entries and semantics enabled did not
+reproduce the reported startup errors; saved workspace state and real sync
+transitions remain outside that check. Do not disable semantics or suppress
+the native log as a workaround.
