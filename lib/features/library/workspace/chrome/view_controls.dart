@@ -26,8 +26,9 @@ class LibraryViewModeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = appPalette(context).utilityAction;
     final menuText = libraryToolbarMenuText(context);
+    final menuMuted = Color.lerp(libraryToolbarMenuSurface(context),
+        libraryToolbarMenuMutedText(context), 0.75)!;
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w400,
@@ -56,6 +57,8 @@ class LibraryViewModeDropdown extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
+        offset: const Offset(0, 4),
+        elevation: 6,
         constraints: const BoxConstraints(
           minWidth: 0,
           maxWidth: double.infinity,
@@ -80,12 +83,12 @@ class LibraryViewModeDropdown extends StatelessWidget {
                 leading: buildViewModeGlyph(
                   mode,
                   size: 17,
-                  color: mode == viewMode ? accent : menuText,
+                  color: mode == viewMode ? menuText : menuMuted,
                 ),
                 textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       height: 1,
                       fontWeight: FontWeight.w400,
-                      color: mode == viewMode ? accent : menuText,
+                      color: mode == viewMode ? menuText : menuMuted,
                     ),
               ),
             ),
@@ -121,9 +124,9 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = appPalette(context).utilityAction;
     final menuText = libraryToolbarMenuText(context);
-    final menuMuted = libraryToolbarMenuMutedText(context);
+    final menuMuted = Color.lerp(libraryToolbarMenuSurface(context),
+        libraryToolbarMenuMutedText(context), 0.75)!;
     // The trigger sits on the dark toolbar; only its popup follows the
     // content skin.
     final triggerText = appPalette(context).textPrimary;
@@ -154,6 +157,9 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       menuPadding: EdgeInsets.zero,
       position: PopupMenuPosition.under,
+      // The 30 px trigger sits inside the 38 px toolbar. Clear its bottom rim.
+      offset: const Offset(0, 4),
+      elevation: 6,
       constraints: const BoxConstraints(
         minWidth: 0,
         maxWidth: double.infinity,
@@ -180,13 +186,10 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                 size: 17,
                 color: layout == detailsLayout ? menuText : menuMuted,
               ),
-              trailing: layout == detailsLayout
-                  ? Icon(AppIcons.check, size: 16, color: accent)
-                  : null,
               textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     height: 1,
                     fontWeight: FontWeight.w400,
-                    color: menuText,
+                    color: layout == detailsLayout ? menuText : menuMuted,
                   ),
             ),
           ),
@@ -492,7 +495,7 @@ double _measureDetailsDropdownWidth(
       maxLabelWidth = painter.width;
     }
   }
-  return (14 + 17 + 8 + maxLabelWidth + 8 + 16).clamp(116, double.infinity);
+  return (14 + 17 + 8 + maxLabelWidth).clamp(160, double.infinity);
 }
 
 double _measureViewDropdownWidth(
@@ -512,7 +515,7 @@ double _measureViewDropdownWidth(
       maxLabelWidth = painter.width;
     }
   }
-  return (14 + 17 + 8 + maxLabelWidth).clamp(108, double.infinity);
+  return (14 + 17 + 8 + maxLabelWidth).clamp(160, double.infinity);
 }
 
 String _viewModeLabel(LibraryViewMode mode) {

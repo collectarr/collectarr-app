@@ -65,6 +65,28 @@ void main() {
           expect(tester.getTopLeft(find.text('Horizontal Split')).dy,
               lessThan(tester.getTopLeft(find.text('Vertical Split')).dy));
           expect(tester.getSize(options.first).height, 30);
+          expect(find.byIcon(AppIcons.check), findsNothing);
+          expect(tester.getTopLeft(options.first).dy,
+              closeTo(tester.getBottomLeft(trigger).dy + 4, 0.01));
+          final currentLabel = switch (layout) {
+            LibraryDetailsLayout.bottom => 'Horizontal Split',
+            LibraryDetailsLayout.right => 'Vertical Split',
+            LibraryDetailsLayout.hidden => 'No Details',
+          };
+          final menuContext = tester.element(options.first);
+          final currentColor = libraryToolbarMenuText(menuContext);
+          final otherColor = Color.lerp(libraryToolbarMenuSurface(menuContext),
+              libraryToolbarMenuMutedText(menuContext), 0.75);
+          for (final label in [
+            'Horizontal Split',
+            'Vertical Split',
+            'No Details'
+          ]) {
+            expect(tester.widget<Text>(find.text(label)).style!.color,
+                label == currentLabel ? currentColor : otherColor);
+          }
+          expect(
+              tester.getSize(options.first).width, greaterThanOrEqualTo(160));
           await tester.tap(find.text(choice.key));
           await tester.pumpAndSettle();
           expect(layout, choice.value);
@@ -75,30 +97,66 @@ void main() {
     }
   }
 
-  testWidgets('View popup exposes visible hover and a hand cursor',
-      (tester) async {
-    await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-            body: Align(
-      alignment: Alignment.topLeft,
-      child: LibraryViewModeDropdown(
-          viewMode: LibraryViewMode.grid, iconOnly: true, onChanged: (_) {}),
-    ))));
-    final trigger = find.byKey(const Key('library-view-mode-dropdown'));
-    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
-    await mouse.addPointer(location: const Offset(790, 590));
-    await mouse.moveTo(tester.getCenter(trigger));
-    await tester.pumpAndSettle();
-    expect(RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1),
-        SystemMouseCursors.click);
-    final surface =
-        find.descendant(of: trigger, matching: find.byType(AnimatedContainer));
-    final decoration =
-        tester.widget<AnimatedContainer>(surface).decoration as BoxDecoration;
-    expect(
-        decoration.color, libraryToolbarControlHover(tester.element(trigger)));
-    await mouse.removePointer();
-  });
+  for (final brightness in Brightness.values) {
+    testWidgets('View popup selection, position and hover ($brightness)',
+        (tester) async {
+      LibraryViewMode? selected;
+      await tester.pumpWidget(MaterialApp(
+          theme: buildAppShellTheme(
+              palette: brightness == Brightness.light
+                  ? kLightAppThemePalette
+                  : kDefaultAppThemePalette),
+          home: Scaffold(
+              body: Align(
+            alignment: Alignment.topLeft,
+            child: LibraryViewModeDropdown(
+                viewMode: LibraryViewMode.grid,
+                iconOnly: true,
+                onChanged: (value) => selected = value),
+          ))));
+      final trigger = find.byKey(const Key('library-view-mode-dropdown'));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: const Offset(790, 590));
+      await mouse.moveTo(tester.getCenter(trigger));
+      await tester.pumpAndSettle();
+      expect(RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1),
+          SystemMouseCursors.click);
+      final surface = find.descendant(
+          of: trigger, matching: find.byType(AnimatedContainer));
+      final decoration =
+          tester.widget<AnimatedContainer>(surface).decoration as BoxDecoration;
+      expect(decoration.color,
+          libraryToolbarControlHover(tester.element(trigger)));
+      await tester.tap(trigger);
+      await tester.pumpAndSettle();
+      final options = find.byType(PopupMenuItem<LibraryViewMode>);
+      expect(options, findsNWidgets(6));
+      expect(find.byIcon(AppIcons.check), findsNothing);
+      expect(tester.getTopLeft(options.first).dy,
+          closeTo(tester.getBottomLeft(trigger).dy + 4, 0.01));
+      expect(tester.getSize(options.first).width, greaterThanOrEqualTo(160));
+      final menuContext = tester.element(options.first);
+      final currentColor = libraryToolbarMenuText(menuContext);
+      final otherColor = Color.lerp(libraryToolbarMenuSurface(menuContext),
+          libraryToolbarMenuMutedText(menuContext), 0.75);
+      for (final label in [
+        'List',
+        'Vertical Cards',
+        'Horizontal Cards',
+        'Covers',
+        'Shelves',
+        'Flow Carousel'
+      ]) {
+        expect(tester.widget<Text>(find.text(label)).style!.color,
+            label == 'Covers' ? currentColor : otherColor);
+      }
+      await tester.tap(find.text('List'));
+      await tester.pumpAndSettle();
+      expect(selected, LibraryViewMode.list);
+      expect(tester.takeException(), isNull);
+      await mouse.removePointer();
+    });
+  }
 
   testWidgets('menu-only dense controls stay interactive and open their menu',
       (tester) async {

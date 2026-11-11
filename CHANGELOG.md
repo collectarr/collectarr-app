@@ -20,6 +20,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- View and Layout menus open below the toolbar separator and dim unselected choices; Layout omits the checkmark and its extra space.
 - Selecting a Location from its picker keeps location names in the dropdown instead of adding internal IDs.
 - Trailer video controls appear under Games settings instead of General, with separate choices for Games, Hardware and Toys.
 - The main menu aligns the library name with its icon and shows a larger version number at the bottom right of its header.
