@@ -3,15 +3,48 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/core/settings/connection_settings.dart';
+import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   setUp(resetMediaCatalogCacheForTesting);
 
+  test('catalog waits for saved connection settings before contacting Core',
+      () async {
+    final api = _CatalogApiClient([
+      const CatalogMediaType(
+          kind: 'music',
+          singularLabel: 'Album',
+          pluralLabel: 'Albums',
+          routeSegments: ['music'])
+    ]);
+    final container = ProviderContainer(overrides: [
+      connectionSettingsProvider.overrideWith(_PendingConnectionSettings.new),
+      apiClientProvider.overrideWith((ref) {
+        final settings = ref.watch(connectionSettingsProvider);
+        expect(settings.isLoaded, isTrue);
+        expect(settings.metadataBaseUrl, 'http://core.local');
+        return api;
+      }),
+    ]);
+    addTearDown(container.dispose);
+    expect(await container.read(mediaCatalogProvider.future),
+        fallbackMediaCatalog);
+    expect(api.calls, 0);
+    (container.read(connectionSettingsProvider.notifier)
+            as _PendingConnectionSettings)
+        .finishLoading();
+    expect((await container.read(mediaCatalogProvider.future)).single.kind,
+        'music');
+    expect(api.calls, 1);
+  });
+
   test('media catalog cache falls back when Core is unavailable', () async {
     final container = ProviderContainer(
       overrides: [
+        connectionSettingsProvider.overrideWith(_TestConnectionSettings.new),
         apiClientProvider.overrideWithValue(_FailingCatalogApiClient()),
       ],
     );
@@ -35,7 +68,10 @@ void main() {
       ),
     ]);
     final first = ProviderContainer(
-      overrides: [apiClientProvider.overrideWithValue(api)],
+      overrides: [
+        connectionSettingsProvider.overrideWith(_TestConnectionSettings.new),
+        apiClientProvider.overrideWithValue(api)
+      ],
     );
     addTearDown(first.dispose);
 
@@ -44,6 +80,7 @@ void main() {
 
     final second = ProviderContainer(
       overrides: [
+        connectionSettingsProvider.overrideWith(_TestConnectionSettings.new),
         apiClientProvider.overrideWithValue(_FailingCatalogApiClient()),
       ],
     );
@@ -57,6 +94,7 @@ void main() {
   test('physical formats can be read from Core catalog', () async {
     final container = ProviderContainer(
       overrides: [
+        connectionSettingsProvider.overrideWith(_TestConnectionSettings.new),
         apiClientProvider.overrideWithValue(
           _CatalogApiClient([
             const CatalogMediaType(
@@ -93,6 +131,7 @@ void main() {
   test('media catalog provider normalizes known display labels', () async {
     final container = ProviderContainer(
       overrides: [
+        connectionSettingsProvider.overrideWith(_TestConnectionSettings.new),
         apiClientProvider.overrideWithValue(
           _CatalogApiClient([
             const CatalogMediaType(
@@ -170,4 +209,17 @@ class _FailingCatalogApiClient extends ApiClient {
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     throw StateError('Core unavailable');
   }
+}
+
+class _TestConnectionSettings extends ConnectionSettingsController {
+  @override
+  ConnectionSettings build() => const ConnectionSettings(
+      metadataBaseUrl: 'http://core.local', isLoaded: true);
+}
+
+class _PendingConnectionSettings extends ConnectionSettingsController {
+  @override
+  ConnectionSettings build() => const ConnectionSettings();
+  void finishLoading() => state = const ConnectionSettings(
+      metadataBaseUrl: 'http://core.local', isLoaded: true);
 }

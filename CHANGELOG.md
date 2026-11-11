@@ -20,6 +20,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Startup waits for saved connection settings before requesting media types, avoiding connection errors against the default Core address.
 - Sync error and warning banners highlight their close button on hover and open the full diagnostic in Logs.
 - Unavailable sync services fail promptly with a clear message while preserving local changes and full diagnostic logs.
 - View and Layout menus open below the toolbar separator and dim unselected choices; Layout omits the checkmark and its extra space.

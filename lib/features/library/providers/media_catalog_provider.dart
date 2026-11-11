@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/config/catalog_kind_defaults.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 String? _cachedMediaCatalogBaseUrl;
@@ -17,6 +18,11 @@ void resetMediaCatalogCacheForTesting() {
 
 final mediaCatalogProvider =
     FutureProvider<List<CatalogMediaType>>((ref) async {
+  // Until preferences load, the default URL is only a placeholder. Do not
+  // contact it when the user may have configured a different Core server.
+  if (!ref.watch(connectionSettingsProvider).isLoaded) {
+    return fallbackMediaCatalog;
+  }
   final api = ref.watch(apiClientProvider);
   if (_cachedMediaCatalogBaseUrl == api.baseUrl &&
       _cachedMediaCatalog != null) {
