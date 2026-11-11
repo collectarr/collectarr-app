@@ -47,6 +47,10 @@
 - Switching to another kind no longer flashes its "no items" message before the items appear.
 - The details panel stays on its loading screen until label images, logos and added images are in.
 
+### Refactors
+- Comic editing keeps catalog, custom-field and image changes together when saving or cancelling.
+
+
 ## 1.6.0 - 2026-11-07
 
 ### Refactors

@@ -28,6 +28,11 @@ never resets a database. See [local persistence](local-persistence.md).
 Books Add and Edit share kind-owned form fields and column layouts. The typed
 editor composes the shared Personal, Custom Fields, Covers and My Images
 lifecycles; Book rules and transport mappings remain in its own folder.
+Book and Comic editors use `LibraryCatalogEditChanges` for canonical snapshots,
+order-independent custom-field comparisons, pending cover/image edits and the
+structural save selection. Catalog reconstruction, entry/tracking rules and
+Core field maps stay in each kind; Core correction review and validation already
+live in the shared correction boundary. The dialogs remain independent.
 
 ## Catalog and entries
 

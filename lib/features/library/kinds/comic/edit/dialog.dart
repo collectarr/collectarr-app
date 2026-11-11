@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
+import 'package:collectarr_app/features/library/edit/session/catalog_edit_changes.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
@@ -12,7 +13,6 @@ import 'covers_tab.dart';
 import 'personal_form.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
-import 'package:collectarr_app/features/library/edit/draft/models.dart';
 import 'package:collectarr_app/features/library/edit/schema/dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/core_correction.dart';
 import 'package:collectarr_app/features/library/edit/fields/external_links_draft_editor.dart';
@@ -48,12 +48,8 @@ class ComicItemEditDialog extends StatefulWidget {
 
 class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   late final ComicCatalogItem _media;
-  late final String _initialJson;
+  late final LibraryCatalogEditChanges _changes;
   ComicEntryEditDraft? _entry;
-  late Map<String, String?> _customFieldEdits;
-  late final String _initialCustomJson;
-  List<ItemImageEdit> _imageEdits = const [];
-  List<ItemImageEdit> _coverEdits = const [];
 
   @override
   void didChangeDependencies() {
@@ -78,11 +74,6 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
         .mapTransport((transport) => transport);
     _media = ComicCatalogItem.fromJson(transport.payload);
     _draft = comicCatalogItemFormValuesFrom(_media);
-    _customFieldEdits = {
-      for (final value in widget.request.customFieldValues)
-        value.fieldDefinitionId: value.value
-    };
-    _initialCustomJson = jsonEncode(_customFieldEdits);
     _creators = initComicCreators(_media);
     _characters = initComicCharacters(_media);
     _externalLinks = [];
@@ -96,7 +87,10 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
       _externalLinks.add(row);
       _originalExternalLinks[row] = link;
     }
-    _initialJson = jsonEncode(_editedMedia().toJson());
+    _changes = LibraryCatalogEditChanges(
+      initialCatalogFields: _editedMedia().toJson(),
+      customFieldValues: widget.request.customFieldValues,
+    );
   }
 
   @override
@@ -138,11 +132,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
       tabOrderKey: native
           ? 'library_edit_tabs_comic_mobile'
           : 'library_edit_tabs_comic_typed',
-      hasUnsavedChanges: () =>
-          _initialJson != jsonEncode(_editedMedia().toJson()) ||
-          _imageEdits.isNotEmpty ||
-          _coverEdits.isNotEmpty ||
-          _initialCustomJson != jsonEncode(_customFieldEdits),
+      hasUnsavedChanges: () => _changes.hasChanges(_editedMedia().toJson()),
       extraTabs: [
         if (native && personal != null) _personalTab(personal, valueTab: false),
         if (!native && personal != null) ...[
@@ -155,11 +145,11 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
             icon: AppIcons.tabCustomFields,
             content: CustomFieldsEditSection(
               definitions: widget.request.customFieldDefinitions,
-              values: _customFieldEdits,
+              values: _changes.customFields,
               accent: widget.request.accent,
               mediaKind: 'comic',
               onChanged: (values) =>
-                  setState(() => _customFieldEdits = Map.of(values)),
+                  setState(() => _changes.customFields = Map.of(values)),
             )),
         if (native && personal != null) ...[
           _personalTab(personal, valueTab: true),
@@ -183,7 +173,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
                   originalCoverImageUrl: _media.coverImageUrl ?? '',
                   onCoverImageUrlChanged: (value) =>
                       _draft.coverImageUrl = value,
-                  onEdits: (edits) => setState(() => _coverEdits = edits),
+                  onEdits: (edits) => setState(() => _changes.covers = edits),
                   searchTitle: () => _draft.seriesTitle,
                 ),
                 ItemImagesEditSection(
@@ -192,7 +182,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
                       if (!_isCover(image)) image
                   ],
                   accent: widget.request.accent,
-                  onChanged: (edits) => setState(() => _imageEdits = edits),
+                  onChanged: (edits) => setState(() => _changes.images = edits),
                 ),
               ],
             ),
@@ -210,7 +200,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
                 coverImageUrl: _draft.coverImageUrl,
                 originalCoverImageUrl: _media.coverImageUrl ?? '',
                 onCoverImageUrlChanged: (value) => _draft.coverImageUrl = value,
-                onEdits: (edits) => setState(() => _coverEdits = edits),
+                onEdits: (edits) => setState(() => _changes.covers = edits),
                 searchTitle: () => _draft.seriesTitle,
               )),
           EditSchemaExtraTab(
@@ -223,7 +213,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
                     if (!_isCover(image)) image
                 ],
                 accent: widget.request.accent,
-                onChanged: (edits) => setState(() => _imageEdits = edits),
+                onChanged: (edits) => setState(() => _changes.images = edits),
               )),
           _creatorsTab(),
           _charactersTab(),
@@ -261,10 +251,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
         );
         await commitLibraryEdit(
           context,
-          LibraryEditSelection(
-              kindItem: updated,
-              customFieldEdits: Map.unmodifiable(_customFieldEdits),
-              itemImageEdits: [..._imageEdits, ..._coverEdits]),
+          _changes.selection(kindItem: updated),
         );
       },
     );

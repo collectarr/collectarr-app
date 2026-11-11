@@ -1,10 +1,8 @@
-import 'dart:convert';
+import 'package:collectarr_app/features/library/edit/session/catalog_edit_changes.dart';
 
-import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/core_correction.dart';
-import 'package:collectarr_app/features/library/edit/draft/models.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/schema/renderer.dart';
 import 'package:collectarr_app/features/library/edit/schema/dialog.dart';
@@ -42,12 +40,8 @@ final class _BookItemEditDialog extends StatefulWidget {
 final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
   late final BookCatalogMetadata _metadata;
   late final BookItemEditDraft _draft;
-  late final String _initialJson;
+  late final LibraryCatalogEditChanges _changes;
   late final BookReadingDraft _reading;
-  late Map<String, String?> _customFieldEdits;
-  late final Map<String, String?> _initialCustomFieldEdits;
-  List<ItemImageEdit> _imageEdits = const [];
-  List<ItemImageEdit> _coverEdits = const [];
 
   @override
   void initState() {
@@ -58,12 +52,10 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
     _reading = BookReadingDraft(widget.request.trackingSummary);
     // Saving fills derived values, so an untouched draft is compared with
     // its own first output rather than the stored item.
-    _initialJson = jsonEncode(_draft.toMetadata().toJson());
-    _initialCustomFieldEdits = {
-      for (final value in widget.request.customFieldValues)
-        value.fieldDefinitionId: value.value,
-    };
-    _customFieldEdits = Map.of(_initialCustomFieldEdits);
+    _changes = LibraryCatalogEditChanges(
+      initialCatalogFields: _draft.toMetadata().toJson(),
+      customFieldValues: widget.request.customFieldValues,
+    );
   }
 
   @override
@@ -119,9 +111,9 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
         customFields: LibraryEditCustomFieldsTabContribution(
           icon: AppIcons.tabCustomFields,
           definitions: widget.request.customFieldDefinitions,
-          values: _customFieldEdits,
+          values: _changes.customFields,
           onChanged: (values) =>
-              setState(() => _customFieldEdits = Map.of(values)),
+              setState(() => _changes.customFields = Map.of(values)),
           onCustomValueChanged: (fieldDefinitionId, value) {
             final definition = widget.request.customFieldDefinitions
                 .where((item) => item.id == fieldDefinitionId)
@@ -144,7 +136,7 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
                   image.imageType != 'back_cover')
                 image,
           ],
-          onChanged: (edits) => setState(() => _imageEdits = edits),
+          onChanged: (edits) => setState(() => _changes.images = edits),
         ),
       ),
       extraTabs: [
@@ -187,7 +179,7 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
                 _draft.values.backCoverImageUrl = value,
             onCoverImageUrlChanged: (value) =>
                 _draft.values.coverImageUrl = value,
-            onEdits: (edits) => setState(() => _coverEdits = edits),
+            onEdits: (edits) => setState(() => _changes.covers = edits),
           ),
         ),
         EditSchemaExtraTab(
@@ -229,11 +221,8 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
       hasUnsavedChanges: () =>
-          _initialJson != jsonEncode(_draft.toMetadata().toJson()) ||
-          _reading.hasChanges ||
-          _imageEdits.isNotEmpty ||
-          _coverEdits.isNotEmpty ||
-          jsonEncode(_customFieldEdits) != jsonEncode(_initialCustomFieldEdits),
+          _changes.hasChanges(_draft.toMetadata().toJson()) ||
+          _reading.hasChanges,
       onSave: (_) async {
         final updated = _draft.toMetadata();
         final candidate = personal == null
@@ -246,11 +235,9 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
             : widget.request.kindItem.kindCapability.replacingKindData(updated);
         await commitLibraryEdit(
           context,
-          LibraryEditSelection(
+          _changes.selection(
             kindItem: candidate,
             tracking: _reading.hasChanges ? _reading.selection : null,
-            customFieldEdits: Map.unmodifiable(_customFieldEdits),
-            itemImageEdits: [..._imageEdits, ..._coverEdits],
             localChanges: [
               if (personal == null && !vocabularyEdits.isEmpty)
                 vocabularyEdits.toEditChange(
