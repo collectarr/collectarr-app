@@ -1,10 +1,5 @@
 import 'package:collectarr_app/features/library/config/item_actions.dart';
-import 'package:collectarr_app/features/library/details/field_table.dart';
-import 'package:collectarr_app/features/library/details/models.dart';
-import 'package:collectarr_app/features/library/details/section.dart';
-import 'package:collectarr_app/features/library/detail/hero.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/detail/author_spotlight.dart';
+import '../detail/hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -12,32 +7,14 @@ Widget buildBookCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
-  return LibraryDetailHero(
-    type: request.type,
-    item: request.item,
-    libraryEntry: request.libraryEntry,
-    accent: request.accent,
-    kindEntryContent: buildBookAuthorSpotlight(
-      item: request.item,
-      accent: request.accent,
-    ),
-  );
+  return BookDetailHero(request: request);
 }
 
 Widget buildBookLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
-  return LibraryDetailHero(
-    type: request.type,
-    item: request.item,
-    libraryEntry: request.libraryEntry,
-    accent: request.accent,
-    kindEntryContent: buildBookAuthorSpotlight(
-      item: request.item,
-      accent: request.accent,
-    ),
-  );
+  return BookDetailHero(request: request);
 }
 
 List<Widget> buildBookCatalogItemInspectorSections(
@@ -45,8 +22,6 @@ List<Widget> buildBookCatalogItemInspectorSections(
   LibraryInspectorRequest request,
 ) {
   return const BookLibraryMediaPresentationBuilder(
-    showSummary: true,
-    showVolumeHierarchy: true,
     showPersonalDetails: false,
   ).buildInspectorSections(
     context: context,
@@ -60,35 +35,10 @@ List<Widget> buildBookLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
-  final sections = const BookLibraryMediaPresentationBuilder(
-    showPersonalDetails: false,
-  ).buildInspectorSections(
+  return const BookLibraryMediaPresentationBuilder().buildInspectorSections(
     context: context,
     item: request.item,
     accent: request.accent,
     onFilterByValue: request.onFilterByValue,
   );
-  final entry =
-      BookLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
-  if (entry == null) return sections;
-  final details = entry.personal.details;
-  final facts = <LibraryDetailField>[
-    if (details.signedBy?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Signed by', value: details.signedBy!.trim()),
-    if (details.dustJacketPresent)
-      LibraryDetailField(
-        label: 'Dust jacket',
-        value: details.dustJacketCondition?.trim().isNotEmpty == true
-            ? details.dustJacketCondition!.trim()
-            : 'Present',
-      ),
-  ];
-  if (facts.isEmpty) return sections;
-  return [
-    ...sections,
-    LibraryDetailSection(
-      title: 'Collection item details',
-      children: [LibraryDetailFieldTable(fields: facts)],
-    ),
-  ];
 }

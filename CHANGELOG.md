@@ -4,7 +4,7 @@
 
 ### Features
 - The admin dashboard shows server catalog totals and catalog table storage by kind.
-- Books is available as its own library, with ISBN search, reference-aligned Main, Details, Credits and Personal forms, with only CLZ fields shown in Details, full edition details, contributor credits, personal and value fields, reading tracking, covers, personal images, mapped CSV import, and workspace sorting, columns and folders including genre, subject, country and language.
+- Books is available as its own library, with ISBN search, reference-aligned forms and inspector, full edition and copy details, reading tracking, covers, personal images, mapped CSV import, and workspace sorting, columns and folders. Plot keeps rich text, and its form panels match the other libraries.
 - Flow Carousel has the Cover Size and Item Spacing sliders.
 - Add Comics has an NCBD tab listing a week's releases from Core, with All, #1's, My Series and a Pull List of followed series kept on this device, sorted by variant count or alphabetically.
 - Settings > Updates opens release notes in a panel with formatted text, images and links, and links to the release on GitHub.

@@ -77,6 +77,22 @@ void main() {
     expect(cleared.heightMm, 197);
   });
 
+  test('Books Add and Edit preserve formatted Plot without flattening it', () {
+    const html =
+        '<p>A <b>reference</b> story.</p><ul><li>One</li><li>Two</li></ul>';
+    final manual =
+        BookAddManualDraft(values: BookCatalogFormValues(description: html));
+    addTearDown(manual.dispose);
+    final candidate = buildBookManualCandidate(manual, title: 'Reference')!;
+    final metadata = candidate.kindCapability
+        .mapTransport((item) => BookCatalogMetadata.fromJson(item.kindData));
+    expect(metadata.synopsis, html);
+    final edit = BookItemEditDraft.fromMetadata(metadata);
+    addTearDown(edit.dispose);
+    expect(edit.toMetadata().synopsis, html);
+    expect(edit.toMetadata().description, metadata.description);
+  });
+
   test('Books Add command persists copy value and separate reading state', () {
     final manual = BookAddManualDraft();
     addTearDown(manual.dispose);

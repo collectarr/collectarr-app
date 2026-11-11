@@ -1,8 +1,9 @@
+import 'package:collectarr_app/ui/app_formatted_text.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/entry_helpers.dart';
@@ -10,28 +11,22 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/data.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
-import 'package:collectarr_app/features/library/hierarchy/ui/children_section.dart';
-import 'package:collectarr_app/features/library/details/field_table.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
+import 'tracking/book_tracking_profile.dart';
 
 class BookLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
   const BookLibraryMediaPresentationBuilder({
-    this.showSummary = false,
-    this.showVolumeHierarchy = false,
     this.showPersonalDetails = true,
     this.metadataLabels = const LibraryMetadataLabels(),
   });
 
-  final bool showSummary;
-  final bool showVolumeHierarchy;
   final bool showPersonalDetails;
   final LibraryMetadataLabels metadataLabels;
 
@@ -265,168 +260,172 @@ class BookLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final sections = <Widget>[];
-    if (showVolumeHierarchy) {
-      sections.add(
-        HierarchyChildrenSection(
-          itemId: item.target.id,
-          kind: CatalogMediaKind.book,
-        ),
-      );
-    }
-    final dto = item.dto;
     final metadata = _bookMetadata(item);
-    final sectionSpecs = <LibraryDetailSectionSpec>[];
-
-    final originalFacts = <LibraryDetailField>[
-      if (metadata?.seriesTitle?.trim().isNotEmpty == true)
-        LibraryDetailField(
-            label: 'Series', value: metadata!.seriesTitle!.trim()),
-      if (metadata?.synopsis != null && metadata!.synopsis!.trim().isNotEmpty)
-        LibraryDetailField(label: 'Summary', value: metadata.synopsis!.trim()),
-    ];
-    if (originalFacts.isNotEmpty) {
-      sectionSpecs.add(
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.identity,
-          title: 'Original Details',
-          children: [LibraryDetailFieldTable(fields: originalFacts)],
-        ),
-      );
+    if (metadata == null) return const [];
+    final sections = <Widget>[];
+    void list(String title, List<String> values) {
+      final clean = values.where((value) => value.trim().isNotEmpty).toList();
+      if (clean.isEmpty) return;
+      sections.add(LibraryDetailSection(title: title, chips: [
+        LibraryDetailChipGroup(values: clean, onValueTap: onFilterByValue),
+      ]));
     }
 
-    final adapter = dto is BookWorkspaceDto ? dto : null;
-    final bookDto = dto is BookWorkspaceDto ? dto : null;
-    final productFacts = <LibraryDetailField>[
-      if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true)
-        LibraryDetailField(
-            label: 'Format', value: adapter!.referenceFormatLabel!.trim()),
-      if (bookDto?.publisher?.trim().isNotEmpty == true)
-        LibraryDetailField(
-            label: 'Publisher', value: bookDto!.publisher!.trim()),
-      if (bookDto?.barcode?.trim().isNotEmpty == true)
-        LibraryDetailField(
-            label: 'ISBN / Barcode', value: bookDto!.barcode!.trim()),
-      if (adapter?.country?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Country', value: adapter!.country!.trim()),
-      if (adapter?.language?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Language', value: adapter!.language!.trim()),
-    ];
-    if (productFacts.isNotEmpty) {
-      sectionSpecs.add(
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.metadata,
-          title: 'Product Details',
-          children: [LibraryDetailFieldTable(fields: productFacts)],
-        ),
-      );
+    list('Genre', metadata.genres);
+    list('Subject', metadata.subjects);
+    final plot = metadata.description ??
+        metadata.synopsis ??
+        metadata.plotDescription ??
+        metadata.plotSummary;
+    if (plot?.trim().isNotEmpty == true) {
+      sections.add(LibraryDetailSection(
+          title: 'Plot', children: [AppFormattedText(plot!)]));
+    }
+    final credits = [...metadata.creators, ...metadata.contributors]
+        .where((credit) => credit.role?.toLowerCase() != 'author')
+        .map((credit) => LibraryDetailField(
+              label: credit.role ?? 'Contributor',
+              value: credit.name,
+              onTap: onFilterByValue == null
+                  ? null
+                  : () => onFilterByValue(credit.name),
+            ))
+        .toList();
+    if (credits.isNotEmpty) {
+      sections.add(LibraryDetailSection(title: 'Credits', fields: credits));
+    }
+    final details = <LibraryDetailField>[];
+    void detail(String label, Object? value) {
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty) {
+        details.add(LibraryDetailField(label: label, value: text));
+      }
     }
 
-    final creatorNames = <String>[
-      for (final creator in metadata?.creators ?? const <BookCatalogCredit>[])
-        if (creator.name.trim().isNotEmpty) creator.name.trim(),
-    ];
-    sectionSpecs.add(
-      LibraryDetailSectionSpec(
-        slot: LibraryDetailSectionSlot.relations,
-        title: 'Contributors',
-        chips: [
-          LibraryDetailChipGroup(
-            values: creatorNames,
-            onValueTap: onFilterByValue,
-          ),
+    detail('Original Title', metadata.originalTitle);
+    detail('Original Subtitle', metadata.originalSubtitle);
+    detail(
+        'Original Publication Date',
+        metadata.originalPublicationDateParts != null
+            ? AppFormats.current
+                .formatPartialDate(metadata.originalPublicationDateParts)
+            : formatNullableDate(metadata.originalPublicationDate));
+    detail('Original Country', metadata.originalCountry);
+    detail('Original Publication Place', metadata.originalPublicationPlace);
+    detail('Original Language', metadata.originalLanguage);
+    detail('Original Publisher', metadata.originalPublisher);
+    detail('Extras', metadata.extras.join(', '));
+    if (metadata.audioLengthMinutes case final minutes?) {
+      detail('Audiobook Length',
+          '${(minutes ~/ 60).toString().padLeft(2, '0')}:${(minutes % 60).toString().padLeft(2, '0')}');
+    }
+    if (metadata.audioAbridged case final abridged?) {
+      detail('Audiobook Abridged', abridged ? 'Yes' : 'No');
+    }
+    detail('Printed By', metadata.printedBy);
+    detail('Number Line', metadata.numberLine);
+    detail('Paper Type', metadata.paperType);
+    detail('Printing', metadata.printingNumber);
+    if (metadata.firstEdition case final first?) {
+      detail('First Edition', first ? 'Yes' : 'No');
+    }
+    if (details.isNotEmpty) {
+      sections.add(LibraryDetailSection(title: 'Details', fields: details));
+    }
+    final entry = BookLibraryEntryProjection.fromDispatch(
+        item.source.libraryEntryDispatch);
+    if (showPersonalDetails && entry != null) {
+      final personal = entry.personal;
+      final facts = <LibraryDetailField>[
+        if (personal.indexNumber != null)
+          LibraryDetailField(
+              label: 'Index', value: personal.indexNumber.toString()),
+        if (personal.ownerLabel?.isNotEmpty == true)
+          LibraryDetailField(label: 'Owner', value: personal.ownerLabel!),
+        if (item.source.locationPath?.isNotEmpty == true)
+          LibraryDetailField(
+              label: 'Location', value: item.source.locationPath!),
+        if (item.source.trackingSummary case final tracking?) ...[
+          LibraryDetailField(
+              label: 'Read',
+              value: bookTrackingProfile
+                      .normalizeStorageValue(tracking.statusStorageValue) ??
+                  tracking.statusLabel),
+          if (tracking.startedAt != null)
+            LibraryDetailField(
+                label: 'Started',
+                value: formatNullableDate(tracking.startedAt)!),
+          if (tracking.completedAt != null)
+            LibraryDetailField(
+                label: 'Finished',
+                value: formatNullableDate(tracking.completedAt)!),
         ],
-      ),
-    );
-
-    final imageFacts = <LibraryDetailField>[
-      if (dto.imageUrl?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Cover', value: dto.imageUrl!.trim()),
-    ];
-    if (imageFacts.isNotEmpty) {
-      sectionSpecs.add(
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.media,
-          title: 'Images',
-          children: [LibraryDetailFieldTable(fields: imageFacts)],
-        ),
-      );
-    }
-
-    final identifierValues = <String>[
-      if (bookDto?.barcode?.trim().isNotEmpty == true) bookDto!.barcode!.trim(),
-    ];
-    if (identifierValues.isNotEmpty) {
-      sectionSpecs.add(
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.source,
-          title: 'Identifiers',
-          chips: [
-            LibraryDetailChipGroup(
-              values: identifierValues,
-              onValueTap: onFilterByValue,
-            ),
-          ],
-        ),
-      );
-    }
-
-    final source = item.source;
-    final typedEntry =
-        BookLibraryEntryProjection.fromDispatch(source.libraryEntryDispatch);
-    final entry = typedEntry is BookLibraryEntry ? typedEntry : null;
-    final rating = source.trackingSummary?.rating;
-    final personalFacts = <LibraryDetailField>[
-      if (entry?.personal.condition?.trim().isNotEmpty == true)
+        if (entry.createdAt != null)
+          LibraryDetailField(
+              label: 'Added Date',
+              value: AppFormats.current.formatDateTime(entry.createdAt!)),
         LibraryDetailField(
-          label: 'Condition',
-          value: entry!.personal.condition!.trim(),
-        ),
-      if (entry?.personal.grade?.trim().isNotEmpty == true)
-        LibraryDetailField(
-          label: 'Grade',
-          value: entry!.personal.grade!.trim(),
-        ),
-      if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
-        LibraryDetailField(
-            label: 'Collection Status',
-            value: entry!.personal.collectionStatus!.trim()),
-      if (rating != null)
-        LibraryDetailField(label: 'Rating', value: rating.toString()),
-      if (source.locationPath?.trim().isNotEmpty == true)
-        LibraryDetailField(
-            label: 'Location', value: source.locationPath!.trim()),
-      if (source.pricePaidCents != null)
-        LibraryDetailField(
-            label: 'Price Paid', value: source.pricePaidCents!.toString()),
-      if (source.libraryEntrySummary?.notes?.trim().isNotEmpty == true)
-        LibraryDetailField(
-          label: 'Notes',
-          value: source.libraryEntrySummary!.notes!.trim(),
-        ),
-      if (entry?.personal.tags.isNotEmpty == true)
-        LibraryDetailField(
-          label: 'Tags',
-          value: entry!.personal.tags.join(', '),
-        ),
-    ];
-    if (showPersonalDetails && personalFacts.isNotEmpty) {
-      sectionSpecs.add(
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.personal,
-          title: 'Personal Details',
-          children: [LibraryDetailFieldTable(fields: personalFacts)],
-        ),
-      );
-    }
-
-    for (final spec in sectionSpecs) {
-      sections.add(
-        LibraryDetailSection(
-          title: spec.title,
-          children: spec.children,
-        ),
-      );
+            label: 'Modified Date',
+            value: AppFormats.current.formatDateTime(entry.updatedAt)),
+      ];
+      if (facts.isNotEmpty) {
+        sections.add(LibraryDetailSection(title: 'Personal', fields: facts));
+      }
+      final value = <LibraryDetailField>[
+        if (personal.details.retailPriceCents != null)
+          LibraryDetailField(
+              label: 'Retail Price',
+              value: AppFormats.current.formatMoney(
+                  personal.details.retailPriceCents, personal.currency)),
+        if (personal.marketValueCents != null)
+          LibraryDetailField(
+              label: 'Value',
+              value: AppFormats.current
+                  .formatMoney(personal.marketValueCents, personal.currency)),
+        if (personal.pricePaidCents != null)
+          LibraryDetailField(
+              label: 'Purchase Price',
+              value: AppFormats.current
+                  .formatMoney(personal.pricePaidCents, personal.currency)),
+        if (personal.sellPriceCents != null)
+          LibraryDetailField(
+              label: 'Sold Price',
+              value: AppFormats.current
+                  .formatMoney(personal.sellPriceCents, personal.currency)),
+        if (personal.purchaseDate != null)
+          LibraryDetailField(
+              label: 'Purchase Date',
+              value: formatNullableDate(personal.purchaseDate)!),
+        if (personal.purchaseStore?.isNotEmpty == true)
+          LibraryDetailField(
+              label: 'Purchase Store', value: personal.purchaseStore!),
+        if (personal.soldAt != null)
+          LibraryDetailField(
+              label: 'Sold Date', value: formatNullableDate(personal.soldAt)!),
+        if (personal.soldTo?.isNotEmpty == true)
+          LibraryDetailField(label: 'Sold To', value: personal.soldTo!),
+        if (personal.condition?.isNotEmpty == true)
+          LibraryDetailField(
+              label: 'Book Condition', value: personal.condition!),
+        if (personal.details.dustJacketPresent)
+          const LibraryDetailField(label: 'Dust Jacket', value: 'Yes'),
+        if (personal.details.dustJacketCondition?.isNotEmpty == true)
+          LibraryDetailField(
+              label: 'Dust Jacket Condition',
+              value: personal.details.dustJacketCondition!),
+        if (personal.details.signedBy?.isNotEmpty == true)
+          LibraryDetailField(
+              label: 'Signed by', value: personal.details.signedBy!),
+      ];
+      if (value.isNotEmpty) {
+        sections.add(LibraryDetailSection(title: 'Value', fields: value));
+      }
+      if (personal.personalNotes?.trim().isNotEmpty == true) {
+        sections.add(LibraryDetailSection(
+            title: 'Notes',
+            children: [AppFormattedText(personal.personalNotes!)]));
+      }
+      list('Tags', personal.tags);
     }
     return sections;
   }

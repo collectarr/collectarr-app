@@ -230,7 +230,7 @@ LibraryFormSchema<TDraft>
           ...bookCatalogIdentityFields(
             values: values,
             include: {'description'},
-            descriptionLabel: 'Synopsis',
+            descriptionLabel: 'Plot',
           ),
           LibraryTextFieldSpec<TDraft>(
             id: 'back_cover_image_url',

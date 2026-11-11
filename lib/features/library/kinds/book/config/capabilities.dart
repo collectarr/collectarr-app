@@ -90,8 +90,9 @@ final bookKindInspector = LibraryInspectorCapability(
       sectionsBuilder: buildBookLibraryEntryInspectorSections,
     ),
   ),
-  showsDefaultPersonalSection: true,
-  supportsLibraryEntryImages: false,
+  showsDefaultPersonalSection: false,
+  showsActionBar: false,
+  supportsLibraryEntryImages: true,
 );
 
 final bookKindLinkedMetadata =

@@ -22,6 +22,7 @@ import 'copy_fields.dart';
 import 'read_history.dart';
 import 'package:collectarr_app/features/library/add/panes/manual_personal_tab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 
 class BookAddManualPane extends ConsumerStatefulWidget {
   const BookAddManualPane({super.key, required this.request});
@@ -274,6 +275,21 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           icon: AppIcons.tabDescription,
           fieldIds: bookPlotFieldIds,
           sectionLabels: const {'publication': 'Plot'},
+        ),
+        LibraryAddManualPaneTab(
+          id: 'my_images',
+          label: 'My Images',
+          icon: AppIcons.tabImages,
+          content: ItemImagesEditSection(
+            images: [
+              for (final image in request.itemImages)
+                if (image.imageType != 'front_cover' &&
+                    image.imageType != 'back_cover')
+                  image,
+            ],
+            accent: request.accent,
+            onChanged: request.onItemImagesChanged ?? (_) {},
+          ),
         ),
       ],
     );

@@ -41,9 +41,10 @@ List<LibraryFieldSpec<TDraft>> bookCatalogIdentityFields<TDraft>({
       LibraryTextFieldSpec<TDraft>(
         id: 'description',
         label: descriptionLabel,
+        formatted: true,
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
-        maxLines: 4,
+        maxLines: 18,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'original_title',

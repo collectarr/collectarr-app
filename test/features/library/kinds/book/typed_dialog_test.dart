@@ -14,6 +14,8 @@ import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_f
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -91,6 +93,12 @@ void main() {
       await tester.tap(find.text(name).first);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: name);
+      if (name == 'Plot') {
+        expect(find.byType(LibraryFormattedTextFormControl), findsOneWidget);
+      }
+      if (name == 'Details') {
+        expect(find.byType(LibraryFormGroup), findsNWidgets(4));
+      }
       if (name == 'Personal') {
         final condition = tester.getTopLeft(find.text('Book Condition').first);
         final rating = tester.getTopLeft(find.text('My Rating').first);

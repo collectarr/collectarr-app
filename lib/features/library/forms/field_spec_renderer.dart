@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/forms/field_spec_control_builder.dart';
 import 'package:collectarr_app/features/library/forms/field_spec_layout.dart';
 import 'package:collectarr_app/features/library/forms/schema_text_controller_store.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 
 import 'schema.dart';
 
@@ -114,17 +115,7 @@ class _LibraryFieldSpecRendererState<TDraft>
         ],
       );
       if (!section.outlined) return content;
-      return InputDecorator(
-        decoration: InputDecoration(
-          label: Center(child: Text(section.label)),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          border: const OutlineInputBorder(),
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Theme.of(context).dividerColor)),
-          contentPadding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
-        ),
-        child: content,
-      );
+      return LibraryFormGroup(title: section.label, child: content);
     }
 
     Widget column(List<LibraryFormSectionSpec<TDraft>> items) => Column(

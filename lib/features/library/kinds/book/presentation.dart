@@ -163,8 +163,6 @@ final bookLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: bookLibraryGroupLabels,
   builder: const BookLibraryMediaPresentationBuilder(
-    showSummary: true,
-    showVolumeHierarchy: true,
     metadataLabels: booksMetadataLabels,
   ),
   bucketLabelBuilder: bookLibraryBucketLabelBuilder,
