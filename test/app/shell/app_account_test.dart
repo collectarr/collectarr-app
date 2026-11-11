@@ -25,7 +25,7 @@ void main() {
 
   for (final palette in [kDefaultAppThemePalette, kLightAppThemePalette]) {
     testWidgets(
-        'account drawer uses the dark sidebar surface, opens overview and logs out (${palette.brightness})',
+        'navigation opens My Account directly and logout preserves local collections (${palette.brightness})',
         (tester) async {
       tester.view.physicalSize = const Size(1200, 1000);
       tester.view.devicePixelRatio = 1;
@@ -66,22 +66,14 @@ void main() {
       await pumpUntilSettled(tester);
       await tester.tap(find.byKey(const Key('drawer.account')));
       await pumpUntilSettled(tester);
-      final drawer =
-          tester.widget<Drawer>(find.byKey(const Key('account.drawer')));
-      expect(drawer.backgroundColor, palette.sidebar);
+      expect(find.byKey(const Key('account.drawer')), findsNothing);
       expect(find.text('test@example.com'), findsOneWidget);
-      await tester.tap(find.text('My Account'));
-      await pumpUntilSettled(tester);
       expect(find.byType(MyAccountPage), findsOneWidget);
       expect(router.routeInformationProvider.value.uri.queryParameters['kind'],
           'game');
       expect(find.text('Library totals on this device'), findsOneWidget);
       expect(find.text('Hardware'), findsOneWidget);
       expect(find.text('7'), findsOneWidget);
-      await tester.tap(find.byKey(const Key('app.open-navigation')));
-      await pumpUntilSettled(tester);
-      await tester.tap(find.byKey(const Key('drawer.account')));
-      await pumpUntilSettled(tester);
       await tester.tap(find.text('Logout'));
       await pumpUntilSettled(tester);
       expect(container.read(authControllerProvider).isAuthenticated, isFalse);
@@ -111,7 +103,7 @@ void main() {
     await pumpUntilSettled(tester);
     final container =
         ProviderScope.containerOf(tester.element(find.byType(AppShell)));
-    // Exercise the real logout path before opening the signed-out drawer.
+    // Exercise the real logout path before opening the signed-out overview.
     await container.read(authControllerProvider.notifier).logout();
     await pumpUntilSettled(tester);
     await tester.tap(find.byKey(const Key('app.open-navigation')));
@@ -120,15 +112,10 @@ void main() {
     await pumpUntilSettled(tester);
     expect(find.text('Logout'), findsNothing);
     expect(find.text('Sign in'), findsOneWidget);
-    await tester.tap(find.text('My Account'));
-    await pumpUntilSettled(tester);
     expect(find.byType(MyAccountPage), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Sync & activity'), 250);
     expect(tester.takeException(), isNull);
-    await tester.tap(find.byKey(const Key('app.open-navigation')));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.byKey(const Key('drawer.account')));
-    await pumpUntilSettled(tester);
+    await tester.ensureVisible(find.text('Sign in'));
     await tester.tap(find.text('Sign in').last);
     await pumpUntilSettled(tester);
     expect(

@@ -2,7 +2,6 @@ import 'shell/mobile_shell.dart';
 import 'shell/desktop_shell.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/adaptive/native_system_chrome.dart';
-import 'shell/app_account_button.dart';
 import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
 import 'dart:async';
 
@@ -122,9 +121,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         selectedAction: _selectedDrawerAction,
         onOpenAccount: () {
           if (mounted) {
-            unawaited(showAppAccountDrawer(context, ref,
-                kind: activeLibrary,
-                animationsEnabled: uiPreferences.animationsEnabled));
+            context
+                .openPage(AppRoutes.forKind(AppRoutes.account, activeLibrary));
           }
         },
         isAdmin: auth.isAdmin,

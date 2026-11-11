@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/account/my_account_page.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -44,8 +45,9 @@ void main() {
     expect(find.text('Collectarr Account:'), findsOneWidget);
     await tester.tap(find.byKey(const Key('drawer.account')));
     await pumpUntilSettled(tester);
-    expect(find.byKey(const Key('account.drawer')), findsOneWidget);
-    await tester.tap(find.byTooltip('Close account'));
+    expect(find.byType(MyAccountPage), findsOneWidget);
+    expect(find.byKey(const Key('account.drawer')), findsNothing);
+    router.pop();
     await pumpUntilSettled(tester);
     expect(find.byKey(const Key('app.open-search')), findsOneWidget);
     await tester.tap(find.byKey(const Key('app.open-search')));

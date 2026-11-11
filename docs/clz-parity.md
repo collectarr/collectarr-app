@@ -87,7 +87,7 @@ Keep these when matching the reference visually.
 | Fonts | Desktop/web UI Gilroy; Android UI system sans-serif; comic slab labels use League Spartan and Open Sans on web and Android | Bundled OFL Plus Jakarta Sans for UI text and the matching OFL slab fonts on all platforms; a user-supplied local UI font can be loaded |
 | Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in; personal sync uses a separate endpoint, syncs the signed-in account's library or, on servers without accounts, the sync key's, and its header action stays hidden until it can reach one |
-| My Account | Blue account sidebar and an external account portal | Neutral sidebar matching the main navigation; a local overview across libraries, sync status, activity and account settings. Logout clears the session while keeping local collections |
+| My Account | Blue account sidebar and an external account portal | The main navigation opens a local My Account page across libraries, with sync status, activity, account settings and Logout. Logout clears the session while keeping local collections |
 | Links | The eBay link beside the cover is white | Every link uses the shared link blue |
 | List header | No sort indicator | Shared-blue caret and priority number on sorted columns |
 | Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request; edit dialogs show the shared edit pen |

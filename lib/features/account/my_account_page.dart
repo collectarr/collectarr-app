@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
@@ -15,18 +16,39 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 /// A local overview across every library, available without a cloud account.
-class MyAccountPage extends ConsumerWidget {
+class MyAccountPage extends ConsumerStatefulWidget {
   const MyAccountPage({super.key, this.kind});
   final String? kind;
 
+  @override
+  ConsumerState<MyAccountPage> createState() => _MyAccountPageState();
+}
+
+class _MyAccountPageState extends ConsumerState<MyAccountPage> {
+  bool _signingOut = false;
+
+  Future<void> _logout() async {
+    setState(() => _signingOut = true);
+    try {
+      await ref.read(authControllerProvider.notifier).logout();
+    } catch (_) {
+      if (mounted) {
+        showAppToast(context, 'Could not sign out. Please try again.',
+            tone: AppToastTone.error);
+      }
+    } finally {
+      if (mounted) setState(() => _signingOut = false);
+    }
+  }
+
   String _route(String path, {String? section}) =>
       Uri(path: path, queryParameters: {
-        if (kind != null) 'kind': kind!,
+        if (widget.kind != null) 'kind': widget.kind!,
         if (section != null) 'section': section
       }).toString();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final shelf = ref.watch(shelfProvider);
     final sync = ref.watch(syncControllerProvider);
@@ -60,9 +82,21 @@ class MyAccountPage extends ConsumerWidget {
                                     AppRoutes.settings,
                                     section: 'account')),
                                 child: const Text('Account settings')),
-                            if (!auth.isAuthenticated)
+                            if (auth.isAuthenticated || auth.token != null)
                               TextButton.icon(
-                                  onPressed: () => context.go(AppRoutes.auth),
+                                  key: const Key('account.logout'),
+                                  onPressed: _signingOut || auth.isRestoring
+                                      ? null
+                                      : _logout,
+                                  icon: const Icon(AppIcons.logout, size: 14),
+                                  label: Text(_signingOut
+                                      ? 'Signing out...'
+                                      : 'Logout'))
+                            else
+                              TextButton.icon(
+                                  onPressed: auth.isRestoring
+                                      ? null
+                                      : () => context.go(AppRoutes.auth),
                                   icon: const Icon(AppIcons.login, size: 14),
                                   label: const Text('Sign in')),
                           ])),
