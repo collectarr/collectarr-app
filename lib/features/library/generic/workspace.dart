@@ -415,6 +415,15 @@ class LibraryWorkspace extends ConsumerWidget {
           target: schemaNode,
         );
         final widths = Map.of(viewState.columnWidths);
+        for (final column in tableFields.columns) {
+          if (column.imageAspectRatio == null ||
+              widths.containsKey(column.id)) {
+            continue;
+          }
+          widths[column.id] = (column.defaultWidth ?? 48) *
+              viewState.coverSize /
+              libraryViewProfileForKind(type.kind).defaultCoverSize;
+        }
         String cellText(LibraryProjectionItem item, String id) =>
             libraryTableCellText(_tableCell(item, id));
 
@@ -447,11 +456,15 @@ class LibraryWorkspace extends ConsumerWidget {
               target: schemaNode,
             );
         final heights = <String, double>{};
+        final textRowHeight = math.max(22.0, density.tableRowHeight);
         final effectiveRowHeight = [
-          22.0,
-          density.tableRowHeight + (preferences.gridSpacing - 10.0) * 1.5,
+          textRowHeight,
           for (final column in visibleColumns)
             workspace.columnMinRowHeight(column, target: schemaNode) ?? 0,
+          for (final column in visibleColumns)
+            if (tableFields.findColumnDefinition(column)?.imageAspectRatio
+                case final aspect?)
+              math.max(1, widthFor(column.value) - 10) / aspect + 4,
         ].reduce(math.max);
         double heightFor(LibraryProjectionItem item) =>
             heights.putIfAbsent(item.target.id, () {
@@ -613,9 +626,10 @@ class LibraryWorkspace extends ConsumerWidget {
                     showEdit: preferences.showEditIcons,
                     onEditEntry: onEditItem,
                     headerHeight: density.tableHeaderHeight,
-                    rowHeight: effectiveRowHeight,
-                    rowHeightFor:
-                        preferences.wrapColumnContent ? heightFor : null,
+                    rowHeight: textRowHeight,
+                    rowHeightFor: preferences.wrapColumnContent
+                        ? heightFor
+                        : (_) => effectiveRowHeight,
                     columnSpacing: 0,
                     horizontalMargin: 0,
                     selectionRailWidth: 2,

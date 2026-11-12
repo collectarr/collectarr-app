@@ -88,6 +88,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             alwaysVisible: column.alwaysVisible,
             cellPadding: column.cellPadding,
             minRowHeight: column.minRowHeight,
+            imageAspectRatio: column.imageAspectRatio,
             cellValue: column.cellValue == null
                 ? null
                 : (context) => column.cellValue!(typedContext(context)),

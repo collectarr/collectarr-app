@@ -287,7 +287,19 @@ abstract final class LibraryPageShellPresenter {
           ),
         ),
         onCoverSizeChanged: (size) => state._updateViewState(
-          (stateValue) => stateValue.copyWith(coverSize: size),
+          (stateValue) => stateValue.copyWith(
+            coverSize: size,
+            columnWidths: stateValue.viewMode == LibraryViewMode.list
+                ? {
+                    for (final entry in stateValue.columnWidths.entries)
+                      if (activeFields
+                              .findColumnDefinition(entry.key)
+                              ?.imageAspectRatio ==
+                          null)
+                        entry.key: entry.value
+                  }
+                : stateValue.columnWidths,
+          ),
         ),
         onSidebarWidthChanged: (width) => state._updateViewChrome(
           (stateValue) => stateValue.copyWith(sidebarWidth: width),

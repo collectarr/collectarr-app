@@ -31,6 +31,45 @@ DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
 }
 
 void main() {
+  testWidgets('text stays at the top when image rows grow', (tester) async {
+    Future<void> pump(double imageHeight) => tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+              body: LibraryWorkspaceTable<String>(
+            entries: const ['row'],
+            columns: const ['cover', 'title'],
+            sortColumn: 'title',
+            sortAscending: true,
+            columnWidthFor: (id) =>
+                id == 'cover' ? imageHeight * 2 / 3 + 10 : 180,
+            defaultColumnWidthFor: (_) => 180,
+            columnSortFor: (id) => id,
+            columnLabelFor: (id) => id,
+            columnIsNumeric: (_) => false,
+            rowHeight: 28,
+            rowHeightFor: (_) => imageHeight + 4,
+            columnCellPaddingFor: (id) => id == 'cover'
+                ? const EdgeInsets.symmetric(horizontal: 5, vertical: 2)
+                : null,
+            cellBuilder: (_, id) => id == 'title'
+                ? const Text('Game title')
+                : SizedBox(
+                    height: imageHeight,
+                    child: const ColoredBox(color: Colors.red)),
+            isSelected: (_) => false,
+            onEntryTap: (_) {},
+            onSortChanged: (_) {},
+            onColumnWidthChanged: (_, __) {},
+          )),
+        ));
+    await pump(60);
+    final initialTop = tester.getTopLeft(find.text('Game title')).dy;
+    final initialWidth = tester.getSize(find.text('Game title')).width;
+    await pump(120);
+    expect(tester.getTopLeft(find.text('Game title')).dy, initialTop);
+    expect(tester.getSize(find.text('Game title')).width, initialWidth);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('list checkboxes keep outlined blue and active white marks',
       (tester) async {
     String? toggled;

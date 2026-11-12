@@ -283,10 +283,15 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                           const _LibraryDesktopToolbarSeparator(),
                           const SizedBox(width: 8),
                           _LibraryDesktopToolbarSection(
-                            label: 'Item Spacing',
-                            child: _buildSpacingSlider(
-                              context,
-                              tooltip: 'Item Spacing',
+                            label: 'Cover Size',
+                            child: LibraryCoverSizeSlider(
+                              viewMode: viewState.viewMode,
+                              coverSize: viewState.coverSize,
+                              minCoverSize: libraryViewProfileForKind(type.kind)
+                                  .minCoverSize,
+                              maxCoverSize: libraryViewProfileForKind(type.kind)
+                                  .maxCoverSize,
+                              onChanged: onCoverSizeChanged,
                             ),
                           ),
                         ] else if (viewState.viewMode.supportsCoverSize) ...[

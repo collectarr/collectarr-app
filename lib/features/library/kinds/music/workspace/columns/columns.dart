@@ -26,7 +26,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
 }
 
 /// A front or back cover image, listed under Images as in the reference:
-/// a 90 px column with a 79 px image that makes rows 83 px high.
+/// scaled with the cover size while retaining its square aspect ratio.
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     musicCoverColumn({
   required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
@@ -40,30 +40,25 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
       final imageUrl = field.getValue(context);
       return imageUrl == null || imageUrl.isEmpty
           ? const SizedBox.shrink()
-          : Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: SizedBox.square(
-                  dimension: 79,
-                  child: LibraryCoverImage(
-                    title: context.dto.primaryLabel,
-                    mediaKind: CatalogMediaKind.music,
-                    imageUrl: imageUrl,
-                    fallbackAspectRatio: 1,
-                    borderRadius: 0,
-                    fit: BoxFit.fill,
-                  ),
-                ),
+          : AspectRatio(
+              aspectRatio: 1,
+              child: LibraryCoverImage(
+                title: context.dto.primaryLabel,
+                mediaKind: CatalogMediaKind.music,
+                imageUrl: imageUrl,
+                fallbackAspectRatio: 1,
+                borderRadius: 0,
+                fit: BoxFit.fill,
               ),
             );
     },
     group: 'Images',
+    imageAspectRatio: 1,
+    cellPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
     allowSortInteraction: false,
     allowGroupInteraction: false,
     defaultWidth: 90,
-    minWidth: 90,
-    minRowHeight: 83,
+    minWidth: 44,
   );
 }
 

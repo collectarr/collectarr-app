@@ -161,9 +161,10 @@ LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?> _gameCoverColumn(
       defaultWidth: 48,
       minWidth: 44,
       minRowHeight: 56,
-      cellValue: (context) => SizedBox(
-        width: 32,
-        height: 48,
+      imageAspectRatio: 2 / 3,
+      cellPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      cellValue: (context) => AspectRatio(
+        aspectRatio: 2 / 3,
         child: LibraryCoverImage(
           title: context.dto.title,
           mediaKind: CatalogMediaKind.game,

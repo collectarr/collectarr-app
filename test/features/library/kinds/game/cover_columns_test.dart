@@ -51,7 +51,7 @@ void main() {
           child: MaterialApp(
               home: Scaffold(
                   body: Center(
-            child: column.cellValue!(context),
+            child: SizedBox(width: 32, child: column.cellValue!(context)),
           )))));
       await tester.pumpAndSettle();
       final cover =
@@ -64,6 +64,20 @@ void main() {
       final image = tester.widget<Image>(find.byType(Image)).image;
       expect(image is ResizeImage ? image.imageProvider : image,
           isA<MemoryImage>());
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          localItemImageProvider
+              .overrideWith((ref, request) => Stream.value(png))
+        ],
+        child: MaterialApp(
+            home: Center(
+                child: SizedBox(
+          width: 64,
+          child: column.cellValue!(context),
+        ))),
+      ));
+      await tester.pump();
+      expect(tester.getSize(find.byType(LibraryCoverImage)).height, 96);
       expect(tester.takeException(), isNull);
     });
   }

@@ -21,13 +21,15 @@ List<LibraryColumnDefinition<GameToyKind, GameToyWorkspaceDto, Object?>>
           ])
             columnFromField(field,
                 group: 'Images',
+                imageAspectRatio: 1,
+                cellPadding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 defaultWidth: 48,
                 minWidth: 44,
                 allowSortInteraction: false,
                 allowGroupInteraction: false,
-                cellValue: (context) => SizedBox(
-                    width: 32,
-                    height: 32,
+                cellValue: (context) => AspectRatio(
+                    aspectRatio: 1,
                     child: LibraryCoverImage(
                         title: context.dto.metadata.title,
                         mediaKind: CatalogMediaKind.gameToy,

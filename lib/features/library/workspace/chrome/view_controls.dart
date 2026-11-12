@@ -395,7 +395,10 @@ class LibraryCoverSizeSlider extends StatelessWidget {
                   value: coverSize,
                   min: minCoverSize,
                   max: maxCoverSize,
-                  onChanged: viewMode.supportsCoverSize ? onChanged : null)),
+                  onChanged: viewMode.supportsCoverSize ||
+                          viewMode == LibraryViewMode.list
+                      ? onChanged
+                      : null)),
         ]),
       );
 }

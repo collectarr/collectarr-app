@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/natural_text_compare.dart';
@@ -26,10 +28,20 @@ final List<LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, Object?>>
     id: _Catalog.cover.id,
     metadata: _Catalog.cover.metadata,
     getValue: _Catalog.cover.getValue,
-    cellValue: (context) => context.dto.coverImageUrl == null
-        ? const SizedBox.shrink()
-        : Image.network(context.dto.coverImageUrl!,
-            width: 32, height: 32, fit: BoxFit.cover),
+    cellValue: (context) => AspectRatio(
+      aspectRatio: 2 / 3,
+      child: LibraryCoverImage(
+        title: context.dto.primaryLabel,
+        mediaKind: CatalogMediaKind.comic,
+        imageUrl: context.dto.coverImageUrl,
+        libraryEntryRef: context.item.target.libraryEntryRef,
+        fallbackAspectRatio: 2 / 3,
+        showPlaceholder: false,
+        borderRadius: 0,
+      ),
+    ),
+    imageAspectRatio: 2 / 3,
+    cellPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
     group: 'Images',
     displayName: 'Front Cover',
     allowSortInteraction: false,
