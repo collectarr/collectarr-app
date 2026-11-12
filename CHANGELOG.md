@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features
+- Auto Cap Exceptions manages words in a compact list with inline add/edit, deletion and individual enable/disable controls.
 - Sorting and column favorites share medium-weight entries and edge-to-edge Favorites rules, with the longer line on the right.
 - List view has no spacing or cover-size sliders; image columns resize together and follow actual cover proportions without empty vertical bands; empty cover columns do not add row height, and text stays aligned at the top.
 - Games offers more sort and column fields, including date parts, Description, Back Cover, Core Game ID and Core Media ID; Hardware and Toys keep their own fields.
@@ -23,6 +24,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Auto Cap Exceptions uses the reference title and the active library color in its header.
 - Settings dropdown options use bolder text to match the reference without changing other select menus.
 - Settings checkboxes animate checking and unchecking with the shared checkbox primitive and respect disabled animations.
 - Horizontal Cards use the full available cover height without empty vertical bands, preserving image proportions.

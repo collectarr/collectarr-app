@@ -50,6 +50,7 @@ class UiPreferences {
     this.autocapAsYouType = false,
     this.titleCaseMethod = TitleCaseMethod.eachWordWithExceptions,
     this.titleCaseExceptions = defaultTitleCaseExceptions,
+    this.disabledTitleCaseExceptions = const [],
     this.formats = const AppFormats(),
     this.showEbayLinks = true,
     this.ebayWishlistOnly = false,
@@ -110,12 +111,21 @@ class UiPreferences {
   final bool autocapAsYouType;
   final TitleCaseMethod titleCaseMethod;
   final List<String> titleCaseExceptions;
+  final List<String> disabledTitleCaseExceptions;
 
   /// Settings > Localization: date, number and currency display.
   final AppFormats formats;
 
-  TitleCaseSettings get titleCase => TitleCaseSettings(
-      method: titleCaseMethod, exceptions: titleCaseExceptions);
+  TitleCaseSettings get titleCase {
+    final disabled = disabledTitleCaseExceptions
+        .map((word) => word.trim().toLowerCase())
+        .toSet();
+    return TitleCaseSettings(method: titleCaseMethod, exceptions: [
+      for (final word in titleCaseExceptions)
+        if (!disabled.contains(word.trim().toLowerCase())) word,
+    ]);
+  }
+
   final bool showEbayLinks;
   final bool ebayWishlistOnly;
   final bool ebayToolbar;
@@ -156,6 +166,7 @@ class UiPreferences {
     bool? autocapAsYouType,
     TitleCaseMethod? titleCaseMethod,
     List<String>? titleCaseExceptions,
+    List<String>? disabledTitleCaseExceptions,
     AppFormats? formats,
     bool? showEbayLinks,
     bool? ebayWishlistOnly,
@@ -199,6 +210,8 @@ class UiPreferences {
       autocapAsYouType: autocapAsYouType ?? this.autocapAsYouType,
       titleCaseMethod: titleCaseMethod ?? this.titleCaseMethod,
       titleCaseExceptions: titleCaseExceptions ?? this.titleCaseExceptions,
+      disabledTitleCaseExceptions:
+          disabledTitleCaseExceptions ?? this.disabledTitleCaseExceptions,
       formats: formats ?? this.formats,
       showEbayLinks: showEbayLinks ?? this.showEbayLinks,
       ebayWishlistOnly: ebayWishlistOnly ?? this.ebayWishlistOnly,
@@ -262,6 +275,8 @@ class UiPreferencesStore {
   static const autocapAsYouTypeKey = '$_prefix.autocap_as_you_type';
   static const titleCaseMethodKey = '$_prefix.title_case_method';
   static const titleCaseExceptionsKey = '$_prefix.title_case_exceptions';
+  static const disabledTitleCaseExceptionsKey =
+      '$_prefix.disabled_title_case_exceptions';
   static const dateDisplayFormatKey = '$_prefix.date_display_format';
   static const dateEntryOrderKey = '$_prefix.date_entry_order';
   static const numberFormatKey = '$_prefix.number_format';
@@ -324,6 +339,8 @@ class UiPreferencesStore {
           TitleCaseMethod.eachWordWithExceptions,
       titleCaseExceptions: prefs.getStringList(titleCaseExceptionsKey) ??
           defaultTitleCaseExceptions,
+      disabledTitleCaseExceptions:
+          prefs.getStringList(disabledTitleCaseExceptionsKey) ?? const [],
       formats: AppFormats(
         date: _named(
             DateDisplayFormat.values,
@@ -394,6 +411,8 @@ class UiPreferencesStore {
     await prefs.setString(titleCaseMethodKey, preferences.titleCaseMethod.name);
     await prefs.setStringList(
         titleCaseExceptionsKey, preferences.titleCaseExceptions);
+    await prefs.setStringList(disabledTitleCaseExceptionsKey,
+        preferences.disabledTitleCaseExceptions);
     final formats = preferences.formats;
     await prefs.setString(dateDisplayFormatKey, formats.date.name);
     await prefs.setString(dateEntryOrderKey, formats.dateEntry.name);
@@ -505,8 +524,21 @@ class UiPreferencesController extends Notifier<UiPreferences> {
   Future<void> setTitleCaseMethod(TitleCaseMethod value) =>
       _update((s) => s.copyWith(titleCaseMethod: value));
 
-  Future<void> setTitleCaseExceptions(List<String> value) =>
-      _update((s) => s.copyWith(titleCaseExceptions: value));
+  Future<void> setTitleCaseExceptions(List<String> value,
+      {required List<String> disabled}) {
+    final words = value
+        .map((word) => word.trim().toLowerCase())
+        .where((word) => word.isNotEmpty)
+        .toSet()
+        .toList();
+    final inactive = disabled
+        .map((word) => word.trim().toLowerCase())
+        .where(words.contains)
+        .toSet()
+        .toList();
+    return _update((s) => s.copyWith(
+        titleCaseExceptions: words, disabledTitleCaseExceptions: inactive));
+  }
 
   Future<void> setFormats(AppFormats value) =>
       _update((s) => s.copyWith(formats: value));

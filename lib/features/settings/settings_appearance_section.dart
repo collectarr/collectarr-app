@@ -1,3 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/localization/app_languages.dart';
@@ -366,11 +369,17 @@ class _SettingsAppearanceSectionState
                     TitleCaseMethod.eachWordWithExceptions
                 ? null
                 : () async {
-                    final updated = await showTitleCaseExceptionsDialog(context,
-                        exceptions: preferences.titleCaseExceptions);
-                    if (updated != null) {
-                      await controller.setTitleCaseExceptions(updated);
-                    }
+                    final kind = catalogMediaKindFromApiValue(
+                        ref.read(selectedLibraryKindProvider));
+                    await showTitleCaseExceptionsDialog(
+                      context,
+                      accent: libraryAccentForKind(kind),
+                      exceptions: preferences.titleCaseExceptions,
+                      disabledExceptions:
+                          preferences.disabledTitleCaseExceptions,
+                      onChanged: (words, disabled) => controller
+                          .setTitleCaseExceptions(words, disabled: disabled),
+                    );
                   },
           ),
         ]));
