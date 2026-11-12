@@ -57,7 +57,7 @@ void main() {
       await tester.pumpAndSettle();
       final trigger =
           find.byKey(const ValueKey('library-sort-split-button-menu'));
-      final rows = find.byType(PopupMenuItem<Object>);
+      final rows = find.byType(LibraryToolbarMenuItem<Object>);
       expect(tester.getTopLeft(rows.first).dx,
           closeTo(tester.getTopLeft(trigger).dx - 4, 0.01));
       final spacerLine = find.descendant(

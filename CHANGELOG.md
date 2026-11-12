@@ -80,6 +80,7 @@
 
 ### CI & Build
 - The format check and the generated Catalog Item field definitions agree, so CI's checks pass again.
+- Unit tests and the Windows library view goldens follow the current menus, edit dialog headers, list covers and checkbox tick.
 
 
 ## 1.6.0 - 2026-11-07

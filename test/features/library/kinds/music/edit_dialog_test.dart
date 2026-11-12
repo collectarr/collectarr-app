@@ -123,8 +123,8 @@ void main() {
     expect(
         find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>),
         findsOneWidget);
-    // Edit dialogs show the shared edit pen, not the kind icon.
-    expect(find.byIcon(AppIcons.inlineEdit), findsOneWidget);
+    // Edit dialog headers show the title without a leading icon.
+    expect(find.byIcon(AppIcons.inlineEdit), findsNothing);
     expect(find.byIcon(const MusicRegistration().identity.icon), findsNothing);
 
     await tester.tap(find.text('Cancel'));

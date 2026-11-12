@@ -18,9 +18,16 @@ void main() {
     await tester.tap(find.byType(AppCheckbox));
     await tester.pump();
     expect(value, isTrue);
-    expect(tester.hasRunningAnimations, isTrue);
+    double progress() => (tester
+            .widget<CustomPaint>(find.descendant(
+                of: find.byType(AppCheckMark),
+                matching: find.byType(CustomPaint)))
+            .painter! as dynamic)
+        .progress as double;
+    await tester.pump(appCheckToggleDuration ~/ 2);
+    expect(progress(), inExclusiveRange(0, 1));
     await tester.pump(appCheckToggleDuration);
-    expect(tester.hasRunningAnimations, isFalse);
+    expect(progress(), 1.0);
   });
 
   testWidgets('the tick appears at once when animations are off',
@@ -37,12 +44,14 @@ void main() {
     await tester.tap(find.text('Consoles'));
     await tester.pump();
     expect(value, isTrue);
-    expect(tester.hasRunningAnimations, isFalse);
+    final mark = tester.widget<CustomPaint>(find.descendant(
+        of: find.byType(AppCheckMark), matching: find.byType(CustomPaint)));
+    expect((mark.painter! as dynamic).progress, 1.0);
   });
 
   testWidgets('without onChanged the box ignores taps', (tester) async {
-    await tester.pumpWidget(
-        _host(const AppCheckbox(value: false, onChanged: null)));
+    await tester
+        .pumpWidget(_host(const AppCheckbox(value: false, onChanged: null)));
     await tester.tap(find.byType(AppCheckbox));
     await tester.pump();
     expect(tester.hasRunningAnimations, isFalse);

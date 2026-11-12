@@ -186,16 +186,14 @@ void main() {
         overlay: const PersonalOverlay(imageTypes: {'personal:back_cover'}));
     final front = registry.columns
         .singleWhere((column) => column.id.value == 'game_toy.front_image')
-        .cellValue!(context) as SizedBox;
+        .cellValue!(context) as LibraryCoverImage;
     final box = registry.columns
         .singleWhere((column) => column.id.value == 'game_toy.box_image')
-        .cellValue!(context) as SizedBox;
-    expect((front.child! as LibraryCoverImage).imageUrl,
-        'https://example.invalid/front.jpg');
-    expect((box.child! as LibraryCoverImage).imageUrl, isNull);
-    expect((box.child! as LibraryCoverImage).localImageType, 'back_cover');
-    expect((box.child! as LibraryCoverImage).libraryEntryRef!.kind,
-        CatalogMediaKind.gameToy);
+        .cellValue!(context) as LibraryCoverImage;
+    expect(front.imageUrl, 'https://example.invalid/front.jpg');
+    expect(box.imageUrl, isNull);
+    expect(box.localImageType, 'back_cover');
+    expect(box.libraryEntryRef!.kind, CatalogMediaKind.gameToy);
     expect(
         registry.columns
             .singleWhere((column) => column.id.value == 'game_toy.has_box')

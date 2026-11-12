@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:collectarr_app/features/library/workspace/chrome/dense_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/view_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -61,7 +62,8 @@ void main() {
         }.entries) {
           await tester.tap(trigger);
           await tester.pumpAndSettle();
-          final options = find.byType(PopupMenuItem<LibraryDetailsLayout>);
+          final options =
+              find.byType(LibraryToolbarMenuItem<LibraryDetailsLayout>);
           expect(tester.getTopLeft(find.text('Horizontal Split')).dy,
               lessThan(tester.getTopLeft(find.text('Vertical Split')).dy));
           expect(tester.getSize(options.first).height, 30);
@@ -129,7 +131,7 @@ void main() {
           libraryToolbarControlHover(tester.element(trigger)));
       await tester.tap(trigger);
       await tester.pumpAndSettle();
-      final options = find.byType(PopupMenuItem<LibraryViewMode>);
+      final options = find.byType(LibraryToolbarMenuItem<LibraryViewMode>);
       expect(options, findsNWidgets(6));
       expect(find.byIcon(AppIcons.check), findsNothing);
       expect(tester.getTopLeft(options.first).dy,
