@@ -12,26 +12,8 @@ import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 final gameCatalogWorkspaceColumns = [
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameCatalogWorkspaceFields.backCover,
-    group: 'Images',
-    allowSortInteraction: false,
-    allowGroupInteraction: false,
-    defaultWidth: 48,
-    minWidth: 44,
-    cellValue: (context) => SizedBox(
-      width: 32,
-      height: 32,
-      child: LibraryCoverImage(
-        title: context.dto.title,
-        mediaKind: CatalogMediaKind.game,
-        libraryEntryRef: context.item.libraryEntryDispatch?.ref,
-        localImageType: 'back_cover',
-        showPlaceholder: false,
-        borderRadius: 0,
-      ),
-    ),
-  ),
+  _gameCoverColumn(
+      GameCatalogWorkspaceFields.backCover, 'back_cover', 'Back Cover'),
   for (final field in [
     GameCatalogWorkspaceFields.coreId,
     GameCatalogWorkspaceFields.description,
@@ -48,25 +30,8 @@ final gameCatalogWorkspaceColumns = [
     isNumeric: true,
     defaultWidth: 96,
   ),
-  LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
-    id: GameFieldIds.cover,
-    metadata: GameWorkspaceFieldMetadata.cover,
-    getValue: GameCatalogWorkspaceFields.cover.getValue,
-    cellValue: (context) => context.dto.coverImageUrl == null
-        ? const SizedBox.shrink()
-        : Image.network(
-            context.dto.coverImageUrl!,
-            width: 32,
-            height: 32,
-            fit: BoxFit.cover,
-          ),
-    group: 'Images',
-    displayName: 'Front Cover',
-    allowSortInteraction: false,
-    allowGroupInteraction: false,
-    defaultWidth: 42,
-    minWidth: 44,
-  ),
+  _gameCoverColumn(
+      GameCatalogWorkspaceFields.cover, 'front_cover', 'Front Cover'),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
       GameCatalogWorkspaceFields.hasFront,
       group: 'Images',
@@ -179,3 +144,37 @@ final gameCatalogWorkspaceColumns = [
     defaultWidth: 112,
   ),
 ];
+
+LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?> _gameCoverColumn(
+  LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?> field,
+  String imageType,
+  String label,
+) =>
+    LibraryColumnDefinition(
+      id: field.id,
+      metadata: field.metadata,
+      getValue: field.getValue,
+      group: 'Images',
+      displayName: label,
+      allowSortInteraction: false,
+      allowGroupInteraction: false,
+      defaultWidth: 48,
+      minWidth: 44,
+      minRowHeight: 56,
+      cellValue: (context) => SizedBox(
+        width: 32,
+        height: 48,
+        child: LibraryCoverImage(
+          title: context.dto.title,
+          mediaKind: CatalogMediaKind.game,
+          imageUrl:
+              imageType == 'front_cover' ? context.dto.coverImageUrl : null,
+          libraryEntryRef: context.item.target.libraryEntryRef ??
+              context.item.libraryEntryDispatch?.ref ??
+              context.item.entrySummary?.ref,
+          localImageType: imageType,
+          showPlaceholder: false,
+          borderRadius: 0,
+        ),
+      ),
+    );

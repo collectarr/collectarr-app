@@ -21,6 +21,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Games list covers load local images and reserve enough row height for visible thumbnails.
 - Column favorites open under the full toolbar button; sorting and column favorites share heavier text, white checkmarks and separated Favorites headings.
 - Platform icons stay visible in a fixed, unnamed column and fill its width, without appearing in column selection.
 - Sorting favorites start as editable saved defaults; the last favorite cannot be deleted, and saving an empty selection retains its first field.
