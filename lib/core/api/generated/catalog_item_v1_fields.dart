@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 87681338a0ad9c84cab538dd2911632f570149f161c8761c2600ea020ec89feb
+// Contract SHA-256: 78d06aff561da23aaae2e20ee4bad69dea586adc086d0c40026436e9f1028eb9
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -157,6 +157,7 @@ const Map<String, List<CatalogItemV1Field>> catalogItemV1FieldsByKind = {
     CatalogItemV1Field('edition_title', title: 'Edition title'),
     CatalogItemV1Field('external_links', title: 'External links'),
     CatalogItemV1Field('franchise', title: 'Franchise'),
+    CatalogItemV1Field('game_id'),
     CatalogItemV1Field('genres', title: 'Genres'),
     CatalogItemV1Field('identifiers', title: 'Identifiers'),
     CatalogItemV1Field('item_number', title: 'Item number'),

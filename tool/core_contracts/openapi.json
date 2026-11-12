@@ -4899,6 +4899,11 @@
             ],
             "title": "Franchise"
           },
+          "game_id": {
+            "format": "uuid",
+            "title": "Game Id",
+            "type": "string"
+          },
           "genres": {
             "anyOf": [
               {
@@ -4991,6 +4996,18 @@
               }
             ],
             "title": "Localized Title"
+          },
+          "media_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Id"
           },
           "original_language": {
             "anyOf": [
@@ -5271,7 +5288,8 @@
         "required": [
           "id",
           "title",
-          "revision"
+          "revision",
+          "game_id"
         ],
         "title": "CatalogGameItemResponse",
         "type": "object"

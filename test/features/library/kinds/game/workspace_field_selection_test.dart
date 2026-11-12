@@ -23,7 +23,8 @@ void main() {
     final columns = fields.columns.map((column) => column.id.value).toSet();
     final sorts = fields.sorts.map((sort) => sort.id.value).toSet();
     const added = {
-      'game.core_id',
+      'game.core_game_id',
+      'game.core_media_id',
       'game.description',
       'game.country',
       'game.language',
@@ -88,7 +89,12 @@ void main() {
           reason: kind.name);
       final labels =
           fields.columns.map((column) => column.metadata.label).toSet();
-      expect(labels, containsAll({'Core ID', 'Description'}));
+      expect(labels, contains('Description'));
+      expect(
+          labels,
+          containsAll(kind == CatalogMediaKind.game
+              ? {'Core Game ID', 'Core Media ID'}
+              : {'Core ID'}));
       if (kind != CatalogMediaKind.gameHardware) {
         expect(labels, isNot(contains('Hardware Type')));
         expect(labels, isNot(contains('Serial No.')));
@@ -153,21 +159,35 @@ void main() {
     expect(context.dto.metadata.description, source);
   });
 
-  test('Core ID is the catalog link, never the local copy ID', () {
+  test('game and media identities come from catalog data, never copy IDs', () {
     final unlinked = _context();
-    final linked = _context(coreId: 'core-release-17');
-    expect(GameCatalogWorkspaceFields.coreId.getValue(unlinked), isNull);
+    final linked = _context(
+        coreId: 'core-media-17',
+        gameId: 'core-game-9',
+        mediaId: 'core-media-17');
+    expect(GameCatalogWorkspaceFields.coreGameId.getValue(unlinked), isNull);
+    expect(GameCatalogWorkspaceFields.coreMediaId.getValue(unlinked), isNull);
     expect(
-        GameCatalogWorkspaceFields.coreId.getValue(linked), 'core-release-17');
+        GameCatalogWorkspaceFields.coreGameId.getValue(linked), 'core-game-9');
+    expect(GameCatalogWorkspaceFields.coreMediaId.getValue(linked),
+        'core-media-17');
+    final game = _context(coreId: 'core-game-9', gameId: 'core-game-9');
+    expect(GameCatalogWorkspaceFields.coreGameId.getValue(game), 'core-game-9');
+    expect(GameCatalogWorkspaceFields.coreMediaId.getValue(game), isNull);
     final catalog = LibraryProjectionContext(
       item: WorkspaceItem(
           target: const CatalogTargetRef(CatalogItemRef(
-              kind: CatalogMediaKind.game, id: 'catalog-preview-19'))),
+              kind: CatalogMediaKind.game, id: 'core-media-17'))),
       personal: const PersonalOverlay(),
       dto: linked.dto,
     );
-    expect(GameCatalogWorkspaceFields.coreId.getValue(catalog),
-        'catalog-preview-19');
+    expect(
+        GameCatalogWorkspaceFields.coreGameId.getValue(catalog), 'core-game-9');
+    expect(GameCatalogWorkspaceFields.coreMediaId.getValue(catalog),
+        'core-media-17');
+    final snapshot = GameCatalogMetadata.fromJson(linked.dto.metadata.toJson());
+    expect(snapshot.copyWith(title: 'Edited').gameId, 'core-game-9');
+    expect(snapshot.copyWith(title: 'Edited').mediaId, 'core-media-17');
   });
 }
 
@@ -175,11 +195,15 @@ LibraryProjectionContext<GameWorkspaceDto> _context({
   int? month = 2,
   int year = 2026,
   String? coreId,
+  String? gameId,
+  String? mediaId,
   String? description,
   GamePersonalData personal = const GamePersonalData(),
 }) {
   final metadata = GameCatalogMetadata(
     title: 'Test Game',
+    gameId: gameId,
+    mediaId: mediaId,
     description: description,
     releaseDateParts: PartialDate(year: year, month: month),
   );

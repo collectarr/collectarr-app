@@ -628,13 +628,23 @@ abstract final class GameWorkspaceFieldMetadata {
     sortable: true,
   );
 
-  static const coreId = LibraryKindFieldMetadata(
-    id: 'game.core_id',
-    label: 'Core ID',
+  static const coreGameId = LibraryKindFieldMetadata(
+    id: 'game.core_game_id',
+    label: 'Core Game ID',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.catalog,
-    sourcePath: 'source_catalog_ref.id',
+    sourcePath: 'game_id',
+    sortable: true,
+  );
+
+  static const coreMediaId = LibraryKindFieldMetadata(
+    id: 'game.core_media_id',
+    label: 'Core Media ID',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'media_id',
     sortable: true,
   );
 
@@ -734,7 +744,8 @@ abstract final class GameWorkspaceFieldMetadata {
   );
 
   static const all = <LibraryKindFieldMetadata>[
-    coreId,
+    coreGameId,
+    coreMediaId,
     description,
     backCover,
     releaseMonth,

@@ -68,7 +68,6 @@ Keep these when matching the reference visually.
 | Area | CLZ | Collectarr |
 | --- | --- | --- |
 | Data ownership | Cloud account is the source of truth | Offline-first local library; Core catalog and Sync are optional and self-hostable |
-| Catalog link columns | Core GameID and Core MediaID in Games | A single Core ID identifies the linked release in Collectarr Core; unlinked local entries leave it empty |
 | Games field scopes | Hardware and Toy groups also appear in the Games field choosers | Sort and column fields belong to the active Games, Hardware or Toys kind |
 | Value tab of Games, Hardware and Toys | Value beside Completeness, PriceCharting ID under the price chart | PriceCharting ID beside Completeness and Value beside Condition |
 | Hardware Type | A free text field | A pick list without Sort Names, starting with Console, Controller and Accessory, so types stay consistent and can be renamed or merged |

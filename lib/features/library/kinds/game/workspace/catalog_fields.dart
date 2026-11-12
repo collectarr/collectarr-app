@@ -6,30 +6,19 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/domain/target_ref.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/ui/app_formatted_text.dart';
 
 abstract final class GameCatalogWorkspaceFields {
-  static final coreId =
-      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
-    id: const LibraryFieldId('game.core_id'),
-    metadata: GameWorkspaceFieldMetadata.coreId,
-    getValue: (context) {
-      if (context.item.libraryEntryDispatch != null) {
-        return GameLibraryEntryProjection.fromDispatch(
-                context.item.libraryEntryDispatch)
-            ?.sourceCatalogRef
-            ?.id;
-      }
-      if (context.item.entrySummary != null) {
-        return context.item.entrySummary?.sourceCatalogRef?.id;
-      }
-      return switch (context.item.target) {
-        CatalogTargetRef(:final ref) => ref.id,
-        _ => null,
-      };
-    },
+  static final coreGameId = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.core_game_id'),
+    metadata: GameWorkspaceFieldMetadata.coreGameId,
+    getValue: (dto) => dto.metadata.gameId,
+  );
+
+  static final coreMediaId = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.core_media_id'),
+    metadata: GameWorkspaceFieldMetadata.coreMediaId,
+    getValue: (dto) => dto.metadata.mediaId,
   );
 
   static final description = textField<GameKind, GameWorkspaceDto>(
@@ -191,7 +180,8 @@ abstract final class GameCatalogWorkspaceFields {
       _imageFlag(GameWorkspaceFieldMetadata.hasBack, 'back_cover');
 
   static final all = [
-    coreId,
+    coreGameId,
+    coreMediaId,
     description,
     country,
     language,

@@ -183,6 +183,8 @@ final class GameCatalogLink implements JsonEncodable {
 final class GameCatalogMetadata implements JsonEncodable {
   const GameCatalogMetadata({
     required this.title,
+    this.gameId,
+    this.mediaId,
     this.sortKey,
     this.displayTitle,
     this.localizedTitle,
@@ -231,6 +233,10 @@ final class GameCatalogMetadata implements JsonEncodable {
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
+
+  /// Core catalog identities, retained in offline snapshots.
+  final String? gameId;
+  final String? mediaId;
   final String? sortKey;
   final String? displayTitle;
   final String? localizedTitle;
@@ -280,6 +286,8 @@ final class GameCatalogMetadata implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         'title': title,
+        if (gameId != null) 'game_id': gameId,
+        if (mediaId != null) 'media_id': mediaId,
         if (sortKey != null) 'sort_key': sortKey,
         if (displayTitle != null) 'display_title': displayTitle,
         if (localizedTitle != null) 'localized_title': localizedTitle,
@@ -342,6 +350,8 @@ final class GameCatalogMetadata implements JsonEncodable {
 
   GameCatalogMetadata copyWith({
     String? title,
+    String? gameId,
+    String? mediaId,
     String? sortKey,
     String? displayTitle,
     String? localizedTitle,
@@ -386,6 +396,8 @@ final class GameCatalogMetadata implements JsonEncodable {
   }) =>
       GameCatalogMetadata(
         title: title ?? this.title,
+        gameId: gameId ?? this.gameId,
+        mediaId: mediaId ?? this.mediaId,
         sortKey: sortKey ?? this.sortKey,
         displayTitle: displayTitle ?? this.displayTitle,
         localizedTitle: localizedTitle ?? this.localizedTitle,
@@ -443,6 +455,8 @@ final class GameCatalogMetadata implements JsonEncodable {
 
     return GameCatalogMetadata(
       title: _text(json['title']) ?? '',
+      gameId: _text(json['game_id']),
+      mediaId: _text(json['media_id']),
       sortKey: _text(json['sort_key']),
       displayTitle: _text(json['display_title']),
       localizedTitle: _text(json['localized_title']),

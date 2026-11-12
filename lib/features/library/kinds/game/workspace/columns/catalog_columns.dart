@@ -15,7 +15,8 @@ final gameCatalogWorkspaceColumns = [
   _gameCoverColumn(
       GameCatalogWorkspaceFields.backCover, 'back_cover', 'Back Cover'),
   for (final field in [
-    GameCatalogWorkspaceFields.coreId,
+    GameCatalogWorkspaceFields.coreGameId,
+    GameCatalogWorkspaceFields.coreMediaId,
     GameCatalogWorkspaceFields.description,
   ])
     columnFromField<GameKind, GameWorkspaceDto, String?>(field),
