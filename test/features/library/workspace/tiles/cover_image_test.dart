@@ -19,6 +19,29 @@ Future<void> _pump(WidgetTester tester, Widget app) =>
     tester.pumpWidget(ProviderScope(child: app));
 
 void main() {
+  testWidgets('an empty table cover retains the column fallback shape',
+      (tester) async {
+    final reports = <double>[];
+    await _pump(
+        tester,
+        MaterialApp(
+            home: Center(
+                child: SizedBox(
+          width: 80,
+          child: LibraryCoverLayoutScope(
+            fallbackAspectRatio: 1,
+            onAspectRatio: reports.add,
+            child:
+                const LibraryCoverImage(title: 'Empty', showPlaceholder: false),
+          ),
+        ))));
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(AspectRatio)), const Size(80, 80));
+    expect(reports, isNotEmpty);
+    expect(reports.every((ratio) => ratio == 1), isTrue);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('missing covers use their own kinds, not the selected library',
       (tester) async {
     final container = ProviderContainer();

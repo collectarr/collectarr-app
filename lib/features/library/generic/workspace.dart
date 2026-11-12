@@ -452,10 +452,6 @@ class LibraryWorkspace extends ConsumerWidget {
           textRowHeight,
           for (final column in visibleColumns)
             workspace.columnMinRowHeight(column, target: schemaNode) ?? 0,
-          for (final column in visibleColumns)
-            if (tableFields.findColumnDefinition(column)?.imageAspectRatio
-                case final aspect?)
-              math.max(1, widthFor(column.value) - 10) / aspect,
         ].reduce(math.max);
         double heightFor(LibraryProjectionItem item) =>
             heights.putIfAbsent(item.target.id, () {
@@ -618,6 +614,9 @@ class LibraryWorkspace extends ConsumerWidget {
                     onEditEntry: onEditItem,
                     headerHeight: density.tableHeaderHeight,
                     rowHeight: textRowHeight,
+                    columnImageAspectRatioFor: (id) => tableFields
+                        .findColumnDefinition(tableFields.decodeColumnId(id))
+                        ?.imageAspectRatio,
                     rowHeightFor: preferences.wrapColumnContent
                         ? heightFor
                         : (_) => effectiveRowHeight,

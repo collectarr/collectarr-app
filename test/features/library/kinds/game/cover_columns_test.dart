@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:collectarr_app/features/library/workspace/table/table.dart';
+import 'package:collectarr_app/features/library/workspace/table/row.dart';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -40,47 +43,91 @@ void main() {
           metadata: const GameCatalogMetadata(title: 'Local Game'),
         ),
       );
-      final png = base64Decode(
-          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX9kAAAAASUVORK5CYII=');
+      final aspect = imageType == 'front_cover' ? 0.8 : 1.25;
+      final png = base64Decode(imageType == 'front_cover'
+          ? 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABQCAIAAAAm3eQSAAAAkElEQVR4nO3PUQkAIBTAwNfFYHY2kSH8OITBAtzm7PV1wwUNaEEDWtCAFjSgBQ1oQQNa0IAWNKAFDWhBA1rQgBY0oAUNaEEDWtCAFjSgBQ1oQQNa0IAWNKAFDWhBA1rQgBY0oAUNaEEDWtCAFjSgBQ1oQQNa0IAWNKAFDWhBA1rQgBY0oAUNaEEDWtCAFjx2AVs9kYc2K6DrAAAAAElFTkSuQmCC'
+          : 'iVBORw0KGgoAAAANSUhEUgAAAFAAAABACAIAAAACpWdhAAAAZElEQVR4nO3PAQkAIBDAQLsYzM4mMoawP1iA3bpnj2p9PwAGBgYGBgYeE3A94HrA9YDrAdcDrgdcD7gecD3gesD1gOsB1wOuB1wPuB5wPeB6wPWA6wHXA64HXA+4HnA94HrA9R7OspGHWbBuogAAAABJRU5ErkJggg==');
       final requests = <LocalItemImageRequest>[];
-      await tester.pumpWidget(ProviderScope(
+      double? textTop;
+      for (final width in [90.0, 170.0]) {
+        await tester.pumpWidget(ProviderScope(
           overrides: [
             localItemImageProvider.overrideWith((ref, request) {
               requests.add(request);
               return Stream.value(png);
-            }),
+            })
           ],
           child: MaterialApp(
               home: Scaffold(
                   body: Center(
-            child: SizedBox(width: 32, child: column.cellValue!(context)),
-          )))));
-      await tester.pumpAndSettle();
-      final cover =
-          tester.widget<LibraryCoverImage>(find.byType(LibraryCoverImage));
-      expect(cover.libraryEntryRef, entryRef);
-      expect(cover.localImageType, imageType);
-      expect(requests,
-          contains((libraryEntryRef: entryRef, imageType: imageType)));
-      expect(tester.getSize(find.byType(LibraryCoverImage)).height, 48);
-      final image = tester.widget<Image>(find.byType(Image)).image;
-      expect(image is ResizeImage ? image.imageProvider : image,
-          isA<MemoryImage>());
-      await tester.pumpWidget(ProviderScope(
-        overrides: [
-          localItemImageProvider
-              .overrideWith((ref, request) => Stream.value(png))
-        ],
-        child: MaterialApp(
-            home: Center(
-                child: SizedBox(
-          width: 64,
-          child: column.cellValue!(context),
-        ))),
-      ));
-      await tester.pump();
-      expect(tester.getSize(find.byType(LibraryCoverImage)).height, 96);
-      expect(tester.takeException(), isNull);
+                      child: SizedBox(
+            width: 500,
+            height: 500,
+            child: LibraryWorkspaceTable<String>(
+              entries: const ['local-cover'],
+              columns: [column.id.value, 'title'],
+              sortColumn: 'title',
+              sortAscending: true,
+              columnWidthFor: (id) => id == 'title' ? 240 : width,
+              defaultColumnWidthFor: (_) => width,
+              columnSortFor: (id) => id,
+              columnLabelFor: (id) => id,
+              columnIsNumeric: (_) => false,
+              columnImageAspectRatioFor: (id) =>
+                  id == 'title' ? null : column.imageAspectRatio,
+              columnCellPaddingFor: (id) =>
+                  id == 'title' ? null : column.cellPadding,
+              cellBuilder: (_, id) => id == 'title'
+                  ? const Text('Local Game')
+                  : column.cellValue!(context),
+              isSelected: (_) => true,
+              onEntryTap: (_) {},
+              onSortChanged: (_) {},
+              onColumnWidthChanged: (_, __) {},
+            ),
+          )))),
+        ));
+        await tester.pumpAndSettle();
+        await tester.runAsync(() async {
+          final stream = tester
+              .widget<Image>(find.byType(Image))
+              .image
+              .resolve(ImageConfiguration.empty);
+          final decoded = Completer<void>();
+          final listener = ImageStreamListener((info, _) {
+            info.dispose();
+            if (!decoded.isCompleted) decoded.complete();
+          },
+              onError: (Object error, StackTrace? stack) =>
+                  decoded.completeError(error, stack));
+          stream.addListener(listener);
+          try {
+            await decoded.future;
+          } finally {
+            stream.removeListener(listener);
+          }
+        });
+        await tester.pumpAndSettle();
+        final cover =
+            tester.widget<LibraryCoverImage>(find.byType(LibraryCoverImage));
+        expect(cover.libraryEntryRef, entryRef);
+        expect(cover.localImageType, imageType);
+        expect(requests,
+            contains((libraryEntryRef: entryRef, imageType: imageType)));
+        final row = tester.getRect(find.byType(LibraryTableInkRow));
+        final image = tester.getRect(find.byType(Image));
+        expect(image.width, width - column.cellPadding!.horizontal);
+        expect(image.height, closeTo((width - 10) / aspect, 0.01));
+        expect(image.top, row.top);
+        expect(image.bottom, closeTo(row.bottom, 0.01));
+        final top = tester.getTopLeft(find.text('Local Game')).dy;
+        expect(top, textTop ?? top);
+        textTop = top;
+        final provider = tester.widget<Image>(find.byType(Image)).image;
+        expect(provider is ResizeImage ? provider.imageProvider : provider,
+            isA<MemoryImage>());
+        expect(tester.takeException(), isNull);
+      }
     });
   }
 }

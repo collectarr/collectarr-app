@@ -29,22 +29,20 @@ List<
             minWidth: 44,
             allowSortInteraction: false,
             allowGroupInteraction: false,
-            cellValue: (context) => AspectRatio(
-                aspectRatio: 1,
-                child: LibraryCoverImage(
-                    title: context.dto.metadata.title,
-                    mediaKind: CatalogMediaKind.gameHardware,
-                    imageUrl: type == 'front_cover'
-                        ? context.dto.metadata.coverImageUrl
-                        : null,
-                    libraryEntryRef: context.dto.entry == null
-                        ? null
-                        : LibraryEntryRef(
-                            kind: CatalogMediaKind.gameHardware,
-                            id: context.dto.entry!.id),
-                    localImageType: type,
-                    showPlaceholder: false,
-                    borderRadius: 0))),
+            cellValue: (context) => LibraryCoverImage(
+                title: context.dto.metadata.title,
+                mediaKind: CatalogMediaKind.gameHardware,
+                imageUrl: type == 'front_cover'
+                    ? context.dto.metadata.coverImageUrl
+                    : null,
+                libraryEntryRef: context.dto.entry == null
+                    ? null
+                    : LibraryEntryRef(
+                        kind: CatalogMediaKind.gameHardware,
+                        id: context.dto.entry!.id),
+                localImageType: type,
+                showPlaceholder: false,
+                borderRadius: 0)),
       LibraryColumnDefinition<GameHardwareKind, GameHardwareWorkspaceDto,
           String?>(
         id: _Catalog.platformIcon.id,

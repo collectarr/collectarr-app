@@ -40,16 +40,13 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
       final imageUrl = field.getValue(context);
       return imageUrl == null || imageUrl.isEmpty
           ? const SizedBox.shrink()
-          : AspectRatio(
-              aspectRatio: 1,
-              child: LibraryCoverImage(
-                title: context.dto.primaryLabel,
-                mediaKind: CatalogMediaKind.music,
-                imageUrl: imageUrl,
-                fallbackAspectRatio: 1,
-                borderRadius: 0,
-                fit: BoxFit.fill,
-              ),
+          : LibraryCoverImage(
+              title: context.dto.primaryLabel,
+              mediaKind: CatalogMediaKind.music,
+              imageUrl: imageUrl,
+              fallbackAspectRatio: 1,
+              borderRadius: 0,
+              fit: BoxFit.contain,
             );
     },
     group: 'Images',

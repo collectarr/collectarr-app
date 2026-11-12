@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/selection_mark.dart';
@@ -44,6 +45,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     required this.columnIsNumeric,
     this.columnCanResize,
     this.columnCellPaddingFor,
+    this.columnImageAspectRatioFor,
     required this.cellBuilder,
     required this.isSelected,
     required this.onEntryTap,
@@ -95,6 +97,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final LibraryColumnNumericFor columnIsNumeric;
   final bool Function(String)? columnCanResize;
   final EdgeInsets? Function(String)? columnCellPaddingFor;
+  final double? Function(String)? columnImageAspectRatioFor;
   final LibraryColumnCellBuilder<T> cellBuilder;
   final bool Function(T entry) isSelected;
   final ValueChanged<T> onEntryTap;
@@ -145,6 +148,54 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
     with LibraryRevealListener {
   final _scrollController = ScrollController();
   double _rowHeight = 0;
+  final _imageAspects = <(Object?, String), double>{};
+  (Object?, String) _aspectKey(T entry, String column) =>
+      (widget.entryIdOf?.call(entry) ?? entry, column);
+
+  void _reportImageAspect(T entry, String column, double aspect) {
+    if (!aspect.isFinite ||
+        aspect <= 0 ||
+        _imageAspects[_aspectKey(entry, column)] == aspect) {
+      return;
+    }
+    // Cached streams may report while their cells are building.
+    _imageAspects[_aspectKey(entry, column)] = aspect;
+    if (_imageAspects.length > 4096) {
+      _imageAspects.remove(_imageAspects.keys.first);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  double _heightFor(T entry, double baseHeight) {
+    var height = baseHeight;
+    for (final column in widget.columns) {
+      final fallback = widget.columnImageAspectRatioFor?.call(column);
+      if (fallback == null) continue;
+      final padding = widget.columnCellPaddingFor?.call(column) ??
+          const EdgeInsets.symmetric(horizontal: 5);
+      final aspect = _imageAspects[_aspectKey(entry, column)] ?? fallback;
+      height = math.max(
+          height,
+          math.max(1, widget.columnWidthFor(column) - padding.horizontal) /
+                  aspect +
+              padding.vertical);
+    }
+    return height;
+  }
+
+  Widget _cell(T entry, String column) {
+    final cell = widget.cellBuilder(entry, column);
+    final fallback = widget.columnImageAspectRatioFor?.call(column);
+    if (fallback == null) return cell;
+    return LibraryCoverLayoutScope(
+      fallbackAspectRatio: fallback,
+      onAspectRatio: (aspect) => _reportImageAspect(entry, column, aspect),
+      child: cell,
+    );
+  }
 
   @override
   void revealItem(String itemId) {
@@ -153,7 +204,8 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
     final index =
         widget.entries.indexWhere((entry) => entryIdOf(entry) == itemId);
     if (index < 0) return;
-    double heightOf(T entry) => widget.rowHeightFor?.call(entry) ?? _rowHeight;
+    double heightOf(T entry) =>
+        _heightFor(entry, widget.rowHeightFor?.call(entry) ?? _rowHeight);
     var leading = 0.0;
     for (var i = 0; i < index; i++) {
       leading += heightOf(widget.entries[i]);
@@ -274,7 +326,8 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
                       controller: _scrollController,
                       primary: false,
                       itemCount: widget.entries.length,
-                      itemExtent: widget.rowHeightFor == null
+                      itemExtent: widget.rowHeightFor == null &&
+                              widget.columnImageAspectRatioFor == null
                           ? resolvedRowHeight
                           : null,
                       itemBuilder: (context, index) {
@@ -295,7 +348,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
                           columnWidthFor: widget.columnWidthFor,
                           columnIsNumeric: widget.columnIsNumeric,
                           columnCellPaddingFor: widget.columnCellPaddingFor,
-                          cellBuilder: widget.cellBuilder,
+                          cellBuilder: _cell,
                           showCheckbox: widget.showCheckbox,
                           isEntryChecked: widget.isEntryChecked,
                           onToggleEntryCheck: widget.onToggleEntryCheck,
@@ -303,8 +356,10 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
                           statusBuilder: widget.statusBuilder,
                           showEdit: widget.showEdit,
                           onEditEntry: widget.onEditEntry,
-                          rowHeight: widget.rowHeightFor?.call(entry) ??
-                              resolvedRowHeight,
+                          rowHeight: _heightFor(
+                              entry,
+                              widget.rowHeightFor?.call(entry) ??
+                                  resolvedRowHeight),
                           lineRowHeight: resolvedRowHeight,
                           columnSpacing: resolvedColumnSpacing,
                           horizontalMargin: resolvedHorizontalMargin,

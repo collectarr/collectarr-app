@@ -27,22 +27,20 @@ List<LibraryColumnDefinition<GameToyKind, GameToyWorkspaceDto, Object?>>
                 minWidth: 44,
                 allowSortInteraction: false,
                 allowGroupInteraction: false,
-                cellValue: (context) => AspectRatio(
-                    aspectRatio: 1,
-                    child: LibraryCoverImage(
-                        title: context.dto.metadata.title,
-                        mediaKind: CatalogMediaKind.gameToy,
-                        imageUrl: type == 'front_cover'
-                            ? context.dto.metadata.coverImageUrl
-                            : null,
-                        libraryEntryRef: context.dto.entry == null
-                            ? null
-                            : LibraryEntryRef(
-                                kind: CatalogMediaKind.gameToy,
-                                id: context.dto.entry!.id),
-                        localImageType: type,
-                        showPlaceholder: false,
-                        borderRadius: 0))),
+                cellValue: (context) => LibraryCoverImage(
+                    title: context.dto.metadata.title,
+                    mediaKind: CatalogMediaKind.gameToy,
+                    imageUrl: type == 'front_cover'
+                        ? context.dto.metadata.coverImageUrl
+                        : null,
+                    libraryEntryRef: context.dto.entry == null
+                        ? null
+                        : LibraryEntryRef(
+                            kind: CatalogMediaKind.gameToy,
+                            id: context.dto.entry!.id),
+                    localImageType: type,
+                    showPlaceholder: false,
+                    borderRadius: 0)),
           for (final field in gameToyTextFields(personal: personal))
             columnFromField(field,
                 group: gameToyFieldCategory(field),

@@ -20,6 +20,24 @@ import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart
 import 'cover_element_aspect.dart'
     if (dart.library.js_interop) 'cover_element_aspect_web.dart';
 
+/// Lets a table cell report its decoded cover shape to the row layout.
+class LibraryCoverLayoutScope extends InheritedWidget {
+  const LibraryCoverLayoutScope({
+    required this.fallbackAspectRatio,
+    required this.onAspectRatio,
+    required super.child,
+    super.key,
+  });
+  final double fallbackAspectRatio;
+  final ValueChanged<double> onAspectRatio;
+  static LibraryCoverLayoutScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<LibraryCoverLayoutScope>();
+  @override
+  bool updateShouldNotify(LibraryCoverLayoutScope oldWidget) =>
+      fallbackAspectRatio != oldWidget.fallbackAspectRatio ||
+      onAspectRatio != oldWidget.onAspectRatio;
+}
+
 class LibraryCoverImage extends ConsumerWidget {
   const LibraryCoverImage({
     required this.title,
@@ -65,6 +83,28 @@ class LibraryCoverImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final layout = LibraryCoverLayoutScope.maybeOf(context);
+    if (layout == null) return _buildImage(context, ref, onAspectRatio);
+    return LibraryCoverShape(
+      imageUrl: imageUrl,
+      libraryEntryRef: libraryEntryRef,
+      imageType: localImageType,
+      fallbackAspectRatio: layout.fallbackAspectRatio,
+      builder: (context, aspect, report) => AspectRatio(
+        aspectRatio: aspect,
+        child: _buildImage(context, ref, (ratio) {
+          report(ratio);
+          layout.onAspectRatio(ratio);
+          onAspectRatio?.call(ratio);
+        }, shapeFallback: layout.fallbackAspectRatio),
+      ),
+    );
+  }
+
+  Widget _buildImage(
+      BuildContext context, WidgetRef ref, ValueChanged<double>? onAspectRatio,
+      {double? shapeFallback}) {
+    final fallbackAspectRatio = shapeFallback ?? this.fallbackAspectRatio;
     final url = normalizeNetworkImageUrl(imageUrl);
 
     // An entry's chosen local cover takes precedence over catalog artwork.
@@ -382,6 +422,7 @@ class LibraryCoverShape extends StatefulWidget {
     required this.fallbackAspectRatio,
     required this.builder,
     this.followsImage = true,
+    this.imageType = 'front_cover',
     super.key,
   });
 
@@ -391,6 +432,7 @@ class LibraryCoverShape extends StatefulWidget {
 
   /// Off for a cover in an opaque case of a fixed shape, such as a slab.
   final bool followsImage;
+  final String imageType;
   final Widget Function(
     BuildContext context,
     double aspectRatio,
@@ -404,7 +446,8 @@ class LibraryCoverShape extends StatefulWidget {
 class _LibraryCoverShapeState extends State<LibraryCoverShape> {
   double? _aspectRatio;
 
-  Object get _coverKey => (widget.libraryEntryRef, widget.imageUrl);
+  Object get _coverKey =>
+      (widget.libraryEntryRef, widget.imageUrl, widget.imageType);
 
   @override
   void initState() {
@@ -416,7 +459,8 @@ class _LibraryCoverShapeState extends State<LibraryCoverShape> {
   void didUpdateWidget(covariant LibraryCoverShape oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imageUrl != widget.imageUrl ||
-        oldWidget.libraryEntryRef != widget.libraryEntryRef) {
+        oldWidget.libraryEntryRef != widget.libraryEntryRef ||
+        oldWidget.imageType != widget.imageType) {
       _aspectRatio = _knownCoverAspectRatios[_coverKey];
     }
   }

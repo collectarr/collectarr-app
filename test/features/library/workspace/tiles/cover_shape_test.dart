@@ -40,6 +40,30 @@ void main() {
     expect(shape, 1.0);
   });
 
+  testWidgets('front and back shapes for one local entry stay independent',
+      (tester) async {
+    Widget local(String type) => LibraryCoverShape(
+          imageUrl: null,
+          libraryEntryRef: null,
+          imageType: type,
+          fallbackAspectRatio: 0.7,
+          builder: (context, ratio, onAspect) {
+            shape = ratio;
+            report = onAspect;
+            return const SizedBox.shrink();
+          },
+        );
+    await tester.pumpWidget(local('front_cover'));
+    report(0.8);
+    await tester.pump();
+    await tester.pumpWidget(local('back_cover'));
+    expect(shape, 0.7);
+    report(1.25);
+    await tester.pump();
+    await tester.pumpWidget(local('front_cover'));
+    expect(shape, 0.8);
+  });
+
   testWidgets('a cover in a fixed case keeps the fallback shape',
       (tester) async {
     await tester.pumpWidget(

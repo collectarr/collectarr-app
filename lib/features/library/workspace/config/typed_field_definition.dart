@@ -260,7 +260,7 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final bool alwaysVisible;
   final EdgeInsets? cellPadding;
 
-  /// Image columns scale together with Cover Size; text columns keep their width.
+  /// Fallback width/height until the image reports its actual shape.
   final double? imageAspectRatio;
 
   /// List rows grow to this height while the column is visible, e.g. for

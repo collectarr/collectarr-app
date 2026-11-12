@@ -163,19 +163,15 @@ LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?> _gameCoverColumn(
       minWidth: 44,
       imageAspectRatio: 2 / 3,
       cellPadding: const EdgeInsets.symmetric(horizontal: 5),
-      cellValue: (context) => AspectRatio(
-        aspectRatio: 2 / 3,
-        child: LibraryCoverImage(
-          title: context.dto.title,
-          mediaKind: CatalogMediaKind.game,
-          imageUrl:
-              imageType == 'front_cover' ? context.dto.coverImageUrl : null,
-          libraryEntryRef: context.item.target.libraryEntryRef ??
-              context.item.libraryEntryDispatch?.ref ??
-              context.item.entrySummary?.ref,
-          localImageType: imageType,
-          showPlaceholder: false,
-          borderRadius: 0,
-        ),
+      cellValue: (context) => LibraryCoverImage(
+        title: context.dto.title,
+        mediaKind: CatalogMediaKind.game,
+        imageUrl: imageType == 'front_cover' ? context.dto.coverImageUrl : null,
+        libraryEntryRef: context.item.target.libraryEntryRef ??
+            context.item.libraryEntryDispatch?.ref ??
+            context.item.entrySummary?.ref,
+        localImageType: imageType,
+        showPlaceholder: false,
+        borderRadius: 0,
       ),
     );
