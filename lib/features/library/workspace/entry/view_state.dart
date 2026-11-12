@@ -332,26 +332,21 @@ class LibraryWorkspaceViewState {
     );
   }
 
+  /// A header click, as in the reference: the list sorts by that column
+  /// alone, reversing it when it already leads the sort. Favorites keep their
+  /// fields; the sort simply stops matching them.
   LibraryWorkspaceViewState withSortColumn(
     LibrarySortIdRuntime sortId,
     LibraryWorkspaceViewProfile profile,
   ) {
-    if (sortId == this.sortId) {
-      return copyWith(sortAscending: !sortAscending);
-    }
-    final trailingRules = [
-      for (final rule in sortRules)
-        if (rule.sortId != sortId) rule,
-    ].take(kLibraryMaxSortRules - 1);
+    final ascending = sortId == this.sortId
+        ? !sortAscending
+        : profile.initialSortAscending(sortId);
     return copyWith(
       sortId: sortId,
-      sortAscending: profile.initialSortAscending(sortId),
+      sortAscending: ascending,
       sortRules: [
-        LibrarySortRuleRuntime(
-          sortId: sortId,
-          ascending: profile.initialSortAscending(sortId),
-        ),
-        ...trailingRules,
+        LibrarySortRuleRuntime(sortId: sortId, ascending: ascending),
       ],
     );
   }

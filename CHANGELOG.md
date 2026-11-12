@@ -27,7 +27,8 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
-- Sorting uses at most five fields, as in CLZ: Select Sort Fields says "You can only select 5 fields." for a sixth, and clicking list headers keeps the five most recent.
+- Clicking a list header sorts by that column alone, and again reverses it, as in CLZ; sorting favorites keep their fields.
+- Sorting uses at most five fields, as in CLZ: Select Sort Fields says "You can only select 5 fields." for a sixth.
 - List headers draw the sort direction caret and priority number in white, as CLZ does, instead of the library color.
 - Games details list Links after Personal, and with the Links section position on, Find sold listings on eBay ends that section instead of following the details.
 - Auto Cap Exceptions uses the reference title and the active library color in its header.

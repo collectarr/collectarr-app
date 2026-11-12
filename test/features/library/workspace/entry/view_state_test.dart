@@ -84,6 +84,8 @@ void main() {
 
     final toggled = state.withSortColumn(sort('grade'), profile);
     expect(toggled.sortAscending, isFalse);
+    expect(toggled.sortRules,
+        [LibrarySortRuleRuntime(sortId: sort('grade'), ascending: false)]);
   });
 
   for (final kind in [
@@ -134,7 +136,7 @@ void main() {
     });
   }
 
-  test('workspace view state preserves trailing multi-sort rules', () {
+  test('a header click sorts by that column alone, as in the reference', () {
     final state = profile.defaults().withSortRules([
       LibrarySortRuleRuntime(
         sortId: sort('publisher'),
@@ -147,24 +149,18 @@ void main() {
     ], profile);
 
     final updated = state.withSortColumn(sort('grade'), profile);
-
     expect(updated.sortRules, [
-      LibrarySortRuleRuntime(
-        sortId: sort('grade'),
-        ascending: true,
-      ),
-      LibrarySortRuleRuntime(
-        sortId: sort('publisher'),
-        ascending: true,
-      ),
-      LibrarySortRuleRuntime(
-        sortId: sort('updated'),
-        ascending: false,
-      ),
+      LibrarySortRuleRuntime(sortId: sort('grade'), ascending: true),
+    ]);
+
+    // The leading column of a multi-field sort reverses and stands alone.
+    final reversed = state.withSortColumn(sort('publisher'), profile);
+    expect(reversed.sortRules, [
+      LibrarySortRuleRuntime(sortId: sort('publisher'), ascending: false),
     ]);
   });
 
-  test('header sorts keep at most five fields, as in the reference', () {
+  test('a sort keeps at most five fields, as in the reference', () {
     final ids = [for (final sort in workspace.fields.sorts) sort.id];
     expect(ids.length, greaterThan(kLibraryMaxSortRules));
     final state = profile.defaults().withSortRules([
@@ -172,10 +168,6 @@ void main() {
         LibrarySortRuleRuntime(sortId: id, ascending: true),
     ], profile);
     expect(state.sortRules, hasLength(kLibraryMaxSortRules));
-
-    final clicked = state.withSortColumn(ids.last, profile);
-    expect(clicked.sortRules, hasLength(kLibraryMaxSortRules));
-    expect(clicked.sortRules.first.sortId, ids.last);
   });
 
   test('workspace view profile controls initial sort direction', () {

@@ -90,7 +90,7 @@ Keep these when matching the reference visually.
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in; personal sync uses a separate endpoint, syncs the signed-in account's library or, on servers without accounts, the sync key's, and its header action stays hidden until it can reach one |
 | My Account | Blue account sidebar and an external account portal | The main navigation opens a local My Account page across libraries, with sync status, activity, account settings and Logout. Logout clears the session while keeping local collections |
 | Links | The eBay link beside the cover is white | Every link uses the shared link blue |
-| List header | A white caret on the first sort column | The same white caret on every sorted column, with its priority number |
+| List header | A white caret on every sorted column | The same carets, each with its column's sort priority number |
 | Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request; edit dialogs show the shared edit pen |
 | Narrow windows | Folder panel and details keep their widths; the list collapses to nothing and details run off-screen | Folder panel keeps its width, details shrink to their minimum, the list keeps at least 320 px |
 | Settings | One page | General preferences are grouped in Customization, Connection, Proposals, Data, Account, Updates and Logs; Customization contains General, enabled kind groups and Typography, with separate settings for Games, Hardware and Toys under Games. Pick lists and keyboard shortcuts remain in the main menu and Tools |
