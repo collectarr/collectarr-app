@@ -87,7 +87,6 @@ class LibraryPageCoordinatorContext {
     required void Function(Set<String> value) setPinnedSortFavoriteIds,
     required Set<String> Function() getPinnedColumnFavoriteKeys,
     required List<LibrarySortFavorite> Function() getSortFavorites,
-    required LibrarySortFavorite? Function() getActiveSortFavorite,
     required List<String> Function() getScopeAvailableSortColumns,
     required bool Function() getIsScanningCover,
     required void Function(bool value) setIsScanningCover,
@@ -156,7 +155,6 @@ class LibraryPageCoordinatorContext {
         _setPinnedSortFavoriteIds = setPinnedSortFavoriteIds,
         _getPinnedColumnFavoriteKeys = getPinnedColumnFavoriteKeys,
         _getSortFavorites = getSortFavorites,
-        _getActiveSortFavorite = getActiveSortFavorite,
         _getScopeAvailableSortColumns = getScopeAvailableSortColumns,
         _getIsScanningCover = getIsScanningCover,
         _setIsScanningCover = setIsScanningCover,
@@ -219,7 +217,6 @@ class LibraryPageCoordinatorContext {
   final void Function(Set<String> value) _setPinnedSortFavoriteIds;
   final Set<String> Function() _getPinnedColumnFavoriteKeys;
   final List<LibrarySortFavorite> Function() _getSortFavorites;
-  final LibrarySortFavorite? Function() _getActiveSortFavorite;
   final List<String> Function() _getScopeAvailableSortColumns;
   final bool Function() _getIsScanningCover;
   final void Function(bool value) _setIsScanningCover;
@@ -321,7 +318,6 @@ class LibraryPageCoordinatorContext {
   Set<String> get pinnedColumnFavoriteKeys => _getPinnedColumnFavoriteKeys();
 
   List<LibrarySortFavorite> get sortFavorites => _getSortFavorites();
-  LibrarySortFavorite? get activeSortFavorite => _getActiveSortFavorite();
   List<String> get scopeAvailableSortColumns => _getScopeAvailableSortColumns();
 
   bool get isScanningCover => _getIsScanningCover();

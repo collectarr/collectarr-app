@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features
+- Manage Sorting Favorites lists a sort that is not a favorite above a separator, where it can be edited, removed or added to the favorites; clicking any row sorts by it, and the sort in use is outlined.
 - Choosing Hide all eBay links in Settings folds the other eBay options away with a short slide, and Show eBay links brings them back.
 - The Links tab of Games, Hardware and Toys shows each YouTube trailer's thumbnail, and entering a link or trailer fills an empty Description with the page's title.
 - Auto Cap Exceptions manages words in a compact list with inline add/edit, deletion and individual enable/disable controls.

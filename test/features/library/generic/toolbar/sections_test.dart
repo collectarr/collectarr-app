@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/workspace/chrome/view_controls.d
 import 'package:collectarr_app/features/library/workspace/chrome/dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/generic/sort_preset_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/controls.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -562,7 +564,8 @@ void main() {
                   type: type,
                   favorites: [sortFavorite, secondFavorite],
                   initialPinnedIds: {sortFavorite.id},
-                  activeFavoriteId: sortFavorite.id,
+                  currentRules: sortFavorite.rules,
+                  onSortSelected: (_) {},
                 );
               },
               child: const Text('Open'),
@@ -595,6 +598,76 @@ void main() {
     expect(find.byKey(ValueKey('sortFavorite_${secondFavorite.id}')),
         findsOneWidget);
     expect(find.text('Edit'), findsNWidgets(2));
+    // The sort in use is a favorite, so there is no current-sort row.
+    expect(find.byKey(const ValueKey('sortFavoritesCurrent')), findsNothing);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  testWidgets(
+      'a sort that is no favorite sits above the separator and can be '
+      'chosen again or added', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
+    final favorite = librarySortFavoritesForType(type).first;
+    final current = [
+      LibrarySortRule(
+          column: favorite.rules.first.column,
+          ascending: !favorite.rules.first.ascending),
+    ];
+    final applied = <List<LibrarySortRule>>[];
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => FilledButton(
+            onPressed: () => showSortFavoritesManagerDialog(
+              context: context,
+              type: type,
+              favorites: [favorite],
+              initialPinnedIds: {favorite.id},
+              currentRules: current,
+              onSortSelected: applied.add,
+            ),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    final currentRow = find.byKey(const ValueKey('sortFavoritesCurrent'));
+    final favoriteRow = find.byKey(ValueKey('sortFavorite_${favorite.id}'));
+    expect(
+        find.descendant(
+            of: currentRow,
+            matching: find.byKey(const ValueKey('sortFavoriteActive'))),
+        findsOneWidget);
+    // The 44 px row, 20 px down to the 1 px line and 20 px on to the
+    // favorites, as in the reference.
+    expect(tester.getSize(currentRow).height, 85);
+    expect(
+        tester.getBottomLeft(currentRow).dy, tester.getTopLeft(favoriteRow).dy);
+
+    await tester.tap(find
+        .descendant(of: favoriteRow, matching: find.byType(GestureDetector))
+        .first);
+    await tester.pumpAndSettle();
+    expect(applied, [favorite.rules]);
+    expect(
+        find.descendant(
+            of: favoriteRow,
+            matching: find.byKey(const ValueKey('sortFavoriteActive'))),
+        findsOneWidget);
+
+    await tester.tap(currentRow);
+    await tester.pumpAndSettle();
+    expect(applied.last, current);
+
+    await tester.tap(find.byKey(const ValueKey('sortFavoritesPromoteButton')));
+    await tester.pumpAndSettle();
+    expect(currentRow, findsNothing);
+    expect(find.byKey(const ValueKey('sortFavoriteActive')), findsOneWidget);
+    expect((await LibrarySortPresetStore(type).read()).last.rules, current);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

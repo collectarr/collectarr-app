@@ -194,13 +194,7 @@ class LibraryPageDialogCoordinator {
       context: _page.context,
       type: _page.type,
       onManageFavorites: showSortFavoritesManagerFlow,
-      currentRules: [
-        for (final rule in viewState.sortRules)
-          LibrarySortRule(
-            column: rule.sortId.value,
-            ascending: rule.ascending,
-          ),
-      ],
+      currentRules: _currentSortRules(),
       defaultAscendingForColumn: (column) =>
           _page.viewProfile.initialSortAscending(
         libraryKindWorkspaceForKind(registration.kind)
@@ -230,13 +224,28 @@ class LibraryPageDialogCoordinator {
     }
   }
 
+  List<LibrarySortRule> _currentSortRules() => [
+        for (final rule
+            in _page.viewState?.sortRules ?? const <LibrarySortRuleRuntime>[])
+          LibrarySortRule(
+            column: rule.sortId.value,
+            ascending: rule.ascending,
+          ),
+      ];
+
   Future<void> showSortFavoritesManagerFlow() async {
     final result = await showSortFavoritesManagerDialog(
       context: _page.context,
       type: _page.type,
       favorites: _page.sortFavorites,
       initialPinnedIds: _page.pinnedSortFavoriteIds,
-      activeFavoriteId: _page.activeSortFavorite?.id,
+      currentRules: _currentSortRules(),
+      onSortSelected: (rules) => _page.updateViewState(
+        (state) => state.withSortRules(
+          _page.viewProfile.decodeSortRules(rules),
+          _page.viewProfile,
+        ),
+      ),
     );
     if (_page.mounted) {
       _page.ref.invalidate(librarySavedSortFavoritesProvider(_page.type));

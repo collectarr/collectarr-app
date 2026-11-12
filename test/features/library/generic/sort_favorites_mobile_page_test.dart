@@ -26,7 +26,9 @@ void main() {
                             context: context,
                             type: const MusicRegistration(),
                             favorites: [favorite],
-                            initialPinnedIds: {favorite.id}),
+                            initialPinnedIds: {favorite.id},
+                            currentRules: favorite.rules,
+                            onSortSelected: (_) {}),
                     child: const Text('Open'))))));
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();

@@ -106,7 +106,9 @@ void main() {
               context: context,
               type: type,
               favorites: [],
-              initialPinnedIds: {}),
+              initialPinnedIds: {},
+              currentRules: const [],
+              onSortSelected: (_) {}),
           child: const Text('Open')),
     ))));
     await tester.tap(find.text('Open'));

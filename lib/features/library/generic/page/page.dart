@@ -355,7 +355,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       getPinnedColumnFavoriteKeys: () =>
           _session.preferences.pinnedColumnFavoriteKeys,
       getSortFavorites: () => _sortFavorites,
-      getActiveSortFavorite: () => _activeSortFavorite,
       getScopeAvailableSortColumns: () => _scopeAvailableSortColumns,
       getIsScanningCover: () => _isScanningCover,
       setIsScanningCover: (value) => _isScanningCover = value,
