@@ -407,10 +407,20 @@ class LibraryWorkspaceViewState {
     double width,
     LibraryWorkspaceViewProfile profile,
   ) {
+    final fields =
+        libraryKindWorkspaceForKind(profile.registrationResolver().kind)
+            .workspaceFields;
+    final imageColumn =
+        fields.findColumnDefinition(column)?.imageAspectRatio != null;
+    final resizedWidth = profile.clampColumnWidth(column, width);
     return copyWith(
       columnWidths: {
         ...columnWidths,
-        column: profile.clampColumnWidth(column, width),
+        column: resizedWidth,
+        if (imageColumn)
+          for (final image in fields.columns)
+            if (image.imageAspectRatio != null)
+              image.id: profile.clampColumnWidth(image.id, resizedWidth),
       },
     );
   }

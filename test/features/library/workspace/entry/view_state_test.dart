@@ -86,6 +86,54 @@ void main() {
     expect(toggled.sortAscending, isFalse);
   });
 
+  for (final kind in [
+    CatalogMediaKind.game,
+    CatalogMediaKind.music,
+    CatalogMediaKind.gameHardware,
+    CatalogMediaKind.gameToy
+  ]) {
+    test(
+        '${kind.name} image widths resize together in both directions and persist',
+        () {
+      final kindProfile = libraryViewProfileForKind(kind);
+      final fields = libraryKindWorkspaceForKind(kind).workspaceFields;
+      final images = fields.columns
+          .where((column) => column.imageAspectRatio != null)
+          .toList();
+      expect(images.length, greaterThanOrEqualTo(2));
+      final text = fields.columns
+          .firstWhere((column) =>
+              column.imageAspectRatio == null &&
+              (column.minWidth == null || column.minWidth != column.maxWidth))
+          .id;
+      var state =
+          kindProfile.defaults().withColumnWidth(text, 300, kindProfile);
+      final textWidth = state.columnWidths[text];
+      // Hidden covers keep the same width when selected again later.
+      state = state.copyWith(visibleColumnIds: {images.first.id, text});
+      for (final (image, width) in [
+        (images.last, 220.0),
+        (images.first, 80.0)
+      ]) {
+        state = state.withColumnWidth(image.id, width, kindProfile);
+        for (final cover in images) {
+          expect(state.columnWidths[cover.id], width);
+        }
+        expect(state.columnWidths[text], textWidth);
+        expect(state.visibleColumnIds, {images.first.id, text});
+      }
+      state = state.withColumnWidth(text, 400, kindProfile);
+      for (final image in images) {
+        expect(state.columnWidths[image.id], 80);
+      }
+      final restored =
+          kindProfile.fromPreferences(state.toPreferenceSnapshot());
+      for (final image in images) {
+        expect(restored.columnWidths[image.id], 80);
+      }
+    });
+  }
+
   test('workspace view state preserves trailing multi-sort rules', () {
     final state = profile.defaults().withSortRules([
       LibrarySortRuleRuntime(
