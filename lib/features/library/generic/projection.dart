@@ -449,6 +449,18 @@ class LibraryProjection {
     );
   }
 
+  /// The same library with [selectedItemId] selected among its shown items.
+  LibraryProjection withSelectedItem(String? selectedItemId) =>
+      LibraryProjection(
+        allItems: allItems,
+        folderItems: folderItems,
+        filteredItems: filteredItems,
+        buckets: buckets,
+        selectedItem: librarySelectedItem(filteredItems, selectedItemId),
+        counts: counts,
+        sorting: sorting,
+      );
+
   final List<LibraryProjectionItem> allItems;
 
   /// The items the folder panel shows: those in the Collection Status scope,

@@ -69,6 +69,34 @@ class LibraryProjectionRequest {
   final Set<LibraryEntryRef> activeLoanLibraryEntryIds;
   final LibrarySearchTarget searchTarget;
 
+  /// This request with no item selected. The selection does not shape the
+  /// filtered, sorted and grouped library, so requests share that work.
+  LibraryProjectionRequest withoutSelection() => LibraryProjectionRequest(
+        shelf: shelf,
+        type: type,
+        sortRules: sortRules,
+        query: query,
+        linkedMetadataFilters: linkedMetadataFilters,
+        selectedLetter: selectedLetter,
+        alphabetField: alphabetField,
+        selectedBucket: selectedBucket,
+        selectedItemId: null,
+        quickView: quickView,
+        collectionStatusScope: collectionStatusScope,
+        groupMode: groupMode,
+        bucketScopeFilters: bucketScopeFilters,
+        overrideBuckets: overrideBuckets,
+        constrainedItemIds: constrainedItemIds,
+        collectionEntryIds: collectionEntryIds,
+        filterSelection: filterSelection,
+        customFieldValuesByItem: customFieldValuesByItem,
+        customFieldValuesByDefinitionByItem:
+            customFieldValuesByDefinitionByItem,
+        customFieldDefinitions: customFieldDefinitions,
+        activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
+        searchTarget: searchTarget,
+      );
+
   @override
   bool operator ==(Object other) {
     return other is LibraryProjectionRequest &&
@@ -192,7 +220,19 @@ int _hashStringMap(Map<String, String> value) {
   ]);
 }
 
+/// The projection of [LibraryProjectionRequest] with its item selected.
+/// Selecting another item reuses the library already filtered, sorted and
+/// grouped for the rest of the request.
 final libraryProjectionProvider = Provider.autoDispose
+    .family<LibraryProjection, LibraryProjectionRequest>((ref, request) {
+  final projection = ref
+      .watch(_unselectedLibraryProjectionProvider(request.withoutSelection()));
+  return request.selectedItemId == null
+      ? projection
+      : projection.withSelectedItem(request.selectedItemId);
+});
+
+final _unselectedLibraryProjectionProvider = Provider.autoDispose
     .family<LibraryProjection, LibraryProjectionRequest>((ref, request) {
   final kind = request.type.kind.apiValue;
   // A Sort Name stored before its list stopped offering one is ignored.
