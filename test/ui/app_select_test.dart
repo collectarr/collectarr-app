@@ -24,6 +24,8 @@ void main() {
     final field = tester.getRect(find.byType(InputDecorator));
     await tester.tap(find.text('Select a list...'));
     await tester.pumpAndSettle();
+    expect(tester.widget<Text>(find.text('Alpha')).style!.fontWeight,
+        kAppNormalFontWeight);
     final alpha = tester.getRect(find.widgetWithText(MenuItemButton, 'Alpha'));
     final beta = tester.getRect(find.widgetWithText(MenuItemButton, 'Beta'));
     expect(alpha.height, 25);

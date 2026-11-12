@@ -152,6 +152,7 @@ class SettingsSelect<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AppSelect<T>(
         value: value,
+        optionStyle: const TextStyle(fontWeight: kAppBoldFontWeight),
         decoration: settingsDropdownDecoration(context),
         arrow: (enabled) => settingsSelectArrow(context, enabled),
         leadingOf: leadingOf,

@@ -23,6 +23,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Settings dropdown options use bolder text to match the reference without changing other select menus.
 - Settings checkboxes animate checking and unchecking with the shared checkbox primitive and respect disabled animations.
 - Horizontal Cards use the full available cover height without empty vertical bands, preserving image proportions.
 - Library dropdown rows and settings buttons have clearer hover highlights.

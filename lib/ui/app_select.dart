@@ -13,6 +13,7 @@ class AppSelect<T> extends StatefulWidget {
     required this.decoration,
     this.hint,
     this.style,
+    this.optionStyle,
     this.arrow,
     this.leadingOf,
     this.isOptionEnabled,
@@ -26,6 +27,9 @@ class AppSelect<T> extends StatefulWidget {
   final InputDecoration decoration;
   final Widget? hint;
   final TextStyle? style;
+
+  /// Overrides option typography without changing the closed field value.
+  final TextStyle? optionStyle;
 
   /// Replaces the default muted chevron, given whether the select is enabled.
   final Widget Function(bool enabled)? arrow;
@@ -76,6 +80,7 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
             fontSize: 14,
             fontWeight: FontWeight.w400,
             height: 20 / 14);
+    final optionTextStyle = textStyle.merge(widget.optionStyle);
     final enabled = widget.onChanged != null;
     final contentPadding =
         widget.decoration.contentPadding?.resolve(Directionality.of(context));
@@ -142,14 +147,14 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
                         ? palette.utilityAction
                         : null),
                 overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                textStyle: WidgetStatePropertyAll(textStyle),
+                textStyle: WidgetStatePropertyAll(optionTextStyle),
               ),
               onPressed: widget.isOptionEnabled?.call(option) ?? true
                   ? () => widget.onChanged?.call(option)
                   : null,
               child: Align(
                   alignment: Alignment.centerLeft,
-                  child: _optionContent(option, label, style: textStyle)),
+                  child: _optionContent(option, label, style: optionTextStyle)),
             ),
         ],
         child: MouseRegion(
