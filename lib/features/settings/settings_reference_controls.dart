@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_select.dart';
 import 'package:flutter/material.dart';
@@ -184,6 +184,7 @@ class SettingsCheck extends StatelessWidget {
     final ink = palette.isDark ? Colors.white : palette.textPrimary;
     return Semantics(
       checked: value,
+      enabled: onChanged != null,
       label: label,
       child: InkWell(
         onTap: onChanged == null ? null : () => onChanged!(!value),
@@ -191,23 +192,26 @@ class SettingsCheck extends StatelessWidget {
           height: 25,
           child: Row(children: [
             const SizedBox(width: 5),
-            Container(
-              width: 13,
-              height: 13,
-              decoration: BoxDecoration(
-                color: value ? ink : Colors.transparent,
-                border: Border.all(color: ink, width: 1.5),
-                borderRadius: BorderRadius.circular(1),
+            AppCheckMark(
+              value: value,
+              size: 13,
+              look: AppCheckLook(
+                fill: Colors.transparent,
+                checkedFill: ink,
+                check: palette.panel,
+                border: ink,
+                checkedBorder: ink,
+                borderWidth: 1.5,
+                radius: 1,
               ),
-              child: value
-                  ? Icon(AppIcons.check, size: 10, color: palette.panel)
-                  : null,
             ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(label,
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14)),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      height: 20 / 14)),
             ),
           ]),
         ),
@@ -266,7 +270,9 @@ class SettingsRadio<T> extends StatelessWidget {
             Expanded(
               child: Text(label,
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14)),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      height: 20 / 14)),
             ),
           ]),
         ),
