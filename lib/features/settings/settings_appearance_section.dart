@@ -403,59 +403,67 @@ class _SettingsAppearanceSectionState
               value: false,
               groupValue: preferences.showEbayLinks,
               onChanged: controller.setShowEbayLinks),
-          const SizedBox(height: 10),
-          const SettingsLegend('Show based on Collection Status'),
-          SettingsRadio<bool>(
-              label: 'Show for all entries',
-              value: false,
-              groupValue: preferences.ebayWishlistOnly,
-              onChanged: controller.setEbayWishlistOnly),
-          SettingsRadio<bool>(
-              label: 'Show for Wish List entries only',
-              value: true,
-              groupValue: preferences.ebayWishlistOnly,
-              onChanged: controller.setEbayWishlistOnly),
-          const SizedBox(height: 10),
-          const SettingsLegend('eBay link position'),
-          SettingsCheck(
-              label: 'Toolbar',
-              value: preferences.ebayToolbar,
-              onChanged: controller.setEbayToolbar),
-          SettingsCheck(
-              label: 'Details panel: next to cover',
-              value: preferences.ebayNextToCover,
-              onChanged: controller.setEbayNextToCover),
-          SettingsCheck(
-              label: 'Details panel: Links section',
-              value: preferences.ebayLinksSection,
-              onChanged: controller.setEbayLinksSection),
-          const SizedBox(height: 10),
-          const SettingsLegend('eBay search filter'),
-          for (final filter in EbaySearchFilter.values) ...[
-            SettingsRadio<EbaySearchFilter>(
-                label: filter.label,
-                value: filter,
-                groupValue: preferences.ebaySearchFilter,
-                onChanged: controller.setEbaySearchFilter),
-            if (filter == EbaySearchFilter.automatic)
-              Padding(
-                padding: const EdgeInsets.only(left: 23, bottom: 4),
-                child: Text(
-                    'shows “All eBay listings” for Wish List entries and '
-                    '“Sold listings only” for other entries.',
-                    style: TextStyle(
-                        fontSize: 12, color: appPalette(context).textMuted)),
-              ),
-          ],
-          const SizedBox(height: 10),
-          SettingsGroup(
-            legend: 'eBay region',
-            child: SettingsSelect<EbayRegion>(
-              value: preferences.ebayRegion,
-              values: EbayRegion.values,
-              labelOf: (region) => region.label,
-              onChanged: controller.setEbayRegion,
-            ),
+          SettingsCollapse(
+            expanded: preferences.showEbayLinks,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 10),
+                  const SettingsLegend('Show based on Collection Status'),
+                  SettingsRadio<bool>(
+                      label: 'Show for all entries',
+                      value: false,
+                      groupValue: preferences.ebayWishlistOnly,
+                      onChanged: controller.setEbayWishlistOnly),
+                  SettingsRadio<bool>(
+                      label: 'Show for Wish List entries only',
+                      value: true,
+                      groupValue: preferences.ebayWishlistOnly,
+                      onChanged: controller.setEbayWishlistOnly),
+                  const SizedBox(height: 10),
+                  const SettingsLegend('eBay link position'),
+                  SettingsCheck(
+                      label: 'Toolbar',
+                      value: preferences.ebayToolbar,
+                      onChanged: controller.setEbayToolbar),
+                  SettingsCheck(
+                      label: 'Details panel: next to cover',
+                      value: preferences.ebayNextToCover,
+                      onChanged: controller.setEbayNextToCover),
+                  SettingsCheck(
+                      label: 'Details panel: Links section',
+                      value: preferences.ebayLinksSection,
+                      onChanged: controller.setEbayLinksSection),
+                  const SizedBox(height: 10),
+                  const SettingsLegend('eBay search filter'),
+                  for (final filter in EbaySearchFilter.values) ...[
+                    SettingsRadio<EbaySearchFilter>(
+                        label: filter.label,
+                        value: filter,
+                        groupValue: preferences.ebaySearchFilter,
+                        onChanged: controller.setEbaySearchFilter),
+                    if (filter == EbaySearchFilter.automatic)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 23, bottom: 4),
+                        child: Text(
+                            'shows “All eBay listings” for Wish List entries and '
+                            '“Sold listings only” for other entries.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: appPalette(context).textMuted)),
+                      ),
+                  ],
+                  const SizedBox(height: 10),
+                  SettingsGroup(
+                    legend: 'eBay region',
+                    child: SettingsSelect<EbayRegion>(
+                      value: preferences.ebayRegion,
+                      values: EbayRegion.values,
+                      labelOf: (region) => region.label,
+                      onChanged: controller.setEbayRegion,
+                    ),
+                  ),
+                ]),
           ),
         ]));
     final selectedGroup =

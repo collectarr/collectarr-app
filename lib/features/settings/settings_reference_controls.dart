@@ -221,6 +221,34 @@ class SettingsCheck extends StatelessWidget {
   }
 }
 
+/// Settings that fold away under a choice that turns them off, as the
+/// reference's eBay options do when all eBay links are hidden: the height
+/// eases over 250 ms and the content is clipped from the bottom.
+class SettingsCollapse extends StatelessWidget {
+  const SettingsCollapse(
+      {super.key, required this.expanded, required this.child});
+
+  final bool expanded;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+        tween: Tween(end: expanded ? 1 : 0),
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 250),
+        curve: Curves.ease,
+        child: ExcludeFocus(
+            excluding: !expanded,
+            child: ExcludeSemantics(excluding: !expanded, child: child)),
+        builder: (context, height, child) => ClipRect(
+            child: Align(
+                alignment: Alignment.topCenter,
+                heightFactor: height,
+                child: child)),
+      );
+}
+
 /// A compact radio row in the reference style.
 class SettingsRadio<T> extends StatelessWidget {
   const SettingsRadio({
