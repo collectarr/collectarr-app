@@ -3,6 +3,8 @@ import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_message_dialog.dart';
+import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/sort_preset_store.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
@@ -459,25 +461,34 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   // Selects every field of the group, or clears them when all are selected.
   // The editor may be empty; Save retains its initial first field.
   void _toggleGroup(List<String> columns) {
-    setState(() {
-      if (_groupCheck(columns) == LibraryFieldCheckState.all) {
-        final remaining =
-            _rules.where((rule) => !columns.contains(rule.column)).toList();
-        _rules = remaining;
-        return;
-      }
-      _rules = _dedupeRules([
-        ..._rules,
-        for (final column in columns)
-          if (!_rules.any((rule) => rule.column == column))
-            LibrarySortRule(
-                column: column, ascending: _defaultAscending(column)),
-      ]);
-    });
+    if (_groupCheck(columns) == LibraryFieldCheckState.all) {
+      setState(() => _rules =
+          _rules.where((rule) => !columns.contains(rule.column)).toList());
+      return;
+    }
+    final added = _dedupeRules([
+      ..._rules,
+      for (final column in columns)
+        if (!_rules.any((rule) => rule.column == column))
+          LibrarySortRule(column: column, ascending: _defaultAscending(column)),
+    ]);
+    if (added.length > kLibraryMaxSortRules) {
+      _showSortLimit();
+      return;
+    }
+    setState(() => _rules = added);
   }
+
+  void _showSortLimit() => showAppNoticeDialog(
+      context: context,
+      message: 'You can only select $kLibraryMaxSortRules fields.');
 
   void _toggleColumn(String column) {
     final existingIndex = _rules.indexWhere((rule) => rule.column == column);
+    if (existingIndex < 0 && _rules.length >= kLibraryMaxSortRules) {
+      _showSortLimit();
+      return;
+    }
     setState(() {
       if (existingIndex >= 0) {
         _rules.removeAt(existingIndex);

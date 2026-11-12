@@ -322,4 +322,48 @@ void main() {
     expect(find.text('Save'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  testWidgets('a sort keeps at most five fields, as in the reference',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.binding.setSurfaceSize(const Size(1440, 1400));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    List<LibrarySortRule>? result;
+    await tester.pumpWidget(MaterialApp(
+        home: Builder(
+            builder: (context) => Scaffold(
+                body: TextButton(
+                    onPressed: () async {
+                      result = await showLibrarySortDialog(
+                          context: context,
+                          type: const MusicRegistration(),
+                          showFavorites: false,
+                          currentRules: const [
+                            LibrarySortRule(
+                                column: 'music.title', ascending: true)
+                          ]);
+                    },
+                    child: const Text('Open'))))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    Finder unchecked() => find.byWidgetPredicate((widget) =>
+        widget is LibraryFieldSelectionCheckbox && !widget.selected);
+    for (var count = 1; count < 5; count++) {
+      await tester.ensureVisible(unchecked().first);
+      await tester.tap(unchecked().first);
+      await tester.pumpAndSettle();
+    }
+    expect(find.byType(LibrarySelectedFieldRow), findsNWidgets(5));
+
+    await tester.ensureVisible(unchecked().first);
+    await tester.tap(unchecked().first);
+    await tester.pumpAndSettle();
+    expect(find.text('You can only select 5 fields.'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LibrarySelectedFieldRow), findsNWidgets(5));
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(result, hasLength(5));
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

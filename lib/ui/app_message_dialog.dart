@@ -99,3 +99,58 @@ class AppMessageDialog extends StatelessWidget {
     );
   }
 }
+
+/// A short notice with only OK, as the reference's small alerts, such as
+/// "You can only select 5 fields."
+Future<void> showAppNoticeDialog(
+        {required BuildContext context, required String message}) =>
+    showAppDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => AppNoticeDialog(message: message),
+    );
+
+class AppNoticeDialog extends StatelessWidget {
+  const AppNoticeDialog({super.key, required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Dialog(
+      alignment: Alignment.center,
+      backgroundColor:
+          palette.isDark ? const Color(0xff383838) : palette.panelRaised,
+      surfaceTintColor: Colors.transparent,
+      shape: appDialogShape,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(24),
+      child: SizedBox(
+        width: 300,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+            padding: const EdgeInsets.all(15),
+            child: Text(message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 14,
+                    height: 20 / 14,
+                    color:
+                        palette.isDark ? Colors.white : palette.textPrimary)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 15),
+            child: SizedBox(
+              width: 100,
+              child: DialogActionButton(
+                  label: 'OK',
+                  primary: true,
+                  onPressed: () => Navigator.pop(context)),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}

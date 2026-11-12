@@ -342,7 +342,7 @@ class LibraryWorkspaceViewState {
     final trailingRules = [
       for (final rule in sortRules)
         if (rule.sortId != sortId) rule,
-    ];
+    ].take(kLibraryMaxSortRules - 1);
     return copyWith(
       sortId: sortId,
       sortAscending: profile.initialSortAscending(sortId),
@@ -426,6 +426,9 @@ class LibraryWorkspaceViewState {
   }
 }
 
+/// The most fields a sort uses, as in the reference.
+const kLibraryMaxSortRules = 5;
+
 List<LibrarySortRuleRuntime> _normalizedSortRules(
   List<LibrarySortRuleRuntime>? rules, {
   required LibrarySortIdRuntime fallbackSortId,
@@ -442,7 +445,7 @@ List<LibrarySortRuleRuntime> _normalizedSortRules(
   final seen = <LibrarySortIdRuntime>{};
   final normalized = <LibrarySortRuleRuntime>[];
   for (final rule in effective) {
-    if (seen.add(rule.sortId)) {
+    if (normalized.length < kLibraryMaxSortRules && seen.add(rule.sortId)) {
       normalized.add(rule);
     }
   }

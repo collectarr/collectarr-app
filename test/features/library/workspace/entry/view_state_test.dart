@@ -164,6 +164,20 @@ void main() {
     ]);
   });
 
+  test('header sorts keep at most five fields, as in the reference', () {
+    final ids = [for (final sort in workspace.fields.sorts) sort.id];
+    expect(ids.length, greaterThan(kLibraryMaxSortRules));
+    final state = profile.defaults().withSortRules([
+      for (final id in ids.take(kLibraryMaxSortRules + 1))
+        LibrarySortRuleRuntime(sortId: id, ascending: true),
+    ], profile);
+    expect(state.sortRules, hasLength(kLibraryMaxSortRules));
+
+    final clicked = state.withSortColumn(ids.last, profile);
+    expect(clicked.sortRules, hasLength(kLibraryMaxSortRules));
+    expect(clicked.sortRules.first.sortId, ids.last);
+  });
+
   test('workspace view profile controls initial sort direction', () {
     final newestFirstProfile = LibraryWorkspaceViewProfile(
       registrationResolver: () => runtime,
