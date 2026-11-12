@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/link_preview.dart';
 import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
@@ -68,6 +69,8 @@ final class LibraryExternalLinksTable<TIdentity extends Object>
     this.onChanged,
     this.emptyMessage = 'No links added yet.',
     this.showTitleColumn = false,
+    this.showThumbnails = false,
+    this.titleLookup,
   });
 
   final List<LibraryExternalLinkEditRow<TIdentity>> rows;
@@ -81,6 +84,13 @@ final class LibraryExternalLinksTable<TIdentity extends Object>
   final String emptyMessage;
   final bool showTitleColumn;
 
+  /// Shows each URL's video still before it, as the reference's trailers do.
+  final bool showThumbnails;
+
+  /// Finds a page title for a URL; when set, leaving a changed URL fills an
+  /// empty description with it.
+  final Future<String?> Function(String url)? titleLookup;
+
   @override
   State<LibraryExternalLinksTable<TIdentity>> createState() =>
       _LibraryExternalLinksTableState<TIdentity>();
@@ -89,7 +99,31 @@ final class LibraryExternalLinksTable<TIdentity extends Object>
 final class _LibraryExternalLinksTableState<TIdentity extends Object>
     extends State<LibraryExternalLinksTable<TIdentity>> {
   final Set<Key> _selectedKeys = {};
+  final Map<Key, String> _lookedUpUrls = {};
   TIdentity? _draggingIdentity;
+
+  Future<void> _lookUpTitle(LibraryExternalLinkEditRow<TIdentity> row) async {
+    final lookup = widget.titleLookup;
+    final url = row.urlController.text.trim();
+    if (lookup == null ||
+        url.isEmpty ||
+        row.descriptionController.text.trim().isNotEmpty ||
+        _lookedUpUrls[row.key] == url) {
+      return;
+    }
+    _lookedUpUrls[row.key] = url;
+    final title = await lookup(url);
+    // The page may answer after the row was edited, removed or described.
+    if (!mounted ||
+        title == null ||
+        !widget.rows.any((other) => other.key == row.key) ||
+        row.urlController.text.trim() != url ||
+        row.descriptionController.text.trim().isNotEmpty) {
+      return;
+    }
+    row.descriptionController.text = title;
+    widget.onChanged?.call();
+  }
 
   @override
   void didUpdateWidget(
@@ -286,6 +320,8 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
             ),
             const SizedBox(width: _columnGap),
           ],
+          if (widget.showThumbnails)
+            const SizedBox(width: _thumbnailWidth + _columnGap),
           Expanded(
             flex: 7,
             child: Text(
@@ -405,20 +441,30 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                     ),
                     const SizedBox(width: _columnGap),
                   ],
+                  if (widget.showThumbnails) ...[
+                    _LinkThumbnail(url: row.urlController),
+                    const SizedBox(width: _columnGap),
+                  ],
                   Expanded(
                     flex: 7,
-                    child: LibraryTextFormControl(
-                      key: row.urlFieldKey ?? ValueKey((row.key, 'url')),
-                      controller: row.urlController,
-                      minimumHeight: 0,
-                      decoration: const InputDecoration(
-                        hintText: 'https://example.com',
-                        isDense: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+                    child: Focus(
+                      skipTraversal: true,
+                      onFocusChange: (focused) {
+                        if (!focused) _lookUpTitle(row);
+                      },
+                      child: LibraryTextFormControl(
+                        key: row.urlFieldKey ?? ValueKey((row.key, 'url')),
+                        controller: row.urlController,
+                        minimumHeight: 0,
+                        decoration: const InputDecoration(
+                          hintText: 'https://example.com',
+                          isDense: true,
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+                        ),
+                        keyboardType: TextInputType.url,
+                        onChanged: (_) => widget.onChanged?.call(),
                       ),
-                      keyboardType: TextInputType.url,
-                      onChanged: (_) => widget.onChanged?.call(),
                     ),
                   ),
                   const SizedBox(width: _columnGap),
@@ -523,6 +569,37 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
 const double _handleColumnWidth = 30;
 const double _selectionColumnWidth = 34;
 const double _columnGap = 8;
+const double _thumbnailWidth = 100;
+
+/// A URL's YouTube still, or a plain placeholder for other or empty URLs.
+class _LinkThumbnail extends StatelessWidget {
+  const _LinkThumbnail({required this.url});
+
+  final TextEditingController url;
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder(
+        valueListenable: url,
+        builder: (context, value, _) {
+          final thumbnail = youTubeThumbnailUrl(value.text);
+          const placeholder = ColoredBox(
+            color: Color(0xFFDDDDDD),
+            child: Center(
+                child: Icon(Icons.smart_display_outlined,
+                    size: 20, color: Color(0xFF999999))),
+          );
+          return SizedBox(
+            width: _thumbnailWidth,
+            height: 36,
+            child: thumbnail == null
+                ? placeholder
+                : Image.network(thumbnail,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => placeholder),
+          );
+        },
+      );
+}
 
 TextStyle? _columnHeaderStyle(BuildContext context) =>
     Theme.of(context).textTheme.labelSmall?.copyWith(

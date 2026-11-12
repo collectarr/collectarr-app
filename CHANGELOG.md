@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features
+- The Links tab of Games, Hardware and Toys shows each YouTube trailer's thumbnail, and entering a link or trailer fills an empty Description with the page's title.
 - Auto Cap Exceptions manages words in a compact list with inline add/edit, deletion and individual enable/disable controls.
 - Sorting and column favorites share medium-weight entries and edge-to-edge Favorites rules, with the longer line on the right.
 - List view has no spacing or cover-size sliders; image columns resize together and follow actual cover proportions without empty vertical bands; empty cover columns do not add row height, and text stays aligned at the top.

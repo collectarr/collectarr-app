@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/details/trailer_visibility.dart'
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/generic/link_preview.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
@@ -392,16 +393,7 @@ class _GameTrailer extends StatelessWidget {
   final GameCatalogLink link;
 
   /// The thumbnail YouTube publishes for a video, null for other sites.
-  String? get _thumbnail {
-    final uri = Uri.tryParse(link.url);
-    if (uri == null) return null;
-    final id = uri.host.endsWith('youtu.be')
-        ? uri.pathSegments.firstOrNull
-        : uri.host.endsWith('youtube.com')
-            ? uri.queryParameters['v']
-            : null;
-    return id == null ? null : 'https://img.youtube.com/vi/$id/hqdefault.jpg';
-  }
+  String? get _thumbnail => youTubeThumbnailUrl(link.url);
 
   @override
   Widget build(BuildContext context) {

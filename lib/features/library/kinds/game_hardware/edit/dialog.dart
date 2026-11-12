@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/core_correction/core_correc
 import 'package:collectarr_app/features/library/edit/draft/models.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/external_links_draft_editor.dart';
+import 'package:collectarr_app/features/library/generic/link_preview.dart';
 import 'package:collectarr_app/features/library/edit/schema/renderer.dart';
 import 'package:collectarr_app/features/library/edit/schema/dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/data/game_hardware_catalog_transport_codec.dart';
@@ -238,6 +239,7 @@ final class _GameHardwareLinksTab extends StatelessWidget {
           LibraryExternalLinksEditSection(
             links: draft.links,
             accent: accent,
+            titleLookup: fetchLinkTitle,
             onChanged: (links) => draft.links = links,
           ),
           const SizedBox(height: 18),
@@ -246,6 +248,8 @@ final class _GameHardwareLinksTab extends StatelessWidget {
             accent: accent,
             addLabel: 'New Trailer',
             emptyMessage: 'No YouTube trailers added.',
+            showThumbnails: true,
+            titleLookup: fetchLinkTitle,
             onChanged: (links) => draft.trailers = links,
           ),
         ]),

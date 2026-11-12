@@ -25,6 +25,8 @@ final class LibraryExternalLinksEditSection extends StatefulWidget {
     this.addLabel = 'New Link',
     this.showTitleColumn = true,
     this.emptyMessage = 'No external links added.',
+    this.showThumbnails = false,
+    this.titleLookup,
   });
 
   final List<LibraryExternalLinkValue> links;
@@ -33,6 +35,8 @@ final class LibraryExternalLinksEditSection extends StatefulWidget {
   final bool showTitleColumn;
   final String addLabel;
   final String emptyMessage;
+  final bool showThumbnails;
+  final Future<String?> Function(String url)? titleLookup;
 
   @override
   State<LibraryExternalLinksEditSection> createState() =>
@@ -75,6 +79,8 @@ final class _LibraryExternalLinksEditSectionState
         addLabel: widget.addLabel,
         showTitleColumn: widget.showTitleColumn,
         emptyMessage: widget.emptyMessage,
+        showThumbnails: widget.showThumbnails,
+        titleLookup: widget.titleLookup,
       );
 }
 
@@ -92,6 +98,8 @@ final class LibraryExternalLinksDraftEditor extends StatefulWidget {
     this.addLabel = 'New Link',
     this.showTitleColumn = true,
     this.emptyMessage = 'No external links added.',
+    this.showThumbnails = false,
+    this.titleLookup,
   });
 
   final List<LibraryExternalLinkDraftRow> links;
@@ -100,6 +108,8 @@ final class LibraryExternalLinksDraftEditor extends StatefulWidget {
   final bool showTitleColumn;
   final String addLabel;
   final String emptyMessage;
+  final bool showThumbnails;
+  final Future<String?> Function(String url)? titleLookup;
 
   @override
   State<LibraryExternalLinksDraftEditor> createState() =>
@@ -125,6 +135,8 @@ final class _LibraryExternalLinksDraftEditorState
         addLabel: widget.addLabel,
         emptyMessage: widget.emptyMessage,
         showTitleColumn: widget.showTitleColumn,
+        showThumbnails: widget.showThumbnails,
+        titleLookup: widget.titleLookup,
         onAdd: () => setState(() {
           widget.links.add(LibraryExternalLinkDraftRow());
           widget.onChanged?.call();
