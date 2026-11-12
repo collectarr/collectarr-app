@@ -41,6 +41,10 @@ class _SettingsAppearanceSectionState
     extends ConsumerState<SettingsAppearanceSection> {
   String? _selectedTab;
 
+  /// Keeps the General tab's state, such as its checkbox animations, when
+  /// enabling or hiding a library rebuilds the tabs.
+  final _generalTabKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -489,6 +493,7 @@ class _SettingsAppearanceSectionState
         Expanded(
             child: TabBarView(children: [
           SettingsTabBody.columns(
+            key: _generalTabKey,
             left: [customization, localization, behaviour, sorting],
             right: [
               autoCap,

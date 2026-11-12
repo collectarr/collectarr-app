@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'package:collectarr_app/features/settings/custom_fields_tab_settings_dialog.dart';
 import 'package:collectarr_app/features/library/add/mobile/method_preferences.dart';
+import 'package:collectarr_app/ui/app_checkbox.dart';
 import 'package:collectarr_app/ui/app_select.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -61,6 +62,14 @@ void main() {
           findsNothing);
       await tester.ensureVisible(games);
       await tester.tap(games);
+      // Hiding a library rebuilds the tabs; the box still draws its tick out.
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 80));
+      final mark = tester.widget<CustomPaint>(find.descendant(
+          of: find.descendant(of: games, matching: find.byType(AppCheckMark)),
+          matching: find.byType(CustomPaint)));
+      expect((mark.painter! as dynamic).progress, inExclusiveRange(0, 1));
       await tester.pumpAndSettle();
       final appContainer = ProviderScope.containerOf(tester.element(games));
       var modulePrefs = appContainer.read(libraryNavPreferencesProvider);
