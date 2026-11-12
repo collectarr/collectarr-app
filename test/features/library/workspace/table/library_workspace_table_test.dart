@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_checkbox.dart';
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
@@ -70,14 +72,14 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('list checkboxes keep outlined blue and active white marks',
+  testWidgets('list checkbox boxes and ticks follow all four row states',
       (tester) async {
     String? toggled;
     var activated = false;
     await tester.pumpWidget(MaterialApp(
         home: Scaffold(
             body: LibraryWorkspaceTable<String>(
-      entries: const ['active', 'checked', 'idle'],
+      entries: const ['active-checked', 'checked', 'active-unchecked', 'idle'],
       columns: const ['title'],
       sortColumn: 'title',
       sortAscending: true,
@@ -87,10 +89,10 @@ void main() {
       columnLabelFor: (id) => id,
       columnIsNumeric: (_) => false,
       cellBuilder: (entry, _) => Text(entry),
-      isSelected: (entry) => entry == 'active',
+      isSelected: (entry) => entry.startsWith('active'),
       showCheckbox: true,
       showHeaderCheckbox: false,
-      isEntryChecked: (entry) => entry != 'idle',
+      isEntryChecked: (entry) => {'active-checked', 'checked'}.contains(entry),
       onToggleEntryCheck: (entry) => toggled = entry,
       onEntryTap: (_) => activated = true,
       onSortChanged: (_) {},
@@ -99,13 +101,28 @@ void main() {
     final marks = tester
         .widgetList<LibrarySelectionMark>(find.byType(LibrarySelectionMark))
         .toList();
-    expect(marks, hasLength(3));
-    expect(marks.every((mark) => mark.outlined), isTrue);
-    expect(marks.map((mark) => mark.checked), [true, true, false]);
+    expect(marks, hasLength(4));
+    expect(marks.map((mark) => mark.outlined), [false, false, true, true]);
+    expect(marks.map((mark) => mark.checked), [true, true, false, false]);
     expect(marks.first.foregroundColor, Colors.white);
     final context = tester.element(find.text('idle'));
     expect(marks[1].foregroundColor, appPalette(context).utilityAction);
-    expect(marks[2].foregroundColor, marks[1].foregroundColor);
+    expect(marks[2].foregroundColor, Colors.white);
+    expect(marks[3].foregroundColor, marks[1].foregroundColor);
+    final faces = tester
+        .widgetList<AppCheckMark>(find.descendant(
+          of: find.byType(LibrarySelectionMark),
+          matching: find.byType(AppCheckMark),
+        ))
+        .toList();
+    expect(faces[0].look.checkedFill, Colors.white);
+    expect(faces[0].look.check, libraryWorkspaceSelectionBackground(context));
+    expect(faces[1].look.checkedFill, appPalette(context).utilityAction);
+    expect(faces[1].look.check, kLibraryCheckedItemBackground);
+    expect(faces[2].look.fill, Colors.transparent);
+    expect(faces[2].look.border, Colors.white);
+    expect(faces[3].look.fill, Colors.transparent);
+    expect(faces[3].look.border, appPalette(context).utilityAction);
     await tester.tap(find.byType(LibrarySelectionMark).at(1));
     await tester.pump();
     expect(toggled, 'checked');

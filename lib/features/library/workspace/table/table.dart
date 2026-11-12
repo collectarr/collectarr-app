@@ -421,6 +421,8 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                             checked: allChecked,
                             indeterminate: !allChecked && hasPartialCheck,
                             accentColor: appPalette(context).utilityAction,
+                            outlineColor: appPalette(context).utilityAction,
+                            cutoutColor: headerColor,
                             onTap: onToggleAllChecked == null
                                 ? null
                                 : () => onToggleAllChecked!(!allChecked),
@@ -665,6 +667,7 @@ class _LibraryTableCheckbox extends StatelessWidget {
     required this.accentColor,
     this.outlineColor = Colors.white70,
     this.checkColor = Colors.white,
+    this.cutoutColor = Colors.transparent,
     this.onTap,
   });
 
@@ -673,6 +676,7 @@ class _LibraryTableCheckbox extends StatelessWidget {
   final Color accentColor;
   final Color outlineColor;
   final Color checkColor;
+  final Color cutoutColor;
   final VoidCallback? onTap;
 
   @override
@@ -688,8 +692,9 @@ class _LibraryTableCheckbox extends StatelessWidget {
                       child: LibrarySelectionMark(
                           checked: checked,
                           indeterminate: indeterminate,
-                          outlined: true,
-                          foregroundColor: outlineColor)))));
+                          outlined: !checked && !indeterminate,
+                          foregroundColor: outlineColor,
+                          cutoutColor: cutoutColor)))));
     }
     return AppPressClaim(
         child: InkWell(
@@ -826,6 +831,10 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                     accentColor: rowControlColor,
                     outlineColor: rowControlColor,
                     checkColor: selected ? palette.utilityAction : Colors.white,
+                    // A filled box cuts its tick out in the row's own color.
+                    cutoutColor: selected
+                        ? selectedColor
+                        : kLibraryCheckedItemBackground,
                     onTap: onToggleEntryCheck == null
                         ? null
                         : () => onToggleEntryCheck!(entry),

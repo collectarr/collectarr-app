@@ -22,6 +22,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- List checkboxes use filled blue boxes on checked rows and white boxes on the current row, with ticks matching each row background.
 - Games list covers load local images and reserve enough row height for visible thumbnails.
 - Column favorites open under the full toolbar button; sorting and column favorites share heavier text, white checkmarks and separated Favorites headings.
 - Platform icons stay visible in a fixed, unnamed column and fill its width, without appearing in column selection.
