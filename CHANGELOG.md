@@ -27,6 +27,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Sorting a large library is several times faster.
 - Clicking a list header sorts by that column alone, and again reverses it, as in CLZ; sorting favorites keep their fields.
 - Sorting uses at most five fields, as in CLZ: Select Sort Fields says "You can only select 5 fields." for a sixth.
 - List headers draw the sort direction caret and priority number in white, as CLZ does, instead of the library color.

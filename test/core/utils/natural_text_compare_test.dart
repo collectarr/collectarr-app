@@ -16,6 +16,18 @@ void main() {
     expect(sorted(['Disc 02', 'Disc 1']), ['Disc 1', 'Disc 02']);
   });
 
+  test('ignores leading zeros until the numbers are otherwise equal', () {
+    expect(
+        sorted(['Vol 010', 'Vol 9', 'Vol 0']), ['Vol 0', 'Vol 9', 'Vol 010']);
+    expect(compareNaturalText('Vol 007', 'Vol 7'), isNot(0));
+    expect(compareNaturalText('Vol 000', 'Vol 1'), lessThan(0));
+    expect(compareNaturalText('7 Up 12', '7 Up 3'), greaterThan(0));
+  });
+
+  test('compares digit runs in accented text by value', () {
+    expect(sorted(['Été 10', 'Été 9', 'Ete 2']), ['Ete 2', 'Été 9', 'Été 10']);
+  });
+
   test('sorts accented letters with their base letter', () {
     expect(sorted(['Zappa', 'Édith Piaf', 'Eagles', 'Fauré']),
         ['Eagles', 'Édith Piaf', 'Fauré', 'Zappa']);

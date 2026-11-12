@@ -585,7 +585,7 @@ class LibraryPageDialogCoordinator {
     );
     if (rules == null || !_page.mounted || !context.mounted) return;
     final decodedRules = _page.viewProfile.decodeSortRules(rules);
-    items.sort((a, b) => workspace.compareEntriesByRules(a, b, decodedRules));
+    workspace.sortEntriesByRules(items, decodedRules);
 
     final coordinator = _page.ref.read(collectionCommandCoordinatorProvider);
     var count = 0;

@@ -103,9 +103,9 @@ abstract interface class LibraryKindWorkspace {
     LibraryFieldIdRuntime column,
   );
 
-  int compareEntriesByRules(
-    LibraryProjectionView left,
-    LibraryProjectionView right,
+  /// Sorts [items] by [rules] in order, then by their label.
+  void sortEntriesByRules<TItem extends LibraryProjectionView>(
+    List<TItem> items,
     Iterable<LibrarySortRuleRuntime> rules, {
     LibrarySortingOptions sorting = const LibrarySortingOptions(),
   });
@@ -442,38 +442,56 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  int compareEntriesByRules(
-    LibraryProjectionView left,
-    LibraryProjectionView right,
+  void sortEntriesByRules<TItem extends LibraryProjectionView>(
+    List<TItem> items,
     Iterable<LibrarySortRuleRuntime> rules, {
     LibrarySortingOptions sorting = const LibrarySortingOptions(),
   }) {
-    validateProjection(left);
-    validateProjection(right);
-    final targetFields = _typedFieldsForTarget(left.target);
-    for (final rule in rules) {
-      final sortDef = targetFields.findSortDefinition(rule.sortId);
-      if (sortDef != null) {
-        final result = sortDef.compare(
-          LibraryProjectionContext<TDto>(
-            item: left.source.item,
-            personal: left.source.personal,
-            dto: left.dto as TDto,
-            sorting: sorting,
+    // A sort compares each item many times, so its context, label and the
+    // rules' definitions are resolved once instead of per comparison.
+    final definitionsByFields = <LibraryFieldRegistry<TDto>,
+        List<({LibrarySortDefinition<dynamic, TDto> sort, bool ascending})>>{};
+    final rows = [
+      for (final item in items)
+        (
+          item: item,
+          context: _sortContext(item, sorting),
+          definitions: definitionsByFields.putIfAbsent(
+            _typedFieldsForTarget(item.target),
+            () => [
+              for (final rule in rules)
+                if (_typedFieldsForTarget(item.target)
+                        .findSortDefinition(rule.sortId)
+                    case final sort?)
+                  (sort: sort, ascending: rule.ascending),
+            ],
           ),
-          LibraryProjectionContext<TDto>(
-            item: right.source.item,
-            personal: right.source.personal,
-            dto: right.dto as TDto,
-            sorting: sorting,
-          ),
-        );
+          label: item.dto.primaryLabel.toLowerCase(),
+        ),
+    ];
+    rows.sort((left, right) {
+      for (final rule in left.definitions) {
+        final result = rule.sort.compare(left.context, right.context);
         if (result != 0) return rule.ascending ? result : -result;
       }
+      return left.label.compareTo(right.label);
+    });
+    for (var index = 0; index < rows.length; index++) {
+      items[index] = rows[index].item;
     }
-    return left.dto.primaryLabel.toLowerCase().compareTo(
-          right.dto.primaryLabel.toLowerCase(),
-        );
+  }
+
+  LibraryProjectionContext<TDto> _sortContext(
+    LibraryProjectionView item,
+    LibrarySortingOptions sorting,
+  ) {
+    validateProjection(item);
+    return LibraryProjectionContext<TDto>(
+      item: item.source.item,
+      personal: item.source.personal,
+      dto: item.dto as TDto,
+      sorting: sorting,
+    );
   }
 
   @override

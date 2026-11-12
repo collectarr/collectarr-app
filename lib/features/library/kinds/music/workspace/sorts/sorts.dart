@@ -161,9 +161,15 @@ String _artistSortKey(
 String _artistDisplay(MusicWorkspaceProjection dto) =>
     dto.music.artist ?? dto.facts.primaryArtist ?? '';
 
+final _artistSortNames = Expando<String>();
+
 /// The album's artists by sort name, falling back to the name with a leading
-/// article moved to the end.
-String musicArtistSortName(MusicWorkspaceProjection dto) {
+/// article moved to the end. A sort asks for it on every comparison, so each
+/// album's name is built once.
+String musicArtistSortName(MusicWorkspaceProjection dto) =>
+    _artistSortNames[dto] ??= _buildArtistSortName(dto);
+
+String _buildArtistSortName(MusicWorkspaceProjection dto) {
   final credits = [...dto.music.artistCredits]
     ..sort((a, b) => a.sequence.compareTo(b.sequence));
   if (credits.isEmpty) return automaticSortTitle(_artistDisplay(dto));

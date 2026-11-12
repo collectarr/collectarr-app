@@ -113,12 +113,11 @@ class LibraryProjectionEngine {
       }
     }
 
-    filteredItems.sort((a, b) => workspace.compareEntriesByRules(
-          a,
-          b,
-          sortRules,
-          sorting: query.sorting,
-        ));
+    workspace.sortEntriesByRules(
+      filteredItems,
+      sortRules,
+      sorting: query.sorting,
+    );
 
     final counts = statsCalculator.calculate(
       allItems: allItems,

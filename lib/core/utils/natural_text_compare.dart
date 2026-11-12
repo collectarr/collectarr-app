@@ -30,6 +30,15 @@ final Map<int, String> _fold = {
 
 /// Lower-cases [text] and strips accents so "Édith" sorts with the Es.
 String foldForSort(String text) {
+  // Plain ASCII has no accents to strip, which covers most titles and names.
+  var ascii = true;
+  for (var index = 0; index < text.length; index++) {
+    if (text.codeUnitAt(index) >= 0x80) {
+      ascii = false;
+      break;
+    }
+  }
+  if (ascii) return text.toLowerCase();
   final buffer = StringBuffer();
   for (final rune in text.toLowerCase().runes) {
     buffer.write(_fold[rune] ?? String.fromCharCode(rune));
@@ -59,11 +68,23 @@ int compareNaturalText(String first, String second) {
       while (endB < b.length && _isDigit(b.codeUnitAt(endB))) {
         endB++;
       }
-      final numA = a.substring(i, endA).replaceFirst(RegExp(r'^0+(?=\d)'), '');
-      final numB = b.substring(j, endB).replaceFirst(RegExp(r'^0+(?=\d)'), '');
-      if (numA.length != numB.length) return numA.length - numB.length;
-      final order = numA.compareTo(numB);
-      if (order != 0) return order;
+      // Leading zeros do not count: the longer number is the larger one.
+      var startA = i;
+      while (startA < endA - 1 && a.codeUnitAt(startA) == 0x30) {
+        startA++;
+      }
+      var startB = j;
+      while (startB < endB - 1 && b.codeUnitAt(startB) == 0x30) {
+        startB++;
+      }
+      if (endA - startA != endB - startB) {
+        return (endA - startA) - (endB - startB);
+      }
+      for (var offset = 0; offset < endA - startA; offset++) {
+        final order =
+            a.codeUnitAt(startA + offset) - b.codeUnitAt(startB + offset);
+        if (order != 0) return order;
+      }
       i = endA;
       j = endB;
       continue;
