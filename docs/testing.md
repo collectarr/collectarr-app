@@ -55,7 +55,8 @@ flutter test benchmark/music_workspace_benchmark.dart --enable-vmservice --no-dd
 
 This explicitly runs the 1000/5000 album measurements and writes
 `build/benchmarks/music-workspace.json`. The manual/weekly workflow uploads
-that file. Normal correctness execution never discovers the benchmark and
+that file. It also times the whole page projection for a default sort and
+for a search. Normal correctness execution never discovers the benchmark and
 never carries a permanent benchmark skip. Facts/group membership invariants
 remain covered by the Music correctness tests.
 

@@ -6,6 +6,7 @@ import 'dart:isolate' as isolate;
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -20,7 +21,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart'
 import 'package:collectarr_app/features/library/kinds/music/workspace/facts.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/context.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
 import 'package:collectarr_app/features/library/workspace/entry/item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -146,6 +147,28 @@ void main() {
             return matched;
           });
 
+          // What the library page runs for a new sort, folder or search.
+          final shelf = _benchmarkShelf(items);
+          final sortRules = [
+            LibrarySortRuleRuntime(
+              sortId: workspace.fields.defaultSort,
+              ascending: true,
+            ),
+          ];
+          int pageProjection(String query) => LibraryProjection.fromShelf(
+                shelf: shelf,
+                type: registration,
+                sortRules: sortRules,
+                query: query,
+                selectedBucket: null,
+                selectedItemId: 'benchmark-42',
+                quickView: null,
+                groupMode: workspace.fields.defaultGroup!.value,
+              ).filteredItems.length;
+          final pageProjectionTime = _measureAverage(() => pageProjection(''));
+          final pageSearchTime =
+              _measureAverage(() => pageProjection('album 42'));
+
           final afterAllPeak = ProcessInfo.maxRss;
           final factsTime = _measureFacts(albums);
           final report = <String, Object?>{
@@ -163,6 +186,8 @@ void main() {
             'averageSortMs': _milliseconds(sortTime),
             'averageDiscFormatFilterMs': _milliseconds(discFormatFilterTime),
             'averagePublisherFilterMs': _milliseconds(publisherFilterTime),
+            'averagePageProjectionMs': _milliseconds(pageProjectionTime),
+            'averagePageSearchMs': _milliseconds(pageSearchTime),
             'rssBeforeProjectionBytes': beforeProjectionRss,
             'rssAfterProjectionBytes': afterProjectionRss,
             'rssDeltaBytes': afterProjectionRss - beforeProjectionRss,
@@ -319,6 +344,16 @@ LibraryProjectionItem _projectAlbum(
   );
   return LibraryProjectionItem.fromShelf(context, registration);
 }
+
+ShelfState _benchmarkShelf(List<LibraryProjectionItem> items) => ShelfState(
+      entries: [for (final item in items) item.source],
+      entryCount: 0,
+      wishlistCount: 0,
+      pricedCount: 0,
+      totalPaidCents: 0,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
 
 void _verifyProjectionFactsAreReused(List<LibraryProjectionItem> items) {
   for (final item in items) {
