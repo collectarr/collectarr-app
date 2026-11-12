@@ -504,8 +504,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                                                     height: density
                                                         .inspectorOuterGap),
                                                 ...effectivePrimarySections,
-                                                InspectorEbayLinksSection(
-                                                    item: selected),
+                                                if (inspectorCapability
+                                                    .showsDefaultEbayLinksSection)
+                                                  InspectorEbayLinksSection(
+                                                      item: selected),
                                                 ...trailingSections,
                                               ],
                                             ),

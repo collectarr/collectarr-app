@@ -50,6 +50,7 @@ class LibraryInspectorCapability {
     this.entityRegistry = const LibraryTargetInspectorRegistry(),
     this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
+    this.showsDefaultEbayLinksSection = true,
     this.showsActionBar = true,
     this.supportsLibraryEntryImages = true,
     this.trackingEditor,
@@ -59,6 +60,10 @@ class LibraryInspectorCapability {
   final LibraryTargetInspectorRegistry entityRegistry;
   final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
+
+  /// Whether the shared eBay link follows the sections; kinds that list it
+  /// in their own Links section turn it off.
+  final bool showsDefaultEbayLinksSection;
   final bool showsActionBar;
   final bool supportsLibraryEntryImages;
   final LibraryTrackingEditorCapability? trackingEditor;

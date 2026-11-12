@@ -137,6 +137,8 @@ final gameKindInspector = LibraryInspectorCapability(
     ),
   ),
   showsDefaultPersonalSection: false,
+  // The eBay link ends the Links section, as in the reference.
+  showsDefaultEbayLinksSection: false,
   showsActionBar: false,
   // The reference details show no My Images section.
   supportsLibraryEntryImages: false,

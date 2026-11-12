@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/details/trailer_visibility.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
@@ -36,11 +37,22 @@ GameCatalogMetadata? _metadata(LibraryProjectionView item) =>
 GameLibraryEntry? _entry(LibraryInspectorRequest request) =>
     GameLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
 
+/// The eBay search for an item: its title and first platform.
+String _ebayQuery(LibraryProjectionView item) {
+  final metadata = _metadata(item);
+  final platform = metadata?.platforms.firstOrNull?.trim() ?? '';
+  return [
+    metadata?.title ?? item.dto.primaryLabel,
+    if (platform.isNotEmpty) platform,
+  ].join(' ');
+}
+
 Widget buildGameInspectorHero(
         BuildContext context, LibraryInspectorRequest request) =>
     _GameInspectorHeader(inspector: request);
 
-/// Reference details below the header: Description, Trailer and Personal.
+/// Reference details below the header: Description, Trailer, Personal and
+/// Links.
 List<Widget> buildGameInspectorSections(
     BuildContext context, LibraryInspectorRequest request) {
   final metadata = _metadata(request.item);
@@ -68,8 +80,11 @@ List<Widget> buildGameInspectorSections(
               Wrap(spacing: 10, runSpacing: 10, children: [
                 for (final trailer in trailers) _GameTrailer(trailer),
               ]))),
-    if (links.isNotEmpty) section('Links', _GameLinkList(links)),
     if (entry != null) section('Personal', _GamePersonalTable(entry: entry)),
+    _GameLinksSection(
+        links: links,
+        ebayQuery: _ebayQuery(request.item),
+        isWishlisted: request.item.source.isWishlisted),
   ];
 }
 
@@ -206,7 +221,7 @@ class _GameInspectorHeader extends StatelessWidget {
               ]),
             if (entry != null) _GameValueBadge(entry: entry),
             _GameEbayLink(
-                query: [title, if (platform.isNotEmpty) platform].join(' '),
+                query: _ebayQuery(inspector.item),
                 isWishlisted: inspector.item.source.isWishlisted),
           ]);
           if (constraints.maxWidth < 440) {
@@ -391,7 +406,10 @@ class _GameTrailer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final thumbnail = _thumbnail;
-    if (thumbnail == null) return _GameLinkList([link]);
+    if (thumbnail == null) {
+      return _GameLink(link.title ?? link.label ?? link.url,
+          onTap: () => launchUrl(Uri.parse(link.url)));
+    }
     return InkWell(
       mouseCursor: WidgetStateMouseCursor.clickable,
       onTap: () => launchUrl(Uri.parse(link.url)),
@@ -415,26 +433,53 @@ class _GameTrailer extends StatelessWidget {
   }
 }
 
-class _GameLinkList extends StatelessWidget {
-  const _GameLinkList(this.links);
+/// The web links, ending with the eBay search while the Links section
+/// position is on; hidden when there is neither.
+class _GameLinksSection extends ConsumerWidget {
+  const _GameLinksSection(
+      {required this.links,
+      required this.ebayQuery,
+      required this.isWishlisted});
 
   final Iterable<GameCatalogLink> links;
+  final String ebayQuery;
+  final bool isWishlisted;
 
   @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final link in links)
-            InkWell(
-              onTap: () => launchUrl(Uri.parse(link.url)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Text(link.title ?? link.label ?? link.url,
-                    style: TextStyle(
-                        fontSize: 14, color: appPalette(context).link)),
-              ),
-            ),
-        ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final preferences = ref.watch(uiPreferencesProvider);
+    final showsEbay = preferences.ebayLinksSection &&
+        preferences.allowsEbayLinks(isWishlisted) &&
+        ebayQuery.trim().isNotEmpty;
+    if (links.isEmpty && !showsEbay) return const SizedBox.shrink();
+    return LibraryDetailSection(title: 'Links', collapsible: false, children: [
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        for (final link in links)
+          _GameLink(link.title ?? link.label ?? link.url,
+              onTap: () => launchUrl(Uri.parse(link.url))),
+        if (showsEbay)
+          _GameLink('Find sold listings on eBay',
+              onTap: () =>
+                  launchEbaySearch(ebayQuery, isWishlisted: isWishlisted)),
+      ]),
+    ]);
+  }
+}
+
+class _GameLink extends StatelessWidget {
+  const _GameLink(this.label, {required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(label,
+              style: TextStyle(fontSize: 14, color: appPalette(context).link)),
+        ),
       );
 }
 

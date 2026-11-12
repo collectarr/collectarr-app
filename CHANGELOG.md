@@ -24,6 +24,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Games details list Links after Personal, and with the Links section position on, Find sold listings on eBay ends that section instead of following the details.
 - Auto Cap Exceptions uses the reference title and the active library color in its header.
 - Settings dropdown options use bolder text to match the reference without changing other select menus.
 - Settings checkboxes animate checking and unchecking with the shared checkbox primitive and respect disabled animations.
