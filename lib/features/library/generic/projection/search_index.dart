@@ -77,13 +77,9 @@ final class LibrarySearchDocument {
   }) {
     final pattern = LibrarySearchPattern.parse(query);
     if (pattern.isEmpty) return true;
-    for (final token in [
-      if (searchTarget.includesMedia) ...normalizedTokens,
-      if (searchTarget.includesTracks) ...containedTokens,
-    ]) {
-      if (pattern.matches(token)) return true;
-    }
-    return false;
+    return (searchTarget.includesMedia &&
+            normalizedTokens.any(pattern.matches)) ||
+        (searchTarget.includesTracks && containedTokens.any(pattern.matches));
   }
 }
 

@@ -27,6 +27,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Opening, sorting and regrouping a large library no longer index its search text until something is searched for.
 - Sorting a large library is several times faster.
 - Clicking a list header sorts by that column alone, and again reverses it, as in CLZ; sorting favorites keep their fields.
 - Sorting uses at most five fields, as in CLZ: Select Sort Fields says "You can only select 5 fields." for a sixth.

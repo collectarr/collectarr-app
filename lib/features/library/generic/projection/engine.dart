@@ -7,6 +7,11 @@ import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 
+const _unsearchedDocument = LibrarySearchDocument(
+  itemId: '',
+  normalizedTokens: [],
+);
+
 class LibraryProjectionEngine {
   LibraryProjectionEngine({
     LibraryProjectionIndex? index,
@@ -89,14 +94,19 @@ class LibraryProjectionEngine {
 
     final folderItems = libraryItemsForQueryLetter(scopedBucketItems, query);
 
+    // Indexing every item's text is the costly part of a projection, so it
+    // waits until there is something to search for.
+    final searches = !LibrarySearchPattern.parse(query.searchQuery).isEmpty;
     final filteredItems = <LibraryProjectionItem>[];
     for (final item in scopedBucketItems) {
-      final searchDoc = index.getSearchDocument(
-        item,
-        customFieldValuesByItem,
-        fields.searchValuesFor(item),
-        fields.containedSearchValuesFor(item),
-      );
+      final searchDoc = searches
+          ? index.getSearchDocument(
+              item,
+              customFieldValuesByItem,
+              fields.searchValuesFor(item),
+              fields.containedSearchValuesFor(item),
+            )
+          : _unsearchedDocument;
       if (filterEngine.matches(
         item: item,
         query: query,
