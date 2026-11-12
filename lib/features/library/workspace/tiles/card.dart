@@ -199,7 +199,8 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                       selected || checked ? background : palette.surfaceBright,
                   highlightColor: Colors.transparent,
                   child: Stack(children: [
-                    Padding(padding: const EdgeInsets.all(4), child: body),
+                    Padding(
+                        padding: kLibraryHorizontalCardPadding, child: body),
                     if (appPresentationPlatform.isNativeMobile && checked)
                       Positioned.fill(
                         child: IgnorePointer(

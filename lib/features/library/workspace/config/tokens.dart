@@ -215,6 +215,10 @@ extension LibraryWorkspaceDensityPresetMetrics
   }
 }
 
+const kLibraryHorizontalCardPadding = EdgeInsets.all(4);
+const kLibraryHorizontalCardCoverGap = 5.0;
+const kLibraryHorizontalCardMinMetadataWidth = 112.0;
+
 const kLibraryToolbarMenuFavoriteFontWeight = FontWeight.w500;
 const kLibraryToolbarMenuActionFontWeight = FontWeight.w700;
 const kLibraryToolbarMenuFontSize = 14.0;

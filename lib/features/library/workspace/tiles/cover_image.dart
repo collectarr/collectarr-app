@@ -20,25 +20,28 @@ import 'package:collectarr_app/features/library/workspace/tiles/cover_cache.dart
 import 'cover_element_aspect.dart'
     if (dart.library.js_interop) 'cover_element_aspect_web.dart';
 
-/// Lets a table cell report its decoded cover shape to the row layout.
+/// Lets the owning layout follow a cover's decoded shape.
 class LibraryCoverLayoutScope extends InheritedWidget {
   const LibraryCoverLayoutScope({
     required this.fallbackAspectRatio,
-    required this.onAspectRatio,
-    required this.onImageMissing,
+    this.onAspectRatio,
+    this.onImageMissing,
+    this.fitToHeight = false,
     required super.child,
     super.key,
   });
   final double fallbackAspectRatio;
-  final ValueChanged<double> onAspectRatio;
-  final VoidCallback onImageMissing;
+  final ValueChanged<double>? onAspectRatio;
+  final VoidCallback? onImageMissing;
+  final bool fitToHeight;
   static LibraryCoverLayoutScope? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<LibraryCoverLayoutScope>();
   @override
   bool updateShouldNotify(LibraryCoverLayoutScope oldWidget) =>
       fallbackAspectRatio != oldWidget.fallbackAspectRatio ||
       onAspectRatio != oldWidget.onAspectRatio ||
-      onImageMissing != oldWidget.onImageMissing;
+      onImageMissing != oldWidget.onImageMissing ||
+      fitToHeight != oldWidget.fitToHeight;
 }
 
 class LibraryCoverImage extends ConsumerWidget {
@@ -93,16 +96,25 @@ class LibraryCoverImage extends ConsumerWidget {
       libraryEntryRef: libraryEntryRef,
       imageType: localImageType,
       fallbackAspectRatio: layout.fallbackAspectRatio,
-      builder: (context, aspect, report) => AspectRatio(
-        aspectRatio: aspect,
-        child: _buildImage(context, ref, (ratio) {
+      builder: (context, aspect, report) {
+        final image = _buildImage(context, ref, (ratio) {
           report(ratio);
-          layout.onAspectRatio(ratio);
+          layout.onAspectRatio?.call(ratio);
           onAspectRatio?.call(ratio);
         },
             shapeFallback: layout.fallbackAspectRatio,
-            onImageMissing: layout.onImageMissing),
-      ),
+            onImageMissing: layout.onImageMissing);
+        if (layout.fitToHeight) {
+          return LayoutBuilder(
+              builder: (context, constraints) => SizedBox(
+                    width: math.min(
+                        constraints.maxWidth, constraints.maxHeight * aspect),
+                    height: constraints.maxHeight,
+                    child: image,
+                  ));
+        }
+        return AspectRatio(aspectRatio: aspect, child: image);
+      },
     );
   }
 

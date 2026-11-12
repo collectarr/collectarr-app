@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/card_geometry.dart';
@@ -16,21 +17,15 @@ class ComicCardFields {
 
 Widget buildComicHorizontalCardBody(BuildContext context,
         LibraryCardBodyData data, ComicCardFields fields) =>
-    Row(children: [
-      ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: data.coverWidth),
-        child: data.buildCover(alignment: Alignment.center),
-      ),
-      const SizedBox(width: 5),
-      Expanded(
-        child: _SplitMetadataHorizontalBody(
-            item: data.item,
-            status: data.pillStatus,
-            presentation: data.presentation,
-            selected: data.selected,
-            fields: fields),
-      ),
-    ]);
+    LibraryHorizontalCardLayout(
+      data: data,
+      details: _SplitMetadataHorizontalBody(
+          item: data.item,
+          status: data.pillStatus,
+          presentation: data.presentation,
+          selected: data.selected,
+          fields: fields),
+    );
 
 Widget buildComicVerticalCardBody(BuildContext context,
         LibraryCardBodyData data, ComicCardFields fields) =>

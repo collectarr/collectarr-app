@@ -664,7 +664,12 @@ class LibraryWorkspace extends ConsumerWidget {
         final tileWidth = math.min(cardTileWidth, availableTileWidth);
         final tileCoverWidth = math.min(
           cardCoverWidth,
-          math.max(48.0, tileWidth - 90.0),
+          math.max(
+              48.0,
+              tileWidth -
+                  kLibraryHorizontalCardPadding.horizontal -
+                  kLibraryHorizontalCardCoverGap -
+                  kLibraryHorizontalCardMinMetadataWidth),
         );
         return LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
@@ -677,7 +682,7 @@ class LibraryWorkspace extends ConsumerWidget {
               tileCoverWidth *
                       libraryViewProfileForKind(type.kind)
                           .coverGridHeightFactor +
-                  8),
+                  kLibraryHorizontalCardPadding.vertical),
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
           padding: _kWorkspaceGridPadding,

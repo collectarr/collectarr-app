@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_footer.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
@@ -65,48 +66,42 @@ Widget buildGameHorizontalCardBody(
   final platform = _platform(data);
   final value = data.presentation.valueLabel;
   final detail = data.presentation.detailLine;
-  return Row(children: [
-    ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: data.coverWidth),
-      child: data.buildCover(alignment: Alignment.center),
-    ),
-    const SizedBox(width: 5),
-    Expanded(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(
-            child: Text(data.item.dto.primaryLabel,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 16,
-                    height: 1.15,
-                    fontWeight: FontWeight.w400,
-                    color: data.titleColor)),
-          ),
-          const SizedBox(width: 6),
-          data.pillStatus,
-        ]),
-        if (detail?.isNotEmpty == true)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(detail!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 14, color: data.detailColor)),
-          ),
-        const Spacer(),
-        Row(children: [
-          if (platform != null) GamePlatformTile(platform),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: value == null ? null : LibraryCardValuePill(value),
-            ),
-          ),
-        ]),
+  return LibraryHorizontalCardLayout(
+    data: data,
+    details: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+          child: Text(data.item.dto.primaryLabel,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  fontSize: 16,
+                  height: 1.15,
+                  fontWeight: FontWeight.w400,
+                  color: data.titleColor)),
+        ),
+        const SizedBox(width: 6),
+        data.pillStatus,
       ]),
-    ),
-  ]);
+      if (detail?.isNotEmpty == true)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(detail!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 14, color: data.detailColor)),
+        ),
+      const Spacer(),
+      Row(children: [
+        if (platform != null) GamePlatformTile(platform),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: value == null ? null : LibraryCardValuePill(value),
+          ),
+        ),
+      ]),
+    ]),
+  );
 }

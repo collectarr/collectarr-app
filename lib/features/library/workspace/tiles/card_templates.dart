@@ -1,9 +1,46 @@
+import 'dart:math' as math;
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'card_presentation.dart';
 import 'card_footer.dart';
+
+/// Covers share the card height and keep their natural width, as in CLZ.
+class LibraryHorizontalCardLayout extends StatelessWidget {
+  const LibraryHorizontalCardLayout(
+      {required this.data, required this.details, super.key});
+  final LibraryCardBodyData data;
+  final Widget details;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) => Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxWidth: math.max(
+                      1,
+                      constraints.maxWidth -
+                          kLibraryHorizontalCardCoverGap -
+                          kLibraryHorizontalCardMinMetadataWidth)),
+              child: LibraryCoverLayoutScope(
+                fallbackAspectRatio: 1 /
+                    libraryViewProfileForKind(data.item.source.mediaKind)
+                        .coverGridHeightFactor,
+                fitToHeight: true,
+                child: data.buildCover(alignment: Alignment.topLeft),
+              ),
+            ),
+            const SizedBox(width: kLibraryHorizontalCardCoverGap),
+            Expanded(child: details),
+          ],
+        ),
+      );
+}
 
 /// A reusable layout explicitly selected by the owning kind.
 Widget buildStandardHorizontalCardBody(
@@ -12,15 +49,10 @@ Widget buildStandardHorizontalCardBody(
   final item = data.item;
   final presentation = data.presentation;
   final selected = data.selected;
-  final coverWidth = data.coverWidth;
   final customFieldBadges = data.customFieldBadges;
-  return Row(children: [
-    ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: coverWidth),
-        child: data.buildCover(alignment: Alignment.center)),
-    const SizedBox(width: 5),
-    Expanded(
-        child: Stack(children: [
+  return LibraryHorizontalCardLayout(
+    data: data,
+    details: Stack(children: [
       // Title, series and badges may exceed a short
       // card; they clip rather than overflow.
       Positioned.fill(
@@ -126,8 +158,8 @@ Widget buildStandardHorizontalCardBody(
               value: presentation.valueLabel,
               status: data.pillStatus,
               selected: selected)),
-    ])),
-  ]);
+    ]),
+  );
 }
 
 Widget buildStandardVerticalCardBody(

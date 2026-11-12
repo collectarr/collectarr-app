@@ -23,6 +23,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Horizontal Cards use the full available cover height without empty vertical bands, preserving image proportions.
 - Library dropdown rows and settings buttons have clearer hover highlights.
 - List checkboxes use filled blue boxes on checked rows and white boxes on the current row, with ticks matching each row background.
 - Games list covers load local images and reserve enough row height for visible thumbnails.
