@@ -64,8 +64,7 @@ List<LibraryFieldSpec<T>> gameHardwareMainFields<T>(
           value: (draft) => values(draft).hardwareType.isEmpty
               ? null
               : values(draft).hardwareType,
-          setValue: (draft, value) =>
-              values(draft).hardwareType = value ?? ''),
+          setValue: (draft, value) => values(draft).hardwareType = value ?? ''),
       LibraryPartialDateFieldSpec<T>(
           id: 'release_date',
           label: 'Release Date',

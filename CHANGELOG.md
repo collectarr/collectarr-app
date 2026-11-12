@@ -78,6 +78,9 @@
 - Document Windows accessibility startup checks and the limits of known Flutter AXTree issues.
 - Document the remaining Books and Comics differences found with populated reference entries.
 
+### CI & Build
+- The format check and the generated Catalog Item field definitions agree, so CI's checks pass again.
+
 
 ## 1.6.0 - 2026-11-07
 

@@ -89,7 +89,8 @@ void main() {
     await repository.markDeleted(first, DateTime.utc(2026, 2));
     final left = await repository.listActive();
     expect(left.map((entry) => entry.id.value).toSet(), {'deck-1', 'deck-3'});
-    expect((await repository.findById(second.id))!.personal.details.serialNumber,
+    expect(
+        (await repository.findById(second.id))!.personal.details.serialNumber,
         'SN-3');
   });
   testWidgets(

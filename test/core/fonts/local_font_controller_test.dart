@@ -268,10 +268,10 @@ void main() {
       expect(outlines, isNot(regular));
     }
     // Bold borrows ExtraBold, and every face draws at 95 % of its size.
-    final extraBold = File('assets/fonts/PlusJakartaSans-ExtraBold.ttf')
-        .readAsBytesSync();
-    expect(_glyf(registered.firstWhere((r) => r.$2 == 700).$3),
-        _glyf(extraBold));
+    final extraBold =
+        File('assets/fonts/PlusJakartaSans-ExtraBold.ttf').readAsBytesSync();
+    expect(
+        _glyf(registered.firstWhere((r) => r.$2 == 700).$3), _glyf(extraBold));
     for (final (_, _, bytes) in registered) {
       expect(_unitsPerEm(bytes), (_unitsPerEm(extraBold) / .95).round());
     }

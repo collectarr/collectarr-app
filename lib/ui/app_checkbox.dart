@@ -94,8 +94,10 @@ class _AppCheckPainter extends CustomPainter {
     final fillProgress = math.min(progress * 2, 1.0);
     final box = RRect.fromRectAndRadius(
         Offset.zero & size, Radius.circular(look.radius));
-    canvas.drawRRect(box,
-        Paint()..color = Color.lerp(look.fill, look.checkedFill, fillProgress)!);
+    canvas.drawRRect(
+        box,
+        Paint()
+          ..color = Color.lerp(look.fill, look.checkedFill, fillProgress)!);
     final border = look.border == null && look.checkedBorder == null
         ? null
         : Color.lerp(look.border ?? Colors.transparent,
@@ -118,8 +120,8 @@ class _AppCheckPainter extends CustomPainter {
     final w = size.width;
     if (partial) {
       final half = w * .28 * progress;
-      canvas.drawLine(Offset(w / 2 - half, w / 2), Offset(w / 2 + half, w / 2),
-          ink);
+      canvas.drawLine(
+          Offset(w / 2 - half, w / 2), Offset(w / 2 + half, w / 2), ink);
       return;
     }
     final tick = Path()
@@ -223,7 +225,8 @@ class AppCheckboxTile extends StatelessWidget {
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                           height: 20 / 14,
-                          color: appPalette(context).textPrimary
+                          color: appPalette(context)
+                              .textPrimary
                               .withValues(alpha: enabled ? 1 : .5))
                       .merge(style)),
             ),

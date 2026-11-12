@@ -60,7 +60,9 @@ LibraryAddCoverBlock comicAddCoverBlock(CatalogSearchCandidate item) {
   final month = date?.month;
   return LibraryAddCoverBlock(
     badge: '#${comicIssueText(comic?.issueNumber, comic?.variant) ?? ''}',
-    month: month == null || month < 1 || month > 12 ? null : comicMonthNames[month - 1],
+    month: month == null || month < 1 || month > 12
+        ? null
+        : comicMonthNames[month - 1],
     year: date?.year,
     caption: comic?.variantDescription?.trim(),
   );

@@ -56,9 +56,8 @@ class StatsSection extends StatelessWidget {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(title,
-                style:
-                    const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w700, height: 1.1)),
+                style: const TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.w700, height: 1.1)),
             const SizedBox(height: 14),
             child,
           ])));

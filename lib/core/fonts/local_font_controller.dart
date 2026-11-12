@@ -286,8 +286,7 @@ class LocalFontController extends ChangeNotifier {
     final data = await rootBundle
         .load('assets/fonts/PlusJakartaSans-${_fallback[weight]}.ttf');
     return fontBytesAtWeight(
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
-        weight,
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes), weight,
         emScale: _bundledEmScale);
   }
 

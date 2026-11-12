@@ -6,8 +6,7 @@ import 'dart:typed_data';
 /// [emScale] draws every glyph at that fraction of its size by enlarging the
 /// em square, as CSS `size-adjust` does; line heights set in text styles are
 /// unaffected.
-Uint8List fontBytesAtWeight(Uint8List input, int weight,
-    {double emScale = 1}) {
+Uint8List fontBytesAtWeight(Uint8List input, int weight, {double emScale = 1}) {
   if (weight < 100 || weight > 900 || weight % 100 != 0) {
     throw ArgumentError.value(weight, 'weight', 'Expected 100 through 900');
   }

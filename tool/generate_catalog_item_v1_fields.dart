@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:dart_style/dart_style.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 const _contractPath = 'tool/core_contracts/catalog-item-v1.json';
 const _manifestPath = 'tool/core_contracts/contract-manifest.json';
@@ -120,8 +122,7 @@ List<Map<String, dynamic>> _variants(Map<String, dynamic> schema) => [
 String _dartString(String value) =>
     "'${value.replaceAll(r'\', r'\\').replaceAll("'", r"\'").replaceAll(r'$', r'\$')}'";
 
-String _formatSource(String source) {
-  // The emitted map has a stable format; keep generation synchronous so --check
-  // can compare exact bytes without managing temporary process state.
-  return source;
-}
+/// Formats like `dart format` does for this package's language version, so the
+/// output passes the format check and --check can compare exact bytes.
+String _formatSource(String source) =>
+    DartFormatter(languageVersion: Version(3, 5, 0)).format(source);

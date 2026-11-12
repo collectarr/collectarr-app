@@ -1,4 +1,3 @@
-
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/sync/presentation/sync_conflict_review.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';

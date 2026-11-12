@@ -126,4 +126,3 @@ Widget buildGameHardwareAddTypeControls(
           })
   ]);
 }
-
