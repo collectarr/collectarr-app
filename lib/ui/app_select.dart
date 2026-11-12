@@ -13,7 +13,7 @@ class AppSelect<T> extends StatefulWidget {
     required this.decoration,
     this.hint,
     this.style,
-    this.optionStyle,
+    this.optionHighlight,
     this.arrow,
     this.leadingOf,
     this.isOptionEnabled,
@@ -28,8 +28,9 @@ class AppSelect<T> extends StatefulWidget {
   final Widget? hint;
   final TextStyle? style;
 
-  /// Overrides option typography without changing the closed field value.
-  final TextStyle? optionStyle;
+  /// The hovered or focused option's fill and text; the shared utility blue
+  /// with the regular text when null.
+  final ({Color fill, Color text})? optionHighlight;
 
   /// Replaces the default muted chevron, given whether the select is enabled.
   final Widget Function(bool enabled)? arrow;
@@ -51,6 +52,10 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
 
   final _controller = MenuController();
   bool _open = false;
+
+  static bool _highlighted(Set<WidgetState> states) =>
+      states.contains(WidgetState.hovered) ||
+      states.contains(WidgetState.focused);
 
   Widget _optionContent(T option, String label, {TextStyle? style}) {
     final text =
@@ -80,7 +85,14 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
             fontSize: 14,
             fontWeight: FontWeight.w400,
             height: 20 / 14);
-    final optionTextStyle = textStyle.merge(widget.optionStyle);
+    // With a highlight, options take their color from the row's state.
+    final optionTextStyle = widget.optionHighlight == null
+        ? textStyle
+        : TextStyle(
+            fontFamily: textStyle.fontFamily,
+            fontSize: textStyle.fontSize,
+            fontWeight: textStyle.fontWeight,
+            height: textStyle.height);
     final enabled = widget.onChanged != null;
     final contentPadding =
         widget.decoration.contentPadding?.resolve(Directionality.of(context));
@@ -140,11 +152,13 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
                 foregroundColor: WidgetStateProperty.resolveWith((states) =>
                     states.contains(WidgetState.disabled)
                         ? palette.textMuted
-                        : palette.textPrimary),
+                        : _highlighted(states)
+                            ? widget.optionHighlight?.text ??
+                                palette.textPrimary
+                            : palette.textPrimary),
                 backgroundColor: WidgetStateProperty.resolveWith((states) =>
-                    states.contains(WidgetState.hovered) ||
-                            states.contains(WidgetState.focused)
-                        ? palette.utilityAction
+                    _highlighted(states)
+                        ? widget.optionHighlight?.fill ?? palette.utilityAction
                         : null),
                 overlayColor: const WidgetStatePropertyAll(Colors.transparent),
                 textStyle: WidgetStatePropertyAll(optionTextStyle),

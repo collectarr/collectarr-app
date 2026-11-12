@@ -288,7 +288,7 @@ void main() {
     expect(animationTile, findsOneWidget);
     expect(tester.widget<SettingsCheck>(animationTile).value, isTrue);
 
-    await tester.tap(animationTile);
+    await tester.tap(find.text('Animations'));
     await pumpUntilSettled(tester);
 
     expect(tester.widget<SettingsCheck>(animationTile).value, isFalse);

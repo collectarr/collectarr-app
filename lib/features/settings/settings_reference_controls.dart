@@ -152,7 +152,8 @@ class SettingsSelect<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AppSelect<T>(
         value: value,
-        optionStyle: const TextStyle(fontWeight: kAppBoldFontWeight),
+        // Chrome's highlight for the reference's native select lists.
+        optionHighlight: (fill: const Color(0xFF3B68D0), text: Colors.white),
         decoration: settingsDropdownDecoration(context),
         arrow: (enabled) => settingsSelectArrow(context, enabled),
         leadingOf: leadingOf,
@@ -164,6 +165,76 @@ class SettingsSelect<T> extends StatelessWidget {
                 if (selected != null) onChanged!(selected);
               },
       );
+}
+
+/// The reference's settings choice row: the mark and its label, which turn
+/// #888 over 0.25 s under the pointer, with a hand cursor and no background.
+/// [tintsMark] is false for radios, whose native control keeps its color.
+class _SettingsChoiceRow extends StatefulWidget {
+  const _SettingsChoiceRow({
+    required this.label,
+    required this.height,
+    required this.onTap,
+    required this.mark,
+    this.tintsMark = true,
+  });
+
+  final String label;
+  final double height;
+  final VoidCallback? onTap;
+  final Widget Function(Color ink) mark;
+  final bool tintsMark;
+
+  @override
+  State<_SettingsChoiceRow> createState() => _SettingsChoiceRowState();
+}
+
+class _SettingsChoiceRowState extends State<_SettingsChoiceRow> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final ink = palette.isDark ? Colors.white : palette.textPrimary;
+    final enabled = widget.onTap != null;
+    return Align(
+      alignment: Alignment.centerLeft,
+      widthFactor: 1,
+      heightFactor: 1,
+      child: MouseRegion(
+        cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: TweenAnimationBuilder<Color?>(
+            tween: ColorTween(
+                end: _hovered && enabled ? const Color(0xFF888888) : ink),
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 250),
+            builder: (context, color, _) => SizedBox(
+              height: widget.height,
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                const SizedBox(width: 5),
+                widget.mark(widget.tintsMark ? color! : ink),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(widget.label,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 20 / 14,
+                          color: color)),
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// A compact checkbox row: a 13 px white box and a 14/400 label.
@@ -181,40 +252,27 @@ class SettingsCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final ink = palette.isDark ? Colors.white : palette.textPrimary;
+    final panel = appPalette(context).panel;
     return Semantics(
       checked: value,
       enabled: onChanged != null,
       label: label,
-      child: InkWell(
+      child: _SettingsChoiceRow(
+        label: label,
+        height: 25,
         onTap: onChanged == null ? null : () => onChanged!(!value),
-        child: SizedBox(
-          height: 25,
-          child: Row(children: [
-            const SizedBox(width: 5),
-            AppCheckMark(
-              value: value,
-              size: 13,
-              look: AppCheckLook(
-                fill: Colors.transparent,
-                checkedFill: ink,
-                check: palette.panel,
-                border: ink,
-                checkedBorder: ink,
-                borderWidth: 1.5,
-                radius: 1,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(label,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      height: 20 / 14)),
-            ),
-          ]),
+        mark: (ink) => AppCheckMark(
+          value: value,
+          size: 13,
+          look: AppCheckLook(
+            fill: Colors.transparent,
+            checkedFill: ink,
+            check: panel,
+            border: ink,
+            checkedBorder: ink,
+            borderWidth: 1.5,
+            radius: 1,
+          ),
         ),
       ),
     );
@@ -266,44 +324,30 @@ class SettingsRadio<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final ink = palette.isDark ? Colors.white : palette.textPrimary;
     final selected = value == groupValue;
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: selected,
       label: label,
-      child: InkWell(
+      child: _SettingsChoiceRow(
+        label: label,
+        height: 24,
         onTap: () => onChanged(value),
-        child: SizedBox(
-          height: 24,
-          child: Row(children: [
-            const SizedBox(width: 5),
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: ink, width: 1.5),
-              ),
-              alignment: Alignment.center,
-              child: selected
-                  ? Container(
-                      width: 6,
-                      height: 6,
-                      decoration:
-                          BoxDecoration(shape: BoxShape.circle, color: ink))
-                  : null,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(label,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      height: 20 / 14)),
-            ),
-          ]),
+        tintsMark: false,
+        mark: (ink) => Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: ink, width: 1.5),
+          ),
+          alignment: Alignment.center,
+          child: selected
+              ? Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: ink))
+              : null,
         ),
       ),
     );

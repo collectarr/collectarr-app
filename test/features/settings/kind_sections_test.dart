@@ -61,7 +61,7 @@ void main() {
       expect(find.byKey(const ValueKey('settings.library.enabled.game_toy')),
           findsNothing);
       await tester.ensureVisible(games);
-      await tester.tap(games);
+      await tester.tap(find.descendant(of: games, matching: find.byType(Text)));
       // Hiding a library rebuilds the tabs; the box still draws its tick out.
       await tester.pump();
       await tester.pump();
@@ -87,7 +87,7 @@ void main() {
       expect((await const LibraryNavPreferencesStore().read()).isHidden('game'),
           isTrue);
       await tester.ensureVisible(games);
-      await tester.tap(games);
+      await tester.tap(find.descendant(of: games, matching: find.byType(Text)));
       await tester.pumpAndSettle();
       modulePrefs = appContainer.read(libraryNavPreferencesProvider);
       for (final kind in ['game', 'game_hardware', 'game_toy']) {
@@ -100,7 +100,8 @@ void main() {
       final toggle =
           find.byKey(const ValueKey('settings.library.enabled.comic'));
       await tester.ensureVisible(toggle);
-      await tester.tap(toggle);
+      await tester
+          .tap(find.descendant(of: toggle, matching: find.byType(Text)));
       await tester.pumpAndSettle();
       final container = ProviderScope.containerOf(tester.element(toggle));
       var preferences = container.read(libraryNavPreferencesProvider);
@@ -117,7 +118,8 @@ void main() {
           (await const LibraryNavPreferencesStore().read()).isHidden('comic'),
           isTrue);
       await tester.ensureVisible(toggle);
-      await tester.tap(toggle);
+      await tester
+          .tap(find.descendant(of: toggle, matching: find.byType(Text)));
       await tester.pumpAndSettle();
       preferences = container.read(libraryNavPreferencesProvider);
       expect(preferences.isVisible('comic'), isTrue);
@@ -184,7 +186,7 @@ void main() {
       expect(find.byKey(const ValueKey('settings.kind.tab.game_toy')),
           findsNothing);
       await tester.ensureVisible(games);
-      await tester.tap(games);
+      await tester.tap(find.descendant(of: games, matching: find.byType(Text)));
       await tester.pumpAndSettle();
       expect(find.text('Platform icons'), findsOneWidget);
       expect(find.text('Load icons from files...'), findsWidgets);

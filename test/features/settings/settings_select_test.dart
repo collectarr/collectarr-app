@@ -1,11 +1,12 @@
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/ui/theme/shell_theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('settings options are bold while the closed field stays normal',
+  testWidgets('settings options are regular and hover in the native blue',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
       theme: buildAppShellTheme(),
@@ -29,9 +30,25 @@ void main() {
         of: find.byType(MenuItemButton), matching: find.byType(Text));
     expect(options, findsNWidgets(4));
     for (final text in tester.widgetList<Text>(options)) {
-      expect(text.style!.fontWeight, kAppBoldFontWeight);
+      expect(text.style!.fontWeight, kAppNormalFontWeight);
       expect(text.style!.fontSize, kAppBodyFontSize);
     }
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(mouse.removePointer);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse
+        .moveTo(tester.getCenter(find.widgetWithText(MenuItemButton, 'Blue')));
+    await tester.pumpAndSettle();
+    final blue = find.widgetWithText(MenuItemButton, 'Blue');
+    final material = find.descendant(of: blue, matching: find.byType(Material));
+    expect(
+        tester.widget<Material>(material.first).color, const Color(0xFF3B68D0));
+    expect(
+        DefaultTextStyle.of(tester.element(
+                find.descendant(of: blue, matching: find.text('Blue'))))
+            .style
+            .color,
+        Colors.white);
     expect(tester.getSize(field).height, height);
     expect(
         tester
