@@ -93,8 +93,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(LibrarySpacingSlider), findsNothing);
-    expect(find.byTooltip('Cover Size'), findsOneWidget);
-    expect(tester.widget<Slider>(find.byType(Slider)).onChanged, isNotNull);
+    expect(find.byType(LibraryCoverSizeSlider), findsNothing);
+    expect(find.byType(Slider), findsNothing);
 
     final sortButton = find.byType(LibraryToolbarSortButton);
     expect(sortButton, findsOneWidget);

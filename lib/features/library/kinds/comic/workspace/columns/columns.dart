@@ -41,7 +41,7 @@ final List<LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, Object?>>
       ),
     ),
     imageAspectRatio: 2 / 3,
-    cellPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+    cellPadding: const EdgeInsets.symmetric(horizontal: 5),
     group: 'Images',
     displayName: 'Front Cover',
     allowSortInteraction: false,

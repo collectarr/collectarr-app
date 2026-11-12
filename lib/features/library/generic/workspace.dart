@@ -415,15 +415,6 @@ class LibraryWorkspace extends ConsumerWidget {
           target: schemaNode,
         );
         final widths = Map.of(viewState.columnWidths);
-        for (final column in tableFields.columns) {
-          if (column.imageAspectRatio == null ||
-              widths.containsKey(column.id)) {
-            continue;
-          }
-          widths[column.id] = (column.defaultWidth ?? 48) *
-              viewState.coverSize /
-              libraryViewProfileForKind(type.kind).defaultCoverSize;
-        }
         String cellText(LibraryProjectionItem item, String id) =>
             libraryTableCellText(_tableCell(item, id));
 
@@ -464,7 +455,7 @@ class LibraryWorkspace extends ConsumerWidget {
           for (final column in visibleColumns)
             if (tableFields.findColumnDefinition(column)?.imageAspectRatio
                 case final aspect?)
-              math.max(1, widthFor(column.value) - 10) / aspect + 4,
+              math.max(1, widthFor(column.value) - 10) / aspect,
         ].reduce(math.max);
         double heightFor(LibraryProjectionItem item) =>
             heights.putIfAbsent(item.target.id, () {

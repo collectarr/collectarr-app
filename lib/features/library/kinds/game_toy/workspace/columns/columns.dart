@@ -22,8 +22,7 @@ List<LibraryColumnDefinition<GameToyKind, GameToyWorkspaceDto, Object?>>
             columnFromField(field,
                 group: 'Images',
                 imageAspectRatio: 1,
-                cellPadding:
-                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                cellPadding: const EdgeInsets.symmetric(horizontal: 5),
                 defaultWidth: 48,
                 minWidth: 44,
                 allowSortInteraction: false,

@@ -54,7 +54,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     },
     group: 'Images',
     imageAspectRatio: 1,
-    cellPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+    cellPadding: const EdgeInsets.symmetric(horizontal: 5),
     allowSortInteraction: false,
     allowGroupInteraction: false,
     defaultWidth: 90,

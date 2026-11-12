@@ -28,7 +28,9 @@ void main() {
       final column = fields.columns.singleWhere((column) =>
           column.id.value ==
           (imageType == 'front_cover' ? 'game.cover' : 'game.back_cover'));
-      expect(column.minRowHeight, greaterThanOrEqualTo(56));
+      expect(column.minRowHeight, isNull);
+      expect(column.cellPadding!.vertical, 0);
+      expect(column.imageAspectRatio, 2 / 3);
       final context = LibraryProjectionContext(
         item: WorkspaceItem(target: const EntryTargetRef(entryRef)),
         personal: const PersonalOverlay(),

@@ -395,10 +395,7 @@ class LibraryCoverSizeSlider extends StatelessWidget {
                   value: coverSize,
                   min: minCoverSize,
                   max: maxCoverSize,
-                  onChanged: viewMode.supportsCoverSize ||
-                          viewMode == LibraryViewMode.list
-                      ? onChanged
-                      : null)),
+                  onChanged: viewMode.supportsCoverSize ? onChanged : null)),
         ]),
       );
 }
@@ -469,13 +466,14 @@ class LibraryViewControls extends StatelessWidget {
           detailsLayout: detailsLayout,
           onChanged: onDetailsLayoutChanged,
         ),
-        LibraryCoverSizeSlider(
-          viewMode: viewMode,
-          coverSize: coverSize,
-          minCoverSize: minCoverSize,
-          maxCoverSize: maxCoverSize,
-          onChanged: onCoverSizeChanged,
-        ),
+        if (viewMode.supportsCoverSize)
+          LibraryCoverSizeSlider(
+            viewMode: viewMode,
+            coverSize: coverSize,
+            minCoverSize: minCoverSize,
+            maxCoverSize: maxCoverSize,
+            onChanged: onCoverSizeChanged,
+          ),
       ],
     );
   }

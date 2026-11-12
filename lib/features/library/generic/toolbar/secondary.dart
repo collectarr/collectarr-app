@@ -279,22 +279,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                             iconOnly: true,
                           ),
                         ],
-                        if (viewState.viewMode == LibraryViewMode.list) ...[
-                          const _LibraryDesktopToolbarSeparator(),
-                          const SizedBox(width: 8),
-                          _LibraryDesktopToolbarSection(
-                            label: 'Cover Size',
-                            child: LibraryCoverSizeSlider(
-                              viewMode: viewState.viewMode,
-                              coverSize: viewState.coverSize,
-                              minCoverSize: libraryViewProfileForKind(type.kind)
-                                  .minCoverSize,
-                              maxCoverSize: libraryViewProfileForKind(type.kind)
-                                  .maxCoverSize,
-                              onChanged: onCoverSizeChanged,
-                            ),
-                          ),
-                        ] else if (viewState.viewMode.supportsCoverSize) ...[
+                        if (viewState.viewMode.supportsCoverSize) ...[
                           const _LibraryDesktopToolbarSeparator(),
                           const SizedBox(width: 8),
                           _LibraryDesktopToolbarSection(

@@ -69,7 +69,7 @@ void main() {
     await tester.pump();
     expect(detailsLayout, LibraryDetailsLayout.hidden);
 
-    // Cover size slider is present
-    expect(find.byType(Slider), findsOneWidget);
+    // List has no cover sizing control.
+    expect(find.byType(Slider), findsNothing);
   });
 }
