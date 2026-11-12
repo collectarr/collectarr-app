@@ -136,7 +136,7 @@ class _LibraryCollectionStatusScopeDropdownState
         shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
           for (final scope in LibraryCollectionStatusScope.values)
-            PopupMenuItem<LibraryCollectionStatusScope>(
+            LibraryToolbarMenuItem<LibraryCollectionStatusScope>(
               value: scope,
               height: 26,
               padding: const EdgeInsets.symmetric(horizontal: 7),
@@ -255,7 +255,9 @@ class LibraryToolbarSortButton extends StatelessWidget {
           horizontalPadding: 0,
           minWidth: 0,
         );
-    var measuredMenuWidth = labelWidth('Manage Favorites') + 14 + 14;
+    var measuredMenuWidth = labelWidth('Manage Favorites') +
+        kLibraryToolbarMenuActionExtent +
+        kLibraryToolbarMenuMarkSpacing * 2;
     for (final favorite in pinnedFavorites) {
       final contentWidth = fieldLabel == null
           ? labelWidth(favorite.label)
@@ -333,30 +335,33 @@ class LibraryToolbarSortButton extends StatelessWidget {
           }
         },
         itemBuilder: (context) => [
-          PopupMenuItem<Object>(
+          LibraryToolbarMenuItem<Object>(
             value: libraryManageSortFavoritesMenuValue,
             height: kLibraryToolbarPopupItemHeight,
             padding: const EdgeInsets.symmetric(horizontal: 7),
-            child: const _LibraryToolbarSortMenuRow(
+            child: _LibraryToolbarSortMenuRow(
+              onTrailingPressed: () => Navigator.of(context)
+                  .pop(libraryManageSortFavoritesMenuValue),
               label: 'Manage Favorites',
               icon: null,
               trailingIcon: AppIcons.settings,
             ),
           ),
           if (pinnedFavorites.isNotEmpty)
-            PopupMenuItem<Object>(
+            LibraryToolbarMenuItem<Object>(
               enabled: false,
               height: 22,
-              padding: const EdgeInsets.symmetric(horizontal: 7),
+              padding: EdgeInsets.zero,
               child: const LibraryToolbarMenuSection('Favorites'),
             ),
           for (final favorite in pinnedFavorites)
-            PopupMenuItem<Object>(
+            LibraryToolbarMenuItem<Object>(
               value: favorite,
               height: kLibraryToolbarPopupItemHeight,
               padding: const EdgeInsets.symmetric(horizontal: 7),
               child: _LibraryToolbarSortMenuRow(
                 label: favorite.label,
+                fontWeight: kLibraryToolbarMenuFavoriteFontWeight,
                 icon: null,
                 rules: favorite.rules,
                 fieldLabel: fieldLabel,
@@ -386,11 +391,15 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
     this.rules = const [],
     this.fieldLabel,
     this.trailingIcon,
+    this.onTrailingPressed,
+    this.fontWeight = kLibraryToolbarMenuActionFontWeight,
   });
 
   final String label;
   final IconData? icon;
   final IconData? trailingIcon;
+  final VoidCallback? onTrailingPressed;
+  final FontWeight fontWeight;
   final bool active;
   final List<LibrarySortRule> rules;
   final String Function(String id)? fieldLabel;
@@ -399,9 +408,9 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 14,
+          fontSize: kLibraryToolbarMenuFontSize,
           color: libraryToolbarMenuText(context),
-          fontWeight: FontWeight.w700,
+          fontWeight: fontWeight,
         );
     return Row(children: [
       if (rules.isNotEmpty || active || icon != null)
@@ -449,7 +458,9 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
                           ),
                         ]),
                     ])),
-      if (trailingIcon != null) Icon(trailingIcon, size: 14),
+      if (trailingIcon != null && onTrailingPressed != null)
+        LibraryToolbarMenuIconAction(
+            icon: trailingIcon!, label: label, onPressed: onTrailingPressed!),
     ]);
   }
 }
@@ -602,9 +613,10 @@ class _SortFavoritesManagerDialogState
                     }
                   },
                   itemBuilder: (_) => [
-                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    const LibraryToolbarMenuItem(
+                        value: 'edit', child: Text('Edit')),
                     if (_favorites.length > 1)
-                      const PopupMenuItem(
+                      const LibraryToolbarMenuItem(
                           value: 'remove', child: Text('Remove')),
                   ],
                 ),

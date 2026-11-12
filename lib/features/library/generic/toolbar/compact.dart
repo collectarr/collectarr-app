@@ -236,7 +236,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                   onSelected: onSearchTargetChanged,
                   itemBuilder: (context) => [
                     for (final option in searchTargetOptions)
-                      PopupMenuItem<LibrarySearchTarget>(
+                      LibraryToolbarMenuItem<LibrarySearchTarget>(
                         value: option,
                         height: 30,
                         padding: const EdgeInsets.symmetric(horizontal: 7),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -570,7 +571,7 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
       ),
       items: [
         for (final option in widget.options)
-          PopupMenuItem<LibrarySearchTarget>(
+          LibraryToolbarMenuItem<LibrarySearchTarget>(
             value: option,
             height: 30,
             padding: const EdgeInsets.symmetric(horizontal: 7),

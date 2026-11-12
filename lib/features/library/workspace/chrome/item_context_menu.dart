@@ -176,7 +176,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
 
 PopupMenuEntry<LibraryItemContextMenuResult> _header(
     String label, Color accent) {
-  return PopupMenuItem<LibraryItemContextMenuResult>(
+  return LibraryToolbarMenuItem<LibraryItemContextMenuResult>(
     enabled: false,
     height: kLibraryToolbarPopupSectionHeaderHeight,
     child: Text(
@@ -190,7 +190,7 @@ PopupMenuEntry<LibraryItemContextMenuResult> _header(
   );
 }
 
-PopupMenuItem<LibraryItemContextMenuResult> _item(
+LibraryToolbarMenuItem<LibraryItemContextMenuResult> _item(
   BuildContext context,
   LibraryItemContextAction action,
   IconData icon,
@@ -199,7 +199,7 @@ PopupMenuItem<LibraryItemContextMenuResult> _item(
 }) {
   final palette = appPalette(context);
   final destructiveColor = Theme.of(context).colorScheme.error;
-  return PopupMenuItem<LibraryItemContextMenuResult>(
+  return LibraryToolbarMenuItem<LibraryItemContextMenuResult>(
     value: LibraryItemContextMenuResult(action),
     height: kLibraryToolbarPopupItemHeight,
     padding: const EdgeInsets.symmetric(horizontal: 7),

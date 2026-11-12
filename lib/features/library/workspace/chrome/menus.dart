@@ -5,6 +5,68 @@ import '../config/tokens.dart';
 const kLibraryToolbarMenuMarkWidth = 14.0;
 const kLibraryToolbarMenuMarkSpacing = 7.0;
 
+/// Popup rows share the toolbar menu's solid hover instead of Material's tint.
+class LibraryToolbarMenuItem<T> extends PopupMenuItem<T> {
+  const LibraryToolbarMenuItem({
+    super.key,
+    super.value,
+    super.onTap,
+    super.enabled,
+    super.height,
+    super.padding,
+    super.textStyle,
+    super.labelTextStyle,
+    super.mouseCursor,
+    required super.child,
+  });
+
+  @override
+  PopupMenuItemState<T, LibraryToolbarMenuItem<T>> createState() =>
+      _LibraryToolbarMenuItemState<T>();
+}
+
+class _LibraryToolbarMenuItemState<T>
+    extends PopupMenuItemState<T, LibraryToolbarMenuItem<T>> {
+  @override
+  Widget build(BuildContext context) => Theme(
+        data: Theme.of(context).copyWith(
+          hoverColor: libraryToolbarMenuHover(context),
+          focusColor: libraryToolbarMenuHover(context),
+          highlightColor: libraryToolbarMenuHover(context),
+          splashFactory: NoSplash.splashFactory,
+        ),
+        child: Builder(builder: super.build),
+      );
+}
+
+class LibraryToolbarMenuIconAction extends StatelessWidget {
+  const LibraryToolbarMenuIconAction(
+      {required this.icon,
+      required this.label,
+      required this.onPressed,
+      super.key});
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+        message: label,
+        child: SizedBox.square(
+          dimension: kLibraryToolbarMenuActionExtent,
+          child: InkWell(
+            onTap: onPressed,
+            mouseCursor: WidgetStateMouseCursor.clickable,
+            borderRadius: kLibraryToolbarHoverRadius,
+            hoverColor: libraryToolbarMenuActionHover(context),
+            focusColor: libraryToolbarMenuActionHover(context),
+            highlightColor: libraryToolbarMenuActionHover(context),
+            child: Icon(icon, size: kLibraryToolbarMenuMarkWidth),
+          ),
+        ),
+      );
+}
+
 class LibraryToolbarMenuSection extends StatelessWidget {
   const LibraryToolbarMenuSection(this.label, {super.key});
 
@@ -12,16 +74,18 @@ class LibraryToolbarMenuSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(children: [
-        Expanded(
+        SizedBox(
+            width: kLibraryToolbarMenuSectionLeadingWidth,
             child: Divider(
                 height: 1,
                 thickness: 1,
                 color: libraryToolbarMenuBorder(context))),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
+          padding: const EdgeInsets.symmetric(
+              horizontal: kLibraryToolbarMenuSectionLabelSpacing),
           child: Text(label,
               style: TextStyle(
-                  fontSize: 14,
+                  fontSize: kLibraryToolbarMenuFontSize,
                   fontWeight: FontWeight.w400,
                   color: libraryToolbarMenuBorder(context))),
         ),
@@ -155,7 +219,7 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
   final TextStyle? textStyle;
   final double leadingSpacing;
 
-  /// A solid hover shade in place of the default tint.
+  /// Overrides the shared menu hover shade.
   final Color? hoverColor;
 
   @override
@@ -211,11 +275,11 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
       onTap: onTap,
       overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
         if (states.contains(WidgetState.pressed)) {
-          return solidHover ?? hover.withValues(alpha: 0.92);
+          return hover;
         }
         if (states.contains(WidgetState.hovered) ||
             states.contains(WidgetState.focused)) {
-          return solidHover ?? hover.withValues(alpha: 0.80);
+          return hover;
         }
         return null;
       }),

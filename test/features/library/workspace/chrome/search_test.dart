@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/search.dart';
@@ -89,12 +90,13 @@ void main() {
     await tester
         .tap(find.byKey(const ValueKey('library-search-target-button')));
     await tester.pumpAndSettle();
-    expect(find.byType(PopupMenuItem<LibrarySearchTarget>), findsNWidgets(3));
+    expect(find.byType(LibraryToolbarMenuItem<LibrarySearchTarget>),
+        findsNWidgets(3));
     // The list opens left-aligned under the button, as in the reference.
     final button = tester
         .getRect(find.byKey(const ValueKey('library-search-target-button')));
-    final firstItem =
-        tester.getRect(find.byType(PopupMenuItem<LibrarySearchTarget>).first);
+    final firstItem = tester.getRect(
+        find.byType(LibraryToolbarMenuItem<LibrarySearchTarget>).first);
     expect(firstItem.left, button.left - 4);
     expect(firstItem.top, button.bottom + 2);
     await tester.tap(find.text('Tracks').last);

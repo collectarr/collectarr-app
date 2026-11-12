@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/chrome/menus.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -83,7 +84,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                   onSelected: select,
                   itemBuilder: (_) => [
                     for (final label in ['All', ...libraryToolbarAlphabet])
-                      PopupMenuItem(
+                      LibraryToolbarMenuItem(
                           value: label,
                           height: 30,
                           enabled: label == 'All' || available.contains(label),
@@ -151,7 +152,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                   onSelected: options.onChanged,
                   itemBuilder: (_) => [
                     for (final field in options.fields)
-                      PopupMenuItem(
+                      LibraryToolbarMenuItem(
                           value: field.id,
                           height: 30,
                           padding: const EdgeInsets.symmetric(horizontal: 8),

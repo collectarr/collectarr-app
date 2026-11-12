@@ -587,6 +587,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
         active: preset.label == activeLabel,
         // The reference heads the favorites below Manage Favorites.
         section: identical(preset, presets.first) ? 'Favorites' : null,
+        fontWeight: kLibraryToolbarMenuFavoriteFontWeight,
       ));
     }
     return LibraryDenseSplitButton<Object>(

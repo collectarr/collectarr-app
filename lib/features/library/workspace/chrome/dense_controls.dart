@@ -19,6 +19,7 @@ class LibraryDenseMenuEntry<T> {
     this.section,
     this.trailingIcon,
     this.reserveLeadingSpace = true,
+    this.fontWeight = kLibraryToolbarMenuActionFontWeight,
   });
 
   final T value;
@@ -30,6 +31,7 @@ class LibraryDenseMenuEntry<T> {
   final String? section;
   final IconData? trailingIcon;
   final bool reserveLeadingSpace;
+  final FontWeight fontWeight;
 }
 
 class LibraryDenseButton extends StatefulWidget {
@@ -281,7 +283,7 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
       shape: libraryToolbarDropdownMenuShape(context),
       itemBuilder: (context) => [
         for (final entry in entries)
-          PopupMenuItem<T>(
+          LibraryToolbarMenuItem<T>(
             value: entry.value,
             enabled: entry.enabled,
             height: kLibraryToolbarPopupItemHeight,
@@ -357,13 +359,13 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
         itemBuilder: (context) => [
           for (final entry in entries) ...[
             if (entry.section != null)
-              PopupMenuItem<T>(
+              LibraryToolbarMenuItem<T>(
                 enabled: false,
                 height: 22,
-                padding: const EdgeInsets.symmetric(horizontal: 7),
+                padding: EdgeInsets.zero,
                 child: LibraryToolbarMenuSection(entry.section!),
               ),
-            PopupMenuItem<T>(
+            LibraryToolbarMenuItem<T>(
               value: entry.value,
               enabled: entry.enabled,
               height: kLibraryToolbarPopupItemHeight,
@@ -454,9 +456,16 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
               color: entry.active && palette.isDark ? Colors.white : foreground)
           : null,
       textStyle: TextStyle(
-          color: foreground, fontWeight: FontWeight.w700, fontSize: 14),
+          color: foreground,
+          fontWeight: entry.fontWeight,
+          fontSize: kLibraryToolbarMenuFontSize),
       trailing: entry.trailingIcon != null
-          ? Icon(entry.trailingIcon, size: 14, color: foreground)
+          ? LibraryToolbarMenuIconAction(
+              icon: entry.trailingIcon!,
+              label: entry.label,
+              onPressed: entry.enabled
+                  ? () => Navigator.of(context).pop(entry.value)
+                  : null)
           : entry.trailingLabel == null
               ? null
               : Text(entry.trailingLabel!,

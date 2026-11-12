@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Features
+- Sorting and column favorites share medium-weight entries and edge-to-edge Favorites rules, with the longer line on the right.
 - List view has no spacing or cover-size sliders; image columns resize together and follow actual cover proportions without empty vertical bands; empty cover columns do not add row height, and text stays aligned at the top.
 - Games offers more sort and column fields, including date parts, Description, Back Cover, Core Game ID and Core Media ID; Hardware and Toys keep their own fields.
 - Account in the main menu opens My Account directly, with Logout on that page.
@@ -22,12 +23,13 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Library dropdown rows and settings buttons have clearer hover highlights.
 - List checkboxes use filled blue boxes on checked rows and white boxes on the current row, with ticks matching each row background.
 - Games list covers load local images and reserve enough row height for visible thumbnails.
-- Column favorites open under the full toolbar button; sorting and column favorites share heavier text, white checkmarks and separated Favorites headings.
+- Column favorites open under the full toolbar button and share sorting favorites' white checkmarks.
 - Platform icons stay visible in a fixed, unnamed column and fill its width, without appearing in column selection.
 - Sorting favorites start as editable saved defaults; the last favorite cannot be deleted, and saving an empty selection retains its first field.
-- Sorting favorites menus use heavier text and align with the toolbar separator under the full Change Sorting control.
+- Sorting favorites menus align with the toolbar separator under the full Change Sorting control.
 - Startup waits for saved connection settings before requesting media types, avoiding connection errors against the default Core address.
 - Sync error and warning banners highlight their close button on hover and open the full diagnostic in Logs.
 - Unavailable sync services fail promptly with a clear message while preserving local changes and full diagnostic logs.

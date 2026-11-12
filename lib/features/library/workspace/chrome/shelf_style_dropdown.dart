@@ -35,7 +35,7 @@ class LibraryShelfStyleDropdown extends ConsumerWidget {
       onSelected: ref.read(libraryShelfStyleProvider.notifier).select,
       itemBuilder: (context) => [
         for (final style in LibraryShelfStyle.values)
-          PopupMenuItem(
+          LibraryToolbarMenuItem(
             value: style,
             height: 30,
             padding: const EdgeInsets.symmetric(horizontal: 7),

@@ -215,6 +215,13 @@ extension LibraryWorkspaceDensityPresetMetrics
   }
 }
 
+const kLibraryToolbarMenuFavoriteFontWeight = FontWeight.w500;
+const kLibraryToolbarMenuActionFontWeight = FontWeight.w700;
+const kLibraryToolbarMenuFontSize = 14.0;
+const kLibraryToolbarMenuSectionLeadingWidth = 36.0;
+const kLibraryToolbarMenuSectionLabelSpacing = 5.0;
+const kLibraryToolbarMenuActionExtent = 24.0;
+
 // Toolbar popups follow the content skin: the reference light skin opens
 // white menus (#DDD border and hover, #333 text) from its dark toolbars.
 AppThemePalette _toolbarMenuPalette(BuildContext context) =>
@@ -235,9 +242,11 @@ Color libraryToolbarMenuText(BuildContext context) =>
 Color libraryToolbarMenuMutedText(BuildContext context) =>
     _toolbarMenuPalette(context).textMuted;
 Color libraryToolbarMenuHover(BuildContext context) =>
+    libraryToolbarMenuBorder(context);
+Color libraryToolbarMenuActionHover(BuildContext context) =>
     _toolbarMenuPalette(context).isDark
-        ? const Color(0xff464950)
-        : _toolbarMenuPalette(context).badgeBackground;
+        ? const Color(0xff888888)
+        : const Color(0xffcccccc);
 
 /// A folder menu category that is open, and the bar beside its rows.
 Color libraryToolbarMenuOpenGroup(BuildContext context) =>

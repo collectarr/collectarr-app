@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/auxiliary_controls.dart';
@@ -322,7 +323,7 @@ void main() {
     await tester.tap(find.descendant(
         of: trigger, matching: find.byIcon(AppIcons.chevronDown)));
     await tester.pumpAndSettle();
-    final menuRows = find.byType(PopupMenuItem<Object>);
+    final menuRows = find.byType(LibraryToolbarMenuItem<Object>);
     expect(tester.getTopLeft(menuRows.first).dx,
         closeTo(tester.getTopLeft(trigger).dx - 4, 0.01));
     expect(tester.getTopLeft(menuRows.first).dy,
@@ -330,12 +331,16 @@ void main() {
     expect(tester.widget<Text>(find.text('Manage Favorites')).style!.fontWeight,
         FontWeight.w700);
     expect(tester.widget<Text>(find.text('Essential')).style!.fontWeight,
-        FontWeight.w700);
+        kLibraryToolbarMenuFavoriteFontWeight);
     expect(
         find.descendant(
             of: find.byType(LibraryToolbarMenuSection),
             matching: find.byType(Divider)),
         findsNWidgets(2));
+    final heading = tester.getRect(find.byType(LibraryToolbarMenuSection));
+    final popup = tester.getRect(menuRows.first);
+    expect(heading.left, popup.left);
+    expect(heading.right, popup.right);
     final check = find.byIcon(AppIcons.check);
     expect(tester.widget<Icon>(check).color, Colors.white);
     expect(
@@ -346,6 +351,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(appliedPreset, 'Pricing');
+    await tester.tap(find.descendant(
+        of: trigger, matching: find.byIcon(AppIcons.chevronDown)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(LibraryToolbarMenuIconAction));
+    await tester.pumpAndSettle();
+    expect(manageColumnsCount, 2);
+    expect(find.byType(LibraryToolbarMenuIconAction), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('sort favorites menu keeps pinned favorites first in saved order',

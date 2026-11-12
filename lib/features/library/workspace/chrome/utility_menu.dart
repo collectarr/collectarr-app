@@ -131,7 +131,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
       items.add(_buildSectionHeader(quickViewsLabel));
       for (final view in quickViews) {
         items.add(
-          PopupMenuItem<Object>(
+          LibraryToolbarMenuItem<Object>(
             value: _LibraryUtilityQuickViewSelection<T>(view.value),
             height: kLibraryToolbarPopupItemHeight,
             padding: const EdgeInsets.symmetric(horizontal: 7),
@@ -164,7 +164,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
         currentSection = section;
       }
       items.add(
-        PopupMenuItem<Object>(
+        LibraryToolbarMenuItem<Object>(
           value: action,
           enabled: action.enabled && action.onSelected != null,
           height:
@@ -203,7 +203,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
   }
 
   PopupMenuEntry<Object> _buildSectionHeader(String label) {
-    return PopupMenuItem<Object>(
+    return LibraryToolbarMenuItem<Object>(
       enabled: false,
       height: kLibraryToolbarPopupSectionHeaderHeight,
       child: Text(

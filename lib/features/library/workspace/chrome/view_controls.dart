@@ -73,7 +73,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
             LibraryViewMode.shelves,
             LibraryViewMode.cardFlow
           ])
-            PopupMenuItem<LibraryViewMode>(
+            LibraryToolbarMenuItem<LibraryViewMode>(
               height: _viewModeDropdownHeight,
               padding: const EdgeInsets.symmetric(horizontal: 7),
               value: mode,
@@ -174,7 +174,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
           LibraryDetailsLayout.right,
           LibraryDetailsLayout.hidden,
         ])
-          PopupMenuItem<LibraryDetailsLayout>(
+          LibraryToolbarMenuItem<LibraryDetailsLayout>(
             height: _viewModeDropdownHeight,
             padding: const EdgeInsets.symmetric(horizontal: 7),
             value: layout,
