@@ -355,6 +355,23 @@ void main() {
     expect(find.byIcon(Icons.drag_indicator), findsNothing);
     expect(find.byKey(const ValueKey('sort-priority-title')), findsOneWidget);
     expect(find.byKey(const ValueKey('sort-priority-issue')), findsOneWidget);
+    // Direction and priority use the header text color, as in the reference.
+    final headerText = tester.widget<Text>(find.text('title')).style!.color;
+    expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('sort-priority-title')))
+            .style!
+            .color,
+        headerText);
+    expect(
+        tester
+            .widgetList<Icon>(find.byType(Icon))
+            .where((icon) =>
+                icon.icon == AppIcons.caretUp ||
+                icon.icon == AppIcons.caretDown)
+            .map((icon) => icon.color)
+            .toSet(),
+        {headerText});
   });
 
   testWidgets('workspace table reports row double taps', (tester) async {

@@ -653,6 +653,8 @@ class _LibraryWorkspaceTableHeaderCellState
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14,
                                 letterSpacing: 0))),
+                    // The reference draws the direction and priority in the
+                    // header text color, not the library accent.
                     if (showSort) ...[
                       const SizedBox(width: 2),
                       Icon(
@@ -660,14 +662,14 @@ class _LibraryWorkspaceTableHeaderCellState
                               ? AppIcons.caretUp
                               : AppIcons.caretDown,
                           size: 14,
-                          color: widget.accentColor),
+                          color: textColor),
                     ],
                     if (showPriority) ...[
                       const SizedBox(width: 1),
                       Text(widget.sortPriority.toString(),
                           key: ValueKey('sort-priority-${widget.column}'),
                           style: TextStyle(
-                              color: widget.accentColor,
+                              color: textColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w700)),
                     ],

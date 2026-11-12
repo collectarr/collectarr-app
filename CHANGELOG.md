@@ -26,6 +26,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- List headers draw the sort direction caret and priority number in white, as CLZ does, instead of the library color.
 - Games details list Links after Personal, and with the Links section position on, Find sold listings on eBay ends that section instead of following the details.
 - Auto Cap Exceptions uses the reference title and the active library color in its header.
 - Settings dropdowns use regular-weight options, and the hovered option takes the reference's blue highlight with white text.
