@@ -25,17 +25,20 @@ class LibraryCoverLayoutScope extends InheritedWidget {
   const LibraryCoverLayoutScope({
     required this.fallbackAspectRatio,
     required this.onAspectRatio,
+    required this.onImageMissing,
     required super.child,
     super.key,
   });
   final double fallbackAspectRatio;
   final ValueChanged<double> onAspectRatio;
+  final VoidCallback onImageMissing;
   static LibraryCoverLayoutScope? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<LibraryCoverLayoutScope>();
   @override
   bool updateShouldNotify(LibraryCoverLayoutScope oldWidget) =>
       fallbackAspectRatio != oldWidget.fallbackAspectRatio ||
-      onAspectRatio != oldWidget.onAspectRatio;
+      onAspectRatio != oldWidget.onAspectRatio ||
+      onImageMissing != oldWidget.onImageMissing;
 }
 
 class LibraryCoverImage extends ConsumerWidget {
@@ -96,14 +99,16 @@ class LibraryCoverImage extends ConsumerWidget {
           report(ratio);
           layout.onAspectRatio(ratio);
           onAspectRatio?.call(ratio);
-        }, shapeFallback: layout.fallbackAspectRatio),
+        },
+            shapeFallback: layout.fallbackAspectRatio,
+            onImageMissing: layout.onImageMissing),
       ),
     );
   }
 
   Widget _buildImage(
       BuildContext context, WidgetRef ref, ValueChanged<double>? onAspectRatio,
-      {double? shapeFallback}) {
+      {double? shapeFallback, VoidCallback? onImageMissing}) {
     final fallbackAspectRatio = shapeFallback ?? this.fallbackAspectRatio;
     final url = normalizeNetworkImageUrl(imageUrl);
 
@@ -137,7 +142,11 @@ class LibraryCoverImage extends ConsumerWidget {
 
     void showingFallback() {
       loaded();
-      onAspectRatio?.call(fallbackAspectRatio);
+      if (onImageMissing != null) {
+        onImageMissing();
+      } else {
+        onAspectRatio?.call(fallbackAspectRatio);
+      }
     }
 
     Widget reportingShape(Image image, {String? elementUrl}) {

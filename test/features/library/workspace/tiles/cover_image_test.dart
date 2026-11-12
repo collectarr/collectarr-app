@@ -22,6 +22,7 @@ void main() {
   testWidgets('an empty table cover retains the column fallback shape',
       (tester) async {
     final reports = <double>[];
+    var missing = false;
     await _pump(
         tester,
         MaterialApp(
@@ -31,14 +32,15 @@ void main() {
           child: LibraryCoverLayoutScope(
             fallbackAspectRatio: 1,
             onAspectRatio: reports.add,
+            onImageMissing: () => missing = true,
             child:
                 const LibraryCoverImage(title: 'Empty', showPlaceholder: false),
           ),
         ))));
     await tester.pumpAndSettle();
     expect(tester.getSize(find.byType(AspectRatio)), const Size(80, 80));
-    expect(reports, isNotEmpty);
-    expect(reports.every((ratio) => ratio == 1), isTrue);
+    expect(reports, isEmpty);
+    expect(missing, isTrue);
     expect(tester.takeException(), isNull);
   });
 

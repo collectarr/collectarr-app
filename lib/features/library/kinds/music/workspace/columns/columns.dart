@@ -36,19 +36,14 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     id: field.id,
     metadata: field.metadata,
     getValue: field.getValue,
-    cellValue: (context) {
-      final imageUrl = field.getValue(context);
-      return imageUrl == null || imageUrl.isEmpty
-          ? const SizedBox.shrink()
-          : LibraryCoverImage(
-              title: context.dto.primaryLabel,
-              mediaKind: CatalogMediaKind.music,
-              imageUrl: imageUrl,
-              fallbackAspectRatio: 1,
-              borderRadius: 0,
-              fit: BoxFit.contain,
-            );
-    },
+    cellValue: (context) => LibraryCoverImage(
+      title: context.dto.primaryLabel,
+      mediaKind: CatalogMediaKind.music,
+      imageUrl: field.getValue(context),
+      fallbackAspectRatio: 1,
+      showPlaceholder: false,
+      borderRadius: 0,
+    ),
     group: 'Images',
     imageAspectRatio: 1,
     cellPadding: const EdgeInsets.symmetric(horizontal: 5),

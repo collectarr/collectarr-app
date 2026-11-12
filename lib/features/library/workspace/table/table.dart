@@ -148,18 +148,21 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
     with LibraryRevealListener {
   final _scrollController = ScrollController();
   double _rowHeight = 0;
-  final _imageAspects = <(Object?, String), double>{};
+  // A null value means the image is absent, not awaiting its first frame.
+  final _imageAspects = <(Object?, String), double?>{};
   (Object?, String) _aspectKey(T entry, String column) =>
       (widget.entryIdOf?.call(entry) ?? entry, column);
 
   void _reportImageAspect(T entry, String column, double aspect) {
-    if (!aspect.isFinite ||
-        aspect <= 0 ||
-        _imageAspects[_aspectKey(entry, column)] == aspect) {
-      return;
-    }
+    if (!aspect.isFinite || aspect <= 0) return;
+    _setImageAspect(entry, column, aspect);
+  }
+
+  void _setImageAspect(T entry, String column, double? aspect) {
+    final key = _aspectKey(entry, column);
+    if (_imageAspects.containsKey(key) && _imageAspects[key] == aspect) return;
     // Cached streams may report while their cells are building.
-    _imageAspects[_aspectKey(entry, column)] = aspect;
+    _imageAspects[key] = aspect;
     if (_imageAspects.length > 4096) {
       _imageAspects.remove(_imageAspects.keys.first);
     }
@@ -176,7 +179,11 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
       if (fallback == null) continue;
       final padding = widget.columnCellPaddingFor?.call(column) ??
           const EdgeInsets.symmetric(horizontal: 5);
-      final aspect = _imageAspects[_aspectKey(entry, column)] ?? fallback;
+      final key = _aspectKey(entry, column);
+      if (_imageAspects.containsKey(key) && _imageAspects[key] == null) {
+        continue;
+      }
+      final aspect = _imageAspects[key] ?? fallback;
       height = math.max(
           height,
           math.max(1, widget.columnWidthFor(column) - padding.horizontal) /
@@ -193,6 +200,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
     return LibraryCoverLayoutScope(
       fallbackAspectRatio: fallback,
       onAspectRatio: (aspect) => _reportImageAspect(entry, column, aspect),
+      onImageMissing: () => _setImageAspect(entry, column, null),
       child: cell,
     );
   }

@@ -22,7 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   for (final imageType in ['front_cover', 'back_cover']) {
     testWidgets(
-        'Games $imageType column loads local images without a catalog URL',
+        'Games $imageType ignores an empty sibling cover when sizing rows',
         (tester) async {
       const entryRef = LibraryEntryRef(
           kind: CatalogMediaKind.game, id: LibraryEntryId('local-cover'));
@@ -34,6 +34,9 @@ void main() {
       expect(column.minRowHeight, isNull);
       expect(column.cellPadding!.vertical, 0);
       expect(column.imageAspectRatio, 2 / 3);
+      final emptyColumn = fields.columns.singleWhere((candidate) =>
+          candidate.id.value ==
+          (imageType == 'front_cover' ? 'game.back_cover' : 'game.cover'));
       final context = LibraryProjectionContext(
         item: WorkspaceItem(target: const EntryTargetRef(entryRef)),
         personal: const PersonalOverlay(),
@@ -54,18 +57,18 @@ void main() {
           overrides: [
             localItemImageProvider.overrideWith((ref, request) {
               requests.add(request);
-              return Stream.value(png);
+              return Stream.value(request.imageType == imageType ? png : null);
             })
           ],
           child: MaterialApp(
               home: Scaffold(
                   body: Center(
                       child: SizedBox(
-            width: 500,
+            width: 700,
             height: 500,
             child: LibraryWorkspaceTable<String>(
               entries: const ['local-cover'],
-              columns: [column.id.value, 'title'],
+              columns: [column.id.value, emptyColumn.id.value, 'title'],
               sortColumn: 'title',
               sortAscending: true,
               columnWidthFor: (id) => id == 'title' ? 240 : width,
@@ -79,7 +82,8 @@ void main() {
                   id == 'title' ? null : column.cellPadding,
               cellBuilder: (_, id) => id == 'title'
                   ? const Text('Local Game')
-                  : column.cellValue!(context),
+                  : (id == column.id.value ? column : emptyColumn)
+                      .cellValue!(context),
               isSelected: (_) => true,
               onEntryTap: (_) {},
               onSortChanged: (_) {},
@@ -108,12 +112,21 @@ void main() {
           }
         });
         await tester.pumpAndSettle();
-        final cover =
-            tester.widget<LibraryCoverImage>(find.byType(LibraryCoverImage));
+        final cover = tester.widget<LibraryCoverImage>(find.byWidgetPredicate(
+            (widget) =>
+                widget is LibraryCoverImage &&
+                widget.localImageType == imageType));
         expect(cover.libraryEntryRef, entryRef);
         expect(cover.localImageType, imageType);
         expect(requests,
             contains((libraryEntryRef: entryRef, imageType: imageType)));
+        expect(
+            requests,
+            contains((
+              libraryEntryRef: entryRef,
+              imageType:
+                  imageType == 'front_cover' ? 'back_cover' : 'front_cover'
+            )));
         final row = tester.getRect(find.byType(LibraryTableInkRow));
         final image = tester.getRect(find.byType(Image));
         expect(image.width, width - column.cellPadding!.horizontal);

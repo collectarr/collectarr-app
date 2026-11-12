@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- List view has no spacing or cover-size sliders; image columns resize together and follow actual cover proportions without empty vertical bands, while text stays aligned at the top.
+- List view has no spacing or cover-size sliders; image columns resize together and follow actual cover proportions without empty vertical bands; empty cover columns do not add row height, and text stays aligned at the top.
 - Games offers more sort and column fields, including date parts, Description, Back Cover, Core Game ID and Core Media ID; Hardware and Toys keep their own fields.
 - Account in the main menu opens My Account directly, with Logout on that page.
 - The admin dashboard shows server catalog totals and catalog table storage by kind.
