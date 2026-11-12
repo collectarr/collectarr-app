@@ -27,6 +27,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Switching folders in a large library is many times faster.
 - Opening, sorting and regrouping a large library no longer index its search text until something is searched for.
 - Sorting a large library is several times faster.
 - Clicking a list header sorts by that column alone, and again reverses it, as in CLZ; sorting favorites keep their fields.

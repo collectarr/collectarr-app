@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/group_values.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/entry_helpers.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/shelf_entry.dart';
@@ -91,7 +90,6 @@ class LibraryGroupingEngine {
     // cover link wins over one without, which may still keep a local cover.
     final covers =
         <String, ({String? url, LibraryEntryRef? entry, int? number})>{};
-    final startYears = <String, int?>{};
     final bucketNumbers = hasSequence ? <String, Set<int>>{} : null;
     final entryNumbers = hasSequence ? <String, Set<int>>{} : null;
 
@@ -99,17 +97,20 @@ class LibraryGroupingEngine {
       final sortNames = sorting.useSortNames
           ? workspace.groupBucketSortNamesForEntry(item, groupId)
           : const <String, String>{};
+      // The item's own values are the same for each folder it is filed in.
+      final number = hasSequence
+          ? _parseWholeNumber(
+              workspace.groupSequenceValueForEntry(item, groupId),
+            )
+          : null;
+      final imageUrl =
+          item.dto.imageUrl?.isNotEmpty == true ? item.dto.imageUrl : null;
       for (final bucket in bucketsForItem(item, type, groupId, index: index)) {
         counts[bucket] = (counts[bucket] ?? 0) + 1;
         if (sortNames[bucket] case final sortName?
             when sortName.trim().isNotEmpty) {
           itemSortNames.putIfAbsent(bucket, () => sortName.trim());
         }
-        final number = hasSequence
-            ? _parseWholeNumber(
-                workspace.groupSequenceValueForEntry(item, groupId),
-              )
-            : null;
         if (number != null) {
           bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
         }
@@ -119,8 +120,6 @@ class LibraryGroupingEngine {
             entryNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
           }
         }
-        final imageUrl =
-            item.dto.imageUrl?.isNotEmpty == true ? item.dto.imageUrl : null;
         final current = covers[bucket];
         if (current == null ||
             (imageUrl != null && current.url == null) ||
@@ -135,13 +134,6 @@ class LibraryGroupingEngine {
             entry: item.source.libraryEntryRef,
             number: number,
           );
-        }
-        final year = libraryCardPresentationForEntry(item).releaseDate?.year;
-        if (year != null) {
-          final existing = startYears[bucket];
-          if (existing == null || year < existing) {
-            startYears[bucket] = year;
-          }
         }
       }
     }
@@ -169,7 +161,6 @@ class LibraryGroupingEngine {
           count: entry.value,
           coverUrl: covers[entry.key]?.url,
           coverEntryRef: covers[entry.key]?.entry,
-          startYear: startYears[entry.key],
           entryCount: entryCounts?[entry.key],
           missingNumbers: gapNumbers[entry.key] ?? const <int>[],
           sortKey: pickListSortNames[normalizePickListValue(entry.key)] ??

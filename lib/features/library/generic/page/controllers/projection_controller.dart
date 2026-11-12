@@ -50,7 +50,6 @@ abstract final class _LibraryProjectionControllerOps {
                               .length,
                   coverUrl: bucket.coverUrl,
                   coverEntryRef: bucket.coverEntryRef,
-                  startYear: bucket.startYear,
                   missingNumbers: bucket.missingNumbers,
                 ),
           ];

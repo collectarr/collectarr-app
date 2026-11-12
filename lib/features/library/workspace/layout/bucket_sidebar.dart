@@ -23,7 +23,6 @@ class LibraryBucket {
     required this.count,
     this.coverUrl,
     this.coverEntryRef,
-    this.startYear,
     this.entryCount,
     this.missingNumbers = const <int>[],
     this.sortKey,
@@ -40,7 +39,6 @@ class LibraryBucket {
   /// The entry whose cover the folder shows; its local cover wins over
   /// [coverUrl].
   final LibraryEntryRef? coverEntryRef;
-  final int? startYear;
   final int? entryCount;
   final List<int> missingNumbers;
 
