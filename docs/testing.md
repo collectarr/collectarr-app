@@ -163,9 +163,9 @@ For Windows `accessibility_bridge.cc(114)` errors, preserve the first rejection:
 later messages can follow from an earlier rejected tree update. Flutter 3.47.7
 lacks the missing traversal-parent fix merged in
 [flutter/flutter#193372](https://github.com/flutter/flutter/pull/193372).
-The fix is also absent from the official `3.50.0` stable and
-`3.50.0-0.4.pre` beta tags; it is present on Flutter's `main` branch. Check the
-actual SDK revision before expecting an upgrade to resolve this failure.
+The fix is also absent from the official `3.50.0` stable; the first tag with
+it is the `3.51.0-0.1.pre` beta. Check the actual SDK revision before expecting
+an upgrade to resolve this failure.
 The distinct Tooltip traversal issue is tracked in
 [flutter/flutter#182444](https://github.com/flutter/flutter/issues/182444).
 Neither identifies an application trigger by itself. Isolated native startup

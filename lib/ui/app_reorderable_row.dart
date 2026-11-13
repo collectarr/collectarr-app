@@ -22,7 +22,8 @@ typedef AppReorderDragDecorator = Widget Function(
 /// the pointer and the drop targets drift:
 /// https://github.com/flutter/flutter/issues/195303
 ///
-/// Once that is fixed in the Flutter release we use, replace this widget with
+/// Fixed by https://github.com/flutter/flutter/pull/195304 (not merged yet).
+/// Once the Flutter release we use includes it, replace this widget with
 /// `ReorderableListView.builder(scrollDirection: Axis.horizontal,
 /// buildDefaultDragHandles: false, scrollController: controller,
 /// proxyDecorator: ..., onReorderItem: ...)` whose items are wrapped in
