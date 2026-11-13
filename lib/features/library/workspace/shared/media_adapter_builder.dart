@@ -102,26 +102,3 @@ String? standardMediaSubgroupKeyForEntry(
   return libraryKindWorkspaceForKind(type.kind)
       .subgroupKeyForEntry(item, groupId);
 }
-
-int standardMediaCompareSubgroupKeys(
-  String left,
-  String right,
-) {
-  final leftNumber = _extractSubgroupNumber(left);
-  final rightNumber = _extractSubgroupNumber(right);
-  if (leftNumber != null && rightNumber != null) {
-    return leftNumber.compareTo(rightNumber);
-  }
-  return left.compareTo(right);
-}
-
-int? _extractSubgroupNumber(String? value) {
-  if (value == null) {
-    return null;
-  }
-  final match = RegExp(r'(\d+)').firstMatch(value);
-  if (match == null) {
-    return null;
-  }
-  return int.tryParse(match.group(1)!);
-}
