@@ -16,7 +16,7 @@ export 'package:collectarr_app/features/library/kinds/boardgame/add/draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/manual_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/manual_pane.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/catalog_candidate_projection.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_physical_media_formats.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/config/physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_personal_data.dart';
@@ -24,7 +24,7 @@ export 'package:collectarr_app/features/library/kinds/boardgame/edit/draft.dart'
 export 'package:collectarr_app/features/library/kinds/boardgame/edit/dialog.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/edit/presentation_builder.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/inspector/panel.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_semantics.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/entries/semantics.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/entries/create_payload.dart';

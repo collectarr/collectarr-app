@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
-import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/personal_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';

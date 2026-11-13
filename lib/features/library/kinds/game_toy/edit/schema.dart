@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/schema/schema.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../domain/game_toy_metadata.dart';
-import '../forms/main_form.dart';
+import '../forms/main_form_section.dart';
 import 'draft.dart';
 
 String gameToyEditHeaderTitle(GameToyCatalogMetadata metadata) =>

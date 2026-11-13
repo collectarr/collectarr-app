@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/game/config/field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/ids.dart';
 import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';

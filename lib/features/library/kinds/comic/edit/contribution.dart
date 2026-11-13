@@ -1,5 +1,5 @@
 import '../comic_module_dependencies.dart';
-import '../entries/comic_transfer_library_entry.dart';
+import '../entries/transfer.dart';
 import 'prefill_fields.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(

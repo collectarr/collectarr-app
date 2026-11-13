@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../domain/game_hardware_metadata.dart';
-import '../forms/main_form.dart';
+import '../forms/main_form_section.dart';
 import 'draft.dart';
 
 String gameHardwareEditHeaderTitle(GameHardwareCatalogMetadata metadata) =>

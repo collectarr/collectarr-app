@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/media_presentation_models
 import 'package:collectarr_app/features/library/config/entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config/comic_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';

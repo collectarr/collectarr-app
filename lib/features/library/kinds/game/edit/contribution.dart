@@ -1,5 +1,5 @@
 import '../game_module_dependencies.dart';
-import '../entries/game_transfer_library_entry.dart';
+import '../entries/transfer.dart';
 import 'value_tab.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(

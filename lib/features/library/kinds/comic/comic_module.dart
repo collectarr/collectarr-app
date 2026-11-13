@@ -1,5 +1,5 @@
 export 'add/contribution.dart';
-export 'config/comic_import_sources.dart';
+export 'config/import_sources.dart';
 export 'edit/contribution.dart';
 export 'config/capabilities.dart';
 export 'config/configuration.dart';

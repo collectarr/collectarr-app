@@ -3,7 +3,7 @@ import 'workspace/alphabet_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/entry_field_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/card_presentation.dart';

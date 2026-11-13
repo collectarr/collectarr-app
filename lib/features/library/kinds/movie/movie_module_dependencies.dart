@@ -25,8 +25,8 @@ export 'package:collectarr_app/features/library/kinds/movie/domain/movie_persona
 export 'package:collectarr_app/features/library/kinds/movie/edit/draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/edit/dialog.dart';
 export 'package:collectarr_app/features/library/kinds/movie/inspector/sections.dart';
-export 'package:collectarr_app/features/library/kinds/movie/config/movie_physical_media_formats.dart';
-export 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_semantics.dart';
+export 'package:collectarr_app/features/library/kinds/movie/config/physical_media_formats.dart';
+export 'package:collectarr_app/features/library/kinds/movie/entries/semantics.dart';
 export 'package:collectarr_app/features/library/kinds/movie/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/entries/create_payload.dart';

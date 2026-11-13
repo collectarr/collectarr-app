@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/domain/target_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';

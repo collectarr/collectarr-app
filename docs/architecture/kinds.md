@@ -38,11 +38,17 @@ old modules.
   retain explicit names; the tools find each kind by its `<kind>_module.dart`.
   Dart symbols and persisted identifiers stay explicit and are independent of
   file naming. Configuration uses `config/configuration.dart`,
-  `config/capabilities.dart` and `config/field_identities.dart` where present.
-  Entry boundaries use `entries/details_codec.dart`, `entries/create_payload.dart`
-  and `entries/update_payload.dart`; concrete domain/detail models keep their
-  distinguishing names. Catalog adapters use `integrations/catalog/lookup.dart`;
-  exported Dart classes retain their explicit kind names.
+  `config/capabilities.dart`, `config/field_identities.dart`,
+  `config/import_sources.dart`, `config/physical_media_formats.dart` and
+  `config/workspace_field_metadata.dart` where present. Entry boundaries use
+  `entries/details_codec.dart`, `entries/create_payload.dart`,
+  `entries/update_payload.dart`, `entries/semantics.dart` and
+  `entries/transfer.dart`; concrete domain/detail models keep their
+  distinguishing names. Catalog fields are `catalog/fields.dart`, the Main tab
+  layout `forms/main_form_section.dart` and the details panel
+  `inspector/sections.dart`. Catalog adapters use
+  `integrations/catalog/lookup.dart`; exported Dart classes retain their
+  explicit kind names.
 - A kind owns every representation of its domain data.
 - After kind dispatch, never erase the type.
 - Core owns source-neutral canonical catalog data and its API contract.

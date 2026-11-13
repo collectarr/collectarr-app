@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import 'package:collectarr_app/features/library/add/shared.dart';
 import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/series.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';

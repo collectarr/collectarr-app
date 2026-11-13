@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_import_sources.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/import_sources.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';

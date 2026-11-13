@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/data.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config/movie_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
 class MovieLibraryMediaPresentationBuilder

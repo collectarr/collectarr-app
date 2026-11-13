@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/catalog_candidate_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/sections.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';

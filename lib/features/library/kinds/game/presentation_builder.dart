@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/group_mode_category_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/groups.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/data.dart';
-import 'package:collectarr_app/features/library/kinds/game/config/game_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
 class GameLibraryMediaPresentationBuilder

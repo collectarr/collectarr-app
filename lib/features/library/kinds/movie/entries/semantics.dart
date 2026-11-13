@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/fields.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config/movie_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 LibraryEntryFormatHint resolveMovieEntryFormatHint(

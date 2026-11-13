@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/add/controllers/dialog_requests.
 import 'package:collectarr_app/features/library/kinds/music/add/manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_format_presets.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/format_presets.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/disc_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';

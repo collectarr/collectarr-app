@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';

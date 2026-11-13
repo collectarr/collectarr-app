@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/mapper.dart';
 
 /// Catalog fields consumed by the Music kind.
 final class MusicCatalogFields {

@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';

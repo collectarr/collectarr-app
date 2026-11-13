@@ -1,5 +1,5 @@
 import '../boardgame_module_dependencies.dart';
-import '../entries/boardgame_transfer_library_entry.dart';
+import '../entries/transfer.dart';
 
 final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryTargetEditRegistry(

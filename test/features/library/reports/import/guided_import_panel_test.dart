@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:collectarr_app/features/library/kinds/game/integrations/import/clz_game_web_importer.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_import_sources.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/import_sources.dart';
 import 'package:collectarr_app/features/library/reports/import/guided_import_panel.dart';
 import 'package:collectarr_app/features/library/reports/import/csv_import_panel.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

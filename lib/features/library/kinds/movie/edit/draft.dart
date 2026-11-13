@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/fields/value_fields.dart';
 import 'package:collectarr_app/features/library/edit/draft/form_fields.dart';
-import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';

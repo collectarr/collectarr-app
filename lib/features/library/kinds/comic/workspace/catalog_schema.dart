@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';

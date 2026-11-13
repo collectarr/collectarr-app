@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';

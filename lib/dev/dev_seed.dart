@@ -31,7 +31,7 @@ import 'package:collectarr_app/features/library/tracking/storage_repository.dart
 import 'package:collectarr_app/features/library/tracking/unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/mapper.dart';
 
 export 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 export 'package:collectarr_app/dev/seeds/custom_field_seeds.dart';

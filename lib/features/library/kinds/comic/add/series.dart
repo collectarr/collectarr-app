@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/features/library/entries/record.dart';

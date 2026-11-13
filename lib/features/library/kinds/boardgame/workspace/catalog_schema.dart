@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/facets.dart';

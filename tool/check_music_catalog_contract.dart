@@ -6,7 +6,7 @@ import 'package:crypto/crypto.dart';
 const _contractPath = 'tool/core_contracts/music-catalog-v1.json';
 const _manifestPath = 'tool/core_contracts/contract-manifest.json';
 const _mapperPath =
-    'lib/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+    'lib/features/library/kinds/music/catalog/mapper.dart';
 
 Future<void> main() async {
   final contractBytes = await File(_contractPath).readAsBytes();

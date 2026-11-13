@@ -9,7 +9,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import '../../../../support/builders/catalog_item_builder.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_schema.dart';

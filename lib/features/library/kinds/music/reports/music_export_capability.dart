@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/workspace_field_metadata.dart';
 
 final musicExportCapability = LibraryExportCapability(
   itemLabel: 'Albums',

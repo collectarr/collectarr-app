@@ -1,5 +1,5 @@
 import '../movie_module_dependencies.dart';
-import '../entries/movie_transfer_library_entry.dart';
+import '../entries/transfer.dart';
 
 final movieKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryTargetEditRegistry(

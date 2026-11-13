@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/catalog/fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
 class BoardGameLibraryMediaPresentationBuilder

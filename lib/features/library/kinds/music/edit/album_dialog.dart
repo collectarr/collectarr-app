@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/edit/draft/models.dart';
 import 'package:collectarr_app/features/library/edit/schema/dialog.dart';
 import 'package:collectarr_app/features/library/edit/fields/external_links_draft_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/header_title.dart';

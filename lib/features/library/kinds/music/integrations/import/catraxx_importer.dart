@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_format_presets.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/format_presets.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_artist_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';

@@ -1,22 +1,24 @@
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/fields.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
-LibraryEntryFormatHint resolveMusicEntryFormatHint(
+LibraryEntryFormatHint resolveGameEntryFormatHint(
   CatalogSearchCandidate item,
 ) {
-  final album = item.musicCatalogFields.metadata;
-  final format = album?.formatSummary;
+  final metadata = item.gameCatalogFields.metadata;
+  final format = metadata?.physicalFormat;
   return (
     format: format,
-    label: format,
+    label: metadata?.physicalFormatLabel ??
+        format ??
+        (metadata?.titleExtension ?? metadata?.editionTitle)?.trim(),
   );
 }
 
-bool? resolveMusicEntryDigitalFlag(
+bool? resolveGameEntryDigitalFlag(
   LibraryEntrySummary? libraryEntry, {
   String? fallbackFormat,
   String? fallbackLabel,
@@ -26,6 +28,6 @@ bool? resolveMusicEntryDigitalFlag(
     explicitDigital: libraryEntry?.isDigital,
     fallbackFormat: fallbackFormat,
     fallbackLabel: fallbackLabel,
-    formats: formats.isEmpty ? musicPhysicalMediaFormats : formats,
+    formats: formats.isEmpty ? gamePhysicalMediaFormats : formats,
   );
 }

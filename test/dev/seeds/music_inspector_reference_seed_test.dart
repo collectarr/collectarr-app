@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/collection/repositories/loan_repository.
 import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/mapper.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

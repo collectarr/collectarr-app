@@ -22,9 +22,9 @@ export 'package:collectarr_app/features/library/kinds/game/domain/game_library_e
 export 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit/dialog.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit/typed_presentation.dart';
-export 'package:collectarr_app/features/library/kinds/game/config/game_physical_media_formats.dart';
+export 'package:collectarr_app/features/library/kinds/game/config/physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/game/inspector/sections.dart';
-export 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_semantics.dart';
+export 'package:collectarr_app/features/library/kinds/game/entries/semantics.dart';
 export 'package:collectarr_app/features/library/kinds/game/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game/entries/create_payload.dart';

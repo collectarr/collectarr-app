@@ -2,7 +2,7 @@ import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_format_presets.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/format_presets.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';

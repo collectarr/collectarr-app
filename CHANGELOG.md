@@ -89,6 +89,7 @@
 - The details panel stays on its loading screen until label images, logos and added images are in.
 
 ### Refactors
+- Every kind names its import sources, format, field metadata, catalog field, entry semantics and transfer files the same way.
 - Kinds share their date and month folder formatting.
 - Kinds declare their Transfer Field Data fields without a per-kind wrapper.
 - Collection CSV import and export share their column matching and date formatting across kinds.

@@ -1,7 +1,7 @@
 export 'add/contribution.dart';
 export 'edit/contribution.dart';
 export 'config/capabilities.dart';
-export 'config/music_import_sources.dart';
+export 'config/import_sources.dart';
 export 'reports/music_export_capability.dart';
 export 'config/configuration.dart';
 export 'workspace/contribution.dart';

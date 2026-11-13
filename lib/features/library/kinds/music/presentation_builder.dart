@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/group_mode_category_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/groups.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/fields.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/music/inspector/track_list
 import 'package:collectarr_app/features/library/kinds/music/inspector/view_model.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/catalog_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/mapper.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:flutter/material.dart';

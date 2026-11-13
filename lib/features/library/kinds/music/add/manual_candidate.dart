@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/add/models/kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/mapper.dart';
 
 /// Builds the typed flat catalog candidate used by Music's manual Add flow.
 ///

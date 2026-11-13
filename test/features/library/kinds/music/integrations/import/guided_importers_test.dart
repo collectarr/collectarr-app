@@ -1,7 +1,7 @@
 import 'package:xml/xml.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'package:collectarr_app/features/library/kinds/music/config/music_import_sources.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/import_sources.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/import/catraxx_importer.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/import/discogs_importer.dart';

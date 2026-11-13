@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/catalog_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/collection_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/columns/columns.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/groups.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/catalog_fields.dart';

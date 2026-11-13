@@ -49,11 +49,11 @@ export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/create_payload.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_library_entry_semantics.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/entries/semantics.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/update_payload.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_transfer_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/entries/transfer.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/forms/catalog_form_values.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/forms/main_form.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/forms/main_form_section.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/inspector/sections.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/integrations/catalog/lookup.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/vocabulary/game_toy_vocabularies.dart';
