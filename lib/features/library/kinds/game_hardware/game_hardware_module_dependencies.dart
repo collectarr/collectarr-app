@@ -28,7 +28,6 @@ export 'package:collectarr_app/features/library/kinds/game_hardware/add/schema.d
 export 'package:collectarr_app/features/library/kinds/game_hardware/add/catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/add/manual_candidate.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/admin/game_hardware_admin_contributor.dart';
-export 'package:collectarr_app/features/library/kinds/game_hardware/barcode/game_hardware_barcode_resolver.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/calendar/game_hardware_calendar_contributor.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/data/game_hardware_catalog_transport_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/data/game_hardware_entry_repository.dart';

@@ -4,7 +4,6 @@ export 'config/capabilities.dart';
 export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/movie_admin_contributor.dart';
-export 'barcode/movie_barcode_resolver.dart';
 export 'calendar/movie_calendar_contributor.dart';
 export 'data/movie_catalog_transport_codec.dart';
 export 'integrations/catalog/lookup.dart';

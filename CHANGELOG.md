@@ -83,6 +83,7 @@
 - The details panel stays on its loading screen until label images, logos and added images are in.
 
 ### Refactors
+- Kinds with plain retail barcodes share one barcode resolver.
 - Library modules use explicit shared contracts without unused default implementations.
 - Comic editing keeps catalog, custom-field and image changes together when saving or cancelling.
 

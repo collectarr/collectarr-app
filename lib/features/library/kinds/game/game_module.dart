@@ -4,7 +4,6 @@ export 'config/capabilities.dart';
 export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/game_admin_contributor.dart';
-export 'barcode/game_barcode_resolver.dart';
 export 'calendar/game_calendar_contributor.dart';
 export 'data/game_catalog_transport_codec.dart';
 export 'integrations/catalog/lookup.dart';

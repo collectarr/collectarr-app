@@ -28,7 +28,6 @@ export 'package:collectarr_app/features/library/kinds/game_toy/add/schema.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/add/catalog_candidate_projection.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/add/manual_candidate.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/admin/game_toy_admin_contributor.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/barcode/game_toy_barcode_resolver.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/calendar/game_toy_calendar_contributor.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/data/game_toy_catalog_transport_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/data/game_toy_entry_repository.dart';

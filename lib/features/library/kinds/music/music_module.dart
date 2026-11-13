@@ -6,7 +6,6 @@ export 'reports/music_export_capability.dart';
 export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/music_admin_contributor.dart';
-export 'barcode/music_barcode_resolver.dart';
 export 'calendar/music_calendar_contributor.dart';
 export 'data/music_catalog_transport_codec.dart';
 export 'data/music_album_image_providers.dart';
