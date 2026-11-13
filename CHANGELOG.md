@@ -27,6 +27,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Changing the search, filters or sort order no longer rebuilds every item's view.
 - Sorting by text allocates less on large libraries.
 - Shelf view loads the covers of the next shelves before they scroll into view.
 - Covers scrolling into view no longer query the database unless the entry has its own stored image.

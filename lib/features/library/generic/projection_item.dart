@@ -25,16 +25,22 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
     LibraryKindRegistration type, {
     List<String> customFieldBadges = const <String>[],
   }) {
-    final target = source.target;
-    final dto = libraryKindWorkspaceForKind(type.kind)
-        .projectorForTarget(target)
+    LibraryWorkspaceDto project() => libraryKindWorkspaceForKind(type.kind)
+        .projectorForTarget(source.target)
         .project(item: source.item, personal: source.personal);
+    // A shelf entry is projected again for every search, filter and sort
+    // change, and its projection only depends on the entry.
+    final dto = source.mediaKind == type.kind
+        ? _projections[source] ??= project()
+        : project();
     return LibraryProjectionItem<LibraryWorkspaceDto>(
       source: source,
       dto: dto,
       customFieldBadges: customFieldBadges,
     );
   }
+
+  static final _projections = Expando<LibraryWorkspaceDto>();
 
   @override
   final LibraryWorkspaceContext source;
@@ -103,6 +109,7 @@ List<String> customFieldBadgesForTarget({
   required Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
   required Map<String, List<String>> customFieldValuesByItem,
 }) {
+  if (customFieldDefinitions.isEmpty) return const [];
   final candidateIds = customFieldTargetIds(source: source, target: target);
   return _customFieldBadgesFromIds(
     candidateIds,
