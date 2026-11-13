@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Books add keeps rating and reading history in sync',
+  testWidgets('Books add rating keeps the reading status and notes',
       (tester) async {
     var tracking =
         const LibraryAddTrackingDraft(notes: 'Keep', readStatus: 'Reading');
@@ -50,27 +50,13 @@ void main() {
           onAddEntry: () {},
           onAddWishlist: () {},
           onAddTrack: () {});
-      return Column(children: [
-        BookManualRatingField(request: request),
-        Expanded(child: BookManualReadHistory(request: request))
-      ]);
+      return BookManualRatingField(request: request);
     }))));
-    var fields = tester
-        .widgetList<MediaRatingField>(find.byType(MediaRatingField))
-        .toList();
-    fields.first.controller.text = '8';
+    final field =
+        tester.widget<MediaRatingField>(find.byType(MediaRatingField));
+    field.controller.text = '8';
     await tester.pump();
-    fields = tester
-        .widgetList<MediaRatingField>(find.byType(MediaRatingField))
-        .toList();
-    expect(fields.last.controller.text, '8');
-    expect(tracking.notes, 'Keep');
-    fields.last.controller.text = '6';
-    await tester.pump();
-    fields = tester
-        .widgetList<MediaRatingField>(find.byType(MediaRatingField))
-        .toList();
-    expect(fields.first.controller.text, '6');
+    expect(tracking.rating, 8);
     expect(tracking.readStatus, 'Reading');
     expect(tracking.notes, 'Keep');
   });

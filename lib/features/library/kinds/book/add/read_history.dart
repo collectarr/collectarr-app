@@ -1,45 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/models/tracking_draft.dart';
+import '../domain/book_read_event.dart';
 import '../edit/read_history.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 
+/// Read History of a book being added: the events go with the copy and the
+/// last one sets the reading status.
 final class BookManualReadHistory extends StatefulWidget {
-  const BookManualReadHistory({super.key, required this.request});
+  const BookManualReadHistory({
+    super.key,
+    required this.request,
+    required this.events,
+    required this.pageCount,
+    required this.onEventsChanged,
+  });
   final LibraryAddManualPaneRequest request;
+  final List<BookReadEvent> events;
+  final int? pageCount;
+  final ValueChanged<List<BookReadEvent>> onEventsChanged;
   @override
   State<BookManualReadHistory> createState() => _BookManualReadHistoryState();
 }
 
 final class _BookManualReadHistoryState extends State<BookManualReadHistory> {
-  late final BookReadingDraft _draft;
-  bool _syncing = false;
-  @override
-  void initState() {
-    super.initState();
-    final initial = widget.request.trackingDraft;
-    _draft = BookReadingDraft(null)
-      ..status = initial.readStatus
-      ..startedAt = initial.startedAt
-      ..finishedAt = initial.finishedAt;
-    _draft.rating.text = initial.rating?.toString() ?? '';
-    _draft.notes.text = initial.notes ?? '';
-  }
-
-  @override
-  void didUpdateWidget(covariant BookManualReadHistory oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final tracking = widget.request.trackingDraft;
-    _syncing = true;
-    _draft.status = tracking.readStatus;
-    _draft.startedAt = tracking.startedAt;
-    _draft.finishedAt = tracking.finishedAt;
-    final rating = tracking.rating?.toString() ?? '';
-    final notes = tracking.notes ?? '';
-    if (_draft.rating.text != rating) _draft.rating.text = rating;
-    if (_draft.notes.text != notes) _draft.notes.text = notes;
-    _syncing = false;
-  }
+  late final BookReadingDraft _draft =
+      BookReadingDraft(null, events: widget.events);
 
   @override
   void dispose() {
@@ -49,16 +34,15 @@ final class _BookManualReadHistoryState extends State<BookManualReadHistory> {
 
   @override
   Widget build(BuildContext context) => BookReadHistoryTab(
-        draft: _draft,
+        draft: _draft..pageCount = widget.pageCount,
         onChanged: () {
-          if (_syncing) return;
+          final last = _draft.events.lastOrNull;
+          widget.onEventsChanged(_draft.events);
           widget.request.onTrackingDraftChanged?.call(
-            LibraryAddTrackingDraft(
-              readStatus: _draft.status,
-              rating: int.tryParse(_draft.rating.text),
-              notes: _draft.notes.text,
-              startedAt: _draft.startedAt,
-              finishedAt: _draft.finishedAt,
+            widget.request.trackingDraft.copyWith(
+              readStatus: last?.status,
+              startedAt: last?.startDate,
+              finishedAt: last?.endDate,
             ),
           );
         },

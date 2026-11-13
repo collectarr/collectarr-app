@@ -60,6 +60,7 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: row.any(column.fieldFlex.containsKey)
                         ? _WeightedRow(
+                            breakpoint: column.rowBreakpoint,
                             flexes: [
                               for (final id in row)
                                 if (fieldsById[id]!.isVisible(draft))
@@ -74,7 +75,7 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
                         : LibraryResponsiveFieldLayout(
                             maxColumns: row.length,
                             spacing: 14,
-                            columnBreakpoints: const {2: 300},
+                            columnBreakpoints: {2: column.rowBreakpoint},
                             children: [
                               for (final id in row)
                                 if (fieldsById[id]!.isVisible(draft))
@@ -138,17 +139,20 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
   }
 }
 
-/// Fields side by side in relative widths, stacked below 300 px as the
-/// regular rows are.
+/// Fields side by side in relative widths, stacked below [breakpoint] as
+/// the regular rows are.
 class _WeightedRow extends StatelessWidget {
-  const _WeightedRow({required this.flexes, required this.children});
+  const _WeightedRow(
+      {required this.breakpoint, required this.flexes, required this.children});
+
+  final double breakpoint;
 
   final List<int> flexes;
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth < 300
+        builder: (context, constraints) => constraints.maxWidth < breakpoint
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

@@ -119,8 +119,8 @@ void main() {
         final printed = tester.getTopLeft(find.text('Printed By').first);
         final paper = tester.getTopLeft(find.text('Paper Type').first);
         expect(printed.dx, greaterThan(paper.dx));
-        final width = tester.getTopLeft(find.text('Width (mm)').first);
-        final height = tester.getTopLeft(find.text('Height (mm)').first);
+        final width = tester.getTopLeft(find.text('Width').first);
+        final height = tester.getTopLeft(find.text('Height').first);
         expect(height.dx, greaterThan(width.dx));
         expect((height.dy - width.dy).abs(), lessThan(2));
         expect(classification.dx, greaterThan(edition.dx));

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_read_event.dart';
 
 const Object _bookDetailsUnset = Object();
 
@@ -10,12 +11,14 @@ class BookEntryDetails implements JsonEncodable {
     this.dustJacketPresent = false,
     this.dustJacketCondition,
     this.retailPriceCents,
+    this.readEvents = const [],
   });
 
   final String? signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
   final int? retailPriceCents;
+  final List<BookReadEvent> readEvents;
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -24,6 +27,8 @@ class BookEntryDetails implements JsonEncodable {
         if (dustJacketPresent) 'dust_jacket_present': true,
         if (dustJacketCondition != null)
           'dust_jacket_condition': dustJacketCondition,
+        if (readEvents.isNotEmpty)
+          'read_events': [for (final event in readEvents) event.toJson()],
       };
 
   factory BookEntryDetails.fromJson(Map<String, dynamic> json) =>
@@ -32,6 +37,7 @@ class BookEntryDetails implements JsonEncodable {
         retailPriceCents: (json['retail_price_cents'] as num?)?.toInt(),
         dustJacketPresent: json['dust_jacket_present'] as bool? ?? false,
         dustJacketCondition: json['dust_jacket_condition'] as String?,
+        readEvents: BookReadEvent.listFromJson(json['read_events']),
       );
 
   BookEntryDetails copyWith({
@@ -39,6 +45,7 @@ class BookEntryDetails implements JsonEncodable {
     bool? dustJacketPresent,
     Object? dustJacketCondition = _bookDetailsUnset,
     Object? retailPriceCents = _bookDetailsUnset,
+    List<BookReadEvent>? readEvents,
   }) {
     return BookEntryDetails(
       signedBy: identical(signedBy, _bookDetailsUnset)
@@ -51,6 +58,7 @@ class BookEntryDetails implements JsonEncodable {
       dustJacketCondition: identical(dustJacketCondition, _bookDetailsUnset)
           ? this.dustJacketCondition
           : dustJacketCondition as String?,
+      readEvents: readEvents ?? this.readEvents,
     );
   }
 
@@ -62,7 +70,8 @@ class BookEntryDetails implements JsonEncodable {
           signedBy == other.signedBy &&
           retailPriceCents == other.retailPriceCents &&
           dustJacketPresent == other.dustJacketPresent &&
-          dustJacketCondition == other.dustJacketCondition;
+          dustJacketCondition == other.dustJacketCondition &&
+          listEquals(readEvents, other.readEvents);
 
   @override
   int get hashCode => Object.hash(
@@ -70,5 +79,6 @@ class BookEntryDetails implements JsonEncodable {
         retailPriceCents,
         dustJacketPresent,
         dustJacketCondition,
+        Object.hashAll(readEvents),
       );
 }

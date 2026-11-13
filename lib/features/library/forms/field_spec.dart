@@ -138,6 +138,7 @@ final class LibraryNumberFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
     this.minimum,
     this.maximum,
     this.decimalPlaces,
+    this.unit,
   });
 
   final num? Function(TDraft draft) value;
@@ -145,6 +146,9 @@ final class LibraryNumberFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
   final num? minimum;
   final num? maximum;
   final int? decimalPlaces;
+
+  /// A measurement unit, such as mm, shown in a box at the field's end.
+  final String? unit;
 
   @override
   TResult accept<TResult>(LibraryFieldSpecVisitor<TDraft, TResult> visitor) =>

@@ -59,7 +59,11 @@ List<LibraryFormSectionSpec<TDraft>> bookDetailsFormSections<TDraft>(
                   ['paper_type'],
                   ['extras']
                 ]),
-                LibraryFormColumnSpec(rows: [
+                // Printing is a short number beside First Edition.
+                LibraryFormColumnSpec(rowBreakpoint: 200, fieldFlex: {
+                  'printing_number': 81,
+                  'first_edition': 176
+                }, rows: [
                   ['printed_by'],
                   ['printing_number', 'first_edition'],
                   ['number_line']
@@ -103,7 +107,13 @@ List<LibraryFormSectionSpec<TDraft>> bookCreditFormSections<TDraft>(
       id: 'audiobook',
       label: 'Audiobook',
       layoutColumn: 1,
-      fullWidthFieldIds: const {'credit:Narrator'},
+      outlined: true,
+      columns: const [
+        LibraryFormColumnSpec(rows: [
+          ['credit:Narrator'],
+          ['audio_length_minutes', 'audio_abridged']
+        ]),
+      ],
       fields: [
         byId['credit:Narrator']!,
         byId['audio_length_minutes']!,

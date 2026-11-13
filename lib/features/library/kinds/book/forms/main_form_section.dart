@@ -15,8 +15,9 @@ LibraryFormSectionSpec<TDraft> bookMainFormSection<TDraft>({
       ['box_set'],
     ]),
     LibraryFormColumnSpec(fieldFlex: {
-      BookFieldIdentities.isbnId: 2,
-      BookFieldIdentities.formatId: 3
+      BookFieldIdentities.isbnId: 183,
+      BookFieldIdentities.pageCountId: 85,
+      BookFieldIdentities.formatId: 282
     }, rows: [
       ['authors'],
       [

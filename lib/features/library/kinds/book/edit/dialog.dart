@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/edit/schema/renderer.dart';
 import 'package:collectarr_app/features/library/edit/schema/dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_read_event.dart';
+import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/schema.dart';
@@ -41,7 +43,8 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
   late final BookCatalogMetadata _metadata;
   late final BookItemEditDraft _draft;
   late final LibraryCatalogEditChanges _changes;
-  late final BookReadingDraft _reading;
+  BookReadingDraft? _readingDraft;
+  BookReadingDraft get _reading => _readingDraft!;
 
   @override
   void initState() {
@@ -49,7 +52,6 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
     _metadata = widget.request.kindItem.kindCapability
         .mapTransport(const BookCatalogTransportCodec().decode);
     _draft = BookItemEditDraft.fromMetadata(_metadata);
-    _reading = BookReadingDraft(widget.request.trackingSummary);
     // Saving fills derived values, so an untouched draft is compared with
     // its own first output rather than the stored item.
     _changes = LibraryCatalogEditChanges(
@@ -61,13 +63,18 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
   @override
   void dispose() {
     _draft.dispose();
-    _reading.dispose();
+    _readingDraft?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final personal = LibraryEntryEditScope.maybeOf(context);
+    _readingDraft ??= BookReadingDraft(
+      widget.request.trackingSummary,
+      events: BookReadEvent.listFromJson(personal?.values['read_events']),
+    );
+    _reading.pageCount = _draft.values.pageCount;
     final vocabularyEdits = personal?.vocabularyEdits ?? _draft.vocabularyEdits;
     _draft.vocabularyEdits = vocabularyEdits;
     final accent = widget.request.accent;
@@ -104,8 +111,11 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
           layoutBuilder: bookPersonalFormLayout,
           additionalFieldsBuilder: (draft) => {
             ...bookPersonalAdditionalFields(draft),
-            'rating': MediaRatingField(
-                controller: _reading.rating, label: 'My Rating'),
+            'rating': LibraryFormField(
+              label: 'My Rating',
+              child: MediaRatingField(
+                  controller: _reading.rating, showLabel: false, compact: true),
+            ),
           },
         ),
         customFields: LibraryEditCustomFieldsTabContribution(
@@ -145,7 +155,20 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
             id: 'read_history',
             label: 'Read History',
             icon: AppIcons.bookReader,
-            content: BookReadHistoryTab(draft: _reading),
+            content: BookReadHistoryTab(
+              draft: _reading,
+              onChanged: () {
+                personal.set('read_events', _reading.eventsJson);
+                for (final (index, event) in _reading.events.indexed) {
+                  personal.vocabularyEdits.replaceValue(
+                    fieldId: 'personal:read_events:$index',
+                    listName: BookVocabularyIds.reader.value,
+                    value: event.reader,
+                    mediaKind: widget.request.type.kind.apiValue,
+                  );
+                }
+              },
+            ),
           ),
         if (personal != null)
           EditSchemaExtraTab(
@@ -188,14 +211,11 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
           icon: AppIcons.tabDescription,
           content: SingleChildScrollView(
             padding: const EdgeInsets.all(14),
-            child: LibraryFormField(
-              label: 'Plot',
-              child: LibraryFormattedTextFormControl(
-                initialValue: _draft.values.description,
-                minLines: 18,
-                maxLines: 18,
-                onChanged: (value) => _draft.values.description = value,
-              ),
+            child: LibraryFormattedTextFormControl(
+              initialValue: _draft.values.description,
+              minLines: 18,
+              maxLines: 18,
+              onChanged: (value) => _draft.values.description = value,
             ),
           ),
         ),

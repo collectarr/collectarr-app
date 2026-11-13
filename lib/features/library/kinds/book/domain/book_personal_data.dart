@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +17,7 @@ final class BookPersonalData implements JsonEncodable {
     this.currency,
     this.personalNotes,
     this.indexNumber,
+    this.quantity = 1,
     this.tags = const [],
     this.soldAt,
     this.sellPriceCents,
@@ -36,6 +39,7 @@ final class BookPersonalData implements JsonEncodable {
   final String? currency;
   final String? personalNotes;
   final int? indexNumber;
+  final int quantity;
   final List<String> tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
@@ -58,6 +62,7 @@ final class BookPersonalData implements JsonEncodable {
         'currency': currency,
         'personal_notes': personalNotes,
         'index_number': indexNumber,
+        'quantity': quantity,
         'tags': tags,
         'sold_at': soldAt?.toUtc().toIso8601String(),
         'sell_price_cents': sellPriceCents,
@@ -81,6 +86,7 @@ final class BookPersonalData implements JsonEncodable {
         currency: json['currency'] as String?,
         personalNotes: json['personal_notes'] as String?,
         indexNumber: (json['index_number'] as num?)?.toInt(),
+        quantity: math.max(0, (json['quantity'] as num?)?.toInt() ?? 1),
         tags: List<String>.from(json['tags'] as List? ?? const []),
         soldAt: _bookPersonalDate(json['sold_at']),
         sellPriceCents: (json['sell_price_cents'] as num?)?.toInt(),
@@ -103,6 +109,7 @@ final class BookPersonalData implements JsonEncodable {
     Object? currency = _bookPersonalUnset,
     Object? personalNotes = _bookPersonalUnset,
     Object? indexNumber = _bookPersonalUnset,
+    int? quantity,
     List<String>? tags,
     Object? soldAt = _bookPersonalUnset,
     Object? sellPriceCents = _bookPersonalUnset,
@@ -140,6 +147,7 @@ final class BookPersonalData implements JsonEncodable {
         indexNumber: identical(indexNumber, _bookPersonalUnset)
             ? this.indexNumber
             : indexNumber as int?,
+        quantity: quantity ?? this.quantity,
         tags: tags ?? this.tags,
         soldAt: identical(soldAt, _bookPersonalUnset)
             ? this.soldAt

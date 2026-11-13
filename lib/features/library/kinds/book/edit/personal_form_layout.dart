@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/ui/primitives/money_amount_field
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/personal_fields_layout.dart';
+import 'package:collectarr_app/features/library/ui/primitives/notes_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import '../vocabulary/book_vocabularies.dart';
 
@@ -21,6 +21,14 @@ Map<String, Widget> bookPersonalAdditionalFields(LibraryEntryEditDraft draft) {
       value: draft.text('condition'),
       builtIns: BookVocabularies.condition.builtIns,
       onChanged: (value) => draft.set('condition', value),
+    ),
+    'personal_notes': LibraryNotesField(
+      fieldKey: const ValueKey('library-entry-personal_notes'),
+      label: 'Notes',
+      value: draft.text('personal_notes'),
+      minLines: 7,
+      maxLines: 7,
+      onChanged: (value) => draft.set('personal_notes', value),
     ),
     'dust_jacket': LibrarySegmentedChoiceField<bool>(
       label: 'Dust Jacket',
@@ -76,6 +84,9 @@ Map<String, Widget> bookValueAdditionalFields(LibraryEntryEditDraft draft) => {
           )),
     };
 
+/// Reference Personal layout: owner, condition, dust jacket and tags on the
+/// left; rating and notes on the right, the notes as tall as the rows beside
+/// them.
 Widget bookPersonalFormLayout(Map<String, Widget> fields, Widget? history) {
   Widget stack(List<Widget> children) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -88,24 +99,26 @@ Widget bookPersonalFormLayout(Map<String, Widget> fields, Widget? history) {
       );
   Widget? field(String key) => fields[key];
   return LayoutBuilder(builder: (context, constraints) {
-    final jacket = [
-      if (field('dust_jacket') case final item?) item,
-      if (field('dust_jacket_condition') case final item?) item
-    ];
+    final jacket = field('dust_jacket');
+    final jacketCondition = field('dust_jacket_condition');
     final left = <Widget>[
       if (field('owner_label') case final item?) item,
       if (field('condition') case final item?) item,
-      if (jacket.isNotEmpty)
+      if (jacket != null || jacketCondition != null)
         LayoutBuilder(
             builder: (context, constraints) => constraints.maxWidth < 300
-                ? stack(jacket)
+                ? stack([
+                    if (jacket != null) jacket,
+                    if (jacketCondition != null) jacketCondition,
+                  ])
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (var i = 0; i < jacket.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 14),
-                        Expanded(child: jacket[i]),
-                      ]
+                      if (jacket != null) SizedBox(width: 184, child: jacket),
+                      if (jacket != null && jacketCondition != null)
+                        const SizedBox(width: 14),
+                      if (jacketCondition != null)
+                        Expanded(child: jacketCondition),
                     ],
                   )),
       if (field('tags') case final item?) item,
@@ -124,19 +137,48 @@ Widget bookPersonalFormLayout(Map<String, Widget> fields, Widget? history) {
   });
 }
 
-Widget bookValueFormLayout(Map<String, Widget> fields, Widget? history) =>
-    LibraryPersonalFieldsLayout(
-      fields: [
-        for (final key in [
-          'market_value_cents',
-          'retail_price_cents',
-          'price_paid_cents',
-          'sell_price_cents',
-          'purchase_date',
-          'sold_at',
-          'purchase_store',
-          'signed_by'
-        ])
-          if (fields[key] != null) fields[key]!
+/// Reference Value layout: My Value and Retail Price on the first row, then
+/// price and date on the left half with Purchase Store and Signed by on the
+/// right half.
+Widget bookValueFormLayout(Map<String, Widget> fields, Widget? history) {
+  Widget field(String key) => fields[key] ?? const SizedBox.shrink();
+  Widget pair(String first, String second) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: field(first)),
+          const SizedBox(width: 14),
+          Expanded(child: field(second)),
+        ],
+      );
+  return LayoutBuilder(builder: (context, constraints) {
+    const keys = [
+      ['market_value_cents', 'retail_price_cents'],
+      ['price_paid_cents', 'purchase_date', 'purchase_store'],
+      ['sell_price_cents', 'sold_at', 'signed_by'],
+    ];
+    if (constraints.maxWidth < 680) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final key in keys.expand((row) => row))
+            Padding(
+                padding: const EdgeInsets.only(bottom: 12), child: field(key)),
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        pair(keys[0][0], keys[0][1]),
+        for (final row in keys.skip(1)) ...[
+          const SizedBox(height: 12),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: pair(row[0], row[1])),
+            const SizedBox(width: 14),
+            Expanded(child: field(row[2])),
+          ]),
+        ],
       ],
     );
+  });
+}

@@ -28,6 +28,8 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
+    indexNumber: draft.indexNumber,
+    quantity: draft.quantity,
   ),
   digitalCopyFlagBuilder: (item) {
     final metadata = item.kindCapability.mapTransport(

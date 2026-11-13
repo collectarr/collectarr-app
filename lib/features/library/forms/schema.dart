@@ -62,6 +62,7 @@ final class LibraryFormColumnSpec {
     required this.rows,
     this.fieldFlex = const {},
     this.flex = 1,
+    this.rowBreakpoint = 300,
   });
 
   final List<List<String>> rows;
@@ -71,6 +72,9 @@ final class LibraryFormColumnSpec {
 
   /// Relative widths of fields that share a row; unlisted fields weigh 1.
   final Map<String, int> fieldFlex;
+
+  /// Width below which fields that share a row stack instead.
+  final double rowBreakpoint;
 }
 
 List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
@@ -104,15 +108,18 @@ List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
               if (column.rows.any((row) => row.any(
                     (id) => fieldIds == null || fieldIds.contains(id),
                   )))
-                LibraryFormColumnSpec(fieldFlex: column.fieldFlex, rows: [
-                  for (final row in column.rows)
-                    if (row
-                        .any((id) => fieldIds == null || fieldIds.contains(id)))
-                      [
-                        for (final id in row)
-                          if (fieldIds == null || fieldIds.contains(id)) id,
-                      ],
-                ]),
+                LibraryFormColumnSpec(
+                    fieldFlex: column.fieldFlex,
+                    rowBreakpoint: column.rowBreakpoint,
+                    rows: [
+                      for (final row in column.rows)
+                        if (row.any(
+                            (id) => fieldIds == null || fieldIds.contains(id)))
+                          [
+                            for (final id in row)
+                              if (fieldIds == null || fieldIds.contains(id)) id,
+                          ],
+                    ]),
           ],
           layoutColumn: section.layoutColumn,
           columnBreakpoint: section.columnBreakpoint,

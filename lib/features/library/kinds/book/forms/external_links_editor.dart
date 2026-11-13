@@ -29,7 +29,6 @@ final class _BookExternalLinksEditorState
           for (final link in widget.links)
             LibraryExternalLinkEditRow<BookCatalogExternalLinkDraft>(
               identity: link,
-              titleController: link.row.titleController,
               urlController: link.row.urlController,
               descriptionController: link.row.descriptionController,
             ),
@@ -37,7 +36,6 @@ final class _BookExternalLinksEditorState
         accent: widget.accent,
         addLabel: 'New Link',
         emptyMessage: 'No external links added.',
-        showTitleColumn: true,
         onAdd: () => setState(() {
           widget.links.add(BookCatalogExternalLinkDraft());
           widget.onChanged?.call();

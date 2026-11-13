@@ -26,6 +26,8 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     this.collectionStatus,
     this.isDigital,
     this.tags = const [],
+    this.indexNumber,
+    this.quantity = 1,
   });
 
   factory BookLibraryEntryCreatePayload.fromTypedItem(
@@ -34,6 +36,7 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     return BookLibraryEntryCreatePayload(
       details: BookEntryDetailsCodec().draftFromDetails(item.personal.details),
       condition: item.personal.condition,
+      quantity: item.personal.quantity,
       marketValueCents: item.personal.marketValueCents,
       sellPriceCents: item.personal.sellPriceCents,
       soldAt: item.personal.soldAt,
@@ -71,6 +74,8 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
   @override
   final bool? isDigital;
   final List<String> tags;
+  final int? indexNumber;
+  final int quantity;
 
   BookLibraryEntry toLibraryEntry({
     required String id,
@@ -111,6 +116,8 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
         purchaseStore: purchaseStore,
         collectionStatus: collectionStatus,
         tags: tags,
+        indexNumber: indexNumber,
+        quantity: quantity,
         ownerUserId: ownerUserId,
         ownerLabel: this.ownerLabel ?? ownerLabel,
       ),

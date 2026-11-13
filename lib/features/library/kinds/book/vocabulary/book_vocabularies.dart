@@ -23,6 +23,9 @@ abstract final class BookVocabularyIds {
   static const extras = VocabularyId<String>('book.extras');
   static const subject = VocabularyId<String>('book.subject');
   static const country = VocabularyId<String>('book.country');
+  static const reader = VocabularyId<String>('book.reader');
+  static const series = VocabularyId<String>('book.series');
+  static const edition = VocabularyId<String>('book.edition');
 }
 
 abstract final class BookVocabularies {
@@ -84,6 +87,14 @@ abstract final class BookVocabularies {
                 publicationPlace: replace(item.metadata.publicationPlace),
                 originalPublicationPlace:
                     replace(item.metadata.originalPublicationPlace)));
+      case 'series':
+        return item.copyWith(
+            metadata: item.metadata
+                .copyWith(seriesTitle: replace(item.metadata.seriesTitle)));
+      case 'edition':
+        return item.copyWith(
+            metadata: item.metadata.copyWith(
+                editionStatement: replace(item.metadata.editionStatement)));
       case 'box_set':
         return item.copyWith(
             metadata:
@@ -140,6 +151,15 @@ abstract final class BookVocabularies {
             ),
           ),
         );
+      case 'reader':
+        return item.copyWith(
+          personal: item.personal.copyWith(
+            details: item.personal.details.copyWith(readEvents: [
+              for (final event in item.personal.details.readEvents)
+                event.copyWith(reader: replace(event.reader)),
+            ]),
+          ),
+        );
       case 'signed_by':
         return item.copyWith(
           personal: item.personal.copyWith(
@@ -181,6 +201,12 @@ abstract final class BookVocabularies {
     }
     if (semanticName == 'signed_by') {
       yield item.personal.details.signedBy;
+    }
+    if (semanticName == 'reader') {
+      for (final event in item.personal.details.readEvents) {
+        yield event.reader;
+      }
+      return;
     }
     for (final vocabulary in all) {
       if (vocabulary.key.split('.').last == semanticName) {
@@ -318,6 +344,18 @@ abstract final class BookVocabularies {
       label: 'Extras',
       valuesFrom:
           TypedVocabularyProjector<BookCatalogMetadata>(_extrasCatalogValues));
+  static const series = VocabularyDefinition<String>(
+      id: BookVocabularyIds.series,
+      label: 'Series',
+      valuesFrom:
+          TypedVocabularyProjector<BookCatalogMetadata>(_seriesCatalogValues));
+  static const edition = VocabularyDefinition<String>(
+      id: BookVocabularyIds.edition,
+      label: 'Edition',
+      valuesFrom:
+          TypedVocabularyProjector<BookCatalogMetadata>(_editionCatalogValues));
+  static const reader = VocabularyDefinition<String>(
+      id: BookVocabularyIds.reader, label: 'Reader');
   static const all = <VocabularyDefinition<dynamic>>[
     publisher,
     format,
@@ -332,6 +370,9 @@ abstract final class BookVocabularies {
     genre,
     subject,
     country,
+    series,
+    edition,
+    reader,
   ];
 }
 
@@ -361,6 +402,12 @@ Iterable<String?> _subjectCatalogValues(BookCatalogMetadata metadata) =>
     metadata.subjects;
 Iterable<String?> _countryCatalogValues(BookCatalogMetadata metadata) =>
     [metadata.country, metadata.originalCountry];
+
+Iterable<String?> _seriesCatalogValues(BookCatalogMetadata metadata) =>
+    [metadata.seriesTitle];
+
+Iterable<String?> _editionCatalogValues(BookCatalogMetadata metadata) =>
+    [metadata.editionStatement];
 
 Iterable<String?> _boxSetCatalogValues(BookCatalogMetadata metadata) =>
     [metadata.boxSet];

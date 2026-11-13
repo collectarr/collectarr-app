@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dial
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/manual_pane_shell.dart';
+import 'package:collectarr_app/features/library/add/panes/status_strip.dart';
 import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/schema.dart';
@@ -150,8 +151,22 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           validateSchema: validateSchema,
         );
 
+    void updateCopy(BookAddDraft value) {
+      request.onKindDraftChanged?.call(value);
+      setState(() {});
+    }
+
     return LibraryAddManualPaneShell(
       request: request,
+      footerContent: LibraryAddStatusStrip(
+        request: request,
+        indexValue: copyDraft.indexNumber,
+        quantity: copyDraft.quantity,
+        onIndexChanged: (value) =>
+            updateCopy(copyDraft.copyWith(indexNumber: value)),
+        onQuantityChanged: (value) =>
+            updateCopy(copyDraft.copyWith(quantity: value)),
+      ),
       tabOrder: const [
         'main',
         'details',
@@ -199,10 +214,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
             layoutBuilder: bookPersonalFormLayout,
             fieldOverrides: {
               'rating': BookManualRatingField(request: request),
-              ...bookManualCopyFields(copyDraft, (value) {
-                request.onKindDraftChanged?.call(value);
-                setState(() {});
-              }),
+              ...bookManualCopyFields(copyDraft, updateCopy),
             },
           ),
         ),
@@ -210,7 +222,13 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           id: 'read_history',
           label: 'Read History',
           icon: AppIcons.bookReader,
-          content: BookManualReadHistory(request: request),
+          content: BookManualReadHistory(
+            request: request,
+            events: copyDraft.readEvents,
+            pageCount: draft.values.pageCount,
+            onEventsChanged: (events) =>
+                updateCopy(copyDraft.copyWith(readEvents: events)),
+          ),
         ),
         LibraryAddManualPaneTab(
           id: 'value',
@@ -225,10 +243,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
               'purchase_store'
             },
             layoutBuilder: bookValueFormLayout,
-            fieldOverrides: bookManualValueFields(copyDraft, (value) {
-              request.onKindDraftChanged?.call(value);
-              setState(() {});
-            }),
+            fieldOverrides: bookManualValueFields(copyDraft, updateCopy),
           ),
         ),
         schemaTab(

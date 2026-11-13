@@ -89,26 +89,30 @@ List<LibraryFieldSpec<TDraft>> bookPublicationFields<TDraft>(
               values(draft).printingNumber = value?.toInt()),
       LibraryNumberFieldSpec<TDraft>(
           id: 'width_mm',
-          label: 'Width (mm)',
+          label: 'Width',
+          unit: 'mm',
           minimum: 0,
           value: (draft) => values(draft).widthMm?.toDouble(),
           setValue: (draft, value) => values(draft).widthMm = value?.toInt()),
       LibraryNumberFieldSpec<TDraft>(
           id: 'height_mm',
-          label: 'Height (mm)',
+          label: 'Height',
+          unit: 'mm',
           minimum: 0,
           value: (draft) => values(draft).heightMm?.toDouble(),
           setValue: (draft, value) => values(draft).heightMm = value?.toInt()),
       LibraryNumberFieldSpec<TDraft>(
           id: 'spine_thickness_mm',
-          label: 'Spine Thickness (mm)',
+          label: 'Spine Thickness',
+          unit: 'mm',
           minimum: 0,
           value: (draft) => values(draft).spineThicknessMm?.toDouble(),
           setValue: (draft, value) =>
               values(draft).spineThicknessMm = value?.toInt()),
       LibraryNumberFieldSpec<TDraft>(
           id: 'weight_grams',
-          label: 'Weight (g)',
+          label: 'Weight',
+          unit: 'g',
           minimum: 0,
           value: (draft) => values(draft).weightGrams?.toDouble(),
           setValue: (draft, value) =>

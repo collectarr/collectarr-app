@@ -6,11 +6,35 @@ import 'configuration.dart';
 import '../data/book_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
-final bookKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+final bookKindPersonalFieldContributor = LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.book,
   fields: [
-    ...commonPersonalLibraryFields,
-    PersonalLibraryFieldSpec(
+    for (final field in commonPersonalLibraryFields)
+      relabelPersonalLibraryField(
+          field,
+          const {
+                'collection_status': 'Collection Status',
+                'condition': 'Book Condition',
+                'market_value_cents': 'My Value',
+                'price_paid_cents': 'Purchase Price',
+                'purchase_store': 'Purchase Store',
+                'purchase_date': 'Purchase Date',
+                'personal_notes': 'Notes',
+                'rating': 'My Rating',
+                'owner_label': 'Owner',
+              }[field.key] ??
+              field.label),
+    const PersonalLibraryFieldSpec(
+        key: 'quantity',
+        label: 'Quantity',
+        group: 'Collection state',
+        syncable: true,
+        inputKind: PersonalLibraryFieldEditor.integer,
+        area: PersonalLibraryFieldArea.statusStrip,
+        editOrder: 2,
+        minimum: 0,
+        defaultInteger: 1),
+    const PersonalLibraryFieldSpec(
       key: 'signed_by',
       label: 'Signed by',
       group: 'Collection details',

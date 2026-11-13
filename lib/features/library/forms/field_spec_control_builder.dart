@@ -224,7 +224,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         },
       );
     }
-    return LibraryTextFormControl(
+    final control = LibraryTextFormControl(
       controller: controller,
       focusNode: _focusNode(field.id),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -239,6 +239,29 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         onChanged?.call();
       },
     );
+    final unit = field.unit;
+    if (unit == null) return control;
+    final palette = appPalette(context);
+    // The reference's unit addon: a 34 px box inside the field's end.
+    return Stack(children: [
+      control,
+      Positioned(
+        top: 1,
+        right: 1,
+        child: IgnorePointer(
+          child: Container(
+            width: 34,
+            height: LibraryMetrics.defaultFieldHeight - 2,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(color: palette.divider)),
+            ),
+            child: Text(unit,
+                style: TextStyle(color: palette.textMuted, fontSize: 12)),
+          ),
+        ),
+      ),
+    ]);
   }
 
   @override

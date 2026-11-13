@@ -20,6 +20,7 @@ final class BookEntryDetailsCodec {
         retailPriceCents: details.retailPriceCents,
         dustJacketPresent: details.dustJacketPresent,
         dustJacketCondition: details.dustJacketCondition,
+        readEvents: details.readEvents,
       );
 
   BookEntryDetailsDraft defaultDraft() => const BookEntryDetailsDraft();

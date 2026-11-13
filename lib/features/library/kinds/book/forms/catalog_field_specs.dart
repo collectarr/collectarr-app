@@ -65,11 +65,13 @@ List<LibraryFieldSpec<TDraft>> bookPublicationHistoryFields<TDraft>({
   Set<String>? include,
 }) =>
     [
-      LibraryTextFieldSpec<TDraft>(
+      _vocabulary<TDraft>(
         id: 'original_language',
         label: 'Language',
         value: (draft) => values(draft).originalLanguage,
         setValue: (draft, value) => values(draft).originalLanguage = value,
+        options: BookVocabularies.language.builtIns,
+        pickListKey: BookVocabularyIds.language.value,
       ),
       LibraryDateFieldSpec<TDraft>(
         id: 'first_publication_date',
@@ -213,11 +215,13 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         value: (draft) => values(draft).releaseStatus,
         setValue: (draft, value) => values(draft).releaseStatus = value,
       ),
-      LibraryTextFieldSpec<TDraft>(
+      _vocabulary<TDraft>(
         id: 'edition_statement',
         label: 'Edition',
         value: (draft) => values(draft).editionStatement,
         setValue: (draft, value) => values(draft).editionStatement = value,
+        options: const [],
+        pickListKey: BookVocabularyIds.edition.value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'dimensions',
@@ -232,11 +236,13 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         setValue: (draft, value) => values(draft).description = value,
         maxLines: 4,
       ),
-      LibraryTextFieldSpec<TDraft>(
+      _vocabulary<TDraft>(
         id: BookFieldIdentities.seriesId,
         label: BookFieldIdentities.seriesLabel,
         value: (draft) => values(draft).seriesTitle,
         setValue: (draft, value) => values(draft).seriesTitle = value,
+        options: const [],
+        pickListKey: BookVocabularyIds.series.value,
       ),
       LibraryCustomFieldSpec<TDraft>(
           id: 'first_edition',
