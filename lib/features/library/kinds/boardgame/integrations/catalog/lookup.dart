@@ -56,9 +56,10 @@ final class BoardGameCatalogLookup implements CatalogKindLookup {
 
   Future<List<CatalogItemDto>> _items() async {
     final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
+    // Each title is decoded once, not on every comparison of the sort.
+    final titles = {for (final item in items) item.id: _metadata(item).title};
     return items
-      ..sort((left, right) =>
-          _metadata(left).title.compareTo(_metadata(right).title));
+      ..sort((left, right) => titles[left.id]!.compareTo(titles[right.id]!));
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {

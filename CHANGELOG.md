@@ -27,6 +27,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Barcode and title lookups for Games stay fast with a large catalog cache.
 - Typing in the search box filters large libraries faster after the first keystroke.
 - Changing the search, filters or sort order no longer rebuilds every item's view.
 - Sorting by text allocates less on large libraries.
