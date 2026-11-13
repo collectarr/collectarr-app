@@ -26,51 +26,21 @@ abstract final class BookVocabularyIds {
 }
 
 abstract final class BookVocabularies {
-  static Future<List<String>> entryOptions(
-      LocalDatabase db, String semanticName) async {
-    return [
-      for (final item in await BookEntryRepository(db).listActive())
-        ..._entryValues(item, semanticName)
-            .whereType<String>()
-            .where((value) => value.trim().isNotEmpty)
-    ];
-  }
+  static const entries = PickListEntryValues<BookLibraryEntry>(
+    listActive: _listActive,
+    idFrom: _entryId,
+    valuesFrom: _entryValues,
+    replaceValue: _replaceEntryValue,
+    save: _save,
+  );
 
-  static Future<Map<String, int>> entryUsageCounts(
-          LocalDatabase db, String semanticName) =>
-      countPickListEntryUsages(
-          items: BookEntryRepository(db).listActive(),
-          valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<List<BookLibraryEntry>> _listActive(LocalDatabase db) =>
+      BookEntryRepository(db).listActive();
 
-  static Future<PickListEntryMergeResult> previewEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-  ) {
-    return previewPickListEntryMerge(
-      items: BookEntryRepository(db).listActive(),
-      idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      normalizedSourceValues: normalizedSourceValues,
-    );
-  }
+  static String _entryId(BookLibraryEntry item) => item.id.value;
 
-  static Future<void> applyEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-    String targetValue,
-  ) {
-    return applyPickListEntryMerge(
-      items: BookEntryRepository(db).listActive(),
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      replaceValue: (item, sources, target) =>
-          _replaceEntryValue(item, semanticName, sources, target),
-      save: BookEntryRepository(db).upsert,
-      normalizedSourceValues: normalizedSourceValues,
-      targetValue: targetValue,
-    );
-  }
+  static Future<void> _save(LocalDatabase db, BookLibraryEntry item) =>
+      BookEntryRepository(db).upsert(item);
 
   static BookLibraryEntry _replaceEntryValue(
     BookLibraryEntry item,

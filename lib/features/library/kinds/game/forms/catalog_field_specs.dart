@@ -160,8 +160,8 @@ LibraryCustomFieldSpec<TDraft> _names<TDraft>({
           label: definition.label ?? '',
           listName: definition.key,
           mediaKind: 'game',
-          loadOptions: (db) =>
-              GameVocabularies.entryOptions(db, definition.key.split('.').last),
+          loadOptions: (db) => GameVocabularies.entries
+              .options(db, definition.key.split('.').last),
           values: [
             for (final (index, name) in names.indexed)
               LibraryNamedValue(id: '$id-$index', name: name),

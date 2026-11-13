@@ -38,51 +38,21 @@ abstract final class GameHardwareVocabularies {
     hardwareType,
     condition
   ];
-  static Future<List<String>> entryOptions(
-      LocalDatabase db, String semanticName) async {
-    return [
-      for (final item in await GameHardwareEntryRepository(db).listActive())
-        ..._entryValues(item, semanticName)
-            .whereType<String>()
-            .where((value) => value.trim().isNotEmpty)
-    ];
-  }
+  static const entries = PickListEntryValues<GameHardwareLibraryEntry>(
+    listActive: _listActive,
+    idFrom: _entryId,
+    valuesFrom: _entryValues,
+    replaceValue: _replaceEntryValue,
+    save: _save,
+  );
 
-  static Future<Map<String, int>> entryUsageCounts(
-          LocalDatabase db, String semanticName) =>
-      countPickListEntryUsages(
-          items: GameHardwareEntryRepository(db).listActive(),
-          valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<List<GameHardwareLibraryEntry>> _listActive(LocalDatabase db) =>
+      GameHardwareEntryRepository(db).listActive();
 
-  static Future<PickListEntryMergeResult> previewEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-  ) {
-    return previewPickListEntryMerge(
-      items: GameHardwareEntryRepository(db).listActive(),
-      idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      normalizedSourceValues: normalizedSourceValues,
-    );
-  }
+  static String _entryId(GameHardwareLibraryEntry item) => item.id.value;
 
-  static Future<void> applyEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-    String targetValue,
-  ) {
-    return applyPickListEntryMerge(
-      items: GameHardwareEntryRepository(db).listActive(),
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      replaceValue: (item, sources, target) =>
-          _replaceEntryValue(item, semanticName, sources, target),
-      save: GameHardwareEntryRepository(db).upsert,
-      normalizedSourceValues: normalizedSourceValues,
-      targetValue: targetValue,
-    );
-  }
+  static Future<void> _save(LocalDatabase db, GameHardwareLibraryEntry item) =>
+      GameHardwareEntryRepository(db).upsert(item);
 
   static GameHardwareLibraryEntry _replaceEntryValue(
     GameHardwareLibraryEntry item,

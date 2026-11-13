@@ -25,51 +25,21 @@ abstract final class ComicVocabularyIds {
 }
 
 abstract final class ComicVocabularies {
-  static Future<List<String>> entryOptions(
-      LocalDatabase db, String semanticName) async {
-    return [
-      for (final item in await ComicEntryRepository(db).listActive())
-        ..._entryValues(item, semanticName)
-            .whereType<String>()
-            .where((value) => value.trim().isNotEmpty)
-    ];
-  }
+  static const entries = PickListEntryValues<ComicLibraryEntry>(
+    listActive: _listActive,
+    idFrom: _entryId,
+    valuesFrom: _entryValues,
+    replaceValue: _replaceEntryValue,
+    save: _save,
+  );
 
-  static Future<Map<String, int>> entryUsageCounts(
-          LocalDatabase db, String semanticName) =>
-      countPickListEntryUsages(
-          items: ComicEntryRepository(db).listActive(),
-          valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<List<ComicLibraryEntry>> _listActive(LocalDatabase db) =>
+      ComicEntryRepository(db).listActive();
 
-  static Future<PickListEntryMergeResult> previewEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-  ) {
-    return previewPickListEntryMerge(
-      items: ComicEntryRepository(db).listActive(),
-      idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      normalizedSourceValues: normalizedSourceValues,
-    );
-  }
+  static String _entryId(ComicLibraryEntry item) => item.id.value;
 
-  static Future<void> applyEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-    String targetValue,
-  ) {
-    return applyPickListEntryMerge(
-      items: ComicEntryRepository(db).listActive(),
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      replaceValue: (item, sources, target) =>
-          _replaceEntryValue(item, semanticName, sources, target),
-      save: ComicEntryRepository(db).upsert,
-      normalizedSourceValues: normalizedSourceValues,
-      targetValue: targetValue,
-    );
-  }
+  static Future<void> _save(LocalDatabase db, ComicLibraryEntry item) =>
+      ComicEntryRepository(db).upsert(item);
 
   static ComicLibraryEntry _replaceEntryValue(
     ComicLibraryEntry item,

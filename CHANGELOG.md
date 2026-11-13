@@ -83,6 +83,7 @@
 - The details panel stays on its loading screen until label images, logos and added images are in.
 
 ### Refactors
+- Kinds share one implementation for counting and merging pick-list values on entries.
 - Kind catalog codecs share their pick-list counts, replacement values and derived data capture.
 - Kinds with plain retail barcodes share one barcode resolver.
 - Library modules use explicit shared contracts without unused default implementations.

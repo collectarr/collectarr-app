@@ -99,21 +99,21 @@ abstract final class MusicVocabularies {
     }
   }
 
-  static Future<List<String>> entryOptions(
-      LocalDatabase db, String semanticName) async {
-    return [
-      for (final item in await MusicEntryRepository(db).listActive())
-        ..._entryValues(item, semanticName)
-            .whereType<String>()
-            .where((value) => value.trim().isNotEmpty)
-    ];
-  }
+  static const entries = PickListEntryValues<MusicLibraryEntry>(
+    listActive: _listActive,
+    idFrom: _entryId,
+    valuesFrom: _entryValues,
+    replaceValue: _replaceEntryValue,
+    save: _save,
+  );
 
-  static Future<Map<String, int>> entryUsageCounts(
-          LocalDatabase db, String semanticName) =>
-      countPickListEntryUsages(
-          items: MusicEntryRepository(db).listActive(),
-          valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<List<MusicLibraryEntry>> _listActive(LocalDatabase db) =>
+      MusicEntryRepository(db).listActive();
+
+  static String _entryId(MusicLibraryEntry item) => item.id.value;
+
+  static Future<void> _save(LocalDatabase db, MusicLibraryEntry item) =>
+      MusicEntryRepository(db).upsert(item);
 
   static Future<void> updateSortName(LocalDatabase db, String semanticName,
       String value, String? sortName) async {
@@ -166,36 +166,6 @@ abstract final class MusicVocabularies {
           LibraryEntryRef(
               kind: CatalogMediaKind.music, id: LibraryEntryId(item.id.value)));
     }
-  }
-
-  static Future<PickListEntryMergeResult> previewEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-  ) {
-    return previewPickListEntryMerge(
-      items: MusicEntryRepository(db).listActive(),
-      idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      normalizedSourceValues: normalizedSourceValues,
-    );
-  }
-
-  static Future<void> applyEntryMerge(
-    LocalDatabase db,
-    String semanticName,
-    Set<String> normalizedSourceValues,
-    String targetValue,
-  ) {
-    return applyPickListEntryMerge(
-      items: MusicEntryRepository(db).listActive(),
-      valuesFrom: (item) => _entryValues(item, semanticName),
-      replaceValue: (item, sources, target) =>
-          _replaceEntryValue(item, semanticName, sources, target),
-      save: MusicEntryRepository(db).upsert,
-      normalizedSourceValues: normalizedSourceValues,
-      targetValue: targetValue,
-    );
   }
 
   static MusicLibraryEntry _replaceEntryValue(

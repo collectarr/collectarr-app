@@ -4,19 +4,6 @@ import 'package:collectarr_app/features/pick_lists/models/pick_list_definition.d
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 
-typedef PickListEntryMergePreviewer = Future<PickListEntryMergeResult> Function(
-  LocalDatabase db,
-  String semanticName,
-  Set<String> normalizedSourceValues,
-);
-
-typedef PickListEntryMerger = Future<void> Function(
-  LocalDatabase db,
-  String semanticName,
-  Set<String> normalizedSourceValues,
-  String targetValue,
-);
-
 final class PickListEntryMergeResult {
   const PickListEntryMergeResult({
     required this.affectedCount,
@@ -27,68 +14,92 @@ final class PickListEntryMergeResult {
   final List<String> sampleValues;
 }
 
-Future<Map<String, int>> countPickListEntryUsages<T>({
-  required Future<List<T>> items,
-  required Iterable<String?> Function(T item) valuesFrom,
-}) async {
-  final counts = <String, int>{};
-  for (final item in await items) {
-    final values = valuesFrom(item)
-        .whereType<String>()
-        .map(normalizePickListValue)
-        .where((value) => value.isNotEmpty)
-        .toSet();
-    for (final value in values) {
-      counts[value] = (counts[value] ?? 0) + 1;
+/// How one kind reads and rewrites the pick-list values kept on its entries.
+final class PickListEntryValues<T> {
+  const PickListEntryValues({
+    required this.listActive,
+    required this.idFrom,
+    required this.valuesFrom,
+    required this.replaceValue,
+    required this.save,
+  });
+
+  final Future<List<T>> Function(LocalDatabase db) listActive;
+  final String Function(T item) idFrom;
+  final Iterable<String?> Function(T item, String semanticName) valuesFrom;
+  final T Function(
+    T item,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) replaceValue;
+  final Future<void> Function(LocalDatabase db, T item) save;
+
+  Future<List<String>> options(LocalDatabase db, String semanticName) async => [
+        for (final item in await listActive(db))
+          ...valuesFrom(item, semanticName)
+              .whereType<String>()
+              .where((value) => value.trim().isNotEmpty),
+      ];
+
+  /// Each entry counts once per value, however often it repeats the value.
+  Future<Map<String, int>> usageCounts(
+    LocalDatabase db,
+    String semanticName,
+  ) async {
+    final counts = <String, int>{};
+    for (final item in await listActive(db)) {
+      final values = valuesFrom(item, semanticName)
+          .whereType<String>()
+          .map(normalizePickListValue)
+          .where((value) => value.isNotEmpty)
+          .toSet();
+      for (final value in values) {
+        counts[value] = (counts[value] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }
+
+  Future<PickListEntryMergeResult> previewMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+  ) async {
+    var affectedCount = 0;
+    final sampleValues = <String>[];
+    for (final item in await listActive(db)) {
+      if (!_uses(item, semanticName, normalizedSourceValues)) continue;
+      affectedCount++;
+      if (sampleValues.length < 5) sampleValues.add(idFrom(item));
+    }
+    return PickListEntryMergeResult(
+      affectedCount: affectedCount,
+      sampleValues: sampleValues,
+    );
+  }
+
+  Future<void> applyMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) async {
+    for (final item in await listActive(db)) {
+      if (!_uses(item, semanticName, normalizedSourceValues)) continue;
+      await save(
+        db,
+        replaceValue(item, semanticName, normalizedSourceValues, targetValue),
+      );
     }
   }
-  return counts;
-}
 
-Future<PickListEntryMergeResult> previewPickListEntryMerge<T>({
-  required Future<List<T>> items,
-  required String Function(T item) idFrom,
-  required Iterable<String?> Function(T item) valuesFrom,
-  required Set<String> normalizedSourceValues,
-}) async {
-  var affectedCount = 0;
-  final sampleValues = <String>[];
-  for (final item in await items) {
-    final matches = valuesFrom(item).any(
-      (value) =>
-          value != null &&
-          normalizedSourceValues.contains(normalizePickListValue(value)),
-    );
-    if (!matches) continue;
-    affectedCount++;
-    if (sampleValues.length < 5) sampleValues.add(idFrom(item));
-  }
-  return PickListEntryMergeResult(
-    affectedCount: affectedCount,
-    sampleValues: sampleValues,
-  );
-}
-
-Future<void> applyPickListEntryMerge<T>({
-  required Future<List<T>> items,
-  required Iterable<String?> Function(T item) valuesFrom,
-  required T Function(
-          T item, Set<String> normalizedSourceValues, String targetValue)
-      replaceValue,
-  required Future<void> Function(T item) save,
-  required Set<String> normalizedSourceValues,
-  required String targetValue,
-}) async {
-  for (final item in await items) {
-    final matches = valuesFrom(item).any(
-      (value) =>
-          value != null &&
-          normalizedSourceValues.contains(normalizePickListValue(value)),
-    );
-    if (matches) {
-      await save(replaceValue(item, normalizedSourceValues, targetValue));
-    }
-  }
+  bool _uses(T item, String semanticName, Set<String> normalizedValues) =>
+      valuesFrom(item, semanticName).any(
+        (value) =>
+            value != null &&
+            normalizedValues.contains(normalizePickListValue(value)),
+      );
 }
 
 String? replacePickListDelimitedValue(
@@ -218,11 +229,8 @@ final class VocabularyPickListDefinitionContributor
   const VocabularyPickListDefinitionContributor({
     required this.kind,
     required this.vocabularies,
-    required this.entryOptionLoader,
-    required this.entryUsageCounter,
+    required this.entries,
     this.entrySortNameUpdater,
-    required this.entryMergePreviewer,
-    required this.entryMerger,
   });
 
   @override
@@ -230,37 +238,33 @@ final class VocabularyPickListDefinitionContributor
 
   final List<VocabularyDefinition<dynamic>> vocabularies;
 
-  final Future<List<String>> Function(LocalDatabase db, String semanticName)
-      entryOptionLoader;
+  final PickListEntryValues<Object?> entries;
+
+  final Future<void> Function(LocalDatabase db, String semanticName,
+      String value, String? sortName)? entrySortNameUpdater;
 
   @override
   Future<List<String>> entryOptions(LocalDatabase db, String semanticName) =>
-      entryOptionLoader(db, semanticName);
-  final Future<Map<String, int>> Function(LocalDatabase db, String semanticName)
-      entryUsageCounter;
-  final Future<void> Function(LocalDatabase db, String semanticName,
-      String value, String? sortName)? entrySortNameUpdater;
+      entries.options(db, semanticName);
+
   @override
   Future<Map<String, int>> entryUsageCounts(
           LocalDatabase db, String semanticName) =>
-      entryUsageCounter(db, semanticName);
+      entries.usageCounts(db, semanticName);
+
   @override
   Future<void> updateSortName(LocalDatabase db, String semanticName,
       String value, String? sortName) async {
     await entrySortNameUpdater?.call(db, semanticName, value, sortName);
   }
 
-  final PickListEntryMergePreviewer entryMergePreviewer;
-  final PickListEntryMerger entryMerger;
-
   @override
   Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
-  ) {
-    return entryMergePreviewer(db, semanticName, normalizedSourceValues);
-  }
+  ) =>
+      entries.previewMerge(db, semanticName, normalizedSourceValues);
 
   @override
   Future<void> applyEntryMerge(
@@ -268,9 +272,8 @@ final class VocabularyPickListDefinitionContributor
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
-  ) {
-    return entryMerger(db, semanticName, normalizedSourceValues, targetValue);
-  }
+  ) =>
+      entries.applyMerge(db, semanticName, normalizedSourceValues, targetValue);
 
   @override
   Iterable<PickListDefinition> get definitions => [
