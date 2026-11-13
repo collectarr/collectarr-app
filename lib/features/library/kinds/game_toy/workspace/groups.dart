@@ -81,7 +81,7 @@ Object? _groupValue(GameToyGroupingField field,
             })
         .toList(),
     GameToyGroupingField.releaseDate => release?.isoString,
-    GameToyGroupingField.releaseMonth => _monthLabel(release),
+    GameToyGroupingField.releaseMonth => monthFolderLabel(release),
     GameToyGroupingField.releaseYear => release?.year,
     GameToyGroupingField.series => metadata.seriesTitle,
     GameToyGroupingField.toySubtype => metadata.toySubtype,
@@ -89,20 +89,20 @@ Object? _groupValue(GameToyGroupingField field,
     GameToyGroupingField.completeness => personal?.details.completeness.label,
     GameToyGroupingField.condition => personal?.condition,
     GameToyGroupingField.purchaseDate => purchase?.isoString,
-    GameToyGroupingField.purchaseMonth => _monthLabel(purchase),
+    GameToyGroupingField.purchaseMonth => monthFolderLabel(purchase),
     GameToyGroupingField.purchaseStore => personal?.purchaseStore,
     GameToyGroupingField.purchaseYear => purchase?.year,
     GameToyGroupingField.valueLocked =>
       personal == null ? null : _yesNo(personal.details.valueIsLocked == true),
     GameToyGroupingField.addedDate => added?.isoString,
-    GameToyGroupingField.addedMonth => _monthLabel(added),
+    GameToyGroupingField.addedMonth => monthFolderLabel(added),
     GameToyGroupingField.addedYear => added?.year,
     GameToyGroupingField.collectionStatus => personal == null
         ? null
         : libraryCollectionStatusFromValue(personal.collectionStatus).label,
     GameToyGroupingField.location => context.personal.locationPath,
     GameToyGroupingField.modifiedDate => modified?.isoString,
-    GameToyGroupingField.modifiedMonth => _monthLabel(modified),
+    GameToyGroupingField.modifiedMonth => monthFolderLabel(modified),
     GameToyGroupingField.rating => personal?.rating,
     GameToyGroupingField.owner => personal?.ownerLabel,
     GameToyGroupingField.tags => personal?.tags ?? const <String>[],
@@ -124,22 +124,3 @@ String _imageType(String value) =>
 PartialDate? _parts(DateTime? date) =>
     date == null ? null : PartialDate.fromDateTime(date);
 String _yesNo(bool value) => value ? 'Yes' : 'No';
-String? _monthLabel(PartialDate? date) {
-  final month = date?.month;
-  if (month == null) return null;
-  const names = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
-  return '${month.toString().padLeft(2, '0')} - ${names[month - 1]}';
-}

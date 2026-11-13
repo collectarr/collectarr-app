@@ -84,7 +84,7 @@ Object? _groupValue(GameHardwareGroupingField field,
             })
         .toList(),
     GameHardwareGroupingField.releaseDate => release?.isoString,
-    GameHardwareGroupingField.releaseMonth => _monthLabel(release),
+    GameHardwareGroupingField.releaseMonth => monthFolderLabel(release),
     GameHardwareGroupingField.releaseYear => release?.year,
     GameHardwareGroupingField.series => metadata.seriesTitle,
     GameHardwareGroupingField.platform => metadata.platform,
@@ -93,20 +93,20 @@ Object? _groupValue(GameHardwareGroupingField field,
       personal?.details.completeness?.label,
     GameHardwareGroupingField.condition => personal?.condition,
     GameHardwareGroupingField.purchaseDate => purchase?.isoString,
-    GameHardwareGroupingField.purchaseMonth => _monthLabel(purchase),
+    GameHardwareGroupingField.purchaseMonth => monthFolderLabel(purchase),
     GameHardwareGroupingField.purchaseStore => personal?.purchaseStore,
     GameHardwareGroupingField.purchaseYear => purchase?.year,
     GameHardwareGroupingField.valueLocked =>
       personal == null ? null : _yesNo(personal.details.valueIsLocked == true),
     GameHardwareGroupingField.addedDate => added?.isoString,
-    GameHardwareGroupingField.addedMonth => _monthLabel(added),
+    GameHardwareGroupingField.addedMonth => monthFolderLabel(added),
     GameHardwareGroupingField.addedYear => added?.year,
     GameHardwareGroupingField.collectionStatus => personal == null
         ? null
         : libraryCollectionStatusFromValue(personal.collectionStatus).label,
     GameHardwareGroupingField.location => context.personal.locationPath,
     GameHardwareGroupingField.modifiedDate => modified?.isoString,
-    GameHardwareGroupingField.modifiedMonth => _monthLabel(modified),
+    GameHardwareGroupingField.modifiedMonth => monthFolderLabel(modified),
     GameHardwareGroupingField.rating => personal?.rating,
     GameHardwareGroupingField.owner => personal?.ownerLabel,
     GameHardwareGroupingField.tags => personal?.tags ?? const <String>[],
@@ -128,22 +128,3 @@ String _imageType(String value) =>
 PartialDate? _parts(DateTime? date) =>
     date == null ? null : PartialDate.fromDateTime(date);
 String _yesNo(bool value) => value ? 'Yes' : 'No';
-String? _monthLabel(PartialDate? date) {
-  final month = date?.month;
-  if (month == null) return null;
-  const names = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
-  return '${month.toString().padLeft(2, '0')} - ${names[month - 1]}';
-}

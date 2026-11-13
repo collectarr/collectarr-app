@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/field_identities.dart';
@@ -215,7 +216,7 @@ final boardgameCatalogItemWorkspaceColumnDefinitions = [
       defaultWidth: 150),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
     BoardGameCatalogItemWorkspaceFields.releaseDate,
-    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
+    cellValue: (context) => Text(formatIsoDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
@@ -281,10 +282,3 @@ final boardgameCatalogItemWorkspaceSchema =
   defaultSort: BoardGameSortIds.title,
   defaultGroup: BoardGameGroupIds.bestPlayers,
 );
-
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}

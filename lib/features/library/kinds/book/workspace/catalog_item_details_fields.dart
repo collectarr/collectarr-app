@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
@@ -111,7 +112,7 @@ final bookCatalogItemDetailsWorkspaceColumnDefinitions = [
       defaultWidth: 140),
   columnFromField<BookKind, BookWorkspaceDto, DateTime?>(
     BookCatalogItemDetailsWorkspaceFields.releaseDate,
-    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
+    cellValue: (context) => Text(formatIsoDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
@@ -132,10 +133,3 @@ final bookCatalogItemDetailsWorkspaceColumnDefinitions = [
     defaultWidth: 110,
   ),
 ];
-
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}

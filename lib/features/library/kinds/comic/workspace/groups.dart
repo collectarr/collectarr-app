@@ -178,7 +178,7 @@ Object? _groupValue(
     ComicGroupingField.imprint => comic.imprint,
     ComicGroupingField.language => comic.language,
     ComicGroupingField.releaseDate => release?.isoString,
-    ComicGroupingField.releaseMonth => _monthLabel(release),
+    ComicGroupingField.releaseMonth => monthFolderLabel(release),
     ComicGroupingField.releaseYear => release?.year,
     ComicGroupingField.seriesGroup => comic.seriesGroup,
     ComicGroupingField.storyArc =>
@@ -195,17 +195,17 @@ Object? _groupValue(
     ComicGroupingField.labelType => details?.labelType,
     ComicGroupingField.pageQuality => details?.pageQuality,
     ComicGroupingField.purchaseDate => purchase?.isoString,
-    ComicGroupingField.purchaseMonth => _monthLabel(purchase),
+    ComicGroupingField.purchaseMonth => monthFolderLabel(purchase),
     ComicGroupingField.purchaseStore => personal?.purchaseStore,
     ComicGroupingField.purchaseYear => purchase?.year,
     ComicGroupingField.rawOrSlabbed => details?.rawOrSlabbed,
     ComicGroupingField.signedBy =>
       details?.signedBy?.split(',') ?? const <String>[],
     ComicGroupingField.soldDate => sold?.isoString,
-    ComicGroupingField.soldMonth => _monthLabel(sold),
+    ComicGroupingField.soldMonth => monthFolderLabel(sold),
     ComicGroupingField.soldYear => sold?.year,
     ComicGroupingField.coverDate => cover?.isoString,
-    ComicGroupingField.coverMonth => _monthLabel(cover),
+    ComicGroupingField.coverMonth => monthFolderLabel(cover),
     ComicGroupingField.coverYear => cover?.year,
     ComicGroupingField.format => dto.format,
     ComicGroupingField.allCreators =>
@@ -215,22 +215,22 @@ Object? _groupValue(
         .whereType<String>()
         .toSet(),
     ComicGroupingField.addedDate => added?.isoString,
-    ComicGroupingField.addedMonth => _monthLabel(added),
+    ComicGroupingField.addedMonth => monthFolderLabel(added),
     ComicGroupingField.addedYear => added?.year,
     ComicGroupingField.bagBoardDate => bagBoard?.isoString,
-    ComicGroupingField.bagBoardMonth => _monthLabel(bagBoard),
+    ComicGroupingField.bagBoardMonth => monthFolderLabel(bagBoard),
     ComicGroupingField.bagBoardYear => bagBoard?.year,
     ComicGroupingField.collectionStatus => personal == null
         ? null
         : libraryCollectionStatusFromValue(personal.collectionStatus).label,
     ComicGroupingField.modifiedDate => modified?.isoString,
-    ComicGroupingField.modifiedMonth => _monthLabel(modified),
+    ComicGroupingField.modifiedMonth => monthFolderLabel(modified),
     ComicGroupingField.rating => personal?.reading.rating,
     ComicGroupingField.owner => personal?.ownerLabel,
     ComicGroupingField.read =>
       personal == null ? null : _yesNo(personal.reading.status == 'Read'),
     ComicGroupingField.readDate => read?.isoString,
-    ComicGroupingField.readMonth => _monthLabel(read),
+    ComicGroupingField.readMonth => monthFolderLabel(read),
     ComicGroupingField.readYear => read?.year,
     ComicGroupingField.tags => personal?.tags ?? const <String>[],
     _ => throw ArgumentError.value(field, 'field', 'Defined by the schema.'),
@@ -275,23 +275,3 @@ PartialDate? _parts(DateTime? value) =>
     value == null ? null : PartialDate.fromDateTime(value);
 
 String _yesNo(bool value) => value ? 'Yes' : 'No';
-
-String? _monthLabel(PartialDate? value) {
-  final month = value?.month;
-  if (month == null) return null;
-  const names = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-  return '${month.toString().padLeft(2, '0')} - ${names[month - 1]}';
-}

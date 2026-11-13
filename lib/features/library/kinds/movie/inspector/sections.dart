@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/chrome.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
@@ -51,7 +52,7 @@ List<Widget> _buildMovieEntitySections(
       LibraryDetailField(label: 'Studio', value: movieDto!.publisher!),
     if (adapter?.releaseDate != null)
       LibraryDetailField(
-          label: 'Release Date', value: _formatDate(adapter!.releaseDate!)),
+          label: 'Release Date', value: formatIsoDate(adapter!.releaseDate!)),
     if (movieDto?.barcode?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Barcode', value: movieDto!.barcode!),
     if (adapter?.country?.trim().isNotEmpty == true)
@@ -188,11 +189,4 @@ class _MovieInspectorPanel extends StatelessWidget {
       ],
     );
   }
-}
-
-String _formatDate(DateTime value) {
-  final y = value.year.toString().padLeft(4, '0');
-  final m = value.month.toString().padLeft(2, '0');
-  final d = value.day.toString().padLeft(2, '0');
-  return '$y-$m-$d';
 }

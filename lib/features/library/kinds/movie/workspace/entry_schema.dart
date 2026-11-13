@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
@@ -154,7 +155,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
     id: MovieFieldIds.updatedAt,
     metadata: MovieWorkspaceFieldMetadata.updatedAt,
     getValue: MovieLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.updatedAt)),
+    cellValue: (context) => Text(formatIsoDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -162,7 +163,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
     id: MovieFieldIds.addedAt,
     metadata: MovieWorkspaceFieldMetadata.addedAt,
     getValue: MovieLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.addedAt)),
+    cellValue: (context) => Text(formatIsoDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -206,13 +207,6 @@ final movieLibraryEntryWorkspaceSchema =
   defaultSort: MovieSortIds.status,
   defaultGroup: MovieGroupIds.condition,
 );
-
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
 
 String _formatCents(int? cents, String? currency) {
   if (cents == null) return '';

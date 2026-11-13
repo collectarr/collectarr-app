@@ -126,7 +126,7 @@ Object? _groupValue(
     GameGroupingField.platform => metadata.platforms.firstOrNull,
     GameGroupingField.publisher => splitGamePublishers(metadata.publisher),
     GameGroupingField.releaseDate => release?.isoString,
-    GameGroupingField.releaseMonth => _monthLabel(release),
+    GameGroupingField.releaseMonth => monthFolderLabel(release),
     GameGroupingField.releaseYear => release?.year,
     GameGroupingField.series => metadata.seriesTitle,
     GameGroupingField.completeness => gameCompletenessOptions
@@ -135,7 +135,7 @@ Object? _groupValue(
         ?.$2,
     GameGroupingField.condition => personal?.condition,
     GameGroupingField.purchaseDate => purchase?.isoString,
-    GameGroupingField.purchaseMonth => _monthLabel(purchase),
+    GameGroupingField.purchaseMonth => monthFolderLabel(purchase),
     GameGroupingField.purchaseStore => personal?.purchaseStore,
     GameGroupingField.purchaseYear => purchase?.year,
     GameGroupingField.valueLocked =>
@@ -145,7 +145,7 @@ Object? _groupValue(
       metadata.physicalFormatLabel ?? metadata.physicalFormat,
     GameGroupingField.region => metadata.releaseRegion,
     GameGroupingField.addedDate => added?.isoString,
-    GameGroupingField.addedMonth => _monthLabel(added),
+    GameGroupingField.addedMonth => monthFolderLabel(added),
     GameGroupingField.addedYear => added?.year,
     GameGroupingField.collectionStatus => personal == null
         ? null
@@ -153,11 +153,11 @@ Object? _groupValue(
     GameGroupingField.completed =>
       personal == null ? null : _yesNo(personal.details.completed == true),
     GameGroupingField.completedDate => completed?.isoString,
-    GameGroupingField.completedMonth => _monthLabel(completed),
+    GameGroupingField.completedMonth => monthFolderLabel(completed),
     GameGroupingField.completedYear => completed?.year,
     GameGroupingField.location => context.personal.locationPath,
     GameGroupingField.modifiedDate => modified?.isoString,
-    GameGroupingField.modifiedMonth => _monthLabel(modified),
+    GameGroupingField.modifiedMonth => monthFolderLabel(modified),
     GameGroupingField.rating => personal?.rating,
     GameGroupingField.owner => personal?.ownerLabel,
     GameGroupingField.storageDevice => personal?.details.storageDevice,
@@ -188,23 +188,3 @@ PartialDate? _parts(DateTime? value) =>
     value == null ? null : PartialDate.fromDateTime(value);
 
 String _yesNo(bool value) => value ? 'Yes' : 'No';
-
-String? _monthLabel(PartialDate? value) {
-  final month = value?.month;
-  if (month == null) return null;
-  const names = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-  return '${month.toString().padLeft(2, '0')} - ${names[month - 1]}';
-}

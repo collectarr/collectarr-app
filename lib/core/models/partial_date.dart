@@ -108,3 +108,26 @@ int? _int(Object? value) {
   if (value is num) return value.toInt();
   return int.tryParse(value?.toString().trim() ?? '');
 }
+
+const _monthNames = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+/// The date's month as a folder label that sorts in calendar order, such as
+/// "03 - March".
+String? monthFolderLabel(PartialDate? date) {
+  final month = date?.month;
+  if (month == null) return null;
+  return '${month.toString().padLeft(2, '0')} - ${_monthNames[month - 1]}';
+}

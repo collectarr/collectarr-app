@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -56,7 +57,7 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
         LibraryDetailField(label: 'Play count', value: playCount.toString()),
       if (lastPlayed != null)
         LibraryDetailField(
-            label: 'Last played', value: _formatDate(lastPlayed)),
+            label: 'Last played', value: formatIsoDate(lastPlayed)),
       if (sessionStats?.averageDurationMinutes != null)
         LibraryDetailField(
           label: 'Average duration',
@@ -159,11 +160,4 @@ String _playtimeLabel(BoardGameWorkspaceDto dto) {
     return '$minMinutes–$maxMinutes min';
   }
   return '${minMinutes ?? maxMinutes} min';
-}
-
-String _formatDate(DateTime value) {
-  final y = value.year.toString().padLeft(4, '0');
-  final m = value.month.toString().padLeft(2, '0');
-  final d = value.day.toString().padLeft(2, '0');
-  return '$y-$m-$d';
 }

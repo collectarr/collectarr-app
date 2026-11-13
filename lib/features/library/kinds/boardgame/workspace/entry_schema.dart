@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
@@ -152,7 +153,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
     id: BoardGameFieldIds.updatedAt,
     metadata: BoardGameWorkspaceFieldMetadata.updatedAt,
     getValue: BoardGameLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.updatedAt)),
+    cellValue: (context) => Text(formatIsoDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -160,7 +161,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
     id: BoardGameFieldIds.addedAt,
     metadata: BoardGameWorkspaceFieldMetadata.addedAt,
     getValue: BoardGameLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.addedAt)),
+    cellValue: (context) => Text(formatIsoDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -207,13 +208,6 @@ final boardgameLibraryEntryWorkspaceSchema =
   defaultSort: BoardGameSortIds.status,
   defaultGroup: BoardGameGroupIds.condition,
 );
-
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
 
 String _formatCents(int? cents, String? currency) {
   if (cents == null) return '';
