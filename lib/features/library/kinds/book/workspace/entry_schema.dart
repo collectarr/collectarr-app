@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/utils/text_utils.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/catalog_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
@@ -160,17 +161,6 @@ final bookLibraryEntryWorkspaceSortDefinitions = [
   ),
 ];
 
-final bookLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
-  BookFieldIds.status,
-  BookFieldIds.readStatus,
-  BookFieldIds.rating,
-  BookFieldIds.condition,
-  BookFieldIds.pricePaid,
-  BookFieldIds.location,
-  BookFieldIds.wishlist,
-  BookFieldIds.updatedAt,
-};
-
 final bookLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.status,
@@ -236,7 +226,10 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<BookKind, BookWorkspaceDto, DateTime?>(
     BookLibraryEntryWorkspaceFields.addedAt,
-    cellValue: (context) => Text(formatIsoDate(context.addedAt)),
+    cellValue: (context) => Text(switch (context.addedAt) {
+      final added? => AppFormats.current.formatDate(added),
+      null => '',
+    }),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -244,7 +237,8 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
     id: BookFieldIds.updatedAt,
     metadata: BookWorkspaceFieldMetadata.updatedAt,
     getValue: BookLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(formatIsoDate(context.updatedAt)),
+    cellValue: (context) =>
+        Text(AppFormats.current.formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -253,17 +247,34 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
 final bookLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<BookKind, BookWorkspaceDto>(
   kindNamespace: 'book',
+  // Collection items carry their catalog fields, as in Games: the table
+  // resolves columns from this registry alone.
   fields: [
+    ...bookCatalogWorkspaceFields,
     ...bookLibraryEntryWorkspaceFieldDefinitions,
     ...bookSmartListFacetFields,
   ],
-  columns: bookLibraryEntryWorkspaceColumnDefinitions,
-  sorts: bookLibraryEntryWorkspaceSortDefinitions,
-  groups: bookLibraryEntryWorkspaceGroupDefinitions,
-  primaryColumn: BookFieldIds.status,
-  defaultVisibleColumns: bookLibraryEntryWorkspaceDefaultVisibleColumns,
-  defaultSort: BookSortIds.status,
-  defaultGroup: BookGroupIds.condition,
+  columns: [
+    ...bookCatalogWorkspaceColumns,
+    ...bookLibraryEntryWorkspaceColumnDefinitions,
+  ],
+  sorts: [
+    ...bookCatalogWorkspaceSorts,
+    ...bookLibraryEntryWorkspaceSortDefinitions,
+  ],
+  groups: [
+    ...bookCatalogWorkspaceGroups,
+    ...bookLibraryEntryWorkspaceGroupDefinitions,
+  ],
+  primaryColumn: BookFieldIds.title,
+  defaultVisibleColumns: {
+    ...bookWorkspaceDefaultColumnOrder,
+    BookFieldIds.addedAt,
+  },
+  // Reference defaults: Author folders, sorted by Author then Title.
+  defaultSort: BookSortIds.author,
+  defaultThenSort: BookSortIds.title,
+  defaultGroup: BookGroupIds.author,
 );
 
 String _formatCents(int? cents, String? currency) {

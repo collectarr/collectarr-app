@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/utils/text_utils.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
@@ -99,37 +99,38 @@ final bookCatalogItemDetailsWorkspaceSortDefinitions = [
     ),
 ];
 
-final bookCatalogItemDetailsWorkspaceDefaultVisibleColumns =
-    <LibraryFieldIdRuntime>{
-  BookFieldIds.publisher,
-  BookFieldIds.releaseDate,
-  BookFieldIds.isbn,
-};
-
 final bookCatalogItemDetailsWorkspaceColumnDefinitions = [
   columnFromField<BookKind, BookWorkspaceDto, String?>(
       BookCatalogItemDetailsWorkspaceFields.publisher,
-      defaultWidth: 140),
+      defaultWidth: 150),
   columnFromField<BookKind, BookWorkspaceDto, DateTime?>(
     BookCatalogItemDetailsWorkspaceFields.releaseDate,
-    cellValue: (context) => Text(formatIsoDate(context.dto.releaseDate)),
-    defaultWidth: 118,
+    cellValue: (context) {
+      final parts = context.dto.metadata.releaseDateParts;
+      final date = context.dto.releaseDate;
+      return Text(parts != null
+          ? AppFormats.current.formatPartialDate(parts)
+          : date == null
+              ? ''
+              : AppFormats.current.formatDate(date));
+    },
+    defaultWidth: 110,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemDetailsWorkspaceFields.isbn,
     group: 'Details',
-    defaultWidth: 150,
+    defaultWidth: 130,
     maxWidth: 240,
   ),
   columnFromField<BookKind, BookWorkspaceDto, num?>(
     BookCatalogItemDetailsWorkspaceFields.pageCount,
     group: 'Details',
     isNumeric: true,
-    defaultWidth: 90,
+    defaultWidth: 55,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemDetailsWorkspaceFields.format,
     group: 'Details',
-    defaultWidth: 110,
+    defaultWidth: 120,
   ),
 ];

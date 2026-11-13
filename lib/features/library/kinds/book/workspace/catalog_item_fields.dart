@@ -116,12 +116,6 @@ final bookCatalogItemWorkspaceSortDefinitions = [
     sortFromField<BookKind, BookWorkspaceDto, String>(field),
 ];
 
-final bookCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
-  BookFieldIds.cover,
-  BookFieldIds.author,
-  BookFieldIds.title,
-};
-
 final bookCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.cover,
@@ -142,10 +136,10 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
       BookCatalogItemWorkspaceFields.author,
-      defaultWidth: 150),
+      defaultWidth: 250),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
       BookCatalogItemWorkspaceFields.title,
-      defaultWidth: 260,
+      defaultWidth: 300,
       maxWidth: 520),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemWorkspaceFields.subtitle,
@@ -153,14 +147,14 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
     defaultWidth: 180,
   ),
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, Iterable<String>>(
-    id: const LibraryFieldId<BookKind, Iterable<String>>('book.genre'),
+    id: BookFieldIds.genre,
     metadata: BookWorkspaceFieldMetadata.genre,
     getValue: (context) => context.dto.metadata.genres,
     cellValue: (context) => Text(context.dto.metadata.genres.join(' | ')),
     group: 'Details',
     allowSortInteraction: false,
     allowGroupInteraction: false,
-    defaultWidth: 180,
+    defaultWidth: 225,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemWorkspaceFields.series,
