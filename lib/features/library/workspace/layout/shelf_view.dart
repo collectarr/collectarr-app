@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'reveal.dart';
 import 'shelf_backdrop.dart';
 
@@ -130,13 +131,15 @@ class _LibraryShelfViewState<T> extends ConsumerState<LibraryShelfView<T>>
             (i + booksPerShelf).clamp(0, items.length),
           ));
         }
-        _layout = (
-          booksPerShelf: booksPerShelf,
-          pitch: effectiveShelfHeight + 20,
-        );
+        final shelfPitch = effectiveShelfHeight + 20;
+        _layout = (booksPerShelf: booksPerShelf, pitch: shelfPitch);
         final listView = ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.only(bottom: 24),
+          itemExtent: shelfPitch,
+          // Covers on the shelves just past the edge are ready before they
+          // scroll in.
+          scrollCacheExtent: ScrollCacheExtent.pixels(shelfPitch * 2),
           itemCount: shelves.length,
           itemBuilder: (context, shelfIndex) {
             return _ShelfRow(
@@ -162,7 +165,7 @@ class _LibraryShelfViewState<T> extends ConsumerState<LibraryShelfView<T>>
         );
         return LibraryShelfBackdrop(
           style: style,
-          shelfPitch: effectiveShelfHeight + 20,
+          shelfPitch: shelfPitch,
           color: backgroundColor ?? style.background,
           child: listView,
         );
