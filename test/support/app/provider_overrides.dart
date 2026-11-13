@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
+import 'package:collectarr_app/features/settings/backups/automatic_backup_store_stub.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -29,6 +31,10 @@ List<Override> testAppOverrides({
       authControllerProvider.overrideWith(AuthenticatedAuthFake.new),
       syncControllerProvider.overrideWith(NoOpSyncFake.new),
       mediaCatalogProvider.overrideWith((ref) async => fallbackMediaCatalog),
+      // The app backs up at startup; a test must not read or write the
+      // backups folder of the machine it runs on.
+      automaticBackupStoreProvider
+          .overrideWithValue(const UnsupportedAutomaticBackupStore()),
       if (api != null) apiClientProvider.overrideWithValue(api),
       if (stubEmptyCollections) ...[
         shelfProvider.overrideWith((ref) async => const ShelfState(
