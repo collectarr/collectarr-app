@@ -95,7 +95,7 @@ final bookCatalogItemDetailsWorkspaceSortDefinitions = [
   if (BookFieldIdentities.pageCount.sortable)
     sortFromField<BookKind, BookWorkspaceDto, num>(
       BookCatalogItemDetailsWorkspaceFields.pageCount,
-      group: 'Details',
+      group: 'Edition',
     ),
 ];
 
@@ -118,19 +118,19 @@ final bookCatalogItemDetailsWorkspaceColumnDefinitions = [
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemDetailsWorkspaceFields.isbn,
-    group: 'Details',
+    group: 'Edition',
     defaultWidth: 130,
     maxWidth: 240,
   ),
   columnFromField<BookKind, BookWorkspaceDto, num?>(
     BookCatalogItemDetailsWorkspaceFields.pageCount,
-    group: 'Details',
+    group: 'Edition',
     isNumeric: true,
     defaultWidth: 55,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemDetailsWorkspaceFields.format,
-    group: 'Details',
+    group: 'Edition',
     defaultWidth: 120,
   ),
 ];

@@ -1,10 +1,14 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/additional_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/catalog_item_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/catalog_item_details_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/facets.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
+import 'package:flutter/material.dart';
 
 /// The reference's List columns, in its order; Added Date follows them for
 /// collection items.
@@ -30,6 +34,7 @@ final bookCatalogWorkspaceColumns = () {
   final columns = [
     ...bookCatalogItemWorkspaceColumnDefinitions,
     ...bookCatalogItemDetailsWorkspaceColumnDefinitions,
+    for (final extra in _catalogExtras) extra.column,
   ];
   return [
     for (var r = 0; r <= bookWorkspaceDefaultColumnOrder.length; r++)
@@ -38,20 +43,49 @@ final bookCatalogWorkspaceColumns = () {
   ];
 }();
 
+/// The additional fields read from the catalog; the rest belong to the copy.
+final _catalogExtras = [
+  for (final extra in bookAdditionalWorkspaceFields)
+    if (extra.field.metadata.source == LibraryFieldSource.catalog) extra,
+];
+
 final bookCatalogWorkspaceFields = [
   ...bookCatalogItemWorkspaceFieldDefinitions,
   ...bookCatalogItemDetailsWorkspaceFieldDefinitions,
+  for (final extra in _catalogExtras) extra.field,
 ];
 
 final bookCatalogWorkspaceSorts = [
   ...bookCatalogItemWorkspaceSortDefinitions,
   ...bookCatalogItemDetailsWorkspaceSortDefinitions,
+  for (final extra in _catalogExtras) extra.sort,
 ];
 
-final bookCatalogWorkspaceGroups = [
+final bookCatalogWorkspaceGroups = bookWorkspaceGroupsWith([
   ...bookCatalogItemWorkspaceGroupDefinitions,
   ...bookCatalogItemDetailsWorkspaceGroupDefinitions,
-];
+], _catalogExtras);
+
+/// [groups] followed by a folder for each text field of [extras] that has
+/// none yet.
+List<LibraryGroupDefinition<BookKind, BookWorkspaceDto, dynamic>>
+    bookWorkspaceGroupsWith(
+  List<LibraryGroupDefinition<BookKind, BookWorkspaceDto, dynamic>> groups,
+  Iterable<BookAdditionalWorkspaceField> extras,
+) {
+  final taken = {for (final group in groups) group.id.value};
+  return [
+    ...groups,
+    for (final extra in extras)
+      if (extra.field.metadata.groupable && taken.add(extra.field.id.value))
+        groupFromField<BookKind, BookWorkspaceDto, String?>(
+          extra.field
+              as LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>,
+          sidebarTitle: extra.field.label,
+          icon: Icons.folder_outlined,
+        ),
+  ];
+}
 
 /// One Book Catalog Item combines the catalog fields formerly split across
 /// the Work and Edition workspace levels.

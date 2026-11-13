@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/additional_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/catalog_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/workspace_field_metadata.dart';
@@ -244,6 +246,12 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
   ),
 ];
 
+/// The additional fields that belong to the copy.
+final _personalExtras = [
+  for (final extra in bookAdditionalWorkspaceFields)
+    if (extra.field.metadata.source == LibraryFieldSource.libraryEntry) extra,
+];
+
 final bookLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<BookKind, BookWorkspaceDto>(
   kindNamespace: 'book',
@@ -252,20 +260,23 @@ final bookLibraryEntryWorkspaceSchema =
   fields: [
     ...bookCatalogWorkspaceFields,
     ...bookLibraryEntryWorkspaceFieldDefinitions,
+    for (final extra in _personalExtras) extra.field,
     ...bookSmartListFacetFields,
   ],
   columns: [
     ...bookCatalogWorkspaceColumns,
     ...bookLibraryEntryWorkspaceColumnDefinitions,
+    for (final extra in _personalExtras) extra.column,
   ],
   sorts: [
     ...bookCatalogWorkspaceSorts,
     ...bookLibraryEntryWorkspaceSortDefinitions,
+    for (final extra in _personalExtras) extra.sort,
   ],
-  groups: [
+  groups: bookWorkspaceGroupsWith([
     ...bookCatalogWorkspaceGroups,
     ...bookLibraryEntryWorkspaceGroupDefinitions,
-  ],
+  ], _personalExtras),
   primaryColumn: BookFieldIds.title,
   defaultVisibleColumns: {
     ...bookWorkspaceDefaultColumnOrder,

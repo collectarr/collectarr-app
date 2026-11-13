@@ -129,6 +129,7 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
+    group: 'Images',
     allowSortInteraction: false,
     allowGroupInteraction: false,
     defaultWidth: 42,
@@ -143,7 +144,6 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
       maxWidth: 520),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemWorkspaceFields.subtitle,
-    group: 'Details',
     defaultWidth: 180,
   ),
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, Iterable<String>>(
@@ -151,14 +151,13 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
     metadata: BookWorkspaceFieldMetadata.genre,
     getValue: (context) => context.dto.metadata.genres,
     cellValue: (context) => Text(context.dto.metadata.genres.join(' | ')),
-    group: 'Details',
+    group: 'Categorization',
     allowSortInteraction: false,
     allowGroupInteraction: false,
     defaultWidth: 225,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemWorkspaceFields.series,
-    group: 'Details',
     defaultWidth: 150,
   ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(

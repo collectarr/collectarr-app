@@ -961,6 +961,17 @@
             "book.format"
           ]
         },
+        "genre": {
+          "symbols": [
+            "genre"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.genre"
+          ]
+        },
         "id": {
           "symbols": [
             "id"
