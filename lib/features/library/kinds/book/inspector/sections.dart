@@ -211,7 +211,7 @@ List<LibraryDetailField> bookInspectorValueFields(BookLibraryEntry entry) {
     if (details.dustJacketPresent) ('Dust Jacket', 'Yes'),
     if (_has(details.dustJacketCondition))
       ('Dust Jacket Condition', details.dustJacketCondition!),
-    if (_has(details.signedBy)) ('Signed by', details.signedBy!),
+    if (details.signedBy.isNotEmpty) ('Signed by', details.signedBy.join(', ')),
   ];
   return [
     for (final (index, row) in rows.indexed)

@@ -82,9 +82,10 @@ final class BookMappedCsvImporter implements LibraryMappedCsvImporter {
       marketValueCents: row.money('value', 'My Value'),
       sellPriceCents: row.money('price_sold', 'Price Sold'),
       soldAt: row.date('sold_date', 'Sold Date')?.asDateTime,
-      details: BookEntryDetails(
-          signedBy: row.text('signed_by'),
-          retailPriceCents: row.money('retail_price', 'Retail Price')),
+      details: BookEntryDetails(signedBy: [
+        for (final name in (row.text('signed_by') ?? '').split(RegExp(r'[;,]')))
+          if (name.trim().isNotEmpty) name.trim(),
+      ], retailPriceCents: row.money('retail_price', 'Retail Price')),
     );
     return clzImportRow(
         kind: CatalogMediaKind.book,

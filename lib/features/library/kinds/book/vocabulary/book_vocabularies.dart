@@ -164,7 +164,11 @@ abstract final class BookVocabularies {
       case 'signed_by':
         return item.copyWith(
           personal: item.personal.copyWith(
-            details: item.personal.details.copyWith(signedBy: targetValue),
+            details: item.personal.details.copyWith(
+                signedBy: replacePickListValueInList(
+                    item.personal.details.signedBy,
+                    normalizedSourceValues,
+                    targetValue)),
           ),
         );
     }
@@ -201,7 +205,8 @@ abstract final class BookVocabularies {
       return;
     }
     if (semanticName == 'signed_by') {
-      yield item.personal.details.signedBy;
+      yield* item.personal.details.signedBy;
+      return;
     }
     if (semanticName == 'reader') {
       for (final event in item.personal.details.readEvents) {

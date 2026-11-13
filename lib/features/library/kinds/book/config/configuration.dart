@@ -77,11 +77,16 @@ final bookTransferableFields = <TransferableField>[
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.personal.details.signedBy,
+    read: (item) => item.personal.details.signedBy.isEmpty
+        ? null
+        : item.personal.details.signedBy.join(', '),
     write: (item, value) {
       return item.copyWith(
         personal: item.personal.copyWith(
-          details: item.personal.details.copyWith(signedBy: value),
+          details: item.personal.details.copyWith(signedBy: [
+            for (final name in (value ?? '').split(','))
+              if (name.trim().isNotEmpty) name.trim(),
+          ]),
         ),
       );
     },

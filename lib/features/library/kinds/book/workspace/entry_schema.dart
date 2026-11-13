@@ -90,7 +90,9 @@ abstract final class BookLibraryEntryWorkspaceFields {
     getValue: (context) {
       final entry = BookLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
-      return entry is BookLibraryEntry ? entry.personal.details.signedBy : null;
+      final names =
+          entry is BookLibraryEntry ? entry.personal.details.signedBy : null;
+      return names == null || names.isEmpty ? null : names.join(', ');
     },
   );
 }

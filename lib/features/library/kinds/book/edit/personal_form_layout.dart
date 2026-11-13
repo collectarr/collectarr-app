@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart
 import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/notes_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
+import '../forms/signed_by_field.dart';
 import '../vocabulary/book_vocabularies.dart';
 
 void _setDetail(LibraryEntryEditDraft draft, String key, Object? value) =>
@@ -75,13 +76,9 @@ Map<String, Widget> bookValueAdditionalFields(LibraryEntryEditDraft draft) => {
           date: DateTime.tryParse(draft.text('sold_at')),
           onDateChanged: (value) =>
               draft.set('sold_at', value?.toIso8601String())),
-      'signed_by': LibraryFormField(
-          label: 'Signed by',
-          child: LibraryTextFormControl(
-            initialValue: draft.values['signed_by'] as String? ?? '',
-            onChanged: (value) => _setDetail(
-                draft, 'signed_by', value.trim().isEmpty ? null : value.trim()),
-          )),
+      'signed_by': BookSignedByField(
+          names: draft.list('signed_by'),
+          onChanged: (names) => _setDetail(draft, 'signed_by', names)),
     };
 
 /// Reference Personal layout: owner, condition, dust jacket and tags on the

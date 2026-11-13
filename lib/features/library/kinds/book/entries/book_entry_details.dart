@@ -7,14 +7,15 @@ const Object _bookDetailsUnset = Object();
 @immutable
 class BookEntryDetails implements JsonEncodable {
   const BookEntryDetails({
-    this.signedBy,
+    this.signedBy = const [],
     this.dustJacketPresent = false,
     this.dustJacketCondition,
     this.retailPriceCents,
     this.readEvents = const [],
   });
 
-  final String? signedBy;
+  /// The people who signed this copy, in the order entered.
+  final List<String> signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
   final int? retailPriceCents;
@@ -23,7 +24,7 @@ class BookEntryDetails implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
         if (retailPriceCents != null) 'retail_price_cents': retailPriceCents,
-        if (signedBy != null) 'signed_by': signedBy,
+        if (signedBy.isNotEmpty) 'signed_by': signedBy,
         if (dustJacketPresent) 'dust_jacket_present': true,
         if (dustJacketCondition != null)
           'dust_jacket_condition': dustJacketCondition,
@@ -33,7 +34,10 @@ class BookEntryDetails implements JsonEncodable {
 
   factory BookEntryDetails.fromJson(Map<String, dynamic> json) =>
       BookEntryDetails(
-        signedBy: json['signed_by'] as String?,
+        signedBy: [
+          for (final name in json['signed_by'] as List? ?? const [])
+            name as String,
+        ],
         retailPriceCents: (json['retail_price_cents'] as num?)?.toInt(),
         dustJacketPresent: json['dust_jacket_present'] as bool? ?? false,
         dustJacketCondition: json['dust_jacket_condition'] as String?,
@@ -41,16 +45,14 @@ class BookEntryDetails implements JsonEncodable {
       );
 
   BookEntryDetails copyWith({
-    Object? signedBy = _bookDetailsUnset,
+    List<String>? signedBy,
     bool? dustJacketPresent,
     Object? dustJacketCondition = _bookDetailsUnset,
     Object? retailPriceCents = _bookDetailsUnset,
     List<BookReadEvent>? readEvents,
   }) {
     return BookEntryDetails(
-      signedBy: identical(signedBy, _bookDetailsUnset)
-          ? this.signedBy
-          : signedBy as String?,
+      signedBy: signedBy ?? this.signedBy,
       retailPriceCents: identical(retailPriceCents, _bookDetailsUnset)
           ? this.retailPriceCents
           : retailPriceCents as int?,
@@ -67,7 +69,7 @@ class BookEntryDetails implements JsonEncodable {
       identical(this, other) ||
       other is BookEntryDetails &&
           runtimeType == other.runtimeType &&
-          signedBy == other.signedBy &&
+          listEquals(signedBy, other.signedBy) &&
           retailPriceCents == other.retailPriceCents &&
           dustJacketPresent == other.dustJacketPresent &&
           dustJacketCondition == other.dustJacketCondition &&
@@ -75,7 +77,7 @@ class BookEntryDetails implements JsonEncodable {
 
   @override
   int get hashCode => Object.hash(
-        signedBy,
+        Object.hashAll(signedBy),
         retailPriceCents,
         dustJacketPresent,
         dustJacketCondition,

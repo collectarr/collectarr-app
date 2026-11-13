@@ -45,7 +45,7 @@ void main() {
     expect((catalog['creators'] as List).length, 2);
     expect(personal['condition'], 'Good');
     expect(personal['price_paid_cents'], 1250);
-    expect(personal['signed_by'], 'First');
+    expect(personal['signed_by'], ['First']);
   });
 
   test('Books CSV requires a title in each row', () {

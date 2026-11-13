@@ -81,7 +81,8 @@ List<String> validateBookSeedEntry(BookLibraryEntry item) {
   final issues = <String>[];
   final prefix = 'book/${item.id}';
   final details = item.personal.details;
-  seedRequireText(issues, prefix, 'book.signed_by', details.signedBy);
+  seedRequireText(
+      issues, prefix, 'book.signed_by', details.signedBy.firstOrNull);
   if (!details.dustJacketPresent) {
     issues.add('$prefix: book.dust_jacket_present must be true');
   }
@@ -748,7 +749,7 @@ List<BookLibraryEntry> bookSeedLibraryEntries(DateTime now) {
           isDigital: false,
           condition: 'Near Mint',
           details: BookEntryDetails(
-            signedBy: 'Facsimile author signature',
+            signedBy: const ['Facsimile author signature'],
             dustJacketPresent: true,
             dustJacketCondition: 'Fine',
           ),

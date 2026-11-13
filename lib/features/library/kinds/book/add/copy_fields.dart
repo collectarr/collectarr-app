@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/primitives/dropdown_pick_fiel
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import '../vocabulary/book_vocabularies.dart';
+import '../forms/signed_by_field.dart';
 import 'draft.dart';
 
 Map<String, Widget> bookManualCopyFields(
@@ -55,10 +56,7 @@ Map<String, Widget> bookManualValueFields(
           label: 'Sold Date',
           date: draft.soldAt,
           onDateChanged: (value) => onChanged(draft.copyWith(soldAt: value))),
-      'signed_by': LibraryFormField(
-          label: 'Signed by',
-          child: LibraryTextFormControl(
-              initialValue: draft.signedBy ?? '',
-              onChanged: (value) =>
-                  onChanged(draft.copyWith(signedBy: value)))),
+      'signed_by': BookSignedByField(
+          names: draft.signedBy,
+          onChanged: (names) => onChanged(draft.copyWith(signedBy: names))),
     };

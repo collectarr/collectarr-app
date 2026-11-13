@@ -4,14 +4,14 @@ import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_de
 
 class BookEntryDetailsDraft implements JsonEncodable {
   const BookEntryDetailsDraft({
-    this.signedBy,
+    this.signedBy = const [],
     this.dustJacketPresent = false,
     this.dustJacketCondition,
     this.retailPriceCents,
     this.readEvents = const [],
   });
 
-  final String? signedBy;
+  final List<String> signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
   final int? retailPriceCents;

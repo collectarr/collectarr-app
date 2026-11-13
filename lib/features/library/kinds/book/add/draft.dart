@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 final class BookAddDraft extends LibraryAddKindDraft {
   const BookAddDraft({
     this.grade,
-    this.signedBy,
+    this.signedBy = const [],
     this.dustJacketPresent = false,
     this.dustJacketCondition,
     this.retailPriceCents,
@@ -22,7 +22,7 @@ final class BookAddDraft extends LibraryAddKindDraft {
   });
 
   final String? grade;
-  final String? signedBy;
+  final List<String> signedBy;
   final bool dustJacketPresent;
   final String? dustJacketCondition;
   final int? retailPriceCents;
@@ -34,7 +34,7 @@ final class BookAddDraft extends LibraryAddKindDraft {
   final List<BookReadEvent> readEvents;
 
   BookAddDraft copyWith({
-    Object? signedBy = _bookAddUnset,
+    List<String>? signedBy,
     Object? retailPriceCents = _bookAddUnset,
     Object? marketValueCents = _bookAddUnset,
     Object? sellPriceCents = _bookAddUnset,
@@ -64,9 +64,7 @@ final class BookAddDraft extends LibraryAddKindDraft {
         retailPriceCents: identical(retailPriceCents, _bookAddUnset)
             ? this.retailPriceCents
             : retailPriceCents as int?,
-        signedBy: identical(signedBy, _bookAddUnset)
-            ? this.signedBy
-            : signedBy as String?,
+        signedBy: signedBy ?? this.signedBy,
         dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
         dustJacketCondition: identical(dustJacketCondition, _bookAddUnset)
             ? this.dustJacketCondition
