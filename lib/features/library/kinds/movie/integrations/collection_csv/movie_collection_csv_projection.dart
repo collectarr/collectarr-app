@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/csv/collection_csv_columns.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
@@ -107,7 +108,7 @@ final class MovieCollectionCsvProjection
       metadata?.physicalFormat ?? '',
       moviePhysicalMediaFormatLabel(metadata?.physicalFormat) ?? '',
       metadata?.studio ?? metadata?.publisher ?? '',
-      _formatDate(
+      formatCollectionCsvDate(
           metadata?.releaseDate ?? metadata?.releaseDateParts?.asDateTime),
       metadata?.barcode ?? '',
     ];
@@ -166,14 +167,6 @@ final class MovieCollectionCsvProjection
       collectionCsvV1EntryCellCount,
       '',
     );
-  }
-
-  String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    final utc = value.toUtc();
-    return '${utc.year.toString().padLeft(4, '0')}-'
-        '${utc.month.toString().padLeft(2, '0')}-'
-        '${utc.day.toString().padLeft(2, '0')}';
   }
 }
 

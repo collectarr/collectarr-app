@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/csv/collection_csv_columns.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
@@ -122,7 +123,7 @@ final class MusicCollectionCsvProjection
               .toSet()
               .join(', ') ??
           '',
-      _formatDate(
+      formatCollectionCsvDate(
         music?.originalReleaseDate ??
             release?.releaseDate ??
             music?.releaseDate,
@@ -184,14 +185,6 @@ final class MusicCollectionCsvProjection
       collectionCsvV1EntryCellCount,
       '',
     );
-  }
-
-  String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    final utc = value.toUtc();
-    return '${utc.year.toString().padLeft(4, '0')}-'
-        '${utc.month.toString().padLeft(2, '0')}-'
-        '${utc.day.toString().padLeft(2, '0')}';
   }
 }
 

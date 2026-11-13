@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/csv/collection_csv_columns.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 /// Book-entry aliases for the collection CSV boundary.
@@ -130,20 +131,20 @@ final class BookCollectionCsvImportProfile {
     required List<String> header,
     required List<String> values,
   }) {
-    final index = _headerIndex(header);
+    final index = collectionCsvHeaderIndex(header, columnAliases);
     if (!_isBookRow(index, header, values)) return null;
     return [
-      _value(index, values, 'item_id'),
-      _value(index, values, 'kind'),
-      _value(index, values, 'title'),
-      _value(index, values, 'item_number'),
-      _value(index, values, 'variant'),
-      _value(index, values, 'edition_title'),
-      _value(index, values, 'physical_format'),
-      _value(index, values, 'physical_format_label'),
-      _value(index, values, 'publisher'),
-      _value(index, values, 'release_date'),
-      _value(index, values, 'barcode'),
+      collectionCsvValue(index, values, 'item_id'),
+      collectionCsvValue(index, values, 'kind'),
+      collectionCsvValue(index, values, 'title'),
+      collectionCsvValue(index, values, 'item_number'),
+      collectionCsvValue(index, values, 'variant'),
+      collectionCsvValue(index, values, 'edition_title'),
+      collectionCsvValue(index, values, 'physical_format'),
+      collectionCsvValue(index, values, 'physical_format_label'),
+      collectionCsvValue(index, values, 'publisher'),
+      collectionCsvValue(index, values, 'release_date'),
+      collectionCsvValue(index, values, 'barcode'),
     ];
   }
 
@@ -151,10 +152,10 @@ final class BookCollectionCsvImportProfile {
     required List<String> header,
     required List<String> values,
   }) {
-    final index = _headerIndex(header);
+    final index = collectionCsvHeaderIndex(header, columnAliases);
     if (!_isBookRow(index, header, values)) return null;
     return [
-      _value(index, values, 'grade'),
+      collectionCsvValue(index, values, 'grade'),
       ...List<String>.filled(8, ''),
     ];
   }
@@ -164,59 +165,16 @@ final class BookCollectionCsvImportProfile {
     List<String> header,
     List<String> values,
   ) {
-    final kind = _optionalValue(index, values, 'kind')?.toLowerCase();
+    final kind =
+        collectionCsvOptionalValue(index, values, 'kind')?.toLowerCase();
     if (kind != null) {
       return catalogMediaKindFromValue(kind) == CatalogMediaKind.book;
     }
 
     // Accept kind-less exports only when the Book-specific ISBN label and
     // edition/binding label are both present.
-    final normalizedHeader = header.map(_normalizeColumn).toSet();
+    final normalizedHeader = header.map(normalizeCollectionCsvColumn).toSet();
     return normalizedHeader.contains('isbn_barcode') &&
         normalizedHeader.contains('edition_binding');
-  }
-
-  Map<String, int> _headerIndex(List<String> header) {
-    final index = <String, int>{};
-    for (var i = 0; i < header.length; i++) {
-      index[_canonicalColumn(header[i])] = i;
-    }
-    return index;
-  }
-
-  String _canonicalColumn(String value) {
-    final normalized = _normalizeColumn(value);
-    if (columnAliases.containsKey(normalized)) return normalized;
-    for (final entry in columnAliases.entries) {
-      if (entry.value.any(
-        (alias) => _normalizeColumn(alias) == normalized,
-      )) {
-        return entry.key;
-      }
-    }
-    return normalized;
-  }
-
-  String _value(Map<String, int> index, List<String> values, String column) {
-    final valueIndex = index[_normalizeColumn(column)];
-    if (valueIndex == null || valueIndex >= values.length) return '';
-    return values[valueIndex];
-  }
-
-  String? _optionalValue(
-    Map<String, int> index,
-    List<String> values,
-    String column,
-  ) {
-    final value = _value(index, values, column).trim();
-    return value.isEmpty ? null : value;
-  }
-
-  String _normalizeColumn(String value) {
-    return value
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-        .replaceAll(RegExp(r'^_+|_+$'), '');
   }
 }

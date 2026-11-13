@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/csv/collection_csv_columns.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 /// Typed Movie interpretation of the collection CSV boundary.
@@ -44,19 +45,11 @@ final class MovieCollectionCsvImportRow {
         physicalFormat ?? '',
         physicalFormatLabel ?? '',
         studio ?? '',
-        _formatDate(releaseDate),
+        formatCollectionCsvDate(releaseDate),
         barcode ?? '',
       ];
 
   List<String> get entryCells => [grade ?? '', ...List<String>.filled(8, '')];
-
-  static String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    final utc = value.toUtc();
-    return '${utc.year.toString().padLeft(4, '0')}-'
-        '${utc.month.toString().padLeft(2, '0')}-'
-        '${utc.day.toString().padLeft(2, '0')}';
-  }
 }
 
 /// Movie's CLZ labels and aliases for collection CSV import.
@@ -186,32 +179,26 @@ final class MovieCollectionCsvImportProfile {
     required List<String> header,
     required List<String> values,
   }) {
-    final index = _headerIndex(header);
+    final index = collectionCsvHeaderIndex(header, columnAliases);
     if (!_isMovieRow(index, header, values)) return null;
 
     return MovieCollectionCsvImportRow(
-      itemId: _value(index, values, 'item_id'),
-      kind: _optionalValue(index, values, 'kind'),
-      title: _optionalValue(index, values, 'title'),
-      itemNumber: _optionalValue(index, values, 'item_number'),
-      variant: _optionalValue(index, values, 'variant'),
-      editionTitle: _optionalValue(index, values, 'edition_title'),
-      physicalFormat: _optionalValue(index, values, 'physical_format'),
+      itemId: collectionCsvValue(index, values, 'item_id'),
+      kind: collectionCsvOptionalValue(index, values, 'kind'),
+      title: collectionCsvOptionalValue(index, values, 'title'),
+      itemNumber: collectionCsvOptionalValue(index, values, 'item_number'),
+      variant: collectionCsvOptionalValue(index, values, 'variant'),
+      editionTitle: collectionCsvOptionalValue(index, values, 'edition_title'),
+      physicalFormat:
+          collectionCsvOptionalValue(index, values, 'physical_format'),
       physicalFormatLabel:
-          _optionalValue(index, values, 'physical_format_label'),
-      studio: _optionalValue(index, values, 'publisher'),
-      releaseDate: _parseDate(_value(index, values, 'release_date')),
-      barcode: _optionalValue(index, values, 'barcode'),
-      grade: _optionalValue(index, values, 'grade'),
+          collectionCsvOptionalValue(index, values, 'physical_format_label'),
+      studio: collectionCsvOptionalValue(index, values, 'publisher'),
+      releaseDate:
+          _parseDate(collectionCsvValue(index, values, 'release_date')),
+      barcode: collectionCsvOptionalValue(index, values, 'barcode'),
+      grade: collectionCsvOptionalValue(index, values, 'grade'),
     );
-  }
-
-  Map<String, int> _headerIndex(List<String> header) {
-    final index = <String, int>{};
-    for (var i = 0; i < header.length; i++) {
-      index[_canonicalColumn(header[i])] = i;
-    }
-    return index;
   }
 
   bool _isMovieRow(
@@ -219,7 +206,8 @@ final class MovieCollectionCsvImportProfile {
     List<String> header,
     List<String> values,
   ) {
-    final kind = _optionalValue(index, values, 'kind')?.toLowerCase();
+    final kind =
+        collectionCsvOptionalValue(index, values, 'kind')?.toLowerCase();
     if (kind != null) {
       return catalogMediaKindFromValue(kind) == CatalogMediaKind.movie;
     }
@@ -227,37 +215,9 @@ final class MovieCollectionCsvImportProfile {
     // A kind-less CLZ export is accepted only when it carries Movie's
     // unambiguous Studio + UPC labels. Other rows are handled by another
     // kind-entry profile.
-    final normalizedHeader = header.map(_normalizeColumn).toSet();
+    final normalizedHeader = header.map(normalizeCollectionCsvColumn).toSet();
     return normalizedHeader.contains('studio') &&
         normalizedHeader.contains('upc_barcode');
-  }
-
-  String _canonicalColumn(String value) {
-    final normalized = _normalizeColumn(value);
-    if (columnAliases.containsKey(normalized)) return normalized;
-    for (final entry in columnAliases.entries) {
-      if (entry.value.any(
-        (alias) => _normalizeColumn(alias) == normalized,
-      )) {
-        return entry.key;
-      }
-    }
-    return normalized;
-  }
-
-  String _value(Map<String, int> index, List<String> values, String column) {
-    final valueIndex = index[_normalizeColumn(column)];
-    if (valueIndex == null || valueIndex >= values.length) return '';
-    return values[valueIndex];
-  }
-
-  String? _optionalValue(
-    Map<String, int> index,
-    List<String> values,
-    String column,
-  ) {
-    final value = _value(index, values, column).trim();
-    return value.isEmpty ? null : value;
   }
 
   DateTime? _parseDate(String value) {
@@ -285,13 +245,5 @@ final class MovieCollectionCsvImportProfile {
     return date.year == year && date.month == month && date.day == day
         ? date
         : null;
-  }
-
-  String _normalizeColumn(String value) {
-    return value
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-        .replaceAll(RegExp(r'^_+|_+$'), '');
   }
 }

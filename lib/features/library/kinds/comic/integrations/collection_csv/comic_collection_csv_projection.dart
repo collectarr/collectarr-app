@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/csv/collection_csv_columns.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
@@ -108,7 +109,7 @@ final class ComicCollectionCsvProjection
       comic?.physicalFormat ?? '',
       comic?.physicalFormat ?? '',
       comic?.publisher ?? '',
-      _formatDate(comic?.releaseDate ?? comic?.coverDate),
+      formatCollectionCsvDate(comic?.releaseDate ?? comic?.coverDate),
       comic?.barcode ?? '',
     ];
   }
@@ -199,14 +200,6 @@ final class ComicCollectionCsvProjection
       '1' || 'true' || 'yes' || 'y' => true,
       _ => false,
     };
-  }
-
-  String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    final utc = value.toUtc();
-    return '${utc.year.toString().padLeft(4, '0')}-'
-        '${utc.month.toString().padLeft(2, '0')}-'
-        '${utc.day.toString().padLeft(2, '0')}';
   }
 
   static const _columnAliases = ComicCollectionCsvImportProfile.columnAliases;

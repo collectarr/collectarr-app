@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/csv/collection_csv_columns.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
@@ -106,7 +107,7 @@ final class BoardGameCollectionCsvProjection
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.publishers.firstOrNull ?? '',
-      _formatDate(metadata?.releaseDate?.asDateTime ??
+      formatCollectionCsvDate(metadata?.releaseDate?.asDateTime ??
           metadata?.releaseDateParts?.asDateTime ??
           (metadata?.yearPublished == null
               ? null
@@ -168,14 +169,6 @@ final class BoardGameCollectionCsvProjection
       collectionCsvV1EntryCellCount,
       '',
     );
-  }
-
-  String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    final utc = value.toUtc();
-    return '${utc.year.toString().padLeft(4, '0')}-'
-        '${utc.month.toString().padLeft(2, '0')}-'
-        '${utc.day.toString().padLeft(2, '0')}';
   }
 }
 

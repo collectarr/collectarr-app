@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/collection/csv/collection_csv_columns.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 /// Typed Comic interpretation of a CSV row at the file boundary.
@@ -62,7 +63,7 @@ final class ComicCollectionCsvImportRow {
         physicalFormat ?? '',
         physicalFormatLabel ?? '',
         publisher ?? '',
-        _formatDate(releaseDate),
+        formatCollectionCsvDate(releaseDate),
         barcode ?? '',
       ];
 
@@ -78,14 +79,6 @@ final class ComicCollectionCsvImportRow {
         keyComic.toString(),
         keyReason ?? '',
       ];
-
-  static String _formatDate(DateTime? value) {
-    if (value == null) return '';
-    final utc = value.toUtc();
-    return '${utc.year.toString().padLeft(4, '0')}-'
-        '${utc.month.toString().padLeft(2, '0')}-'
-        '${utc.day.toString().padLeft(2, '0')}';
-  }
 }
 
 /// Comic's CLZ/CSV parser and semantic aliases.
@@ -249,49 +242,44 @@ final class ComicCollectionCsvImportProfile {
     required List<String> header,
     required List<String> values,
   }) {
-    final index = _headerIndex(header);
+    final index = collectionCsvHeaderIndex(header, columnAliases);
     if (!_isComicRow(index, header, values)) return null;
 
     return ComicCollectionCsvImportRow(
-      itemId: _value(index, values, 'item_id'),
+      itemId: collectionCsvValue(index, values, 'item_id'),
       // Comic-specific headers are sufficient to identify a CLZ row when
       // Media Type is omitted. Preserve that dispatch result in the
       // structural catalog cells so later import UI can select Comic rather
       // than falling back to an arbitrary kind.
-      kind: _optionalValue(index, values, 'kind') ??
+      kind: collectionCsvOptionalValue(index, values, 'kind') ??
           CatalogMediaKind.comic.apiValue,
-      title: _optionalValue(index, values, 'title'),
-      issueNumber: _optionalValue(index, values, 'item_number'),
-      variantDescription: _optionalValue(index, values, 'variant'),
-      editionTitle: _optionalValue(index, values, 'edition_title'),
-      physicalFormat: _optionalValue(index, values, 'physical_format'),
+      title: collectionCsvOptionalValue(index, values, 'title'),
+      issueNumber: collectionCsvOptionalValue(index, values, 'item_number'),
+      variantDescription: collectionCsvOptionalValue(index, values, 'variant'),
+      editionTitle: collectionCsvOptionalValue(index, values, 'edition_title'),
+      physicalFormat:
+          collectionCsvOptionalValue(index, values, 'physical_format'),
       physicalFormatLabel:
-          _optionalValue(index, values, 'physical_format_label'),
-      publisher: _optionalValue(index, values, 'publisher'),
-      releaseDate: _parseDate(_value(index, values, 'release_date')),
-      barcode: _optionalValue(index, values, 'barcode'),
-      grade: _optionalValue(index, values, 'grade'),
+          collectionCsvOptionalValue(index, values, 'physical_format_label'),
+      publisher: collectionCsvOptionalValue(index, values, 'publisher'),
+      releaseDate:
+          _parseDate(collectionCsvValue(index, values, 'release_date')),
+      barcode: collectionCsvOptionalValue(index, values, 'barcode'),
+      grade: collectionCsvOptionalValue(index, values, 'grade'),
       coverPriceCents: _moneyCents(
-        _value(index, values, 'cover_price_cents'),
+        collectionCsvValue(index, values, 'cover_price_cents'),
       ),
-      rawOrSlabbed: _optionalValue(index, values, 'raw_or_slabbed'),
-      gradingCompany: _optionalValue(index, values, 'grading_company'),
-      graderNotes: _optionalValue(index, values, 'grader_notes'),
-      signedBy: _optionalValue(index, values, 'signed_by'),
-      labelType: _optionalValue(index, values, 'label_type'),
+      rawOrSlabbed: collectionCsvOptionalValue(index, values, 'raw_or_slabbed'),
+      gradingCompany:
+          collectionCsvOptionalValue(index, values, 'grading_company'),
+      graderNotes: collectionCsvOptionalValue(index, values, 'grader_notes'),
+      signedBy: collectionCsvOptionalValue(index, values, 'signed_by'),
+      labelType: collectionCsvOptionalValue(index, values, 'label_type'),
       certificationNumber:
-          _optionalValue(index, values, 'certification_number'),
+          collectionCsvOptionalValue(index, values, 'certification_number'),
       keyComic: _boolValue(index, values, 'key_comic'),
-      keyReason: _optionalValue(index, values, 'key_reason'),
+      keyReason: collectionCsvOptionalValue(index, values, 'key_reason'),
     );
-  }
-
-  Map<String, int> _headerIndex(List<String> header) {
-    final index = <String, int>{};
-    for (var i = 0; i < header.length; i++) {
-      index[_canonicalColumn(header[i])] = i;
-    }
-    return index;
   }
 
   bool _isComicRow(
@@ -299,7 +287,8 @@ final class ComicCollectionCsvImportProfile {
     List<String> header,
     List<String> values,
   ) {
-    final kind = _optionalValue(index, values, 'kind')?.toLowerCase();
+    final kind =
+        collectionCsvOptionalValue(index, values, 'kind')?.toLowerCase();
     if (kind != null) {
       return catalogMediaKindFromValue(kind) == CatalogMediaKind.comic;
     }
@@ -322,40 +311,14 @@ final class ComicCollectionCsvImportProfile {
       'key_reason',
     };
     return header.any(
-      (column) => comicHeaderSignals.contains(_normalizeColumn(column)),
+      (column) =>
+          comicHeaderSignals.contains(normalizeCollectionCsvColumn(column)),
     );
   }
 
-  String _canonicalColumn(String value) {
-    final normalized = _normalizeColumn(value);
-    if (columnAliases.containsKey(normalized)) return normalized;
-    for (final entry in columnAliases.entries) {
-      if (entry.value.any(
-        (alias) => _normalizeColumn(alias) == normalized,
-      )) {
-        return entry.key;
-      }
-    }
-    return normalized;
-  }
-
-  String _value(Map<String, int> index, List<String> values, String column) {
-    final valueIndex = index[_normalizeColumn(column)];
-    if (valueIndex == null || valueIndex >= values.length) return '';
-    return values[valueIndex];
-  }
-
-  String? _optionalValue(
-    Map<String, int> index,
-    List<String> values,
-    String column,
-  ) {
-    final value = _value(index, values, column).trim();
-    return value.isEmpty ? null : value;
-  }
-
   bool _boolValue(Map<String, int> index, List<String> values, String column) {
-    return switch (_value(index, values, column).trim().toLowerCase()) {
+    return switch (
+        collectionCsvValue(index, values, column).trim().toLowerCase()) {
       '1' || 'true' || 'yes' || 'y' => true,
       _ => false,
     };
@@ -445,13 +408,5 @@ final class ComicCollectionCsvImportProfile {
       return null;
     }
     return date;
-  }
-
-  String _normalizeColumn(String value) {
-    return value
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-        .replaceAll(RegExp(r'^_+|_+$'), '');
   }
 }
