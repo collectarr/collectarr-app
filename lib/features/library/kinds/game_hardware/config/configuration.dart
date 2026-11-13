@@ -1,29 +1,7 @@
 import '../game_hardware_module_dependencies.dart';
 
-TransferableField gameHardwareTransferField({
-  required String key,
-  required String label,
-  required IconData icon,
-  required TransferableFieldType type,
-  required String? Function(GameHardwareLibraryEntry item) read,
-  required GameHardwareLibraryEntry Function(
-          GameHardwareLibraryEntry item, String? value)
-      write,
-}) {
-  return TransferableField.typed<GameHardwareLibraryEntry>(
-    key: key,
-    label: label,
-    icon: icon,
-    type: type,
-    decode: (value) => value as GameHardwareLibraryEntry,
-    read: read,
-    write: write,
-  );
-}
-
 final gameHardwareUniversalTransferableFields =
     TransferableField.universalForTyped<GameHardwareLibraryEntry>(
-  decode: (value) => value as GameHardwareLibraryEntry,
   readCondition: (item) => item.personal.condition,
   writeCondition: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(condition: value)),
@@ -73,7 +51,7 @@ final gameHardwareUniversalTransferableFields =
 );
 
 final gameHardwareTransferableFields = <TransferableField>[
-  gameHardwareTransferField(
+  TransferableField.typed<GameHardwareLibraryEntry>(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,

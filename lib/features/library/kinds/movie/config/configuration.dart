@@ -27,29 +27,8 @@ final movieAddChrome = LibraryAddChromeConfig(
   defaultKindFilters: {movieSearchScope},
 );
 
-TransferableField movieTransferField({
-  required String key,
-  required String label,
-  required IconData icon,
-  required TransferableFieldType type,
-  required String? Function(MovieLibraryEntry item) read,
-  required MovieLibraryEntry Function(MovieLibraryEntry item, String? value)
-      write,
-}) {
-  return TransferableField.typed<MovieLibraryEntry>(
-    key: key,
-    label: label,
-    icon: icon,
-    type: type,
-    decode: (value) => value as MovieLibraryEntry,
-    read: read,
-    write: write,
-  );
-}
-
 final movieUniversalTransferableFields =
     TransferableField.universalForTyped<MovieLibraryEntry>(
-  decode: (value) => value as MovieLibraryEntry,
   readCondition: (item) => item.personal.condition,
   writeCondition: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(condition: value)),
@@ -99,7 +78,7 @@ final movieUniversalTransferableFields =
 );
 
 final movieTransferableFields = <TransferableField>[
-  movieTransferField(
+  TransferableField.typed<MovieLibraryEntry>(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -108,7 +87,7 @@ final movieTransferableFields = <TransferableField>[
     write: (item, value) =>
         item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
-  movieTransferField(
+  TransferableField.typed<MovieLibraryEntry>(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
@@ -120,7 +99,7 @@ final movieTransferableFields = <TransferableField>[
               details: item.personal.details.copyWith(features: value)));
     },
   ),
-  movieTransferField(
+  TransferableField.typed<MovieLibraryEntry>(
     key: 'boxSetName',
     label: 'Box set name',
     icon: Icons.inventory_outlined,
@@ -132,7 +111,7 @@ final movieTransferableFields = <TransferableField>[
               details: item.personal.details.copyWith(boxSetName: value)));
     },
   ),
-  movieTransferField(
+  TransferableField.typed<MovieLibraryEntry>(
     key: 'packaging',
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,

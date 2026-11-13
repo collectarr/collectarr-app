@@ -88,6 +88,7 @@
 - The details panel stays on its loading screen until label images, logos and added images are in.
 
 ### Refactors
+- Kinds declare their Transfer Field Data fields without a per-kind wrapper.
 - Collection CSV import and export share their column matching and date formatting across kinds.
 - Kinds share one implementation for counting and merging pick-list values on entries.
 - Kind catalog codecs share their pick-list counts, replacement values and derived data capture.

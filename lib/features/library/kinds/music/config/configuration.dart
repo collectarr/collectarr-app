@@ -5,29 +5,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 export 'package:collectarr_app/features/library/kinds/music/workspace/facets.dart'
     show musicLibraryFacetModule, musicLibraryFacetDefinitions;
 
-TransferableField musicTransferField({
-  required String key,
-  required String label,
-  required IconData icon,
-  required TransferableFieldType type,
-  required String? Function(MusicLibraryEntry item) read,
-  required MusicLibraryEntry Function(MusicLibraryEntry item, String? value)
-      write,
-}) {
-  return TransferableField.typed<MusicLibraryEntry>(
-    key: key,
-    label: label,
-    icon: icon,
-    type: type,
-    decode: (value) => value as MusicLibraryEntry,
-    read: read,
-    write: write,
-  );
-}
-
 final musicUniversalTransferableFields =
     TransferableField.universalForTyped<MusicLibraryEntry>(
-  decode: (value) => value as MusicLibraryEntry,
   readCondition: (item) => item.personal.condition,
   writeCondition: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(condition: value)),
@@ -84,7 +63,7 @@ final musicUniversalTransferableFields =
 );
 
 final musicTransferableFields = <TransferableField>[
-  musicTransferField(
+  TransferableField.typed<MusicLibraryEntry>(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,

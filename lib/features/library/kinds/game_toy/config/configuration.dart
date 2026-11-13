@@ -1,28 +1,7 @@
 import '../game_toy_module_dependencies.dart';
 
-TransferableField gameToyTransferField({
-  required String key,
-  required String label,
-  required IconData icon,
-  required TransferableFieldType type,
-  required String? Function(GameToyLibraryEntry item) read,
-  required GameToyLibraryEntry Function(GameToyLibraryEntry item, String? value)
-      write,
-}) {
-  return TransferableField.typed<GameToyLibraryEntry>(
-    key: key,
-    label: label,
-    icon: icon,
-    type: type,
-    decode: (value) => value as GameToyLibraryEntry,
-    read: read,
-    write: write,
-  );
-}
-
 final gameToyUniversalTransferableFields =
     TransferableField.universalForTyped<GameToyLibraryEntry>(
-  decode: (value) => value as GameToyLibraryEntry,
   readCondition: (item) => item.personal.condition,
   writeCondition: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(condition: value)),
@@ -72,7 +51,7 @@ final gameToyUniversalTransferableFields =
 );
 
 final gameToyTransferableFields = <TransferableField>[
-  gameToyTransferField(
+  TransferableField.typed<GameToyLibraryEntry>(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,

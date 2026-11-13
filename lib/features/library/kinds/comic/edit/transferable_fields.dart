@@ -27,7 +27,6 @@ final class ComicTransferableField {
       label: label,
       icon: icon,
       type: type,
-      decode: (value) => value as ComicLibraryEntry,
       read: read,
       write: write,
     );

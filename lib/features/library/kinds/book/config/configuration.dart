@@ -6,29 +6,8 @@ const bookIsbnFilterId = LibraryAddFilterId('book.isbn');
 const bookPublisherFilterId = LibraryAddFilterId('book.publisher');
 const bookYearFilterId = LibraryAddFilterId('book.year');
 
-TransferableField bookTransferField({
-  required String key,
-  required String label,
-  required IconData icon,
-  required TransferableFieldType type,
-  required String? Function(BookLibraryEntry item) read,
-  required BookLibraryEntry Function(BookLibraryEntry item, String? value)
-      write,
-}) {
-  return TransferableField.typed<BookLibraryEntry>(
-    key: key,
-    label: label,
-    icon: icon,
-    type: type,
-    decode: (value) => value as BookLibraryEntry,
-    read: read,
-    write: write,
-  );
-}
-
 final bookUniversalTransferableFields =
     TransferableField.universalForTyped<BookLibraryEntry>(
-  decode: (value) => value as BookLibraryEntry,
   readCondition: (item) => item.personal.condition,
   writeCondition: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(condition: value)),
@@ -84,7 +63,7 @@ final bookUniversalTransferableFields =
 );
 
 final bookTransferableFields = <TransferableField>[
-  bookTransferField(
+  TransferableField.typed<BookLibraryEntry>(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -93,7 +72,7 @@ final bookTransferableFields = <TransferableField>[
     write: (item, value) =>
         item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
-  bookTransferField(
+  TransferableField.typed<BookLibraryEntry>(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
@@ -107,7 +86,7 @@ final bookTransferableFields = <TransferableField>[
       );
     },
   ),
-  bookTransferField(
+  TransferableField.typed<BookLibraryEntry>(
     key: 'dustJacketPresent',
     label: 'Dust jacket',
     icon: Icons.book_outlined,
@@ -123,7 +102,7 @@ final bookTransferableFields = <TransferableField>[
       );
     },
   ),
-  bookTransferField(
+  TransferableField.typed<BookLibraryEntry>(
     key: 'dustJacketCondition',
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,

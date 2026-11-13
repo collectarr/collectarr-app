@@ -42,7 +42,6 @@ class TransferableField {
     required String label,
     required IconData icon,
     required TransferableFieldType type,
-    required T Function(Object value) decode,
     required String? Function(T value) read,
     required T Function(T value, String? nextValue) write,
     String? customFieldId,
@@ -53,8 +52,8 @@ class TransferableField {
       icon: icon,
       type: type,
       customFieldId: customFieldId,
-      read: (item) => read(decode(item)),
-      write: (item, value) => write(decode(item), value) as Object,
+      read: (item) => read(item as T),
+      write: (item, value) => write(item as T, value) as Object,
     );
   }
 
@@ -62,7 +61,6 @@ class TransferableField {
   /// accessors are supplied by the owning kind; this class never knows a
   /// concrete Entry model or decodes a cross-kind aggregate.
   static List<TransferableField> universalForTyped<T>({
-    required T Function(Object value) decode,
     required String? Function(T value) readCondition,
     required T Function(T value, String? nextValue) writeCondition,
     required String? Function(T value) readPersonalNotes,
@@ -101,7 +99,6 @@ class TransferableField {
         label: label,
         icon: icon,
         type: type,
-        decode: decode,
         read: read,
         write: write,
       );

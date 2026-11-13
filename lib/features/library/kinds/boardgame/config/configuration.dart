@@ -5,31 +5,8 @@ const boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
 const boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
 
-TransferableField boardGameTransferField({
-  required String key,
-  required String label,
-  required IconData icon,
-  required TransferableFieldType type,
-  required String? Function(BoardGameLibraryEntry item) read,
-  required BoardGameLibraryEntry Function(
-    BoardGameLibraryEntry item,
-    String? value,
-  ) write,
-}) {
-  return TransferableField.typed<BoardGameLibraryEntry>(
-    key: key,
-    label: label,
-    icon: icon,
-    type: type,
-    decode: (value) => value as BoardGameLibraryEntry,
-    read: read,
-    write: write,
-  );
-}
-
 final boardgameUniversalTransferableFields =
     TransferableField.universalForTyped<BoardGameLibraryEntry>(
-  decode: (value) => value as BoardGameLibraryEntry,
   readCondition: (item) => item.personal.condition,
   writeCondition: (item, value) =>
       item.copyWith(personal: item.personal.copyWith(condition: value)),
@@ -79,7 +56,7 @@ final boardgameUniversalTransferableFields =
 );
 
 final boardgameTransferableFields = <TransferableField>[
-  boardGameTransferField(
+  TransferableField.typed<BoardGameLibraryEntry>(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
@@ -88,7 +65,7 @@ final boardgameTransferableFields = <TransferableField>[
     write: (item, value) =>
         item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
-  boardGameTransferField(
+  TransferableField.typed<BoardGameLibraryEntry>(
     key: 'isSleeved',
     label: 'Sleeved',
     icon: Icons.shield_outlined,
@@ -101,7 +78,7 @@ final boardgameTransferableFields = <TransferableField>[
                   item.personal.details.copyWith(isSleeved: value == 'true')));
     },
   ),
-  boardGameTransferField(
+  TransferableField.typed<BoardGameLibraryEntry>(
     key: 'hasCustomInsert',
     label: 'Custom insert',
     icon: Icons.grid_view_outlined,
