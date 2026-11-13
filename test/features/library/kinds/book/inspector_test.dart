@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/details/section.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
@@ -10,17 +10,15 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_library_e
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/inspector/sections.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('populated Books inspector keeps edition and copy facts once',
-      (tester) async {
+  test('populated Books inspector keeps edition and copy facts once', () {
     final entry = BookLibraryEntry(
       id: const LibraryEntryId('reference'),
       updatedAt: DateTime.utc(2026),
@@ -67,19 +65,13 @@ void main() {
     );
     final item = LibraryProjectionItem.fromShelf(
         source, libraryKindRegistrationForKind(CatalogMediaKind.book));
-    final sections = <LibraryDetailSection>[];
-    await tester.pumpWidget(MaterialApp(home: Builder(builder: (context) {
-      sections.addAll(const BookLibraryMediaPresentationBuilder()
-          .buildInspectorSections(
-              context: context, item: item, accent: Colors.purple)
-          .whereType<LibraryDetailSection>());
-      return const SizedBox.shrink();
-    })));
+    Map<String, String> values(List<LibraryDetailField> fields) =>
+        {for (final field in fields) field.label: field.value};
     final fields = {
-      for (final section in sections)
-        section.title: {
-          for (final field in section.fields) field.label: field.value
-        }
+      'Details': values(bookInspectorDetailFields(entry.metadata)),
+      'Personal': values(bookInspectorPersonalFields(entry,
+          locationPath: item.source.locationPath)),
+      'Value': values(bookInspectorValueFields(entry)),
     };
     expect(
         fields['Details'], containsPair('Original Publication Place', 'Paris'));
@@ -90,11 +82,12 @@ void main() {
     expect(fields['Value'], containsPair('Book Condition', 'Very Good'));
     expect(fields['Value'], containsPair('Dust Jacket', 'Yes'));
     expect(fields['Value'], containsPair('Dust Jacket Condition', 'Fine'));
-    expect(
-        fields['Value'], containsPair('Purchase Store', 'Reference Bookshop'));
+    expect(fields['Value']!['Purchased'], contains('at Reference Bookshop'));
+    expect(fields['Value']!['Sold'], isNotEmpty);
+    expect(fields['Personal'], containsPair('Location', 'Reference Shelf'));
+    expect(fields['Personal'], containsPair('Owner', 'Reference Owner'));
     expect(fields['Personal'], isNot(contains('Book Condition')));
-    expect(
-        sections.where((section) => section.title == 'Personal'), hasLength(1));
+    expect(fields['Personal'], isNot(contains('Quantity')));
     final capability = libraryInspectorForKind(CatalogMediaKind.book);
     expect(capability.showsActionBar, isFalse);
     expect(capability.showsDefaultPersonalSection, isFalse);

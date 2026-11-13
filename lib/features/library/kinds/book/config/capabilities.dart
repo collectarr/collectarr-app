@@ -106,12 +106,12 @@ final bookKindActions = const LibraryTargetActionCapability(
 final bookKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryTargetInspectorRegistry(
     catalogItem: LibraryTargetInspectorContributor(
-      heroBuilder: buildBookCatalogItemInspectorHero,
-      sectionsBuilder: buildBookCatalogItemInspectorSections,
+      heroBuilder: buildBookInspectorHero,
+      sectionsBuilder: buildBookInspectorSections,
     ),
     libraryEntry: LibraryTargetInspectorContributor(
-      heroBuilder: buildBookLibraryEntryInspectorHero,
-      sectionsBuilder: buildBookLibraryEntryInspectorSections,
+      heroBuilder: buildBookInspectorHero,
+      sectionsBuilder: buildBookInspectorSections,
     ),
   ),
   showsDefaultPersonalSection: false,

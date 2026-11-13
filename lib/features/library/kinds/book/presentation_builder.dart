@@ -1,7 +1,4 @@
-import 'package:collectarr_app/ui/app_formatted_text.dart';
-import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/fields.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -13,12 +10,9 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
-import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
-import 'package:flutter/material.dart';
-import 'tracking/book_tracking_profile.dart';
 
 class BookLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -251,183 +245,6 @@ class BookLibraryMediaPresentationBuilder
         ),
       },
     );
-  }
-
-  @override
-  List<Widget> buildInspectorSections({
-    required BuildContext context,
-    required LibraryProjectionView item,
-    required Color accent,
-    ValueChanged<String>? onFilterByValue,
-  }) {
-    final metadata = _bookMetadata(item);
-    if (metadata == null) return const [];
-    final sections = <Widget>[];
-    void list(String title, List<String> values) {
-      final clean = values.where((value) => value.trim().isNotEmpty).toList();
-      if (clean.isEmpty) return;
-      sections.add(LibraryDetailSection(title: title, chips: [
-        LibraryDetailChipGroup(values: clean, onValueTap: onFilterByValue),
-      ]));
-    }
-
-    list('Genre', metadata.genres);
-    list('Subject', metadata.subjects);
-    final plot = metadata.description ??
-        metadata.synopsis ??
-        metadata.plotDescription ??
-        metadata.plotSummary;
-    if (plot?.trim().isNotEmpty == true) {
-      sections.add(LibraryDetailSection(
-          title: 'Plot', children: [AppFormattedText(plot!)]));
-    }
-    final credits = [...metadata.creators, ...metadata.contributors]
-        .where((credit) => credit.role?.toLowerCase() != 'author')
-        .map((credit) => LibraryDetailField(
-              label: credit.role ?? 'Contributor',
-              value: credit.name,
-              onTap: onFilterByValue == null
-                  ? null
-                  : () => onFilterByValue(credit.name),
-            ))
-        .toList();
-    if (credits.isNotEmpty) {
-      sections.add(LibraryDetailSection(title: 'Credits', fields: credits));
-    }
-    final details = <LibraryDetailField>[];
-    void detail(String label, Object? value) {
-      final text = value?.toString().trim();
-      if (text != null && text.isNotEmpty) {
-        details.add(LibraryDetailField(label: label, value: text));
-      }
-    }
-
-    detail('Original Title', metadata.originalTitle);
-    detail('Original Subtitle', metadata.originalSubtitle);
-    detail(
-        'Original Publication Date',
-        metadata.originalPublicationDateParts != null
-            ? AppFormats.current
-                .formatPartialDate(metadata.originalPublicationDateParts)
-            : formatNullableDate(metadata.originalPublicationDate));
-    detail('Original Country', metadata.originalCountry);
-    detail('Original Publication Place', metadata.originalPublicationPlace);
-    detail('Original Language', metadata.originalLanguage);
-    detail('Original Publisher', metadata.originalPublisher);
-    detail('Extras', metadata.extras.join(', '));
-    if (metadata.audioLengthMinutes case final minutes?) {
-      detail('Audiobook Length',
-          '${(minutes ~/ 60).toString().padLeft(2, '0')}:${(minutes % 60).toString().padLeft(2, '0')}');
-    }
-    if (metadata.audioAbridged case final abridged?) {
-      detail('Audiobook Abridged', abridged ? 'Yes' : 'No');
-    }
-    detail('Printed By', metadata.printedBy);
-    detail('Number Line', metadata.numberLine);
-    detail('Paper Type', metadata.paperType);
-    detail('Printing', metadata.printingNumber);
-    if (metadata.firstEdition case final first?) {
-      detail('First Edition', first ? 'Yes' : 'No');
-    }
-    if (details.isNotEmpty) {
-      sections.add(LibraryDetailSection(title: 'Details', fields: details));
-    }
-    final entry = BookLibraryEntryProjection.fromDispatch(
-        item.source.libraryEntryDispatch);
-    if (showPersonalDetails && entry != null) {
-      final personal = entry.personal;
-      final facts = <LibraryDetailField>[
-        if (personal.indexNumber != null)
-          LibraryDetailField(
-              label: 'Index', value: personal.indexNumber.toString()),
-        if (personal.ownerLabel?.isNotEmpty == true)
-          LibraryDetailField(label: 'Owner', value: personal.ownerLabel!),
-        if (item.source.locationPath?.isNotEmpty == true)
-          LibraryDetailField(
-              label: 'Location', value: item.source.locationPath!),
-        if (item.source.trackingSummary case final tracking?) ...[
-          LibraryDetailField(
-              label: 'Read',
-              value: bookTrackingProfile
-                      .normalizeStorageValue(tracking.statusStorageValue) ??
-                  tracking.statusLabel),
-          if (tracking.startedAt != null)
-            LibraryDetailField(
-                label: 'Started',
-                value: formatNullableDate(tracking.startedAt)!),
-          if (tracking.completedAt != null)
-            LibraryDetailField(
-                label: 'Finished',
-                value: formatNullableDate(tracking.completedAt)!),
-        ],
-        if (entry.createdAt != null)
-          LibraryDetailField(
-              label: 'Added Date',
-              value: AppFormats.current.formatDateTime(entry.createdAt!)),
-        LibraryDetailField(
-            label: 'Modified Date',
-            value: AppFormats.current.formatDateTime(entry.updatedAt)),
-      ];
-      if (facts.isNotEmpty) {
-        sections.add(LibraryDetailSection(title: 'Personal', fields: facts));
-      }
-      final value = <LibraryDetailField>[
-        if (personal.details.retailPriceCents != null)
-          LibraryDetailField(
-              label: 'Retail Price',
-              value: AppFormats.current.formatMoney(
-                  personal.details.retailPriceCents, personal.currency)),
-        if (personal.marketValueCents != null)
-          LibraryDetailField(
-              label: 'Value',
-              value: AppFormats.current
-                  .formatMoney(personal.marketValueCents, personal.currency)),
-        if (personal.pricePaidCents != null)
-          LibraryDetailField(
-              label: 'Purchase Price',
-              value: AppFormats.current
-                  .formatMoney(personal.pricePaidCents, personal.currency)),
-        if (personal.sellPriceCents != null)
-          LibraryDetailField(
-              label: 'Sold Price',
-              value: AppFormats.current
-                  .formatMoney(personal.sellPriceCents, personal.currency)),
-        if (personal.purchaseDate != null)
-          LibraryDetailField(
-              label: 'Purchase Date',
-              value: formatNullableDate(personal.purchaseDate)!),
-        if (personal.purchaseStore?.isNotEmpty == true)
-          LibraryDetailField(
-              label: 'Purchase Store', value: personal.purchaseStore!),
-        if (personal.soldAt != null)
-          LibraryDetailField(
-              label: 'Sold Date', value: formatNullableDate(personal.soldAt)!),
-        if (personal.soldTo?.isNotEmpty == true)
-          LibraryDetailField(label: 'Sold To', value: personal.soldTo!),
-        if (personal.condition?.isNotEmpty == true)
-          LibraryDetailField(
-              label: 'Book Condition', value: personal.condition!),
-        if (personal.details.dustJacketPresent)
-          const LibraryDetailField(label: 'Dust Jacket', value: 'Yes'),
-        if (personal.details.dustJacketCondition?.isNotEmpty == true)
-          LibraryDetailField(
-              label: 'Dust Jacket Condition',
-              value: personal.details.dustJacketCondition!),
-        if (personal.details.signedBy?.isNotEmpty == true)
-          LibraryDetailField(
-              label: 'Signed by', value: personal.details.signedBy!),
-      ];
-      if (value.isNotEmpty) {
-        sections.add(LibraryDetailSection(title: 'Value', fields: value));
-      }
-      if (personal.personalNotes?.trim().isNotEmpty == true) {
-        sections.add(LibraryDetailSection(
-            title: 'Notes',
-            children: [AppFormattedText(personal.personalNotes!)]));
-      }
-      list('Tags', personal.tags);
-    }
-    return sections;
   }
 }
 
