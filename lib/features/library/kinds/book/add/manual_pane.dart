@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/manual_draft.dart
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_field_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/external_links_editor.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/image_type_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -303,6 +304,10 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
                   image,
             ],
             accent: request.accent,
+            helperText: bookImagesHelperText,
+            defaultImageType: bookDefaultImageType,
+            uniqueImageTypes: const {},
+            imageTypeFieldBuilder: buildBookImageTypeField,
             onChanged: request.onItemImagesChanged ?? (_) {},
           ),
         ),

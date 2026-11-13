@@ -24,6 +24,7 @@ abstract final class BookVocabularyIds {
   static const subject = VocabularyId<String>('book.subject');
   static const country = VocabularyId<String>('book.country');
   static const reader = VocabularyId<String>('book.reader');
+  static const imageType = VocabularyId<String>('book.image_type');
   static const series = VocabularyId<String>('book.series');
   static const edition = VocabularyId<String>('book.edition');
 }
@@ -354,6 +355,10 @@ abstract final class BookVocabularies {
       label: 'Edition',
       valuesFrom:
           TypedVocabularyProjector<BookCatalogMetadata>(_editionCatalogValues));
+  static const imageType = VocabularyDefinition<String>(
+      id: BookVocabularyIds.imageType,
+      label: 'Image Type',
+      builtIns: ['Signature', 'Booklet', 'Other']);
   static const reader = VocabularyDefinition<String>(
       id: BookVocabularyIds.reader, label: 'Reader');
   static const all = <VocabularyDefinition<dynamic>>[
@@ -373,6 +378,7 @@ abstract final class BookVocabularies {
     series,
     edition,
     reader,
+    imageType,
   ];
 }
 

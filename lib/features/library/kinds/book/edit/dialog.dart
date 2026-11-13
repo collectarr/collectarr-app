@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/book/edit/personal_form_la
 import 'package:collectarr_app/features/library/kinds/book/edit/read_history.dart';
 import 'package:collectarr_app/features/library/edit/sections/entry_personal_section.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/external_links_editor.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/image_type_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/formatted_text_form_control.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -140,6 +141,10 @@ final class _BookItemEditDialogState extends State<_BookItemEditDialog> {
         images: LibraryEditImagesTabContribution(
           icon: AppIcons.tabImages,
           afterTabId: 'covers',
+          helperText: bookImagesHelperText,
+          defaultImageType: bookDefaultImageType,
+          uniqueImageTypes: const {},
+          imageTypeFieldBuilder: buildBookImageTypeField,
           images: [
             for (final image in widget.request.itemImages)
               if (image.imageType != 'front_cover' &&
