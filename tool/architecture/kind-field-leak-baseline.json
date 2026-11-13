@@ -122,11 +122,6 @@
                         "symbol":  "readStatus"
                     },
                     {
-                        "path":  "lib/features/library/generic/projection/grouping_engine.dart",
-                        "surface":  "member-access",
-                        "symbol":  "releaseDate"
-                    },
-                    {
                         "path":  "lib/features/library/metadata/shared_metadata_editing_contract.dart",
                         "surface":  "map-key",
                         "symbol":  "release_date"
