@@ -27,6 +27,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 
 ### Fixes
+- Covers scrolling into view no longer query the database unless the entry has its own stored image.
 - Selecting an item in a large library responds at once instead of filtering, sorting and grouping the whole library again.
 - Switching folders in a large library is many times faster.
 - Opening, sorting and regrouping a large library no longer index its search text until something is searched for.
