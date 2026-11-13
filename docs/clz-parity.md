@@ -1,6 +1,6 @@
 # CLZ parity
 
-Collectarr aims to be an improved, fully FOSS CLZ Music, Games and Comics: familiar
+Collectarr aims to be an improved, fully FOSS CLZ Music, Games, Comics and Books: familiar
 workflows and density, a stricter data model, and no proprietary code, fonts or
 assets. CLZ is a reference only.
 
@@ -13,14 +13,23 @@ Opera and a release Web build with the same albums imported.
 
 ## Books
 
-- Compare Main and Details field widths, pick-list panels and spacing with CLZ Books, on desktop and narrow layouts.
-- Verify Credits' role pickers, First Edition and Audiobook Abridged controls and audio duration spacing against CLZ.
-- Personal, Value and Covers still need a full pixel comparison of both Add and Edit. Books Add currently offers generic condition choices and labels its owner as "Owner label"; align its condition vocabulary and labels with Edit.
-- Books inspector still lacks CLZ's box-set contents block and per-read reader names and pages; quantity is not yet represented on Book entries. Compare the author-photo case and cover controls at narrow widths.
-- Read History still differs from CLZ's read-event table and Settings-driven Mark as read behavior; verify date clearing and repeat reads.
-- Match ISBN and Author / Title search, scanner activation and search result selection in Add Books.
-- Compare workspace layouts, sorting, grouping, details, statistics and settings using isolated Books storage. The observed CLZ List defaults are Author, Title, ISBN, Format, Pages, Publisher, Publication Date, Genre and Added Date; compare their order and values with Collectarr.
-- Implement and verify guided CLZ Books XML import; mapped CSV is available for selected fields.
+Compared live on 2026-11-13 at 2560 × 1305 against CLZ Books Web, with one
+book that has every field filled: all eleven Edit tabs, the details panel,
+the List columns and both Add Books tabs.
+
+| Priority | Area | Difference |
+| --- | --- | --- |
+| P2 | Box sets | CLZ's box set is a record with Name, Sort Name, Barcode, Release Date, its own cover and an ordered Books tab, opened by "Edit box set" in the details panel and the pen beside Box Set. Collectarr's is a pick-list name; the details panel lists the set's books by year. Needs a box set model |
+| P2 | Signed by | CLZ: a list of people added with a + beside the label. Collectarr: one text box |
+| P2 | Import | Guided CLZ Books XML import is missing; mapped CSV covers selected fields |
+| P3 | My Images | CLZ gives each image a type from a pick list (Signature, Booklet and others); Collectarr offers a fixed generic list |
+| P3 | List fields | Only CLZ's default columns were compared; its full column, sort and folder choosers, such as Quantity and Reader, were not |
+| P3 | Credits rows | Every credit name has a drag handle and a sort-name button where CLZ shows only the remove cross |
+
+Not yet compared: Add Books results and their selection against the same
+Core data, Add Books manually tab by tab, narrow layouts, the light skin,
+Statistics, Books settings (such as what Mark as read records) and the pick
+list contents, including Book Condition's values.
 
 ## How to compare
 
@@ -71,7 +80,9 @@ Keep these when matching the reference visually.
 | Games field scopes | Hardware and Toy groups also appear in the Games field choosers | Sort and column fields belong to the active Games, Hardware or Toys kind |
 | Value tab of Games, Hardware and Toys | Value beside Completeness, PriceCharting ID under the price chart | PriceCharting ID beside Completeness and Value beside Condition |
 | Hardware Type | A free text field | A pick list without Sort Names, starting with Console, Controller and Accessory, so types stay consistent and can be renamed or merged |
-| Description editing | The Description field edits raw HTML | Games, Hardware, Toys and Comics also offer a Rich mode with format buttons, next to Raw; Rich saves the same light HTML |
+| Description editing | The Description field edits raw HTML | Games, Hardware, Toys and Comics, and the Plot of Books, also offer a Rich mode with format buttons, next to Raw; Rich saves the same light HTML |
+| Book valuation | A Value field filled by CLZ, with a refresh button, beside My Value | No fetched value: the Value tab starts with My Value and Retail Price |
+| Reading status | Read events are No Status, Reading, Finished or Dropped | The same four in Read History; the reading queue also keeps Plan to read, On hold and Rereading |
 | CSV import formats | Comma or semicolon delimiters and quoted fields | Also accepts tab and space delimiters and unquoted fields |
 | Format | One album-level Format pick list | Format is derived from discs; each disc has a format family with format-aware fields (vinyl weight/RPM/side matrices only where they apply) |
 | Recording | Album-level Recording Date | Recording data lives on discs, with explicit disc values taking precedence |
@@ -312,7 +323,7 @@ behavior.
 - Games: Add Games Title results beside CLZ's in one session, every sort/group combination with populated records, every Personal
   pick-list save path, native file selection in Covers, trailer playback.
 - Comics: rows for unlinked comics in Link Comics and Submit to Core's wording.
-- Book/Comic My Images: CLZ accepts named image types such as Signature; Collectarr's editor still offers a fixed generic list, including Disc and Label. Compare kind-owned type lists and custom type creation.
+- Comic My Images: CLZ accepts named image types such as Signature; Collectarr's editor still offers a fixed generic list, including Disc and Label. Compare kind-owned type lists and custom type creation.
 - Comic inspector: Crossover appears in Collectarr's Details table but in CLZ's subtitle; align its placement without duplicating it.
 - The header account label appears only while signed in to Sync, so it is
   covered by tests rather than the signed-out comparison build.

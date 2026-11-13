@@ -100,6 +100,7 @@
 - Comic editing keeps catalog, custom-field and image changes together when saving or cancelling.
 
 ### Docs
+- The CLZ parity notes list what remains for Books after a full comparison of its forms, details panel and list.
 - Document Windows accessibility startup checks and the limits of known Flutter AXTree issues.
 - Document the remaining Books and Comics differences found with populated reference entries.
 
