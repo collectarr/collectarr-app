@@ -84,8 +84,21 @@ final class LibrarySearchDocument {
 }
 
 class LibrarySearchIndex {
-  final Map<String, LibrarySearchDocument> _documents = {};
-  final Map<String, Object> _sources = {};
+  // Documents are kept on the shelf entry, which outlives the engine built
+  // for every projection, so typing a search indexes each entry once.
+  static final _documents = Expando<_IndexedDocument>();
+
+  /// The document already built for [item] with these custom field values.
+  LibrarySearchDocument? existing(
+    LibraryProjectionItem item,
+    Map<String, List<String>> customFieldValuesByItem,
+  ) {
+    final indexed = _documents[item.source];
+    return indexed != null &&
+            identical(indexed.customFieldValuesByItem, customFieldValuesByItem)
+        ? indexed.document
+        : null;
+  }
 
   LibrarySearchDocument getOrBuild(
     LibraryProjectionItem item, [
@@ -93,16 +106,8 @@ class LibrarySearchIndex {
     Iterable<String> searchFieldValues = const [],
     Iterable<String> containedSearchValues = const [],
   ]) {
-    final key = item.target.stableKey;
-    final existing = _documents[key];
-    // Custom field values are supplied by the caller and may change between
-    // executions while the projection engine is reused. Rebuild in that case
-    // instead of returning a document that was indexed without the new values.
-    if (existing != null &&
-        customFieldValuesByItem.isEmpty &&
-        identical(_sources[key], item.source)) {
-      return existing;
-    }
+    final indexed = existing(item, customFieldValuesByItem);
+    if (indexed != null) return indexed;
 
     final tokens = <String>{};
     final dto = item.dto;
@@ -153,13 +158,14 @@ class LibrarySearchIndex {
           if (value.trim().isNotEmpty) value.trim().toLowerCase(),
       }),
     );
-    _documents[key] = doc;
-    _sources[key] = item.source;
+    _documents[item.source] = _IndexedDocument(customFieldValuesByItem, doc);
     return doc;
   }
+}
 
-  void clear() {
-    _documents.clear();
-    _sources.clear();
-  }
+final class _IndexedDocument {
+  const _IndexedDocument(this.customFieldValuesByItem, this.document);
+
+  final Map<String, List<String>> customFieldValuesByItem;
+  final LibrarySearchDocument document;
 }

@@ -100,12 +100,13 @@ class LibraryProjectionEngine {
     final filteredItems = <LibraryProjectionItem>[];
     for (final item in scopedBucketItems) {
       final searchDoc = searches
-          ? index.getSearchDocument(
-              item,
-              customFieldValuesByItem,
-              fields.searchValuesFor(item),
-              fields.containedSearchValuesFor(item),
-            )
+          ? index.existingSearchDocument(item, customFieldValuesByItem) ??
+              index.getSearchDocument(
+                item,
+                customFieldValuesByItem,
+                fields.searchValuesFor(item),
+                fields.containedSearchValuesFor(item),
+              )
           : _unsearchedDocument;
       if (filterEngine.matches(
         item: item,

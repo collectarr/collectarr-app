@@ -22,6 +22,12 @@ class LibraryProjectionIndex {
     });
   }
 
+  LibrarySearchDocument? existingSearchDocument(
+    LibraryProjectionItem item,
+    Map<String, List<String>> customFieldValuesByItem,
+  ) =>
+      _searchIndex.existing(item, customFieldValuesByItem);
+
   LibrarySearchDocument getSearchDocument(
     LibraryProjectionItem item, [
     Map<String, List<String>> customFieldValuesByItem = const {},
@@ -54,7 +60,6 @@ class LibraryProjectionIndex {
   }
 
   void clear() {
-    _searchIndex.clear();
     _itemGroupBucketCache.clear();
     _itemGroupBucketsCache.clear();
     extractorCallCount = 0;
