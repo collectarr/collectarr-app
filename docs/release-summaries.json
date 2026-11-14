@@ -43,6 +43,29 @@
       }
     ]
   },
+  "v1.7.0": {
+    "summary": [
+      "Books gets its own library, with ISBN search, edition and copy details, reading tracking, covers and CSV import.",
+      "Comics gains a weekly NCBD browser with My Series and a local Pull List.",
+      "Library controls gain editable Auto Cap Exceptions, clearer sorting favorites and list image columns that resize together.",
+      "Release notes can be read inside Settings > Updates, and custom field definitions and pick-list images sync across devices.",
+      "Large libraries respond faster when sorting, switching folders, selecting entries and typing searches. Shelf view also starts loading upcoming covers before they scroll into view.",
+      "Measured performance on 5,000 Music albums (local workspace benchmark; operation timings, not end-to-end screen load times):",
+      "Sorting: 57 ms → 6.5 ms. [Measurement and change](https://github.com/collectarr/collectarr-app/commit/33e07e1c7).",
+      "Switching folders: 61–75 ms → 4–6 ms. [Measurement and change](https://github.com/collectarr/collectarr-app/commit/66d65167a).",
+      "Subsequent searches while typing: about 85 ms → 12 ms; the first search still takes about 85 ms. [Measurement and change](https://github.com/collectarr/collectarr-app/commit/6910c650d).",
+      "Changing selection now reuses the library projection instead of repeating filtering, sorting and grouping across the collection. [Change and checks](https://github.com/collectarr/collectarr-app/commit/a01f9cfb0).",
+      "These before-and-after timings were recorded during the individual optimizations, with different intermediate baselines. They are not a fresh benchmark of the final release or a speed guarantee for every collection and device."
+    ],
+    "items": [
+      {"emoji": "📚", "text": "Books library and ISBN search"},
+      {"emoji": "🗓️", "text": "Comics NCBD and local Pull List"},
+      {"emoji": "⚡", "text": "Faster sorting, folders and search"},
+      {"emoji": "🔠", "text": "Editable Auto Cap Exceptions"},
+      {"emoji": "🖼️", "text": "Resize list image columns together"},
+      {"emoji": "📝", "text": "Read release notes inside the app"}
+    ]
+  },
   "v1.6.0": {
     "summary": [
       "Games gain a Platform tab that lists each game once, 222 platforms under their short names and public-domain logos for many of them.",
