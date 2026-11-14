@@ -30,6 +30,7 @@
 - Link Games shows what each match is based on under your item: barcode, catalog number, series, issue, publisher and year.
 
 ### Fixes
+- The collection menu on the Add dialog's Platform tab looks like CLZ's: a borderless field, a wider list aligned to its right edge, and bold rows that highlight on hover.
 - The Add dialog's tabs light up under the pointer, its settings and camera buttons turn white on hover, and Search always shows the hand pointer.
 - The Add and Link dialogs' search fields stay on one line and cut off text that does not fit, and their caret is white, as in CLZ.
 - Link manually opens the Add from Core search as a Link dialog: the title is searched at once, variants are picked as when adding, and Link this Game links the chosen one.
