@@ -312,6 +312,8 @@ navigation, larger system text and light appearance.
 | P3 | Field chooser gaps | Games has no eBay link column and does not sort by cover filenames (personal images are stored as bytes). CLZ's sort chooser lists Storage and Storage Device separately; Collectarr currently has one storage-device value plus Storage Slot, so verify that distinction before adding another field. Toys still has no NFCID field |
 | P3 | Add manual tabs | CLZ lists Personal last; Collectarr lists it after Value |
 | P3 | Update from Core prompt | CLZ's Update from Core tab has "Always show this when running update from core." beside Save, showing the settings before each update; Collectarr has no such option |
+| P2 | Pre-fill fields | CLZ also offers Main fields (Series, Platform, Genre, Audience Rating), Completed, Completed Date, Storage Slot and the Toy and Edition groups; Collectarr offers only personal values and its kind controls, as a pre-fill does not override catalog fields yet |
+| P2 | Core Game ID grouping | Core gives each edition its own Core Media ID, but an edition created without `game_id` gets a new game, so regions of one game can have different Core Game IDs; Add Games groups results by title and platform instead of Core Game ID |
 
 ## Not yet compared live
 
