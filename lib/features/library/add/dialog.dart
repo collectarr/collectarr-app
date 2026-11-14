@@ -61,6 +61,7 @@ import 'package:collectarr_app/features/library/ui/dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/add/models/prefill_defaults.dart';
+import 'package:collectarr_app/features/library/add/desktop/grouped_results_layout.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -168,6 +169,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   /// Width of the grouped results' list, set by dragging its divider.
   double _groupListWidth = LibraryAddResultGrouping.listWidth;
+
+  /// The drag of that divider, shared by its pieces beside the search row and
+  /// between the results.
+  final _groupDividerDrag = LibraryAddGroupDividerDrag();
+
+  void _resizeGroupList(double width) => setState(() => _groupListWidth =
+      width.clamp(LibraryAddResultGrouping.minListWidth, 720.0));
 
   /// The group a picked suggestion opens once its search has run.
   String? _pendingGroupKey;
@@ -405,6 +413,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   @override
   void dispose() {
+    _groupDividerDrag.dispose();
     _controller.removeListener(_onControllerStateChanged);
     _manualDraft.dispose();
     _queryController.dispose();
@@ -1146,6 +1155,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         ? null
                         : LibraryAddGroupHeader(
                             group: selectedGroup, grouping: grouping),
+            onSearchRowResize: isMobilePhone || browseMode || grouping == null
+                ? null
+                : _resizeGroupList,
           ),
         ),
         if (state.mode == LibraryAddDialogMode.search &&
@@ -1213,8 +1225,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           selectedGroupKey: _selectedGroupKey,
           onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
           groupListWidth: _groupListWidth,
-          onGroupListResize: (width) => setState(() => _groupListWidth =
-              width.clamp(LibraryAddResultGrouping.minListWidth, 720.0)),
+          onGroupListResize: _resizeGroupList,
           showVariantFacet: state.mode == LibraryAddDialogMode.search,
           coverBlocks: block != null
               ? LibraryAddCoverBlockView(
@@ -1357,47 +1368,51 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 : grouping == null
                     ? LibraryAddDialogLayout.defaultDialogWidth
                     : LibraryAddResultGrouping.dialogWidth;
-    return LibraryDialogScaffold(
-      accent: accent,
-      surfaceColor: LibraryAddPresentationTokens.current.dialogSurface(palette),
-      themeData: dialogTheme,
-      width: _dialogWidth ?? defaultDialogWidth,
-      height: _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
-      minWidth: LibraryAddDialogLayout.minDialogWidth,
-      maxWidth: LibraryAddDialogLayout.maxDialogWidth,
-      minHeight: LibraryAddDialogLayout.minDialogHeight,
-      maxHeight: LibraryAddDialogLayout.maxDialogHeight,
-      // Switching tabs narrows or widens the dialog over 0.4 s, as in the
-      // reference; a width the user dragged stays put.
-      widthAnimationDuration: _dialogWidth == null &&
-              ref.watch(uiPreferencesProvider).animationsEnabled
-          ? const Duration(milliseconds: 400)
-          : Duration.zero,
-      onResizeWidth: (delta) => setState(() {
-        _dialogWidth = LibraryAddDialogLayout.clampDialogWidth(
-          (_dialogWidth ?? defaultDialogWidth) + delta,
-        );
-      }),
-      onResizeHeight: (delta) => setState(() {
-        final shown = math.min(
-            _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
-            MediaQuery.sizeOf(context).height - 2 * kAppEditorTopInset);
-        _dialogHeight = LibraryAddDialogLayout.clampDialogHeight(shown + delta);
-      }),
-      insetPadding: const EdgeInsets.symmetric(
-          horizontal: kAppEditorTopInset, vertical: kAppEditorTopInset),
-      header: AccentDialogHeader(
-        title: _linking
-            ? 'Link ${widget.type.identity.singularLabel}'
-            : libraryAddForKind(widget.type.kind).chrome.dialogTitle ??
-                'Add ${widget.type.identity.pluralLabel} By:',
-        onClose: _closeDialog,
-      ),
-      contextBar: contextBar,
-      body: body,
-      overlay: overlay,
-      footer: footer,
-    );
+    return LibraryAddGroupDividerScope(
+        notifier: _groupDividerDrag,
+        child: LibraryDialogScaffold(
+          accent: accent,
+          surfaceColor:
+              LibraryAddPresentationTokens.current.dialogSurface(palette),
+          themeData: dialogTheme,
+          width: _dialogWidth ?? defaultDialogWidth,
+          height: _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
+          minWidth: LibraryAddDialogLayout.minDialogWidth,
+          maxWidth: LibraryAddDialogLayout.maxDialogWidth,
+          minHeight: LibraryAddDialogLayout.minDialogHeight,
+          maxHeight: LibraryAddDialogLayout.maxDialogHeight,
+          // Switching tabs narrows or widens the dialog over 0.4 s, as in the
+          // reference; a width the user dragged stays put.
+          widthAnimationDuration: _dialogWidth == null &&
+                  ref.watch(uiPreferencesProvider).animationsEnabled
+              ? const Duration(milliseconds: 400)
+              : Duration.zero,
+          onResizeWidth: (delta) => setState(() {
+            _dialogWidth = LibraryAddDialogLayout.clampDialogWidth(
+              (_dialogWidth ?? defaultDialogWidth) + delta,
+            );
+          }),
+          onResizeHeight: (delta) => setState(() {
+            final shown = math.min(
+                _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
+                MediaQuery.sizeOf(context).height - 2 * kAppEditorTopInset);
+            _dialogHeight =
+                LibraryAddDialogLayout.clampDialogHeight(shown + delta);
+          }),
+          insetPadding: const EdgeInsets.symmetric(
+              horizontal: kAppEditorTopInset, vertical: kAppEditorTopInset),
+          header: AccentDialogHeader(
+            title: _linking
+                ? 'Link ${widget.type.identity.singularLabel}'
+                : libraryAddForKind(widget.type.kind).chrome.dialogTitle ??
+                    'Add ${widget.type.identity.pluralLabel} By:',
+            onClose: _closeDialog,
+          ),
+          contextBar: contextBar,
+          body: body,
+          overlay: overlay,
+          footer: footer,
+        ));
   }
 
   /// Asks Core for suggestions once typing pauses, as the reference does.

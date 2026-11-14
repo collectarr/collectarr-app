@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:collectarr_app/features/library/add/desktop/grouped_results_layout.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/add/mobile/mode_bar.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
@@ -100,6 +101,7 @@ class LibraryAddModeBar extends StatefulWidget {
     this.listingOwnership,
     this.onListingFilterChanged,
     this.searchRowBeside,
+    this.onSearchRowResize,
     this.showMobileInput = true,
     this.onCoverTabChanged,
     this.coverSelected = false,
@@ -178,6 +180,10 @@ class LibraryAddModeBar extends StatefulWidget {
   final Widget? listingOwnership;
   final ValueChanged<String>? onListingFilterChanged;
   final Widget? searchRowBeside;
+
+  /// Set when the panes' divider can be dragged: the gap beside the search
+  /// row is then its upper piece.
+  final ValueChanged<double>? onSearchRowResize;
 
   @override
   State<LibraryAddModeBar> createState() => _LibraryAddModeBarState();
@@ -523,10 +529,14 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(width: width, child: searchRow),
-          ColoredBox(
-            color: appPalette(context).canvas,
-            child: const SizedBox(width: 6),
-          ),
+          if (widget.onSearchRowResize case final onResize?)
+            LibraryAddGroupDivider(
+                width: width, onResize: onResize, showGrip: false)
+          else
+            ColoredBox(
+              color: appPalette(context).canvas,
+              child: const SizedBox(width: 6),
+            ),
           Expanded(
             child: ColoredBox(
               color: libraryAddSearchRowBackground(context),

@@ -5,8 +5,7 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Desktop grouped results retain both panes and their divider, which can be
-/// dragged to resize the group list. The divider is the library panes' own:
-/// it takes the kind accent while dragged and stays under the pointer.
+/// dragged to resize the group list.
 class LibraryAddDesktopGroupedResultsLayout extends StatefulWidget {
   const LibraryAddDesktopGroupedResultsLayout({
     super.key,
@@ -28,12 +27,6 @@ class LibraryAddDesktopGroupedResultsLayout extends StatefulWidget {
 
 class _LibraryAddDesktopGroupedResultsLayoutState
     extends State<LibraryAddDesktopGroupedResultsLayout> {
-  /// The shown width when the drag began and the pointer's travel since, so
-  /// dragging past a limit and back does not move the divider until the
-  /// pointer returns to it.
-  double _dragStartWidth = 0;
-  double _dragTravel = 0;
-
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) {
         final maxWidth = (c.maxWidth - LibraryAddResultGrouping.minListWidth)
@@ -49,24 +42,104 @@ class _LibraryAddDesktopGroupedResultsLayoutState
                   color: libraryAddPaneDivider(context),
                   child: const SizedBox(width: 6))
             else
-              LibraryResizableDivider(
+              LibraryAddGroupDivider(
                 key: const ValueKey('library-add-results-divider'),
-                color: libraryAddPaneDivider(context),
-                accentColor: LibraryAccentScope.accentOf(context),
-                onDragStart: () {
-                  _dragStartWidth = width;
-                  _dragTravel = 0;
-                },
-                onDragDelta: (delta) {
-                  _dragTravel += delta;
-                  onResize((_dragStartWidth + _dragTravel).clamp(
-                      LibraryAddResultGrouping.minListWidth
-                          .clamp(0.0, maxWidth),
-                      maxWidth));
-                },
+                width: width,
+                maxWidth: maxWidth,
+                onResize: onResize,
               ),
             Expanded(child: widget.variantList),
           ],
         );
       });
+}
+
+/// The drag of the group list's divider, shared by its pieces in the search
+/// row and the results so they move and light up as one line, as in the
+/// reference.
+class LibraryAddGroupDividerDrag extends ChangeNotifier {
+  bool _dragging = false;
+  bool get dragging => _dragging;
+
+  /// The shown width when the drag began and the pointer's travel since, so
+  /// dragging past a limit and back does not move the divider until the
+  /// pointer returns to it.
+  double _startWidth = 0;
+  double _travel = 0;
+
+  void _start(double width) {
+    _startWidth = width;
+    _travel = 0;
+    _dragging = true;
+    notifyListeners();
+  }
+
+  double _move(double delta) => _startWidth + (_travel += delta);
+
+  void _end() {
+    _dragging = false;
+    notifyListeners();
+  }
+}
+
+/// Provides the [LibraryAddGroupDividerDrag] of an Add dialog.
+class LibraryAddGroupDividerScope
+    extends InheritedNotifier<LibraryAddGroupDividerDrag> {
+  const LibraryAddGroupDividerScope(
+      {super.key, required super.notifier, required super.child});
+
+  static LibraryAddGroupDividerDrag? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<LibraryAddGroupDividerScope>()
+      ?.notifier;
+}
+
+/// One piece of the group list's divider: the library panes' own, taking the
+/// kind accent while any piece is dragged.
+class LibraryAddGroupDivider extends StatefulWidget {
+  const LibraryAddGroupDivider({
+    super.key,
+    required this.width,
+    required this.onResize,
+    this.maxWidth = double.infinity,
+    this.showGrip = true,
+  });
+
+  /// The group list's shown width.
+  final double width;
+  final double maxWidth;
+  final ValueChanged<double> onResize;
+  final bool showGrip;
+
+  @override
+  State<LibraryAddGroupDivider> createState() => _LibraryAddGroupDividerState();
+}
+
+class _LibraryAddGroupDividerState extends State<LibraryAddGroupDivider> {
+  /// Used when no dialog provides a shared drag.
+  final _ownDrag = LibraryAddGroupDividerDrag();
+
+  @override
+  void dispose() {
+    _ownDrag.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final drag = LibraryAddGroupDividerScope.maybeOf(context) ?? _ownDrag;
+    return ListenableBuilder(
+      listenable: drag,
+      builder: (context, _) => LibraryResizableDivider(
+        color: libraryAddPaneDivider(context),
+        accentColor: LibraryAccentScope.accentOf(context),
+        active: drag.dragging,
+        showGrip: widget.showGrip,
+        onDragStart: () => drag._start(widget.width),
+        onDragEnd: drag._end,
+        onDragDelta: (delta) => widget.onResize(drag._move(delta).clamp(
+            LibraryAddResultGrouping.minListWidth.clamp(0.0, widget.maxWidth),
+            widget.maxWidth)),
+      ),
+    );
+  }
 }

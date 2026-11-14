@@ -12,9 +12,17 @@ class LibraryResizableDivider extends StatefulWidget {
     this.accentColor,
     this.onDragStart,
     this.onDragEnd,
+    this.active = false,
+    this.showGrip = true,
   });
 
   final ValueChanged<double> onDragDelta;
+
+  /// Shows the accent as if dragged, for a divider dragged elsewhere.
+  final bool active;
+
+  /// False for a piece of a longer divider whose grip is drawn elsewhere.
+  final bool showGrip;
   final Axis axis;
   final Color? color;
   final Color? accentColor;
@@ -35,7 +43,7 @@ class _LibraryResizableDividerState extends State<LibraryResizableDivider> {
     final isHorizontalResize = widget.axis == Axis.horizontal;
     final baseColor = widget.color ?? libraryWorkspacePaneDividerColor(context);
     final activeColor = widget.accentColor ?? theme.colorScheme.primary;
-    final barColor = _dragging ? activeColor : baseColor;
+    final barColor = _dragging || widget.active ? activeColor : baseColor;
     return MouseRegion(
       cursor: isHorizontalResize
           ? SystemMouseCursors.resizeColumn
@@ -105,18 +113,20 @@ class _LibraryResizableDividerState extends State<LibraryResizableDivider> {
                 isHorizontalResize ? double.infinity : kLibraryPaneDividerWidth,
             child: ColoredBox(
               color: barColor,
-              child: Center(
-                child: SizedBox(
-                  width: isHorizontalResize ? 2 : 34,
-                  height: isHorizontalResize ? 34 : 2,
-                  child: CustomPaint(
-                    painter: _LibraryPaneGripPainter(
-                      axis: widget.axis,
-                      color: appContrastingTextColor(barColor),
+              child: !widget.showGrip
+                  ? null
+                  : Center(
+                      child: SizedBox(
+                        width: isHorizontalResize ? 2 : 34,
+                        height: isHorizontalResize ? 34 : 2,
+                        child: CustomPaint(
+                          painter: _LibraryPaneGripPainter(
+                            axis: widget.axis,
+                            color: appContrastingTextColor(barColor),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
           ),
         ),
