@@ -154,6 +154,16 @@ class LibraryAddResultPolicy {
   final LibraryAddCoreResultVisibilityPredicate? coreResultVisibility;
   final LibraryAddResultGrouping? grouping;
 
+  /// This policy listing its results in one column.
+  LibraryAddResultPolicy get ungrouped => grouping == null
+      ? this
+      : LibraryAddResultPolicy(
+          options: options,
+          initialState: initialState,
+          resultsBuilder: resultsBuilder,
+          coreResultVisibility: coreResultVisibility,
+        );
+
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,
     Set<CatalogItemRef> entryCatalogRefs = const {},

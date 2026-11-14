@@ -1198,7 +1198,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 },
           coreMatchSummary: (item) => addCapability.search.presentation
               .coreMatchSummary(item, searchContext),
-          resultPolicy: resultPolicy,
+          resultPolicy:
+              grouping == null ? resultPolicy.ungrouped : resultPolicy,
           resultPolicyState: state.selection.resultPolicyState,
           onResultPolicyOptionChanged: _controller.setResultPolicyOption,
           onSelectResult: (id) {
