@@ -14,7 +14,8 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'link_match.dart';
-import 'link_candidate_dialog.dart';
+import 'link_item_summary.dart';
+import 'package:collectarr_app/features/library/add/dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/entry_helpers.dart';
 
@@ -44,18 +45,18 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
           !_linked.contains(entry.libraryEntryRef!.key))
       .toList();
 
-  Future<List<CatalogSearchCandidate>> _search(LibraryWorkspaceContext entry,
-      {String? text}) async {
+  Future<List<CatalogSearchCandidate>> _search(
+      LibraryWorkspaceContext entry) async {
     final query = libraryMetadataForKind(widget.type.kind)
-        .searchQueryFor(source: entry, title: text ?? entry.title);
+        .searchQueryFor(source: entry, title: entry.title);
     final results = await searchLibraryMetadata(
         ref.read(apiClientProvider), widget.type.kind,
-        query: text ?? query.query,
-        barcode: text == null ? query.barcode : null,
-        series: text == null ? query.series : null,
-        issueNumber: text == null ? query.issueNumber : null,
-        publisher: text == null ? query.publisher : null,
-        year: text == null ? query.year : null,
+        query: query.query,
+        barcode: query.barcode,
+        series: query.series,
+        issueNumber: query.issueNumber,
+        publisher: query.publisher,
+        year: query.year,
         limit: 30);
     return results.where((candidate) => candidate.catalogRef != null).toList();
   }
@@ -147,13 +148,25 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
     if (mounted) setState(() => _busy = false);
   }
 
+  /// Opens the Add from Core search as the reference's Link dialog, with
+  /// the entry's title searched at once.
   Future<void> _manual(LibraryWorkspaceContext entry) async {
     if (_busy) return;
-    final candidate = await showAppDialog<CatalogSearchCandidate>(
+    await showAppDialog<void>(
         context: context,
-        builder: (_) => LibraryLinkCandidateDialog(
-            title: entry.title, search: (text) => _search(entry, text: text)));
-    if (candidate != null && mounted) await _accept(entry, candidate);
+        barrierDismissible: false,
+        builder: (_) => LibraryAddDialog(
+            type: widget.type,
+            accent: libraryAccentForKind(widget.type.kind),
+            initialQuery: entry.title,
+            onLink: (candidate) async {
+              if (candidate.catalogRef == null) {
+                setState(() => _error =
+                    'Could not link ${entry.title}: Core did not identify it.');
+                return false;
+              }
+              return _linkEntry(entry, candidate);
+            }));
   }
 
   @override

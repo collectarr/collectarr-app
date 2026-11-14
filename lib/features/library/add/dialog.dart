@@ -67,6 +67,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/add/panes/browse_tiles.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/entries/record.dart';
@@ -93,6 +94,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
     this.itemImages = const [],
+    this.onLink,
   });
 
   final LibraryKindRegistration type;
@@ -109,6 +111,12 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
+
+  /// Turns the dialog into the reference's Link dialog: it searches
+  /// [initialQuery] at once, offers no other tabs, and the confirm sheet
+  /// links the chosen Core item instead of adding it. Returns whether the
+  /// link was made, which closes the dialog.
+  final Future<bool> Function(CatalogSearchCandidate item)? onLink;
 
   @override
   ConsumerState<LibraryAddDialog> createState() => LibraryAddDialogState();
@@ -269,7 +277,23 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _controller.updateIdentifier(widget.initialIdentifier!);
     } else if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _controller.updateQuery(widget.initialQuery!);
+      if (_linking) {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => _controller.executeSearch());
+      }
     }
+  }
+
+  bool get _linking => widget.onLink != null;
+  bool _isLinking = false;
+
+  Future<void> _link(CatalogSearchCandidate item) async {
+    if (_isLinking) return;
+    setState(() => _isLinking = true);
+    final linked = await widget.onLink!(item);
+    if (!mounted) return;
+    setState(() => _isLinking = false);
+    if (linked) _closeDialog();
   }
 
   void _onControllerStateChanged() {
@@ -1021,6 +1045,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         Builder(
           builder: (scopedContext) => LibraryAddModeBar(
+            showModeTabs: !_linking,
             type: widget.type,
             accent: accent,
             isWideLayout: isWideLayout,
@@ -1286,9 +1311,14 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   .contains(selectedItem.reference),
               searched: true,
             ),
-            footer: bottomBar(selectedOnly: true),
+            footer: _linking
+                ? _LibraryAddLinkBar(
+                    label: 'Link this ${widget.type.identity.singularLabel}',
+                    isBusy: _isLinking,
+                    onLink: () => _link(selectedItem))
+                : bottomBar(selectedOnly: true),
           );
-    final footer = hasCheckedSelection && selectedItem == null
+    final footer = !_linking && hasCheckedSelection && selectedItem == null
         ? bottomBar(selectedOnly: false)
         : null;
     if (appPresentationPlatform.isNativeMobile) {
@@ -1356,8 +1386,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       insetPadding: const EdgeInsets.symmetric(
           horizontal: kAppEditorTopInset, vertical: kAppEditorTopInset),
       header: AccentDialogHeader(
-        title: libraryAddForKind(widget.type.kind).chrome.dialogTitle ??
-            'Add ${widget.type.identity.pluralLabel} By:',
+        title: _linking
+            ? 'Link ${widget.type.identity.singularLabel}'
+            : libraryAddForKind(widget.type.kind).chrome.dialogTitle ??
+                'Add ${widget.type.identity.pluralLabel} By:',
         onClose: _closeDialog,
       ),
       contextBar: contextBar,
@@ -1506,4 +1538,37 @@ class _LibraryAddOwnershipMenu extends StatelessWidget {
         labelFor: (value) => value.label,
         onSelected: onChanged,
       );
+}
+
+/// The Link dialog's confirm-sheet footer: one button, as in the reference.
+class _LibraryAddLinkBar extends StatelessWidget {
+  const _LibraryAddLinkBar(
+      {required this.label, required this.isBusy, required this.onLink});
+
+  final String label;
+  final bool isBusy;
+  final VoidCallback onLink;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      color: palette.isDark ? const Color(0xff383838) : palette.panelRaised,
+      padding: const EdgeInsets.all(7),
+      alignment: Alignment.centerRight,
+      child: FilledButton.icon(
+        key: const ValueKey('library-add-link'),
+        onPressed: isBusy ? null : onLink,
+        style: FilledButton.styleFrom(
+          backgroundColor: palette.utilityAction,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(0, 32),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        ),
+        icon: const Icon(AppIcons.link, size: 16),
+        label: Text(label, style: const TextStyle(fontSize: 14)),
+      ),
+    );
+  }
 }

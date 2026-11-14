@@ -94,6 +94,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.onAdvancedFilterChanged,
     required this.advancedFilterDescriptors,
     this.onCoreDataSettings,
+    this.showModeTabs = true,
     this.searchRowWidth,
     this.listingScope,
     this.listingOwnership,
@@ -159,6 +160,10 @@ class LibraryAddModeBar extends StatefulWidget {
 
   /// Opens the Add/Update from Core settings from the tab row's gear.
   final VoidCallback? onCoreDataSettings;
+
+  /// Whether the desktop strip of Add tabs, settings and Add Manually shows;
+  /// the Link dialog has only its search row.
+  final bool showModeTabs;
 
   /// Narrows the search row to [searchRowWidth] and shows [searchRowBeside]
   /// in the rest, for results laid out in two panes.

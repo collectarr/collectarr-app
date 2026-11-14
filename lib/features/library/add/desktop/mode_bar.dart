@@ -158,24 +158,25 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _LibraryAddModeTabStrip(
-          searchLabel: searchLabels.addSearchTabLabel,
-          identifierLabel: searchLabels.identifierTabLabel,
-          identifierFirst: searchLabels.identifierFirst,
-          searchIcon: searchLabels.addSearchTabIcon ?? AppIcons.search,
-          mode: widget.mode,
-          onModeChanged: widget.onModeChanged,
-          browseTab: widget.browseTab,
-          codeSearchTab: widget.codeSearchTab,
-          kindTabs: widget.kindTabs,
-          kindTab: widget.kindTab,
-          onKindTab: widget.onKindTab,
-          onManual: widget.onManual,
-          onCoreDataSettings: widget.onCoreDataSettings,
-          onScanCover: widget.canScanCover && !widget.isScanningCover
-              ? widget.onScanCover
-              : null,
-        ),
+        if (widget.showModeTabs)
+          _LibraryAddModeTabStrip(
+            searchLabel: searchLabels.addSearchTabLabel,
+            identifierLabel: searchLabels.identifierTabLabel,
+            identifierFirst: searchLabels.identifierFirst,
+            searchIcon: searchLabels.addSearchTabIcon ?? AppIcons.search,
+            mode: widget.mode,
+            onModeChanged: widget.onModeChanged,
+            browseTab: widget.browseTab,
+            codeSearchTab: widget.codeSearchTab,
+            kindTabs: widget.kindTabs,
+            kindTab: widget.kindTab,
+            onKindTab: widget.onKindTab,
+            onManual: widget.onManual,
+            onCoreDataSettings: widget.onCoreDataSettings,
+            onScanCover: widget.canScanCover && !widget.isScanningCover
+                ? widget.onScanCover
+                : null,
+          ),
         if (widget.mode != LibraryAddDialogMode.kindTab &&
             (widget.mode != LibraryAddDialogMode.browse ||
                 widget.browseTab?.tiles == null))
