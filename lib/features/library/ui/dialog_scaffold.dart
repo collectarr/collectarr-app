@@ -45,6 +45,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     this.maxHeight = double.infinity,
     this.onResizeWidth,
     this.onResizeHeight,
+    this.widthAnimationDuration = Duration.zero,
     this.isResizable = false,
     this.padding,
     this.density = LibraryDensity.comfortable,
@@ -76,6 +77,10 @@ class LibraryDialogScaffold extends StatelessWidget {
   final double maxHeight;
   final ValueChanged<double>? onResizeWidth;
   final ValueChanged<double>? onResizeHeight;
+
+  /// How long a change of [width] takes to reach the new size, as the
+  /// reference's Add dialog narrows and widens between its tabs.
+  final Duration widthAnimationDuration;
   final bool isResizable;
   final EdgeInsets? padding;
   final LibraryDensity density;
@@ -214,16 +219,33 @@ class LibraryDialogScaffold extends StatelessWidget {
         insetPadding: insetPadding ??
             EdgeInsets.fromLTRB(windowClass.isMedium ? 16 : 32,
                 kAppDialogTopInset, windowClass.isMedium ? 16 : 32, 24),
-        child: ConstrainedBox(
-          key: const ValueKey('library-dialog-surface'),
-          constraints: BoxConstraints(
-            minWidth: effectiveMinWidth,
-            maxWidth: effectiveMaxWidth,
-            minHeight: effectiveMinHeight,
-            maxHeight: effectiveMaxHeight,
-          ),
-          child: dialogBody,
-        ),
+        child: width == null
+            ? ConstrainedBox(
+                key: const ValueKey('library-dialog-surface'),
+                constraints: BoxConstraints(
+                  minWidth: effectiveMinWidth,
+                  maxWidth: effectiveMaxWidth,
+                  minHeight: effectiveMinHeight,
+                  maxHeight: effectiveMaxHeight,
+                ),
+                child: dialogBody,
+              )
+            : TweenAnimationBuilder<double>(
+                tween: Tween(end: effectiveMaxWidth),
+                duration: widthAnimationDuration,
+                curve: Curves.easeOut,
+                child: dialogBody,
+                builder: (context, shownWidth, child) => ConstrainedBox(
+                  key: const ValueKey('library-dialog-surface'),
+                  constraints: BoxConstraints(
+                    minWidth: shownWidth,
+                    maxWidth: shownWidth,
+                    minHeight: effectiveMinHeight,
+                    maxHeight: effectiveMaxHeight,
+                  ),
+                  child: child,
+                ),
+              ),
       );
     }
 

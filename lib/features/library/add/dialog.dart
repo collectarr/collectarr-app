@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
@@ -965,7 +966,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         : null;
     final queryTrailing = addCapability.search.presentation.queryTrailingBuilder
         ?.call(context, modeBarRequest);
-    final grouping = listing == null ? resultPolicy.grouping : null;
+    // The Barcode tab lists its lookups in one column, without the group
+    // list, its divider or the variants pane, as in the reference.
+    final grouping =
+        listing == null && state.mode != LibraryAddDialogMode.identifier
+            ? resultPolicy.grouping
+            : null;
     if (_selectedGroupSearch != state.search.coreSearchGeneration) {
       _selectedGroupSearch = state.search.coreSearchGeneration;
       _selectedGroupKey = _pendingGroupKey;
@@ -1330,6 +1336,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       maxWidth: LibraryAddDialogLayout.maxDialogWidth,
       minHeight: LibraryAddDialogLayout.minDialogHeight,
       maxHeight: LibraryAddDialogLayout.maxDialogHeight,
+      // Switching tabs narrows or widens the dialog over 0.4 s, as in the
+      // reference; a width the user dragged stays put.
+      widthAnimationDuration: _dialogWidth == null &&
+              ref.watch(uiPreferencesProvider).animationsEnabled
+          ? const Duration(milliseconds: 400)
+          : Duration.zero,
       onResizeWidth: (delta) => setState(() {
         _dialogWidth = LibraryAddDialogLayout.clampDialogWidth(
           (_dialogWidth ?? defaultDialogWidth) + delta,
