@@ -61,6 +61,38 @@ final class LibraryEntryMutations {
         eventsToEmit: [LibraryEntryUpdated(ref)]);
   }
 
+  /// Gives the entry the catalog [values] it lacks, as a pre-fill does,
+  /// keeping every value it already has.
+  Future<void> fillCatalogData(LibraryEntryRef ref, JsonMap values) async {
+    if (values.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await mutationRunner.run(
+        action: () async {
+          final record = await LibraryEntryStore(libraryEntries.database)
+              .find(ref.kind, ref.id.value);
+          if (record == null || record.deletedAt != null) return;
+          bool empty(Object? value) =>
+              value == null ||
+              (value is String && value.trim().isEmpty) ||
+              (value is List && value.isEmpty);
+          final missing = {
+            for (final MapEntry(:key, :value) in values.entries)
+              if (empty(record.catalogData[key])) key: value,
+          };
+          if (missing.isEmpty) return;
+          final persisted = await libraryEntries.updateCatalogData(
+            ref: ref,
+            catalogData: JsonMap.from(record.catalogData)..addAll(missing),
+            updatedAt: now,
+          );
+          await syncQueue.enqueue(libraryEntries.syncChangeForMutation(
+              persisted,
+              action: 'upsert',
+              changedAt: now));
+        },
+        eventsToEmit: [LibraryEntryUpdated(ref)]);
+  }
+
   Future<void> unlinkFromCore(LibraryEntryRef ref) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(

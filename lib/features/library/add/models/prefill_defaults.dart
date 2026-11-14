@@ -16,7 +16,8 @@ class PrefillDefaults {
       this.fillPurchaseDateWithToday = false,
       this.fillPriceWithCoverPrice = false,
       this.coverPriceDiscountPercent = 0,
-      this.fields});
+      this.fields,
+      this.catalogValues = const {}});
   final String? locationId;
   final List<String>? tags;
   final Map<String, dynamic> personalValues;
@@ -32,6 +33,10 @@ class PrefillDefaults {
   /// fields list; null shows the kind's default fields.
   final List<String>? fields;
 
+  /// Catalog values, such as Series or Region, given to new items that lack
+  /// them, keyed as the kind's catalog data.
+  final Map<String, dynamic> catalogValues;
+
   /// The price paid for an item with [coverPriceCents], when this pre-fill
   /// takes it from the cover price.
   int? priceFromCover(int? coverPriceCents) =>
@@ -44,6 +49,9 @@ class PrefillDefaults {
     final raw = kind == null
         ? null
         : prefs.getString('collectarr.prefill.${kind.apiValue}.personal');
+    final rawCatalog = kind == null
+        ? null
+        : prefs.getString('collectarr.prefill.${kind.apiValue}.catalog');
     return PrefillDefaults(
         alwaysShow: prefs.getBool(
                 'collectarr.prefill.${kind?.apiValue ?? 'all'}.always_show') ??
@@ -64,7 +72,10 @@ class PrefillDefaults {
         tags: prefs.getStringList(_tagsKey),
         personalValues: raw == null
             ? const {}
-            : Map<String, dynamic>.from(jsonDecode(raw) as Map));
+            : Map<String, dynamic>.from(jsonDecode(raw) as Map),
+        catalogValues: rawCatalog == null
+            ? const {}
+            : Map<String, dynamic>.from(jsonDecode(rawCatalog) as Map));
   }
 
   Future<void> save([CatalogMediaKind? kind]) async {
@@ -94,6 +105,8 @@ class PrefillDefaults {
     if (kind != null) {
       await prefs.setString('collectarr.prefill.${kind.apiValue}.personal',
           jsonEncode(personalValues));
+      await prefs.setString('collectarr.prefill.${kind.apiValue}.catalog',
+          jsonEncode(catalogValues));
       if (fields case final fields?) {
         await prefs.setStringList(
             'collectarr.prefill.${kind.apiValue}.fields', fields);

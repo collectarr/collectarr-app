@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/domain/target_ref.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/config/chrome_config.dart';
 export 'package:collectarr_app/features/library/config/edit_presentation_models.dart';
@@ -95,6 +95,7 @@ final class LibraryPrefillField {
       {required this.id,
       required this.label,
       required this.field,
+      this.group = 'Value',
       this.shownByDefault = true,
       this.fullWidth = true,
       List<String>? keys})
@@ -103,6 +104,9 @@ final class LibraryPrefillField {
   final String id;
   final String label;
   final Widget field;
+
+  /// The Pre-fill fields group it is listed under, such as Main or Edition.
+  final String group;
 
   /// False leaves it out until chosen in Pre-fill fields.
   final bool shownByDefault;
@@ -119,6 +123,63 @@ final class LibraryPrefillField {
 typedef LibraryPrefillFieldsBuilder = List<LibraryPrefillField> Function(
     LibraryEntryEditDraft draft);
 
+/// Catalog values Pre-fill Settings gives new items, keyed as the kind's
+/// catalog data; a cleared value is removed.
+final class LibraryPrefillCatalogDraft extends ChangeNotifier {
+  LibraryPrefillCatalogDraft(Map<String, Object?> values)
+      : _values = Map.of(values);
+
+  final Map<String, Object?> _values;
+  final _controllers = <String, TextEditingController>{};
+
+  Map<String, Object?> get values => Map.unmodifiable(_values);
+
+  String text(String key) =>
+      _values[key] is String ? _values[key]! as String : '';
+
+  List<String> list(String key) => [
+        if (_values[key] case final List<Object?> values)
+          for (final value in values)
+            if (value is String) value,
+      ];
+
+  void set(String key, Object? value) {
+    final empty = value == null ||
+        (value is String && value.trim().isEmpty) ||
+        (value is List && value.isEmpty);
+    if (empty ? _values.remove(key) == null : _values[key] == value) return;
+    if (!empty) _values[key] = value is String ? value.trim() : value;
+    notifyListeners();
+  }
+
+  void clear() {
+    if (_values.isEmpty) return;
+    _values.clear();
+    for (final controller in _controllers.values) {
+      controller.clear();
+    }
+    notifyListeners();
+  }
+
+  /// A text controller kept for the field [id] while the dialog is open.
+  TextEditingController controller(String id, String initialValue) =>
+      _controllers.putIfAbsent(
+          id, () => TextEditingController(text: initialValue));
+
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+}
+
+/// Catalog fields Pre-fill Settings offers, such as Series or Region; each
+/// field's keys are catalog data keys, filled on new items that lack them.
+typedef LibraryPrefillCatalogFieldsBuilder = List<LibraryPrefillField> Function(
+    BuildContext context, LibraryPrefillCatalogDraft draft);
+
 /// Presentation-only configuration for the shared edit host.
 ///
 /// This object contains no draft construction or Entry mutation behavior.
@@ -133,6 +194,7 @@ final class LibraryEditPresentationCapability {
     required this.defaultCondition,
     required this.defaultCollectionValue,
     this.prefillFields,
+    this.prefillCatalogFields,
     this.prefillPriceFromCover = false,
   });
 
@@ -140,6 +202,9 @@ final class LibraryEditPresentationCapability {
   /// Quantity and Tags instead of Condition until other fields are chosen,
   /// as in the reference Games pre-fill.
   final LibraryPrefillFieldsBuilder? prefillFields;
+
+  /// Catalog fields Pre-fill Settings also offers, off until chosen.
+  final LibraryPrefillCatalogFieldsBuilder? prefillCatalogFields;
 
   /// Pre-fill Settings also offers Fill with Cover Price and Discount %.
   final bool prefillPriceFromCover;
@@ -351,9 +416,11 @@ final class LibraryEditCapabilitySet {
     LibraryEntryTransferUpdatePayloadBuilder? entryTransferUpdatePayloadBuilder,
     LibraryEntryDetailsResetPayloadBuilder? entryDetailsResetPayloadBuilder,
     LibraryPrefillFieldsBuilder? prefillFields,
+    LibraryPrefillCatalogFieldsBuilder? prefillCatalogFields,
     bool prefillPriceFromCover = false,
   })  : presentationCapability = LibraryEditPresentationCapability(
           prefillFields: prefillFields,
+          prefillCatalogFields: prefillCatalogFields,
           prefillPriceFromCover: prefillPriceFromCover,
           editRegistry: editRegistry,
           presentation: presentation,

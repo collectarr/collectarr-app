@@ -1,8 +1,10 @@
+import 'prefill_catalog_fields.dart';
 import '../game_module_dependencies.dart';
 import '../entries/transfer.dart';
 import 'value_tab.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(
+  prefillCatalogFields: gamePrefillCatalogFields,
   prefillFields: gamePrefillFields,
   editRegistry: LibraryTargetEditRegistry(
       catalogItem: buildGameItemEditDialog,

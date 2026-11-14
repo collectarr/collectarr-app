@@ -216,6 +216,64 @@ void main() {
     expect(field.enabled, isFalse);
   });
 
+  test('catalog pre-fill values are kept per kind', () async {
+    const defaults = PrefillDefaults(
+        catalogValues: {'series_title': 'Brick Saga', 'release_region': 'EU'});
+    await defaults.save(CatalogMediaKind.game);
+    expect((await PrefillDefaults.load(CatalogMediaKind.game)).catalogValues,
+        {'series_title': 'Brick Saga', 'release_region': 'EU'});
+    expect((await PrefillDefaults.load(CatalogMediaKind.comic)).catalogValues,
+        isEmpty);
+  });
+
+  testWidgets('Games Pre-fill fields offers Main, Edition and Personal',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+          home: Scaffold(
+              body: Builder(
+        builder: (context) => TextButton(
+            onPressed: () => showPrefillSettingsDialog(
+                context: context,
+                accent: Colors.red,
+                kind: CatalogMediaKind.game),
+            child: const Text('Open')),
+      ))),
+    ));
+    await tester.tap(find.text('Open'));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.byTooltip('Pre-fill fields'));
+    await pumpUntilSettled(tester);
+
+    for (final id in [
+      'series',
+      'platform',
+      'genre',
+      'audience_rating',
+      'edition',
+      'format',
+      'region',
+      'condition',
+      'game_completed',
+      'game_completed_date_parts',
+      'game_storage_slot',
+    ]) {
+      expect(find.byKey(ValueKey('prefill-field-$id')), findsOneWidget,
+          reason: id);
+    }
+    await tester.tap(find.byKey(const ValueKey('prefill-field-region')));
+    await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Region'), findsWidgets);
+  });
+
   testWidgets('Pre-fill fields hides a field and stops filling it',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 1000);

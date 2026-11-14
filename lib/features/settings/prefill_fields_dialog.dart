@@ -49,12 +49,26 @@ class _PrefillFieldsDialogState extends State<_PrefillFieldsDialog> {
   String _label(String id) =>
       widget.choices.firstWhere((choice) => choice.id == id).label;
 
+  /// A group's fields in alphabetical order, as the reference lists them.
   List<PrefillFieldChoice> _groupChoices(String group) => [
         for (final choice in widget.choices)
           if (choice.group == group &&
               choice.label.toLowerCase().contains(_query.toLowerCase()))
             choice,
-      ];
+      ]..sort((a, b) => a.label.compareTo(b.label));
+
+  /// The reference's group order, then any other group as first listed.
+  static const _groupOrder = ['Main', 'Value', 'Toy', 'Edition', 'Personal'];
+
+  List<String> get _groups {
+    final groups = {for (final choice in widget.choices) choice.group};
+    return [
+      for (final group in _groupOrder)
+        if (groups.contains(group)) group,
+      for (final group in groups)
+        if (!_groupOrder.contains(group)) group,
+    ];
+  }
 
   void _toggle(String id) => setState(
       () => _selected.contains(id) ? _selected.remove(id) : _selected.add(id));
@@ -95,9 +109,7 @@ class _PrefillFieldsDialogState extends State<_PrefillFieldsDialog> {
             const SizedBox(height: 10),
             Expanded(
                 child: ListView(children: [
-              for (final group in {
-                for (final choice in widget.choices) choice.group
-              })
+              for (final group in _groups)
                 if (_groupChoices(group) case final choices
                     when choices.isNotEmpty)
                   LibraryFieldSelectionCategory(

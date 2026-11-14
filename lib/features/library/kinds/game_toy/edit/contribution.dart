@@ -1,6 +1,8 @@
+import 'prefill_catalog_fields.dart';
 import '../game_toy_module_dependencies.dart';
 
 final gameToyKindEditCapabilities = LibraryEditCapabilitySet(
+  prefillCatalogFields: gameToyPrefillCatalogFields,
   prefillFields: gameToyPrefillFields,
   editRegistry: LibraryTargetEditRegistry(
       catalogItem: buildGameToyItemEditDialog,

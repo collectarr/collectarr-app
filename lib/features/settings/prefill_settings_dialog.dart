@@ -66,6 +66,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   late final LibraryEntryEditDraft _draft;
+  late final LibraryPrefillCatalogDraft _catalog;
 
   /// The fields shown, in order, as chosen in Pre-fill fields.
   List<String> _fields = const [];
@@ -88,7 +89,10 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   void dispose() {
     _tags.dispose();
     _conditionController.dispose();
-    if (_loaded) _draft.dispose();
+    if (_loaded) {
+      _draft.dispose();
+      _catalog.dispose();
+    }
     super.dispose();
   }
 
@@ -118,6 +122,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           catalogData: const {'title': 'Default values'},
           personalData: defaults.personalValues,
           updatedAt: DateTime.now().toUtc()));
+      _catalog = LibraryPrefillCatalogDraft(defaults.catalogValues);
       final available = {for (final choice in _choices()) choice.id};
       _fields = [
         for (final id in defaults.fields ?? _defaultFields())
@@ -130,12 +135,17 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   List<LibraryPrefillField> _kindFields() =>
       _presentation.prefillFields?.call(_draft) ?? const [];
 
+  /// Catalog fields such as Series or Region, filled on new items that lack
+  /// them.
+  List<LibraryPrefillField> _catalogFields() =>
+      _presentation.prefillCatalogFields?.call(context, _catalog) ?? const [];
+
   String _label(String key, String fallback) => _specs[key]?.label ?? fallback;
 
   /// Every field Pre-fill fields offers, under the reference's groups.
   List<PrefillFieldChoice> _choices() => [
-        for (final field in _kindFields())
-          (id: field.id, label: field.label, group: 'Value'),
+        for (final field in [..._catalogFields(), ..._kindFields()])
+          (id: field.id, label: field.label, group: field.group),
         if (_presentation.conditions.isNotEmpty &&
             !_kindFields().any((field) => field.id == 'condition'))
           (
@@ -195,7 +205,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 
   /// The draft values a field sets.
   List<String> _keysOf(String id) {
-    for (final field in _kindFields()) {
+    for (final field in [..._kindFields(), ..._catalogFields()]) {
       if (field.id == id) return field.keys;
     }
     return switch (id) {
@@ -286,7 +296,11 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800, maxHeight: 720),
+        // As tall as the window allows, as the reference grows with the
+        // chosen fields before it scrolls.
+        constraints: BoxConstraints(
+            maxWidth: 800,
+            maxHeight: MediaQuery.sizeOf(context).height - 2 * 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -315,61 +329,67 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   /// The chosen fields in two columns, a kind's controls, Tags, Rating and
   /// Notes across both; Fill with today follows Purchase Date and the cover
   /// price fill follows Purchase Price.
-  Widget _form() => LibraryEntryPersonalSection(
-        draft: _draft,
-        layoutBuilder: (fields, _) {
-          final kindFields = {
-            for (final field in _kindFields()) field.id: field
-          };
-          final cells = <Widget>[];
-          final fullWidth = <int>{};
-          void add(Widget? cell, {bool wide = false}) {
-            if (cell == null) return;
-            if (wide) fullWidth.add(cells.length);
-            cells.add(cell);
-          }
+  Widget _form() => ListenableBuilder(
+      listenable: _catalog,
+      builder: (context, _) => LibraryEntryPersonalSection(
+            draft: _draft,
+            layoutBuilder: (fields, _) {
+              final kindFields = {
+                for (final field in [..._catalogFields(), ..._kindFields()])
+                  field.id: field
+              };
+              final cells = <Widget>[];
+              final fullWidth = <int>{};
+              void add(Widget? cell, {bool wide = false}) {
+                if (cell == null) return;
+                if (wide) fullWidth.add(cells.length);
+                cells.add(cell);
+              }
 
-          for (final id in _fields) {
-            switch (id) {
-              case _ when kindFields.containsKey(id):
-                add(kindFields[id]!.field, wide: kindFields[id]!.fullWidth);
-              case 'location_id':
-                add(_locationField());
-              case 'condition':
-                add(_conditionField());
-              case 'purchase_date':
-                add(_purchaseDateField());
-                add(_fillTodayCheckbox());
-              case 'price_paid_cents':
-                add(fields[id]);
-                if (_presentation.prefillPriceFromCover) add(_coverPriceFill());
-              case 'quantity':
-                add(_quantityField());
-              case 'tags':
-                add(
-                    LibraryMultiVocabularyField(
-                        label: _label('tags', 'Tags'),
-                        options: _tagOptions,
-                        controller: _tags),
-                    wide: true);
-              case _
-                  when _specs[id]?.area == PersonalLibraryFieldArea.rating ||
-                      _specs[id]?.area == PersonalLibraryFieldArea.notes:
-                add(fields[id], wide: true);
-              default:
-                add(fields[id]);
-            }
-          }
-          return LibraryResponsiveFieldLayout(
-            maxColumns: 2,
-            columnBreakpoints: const {2: 600},
-            spacing: 30,
-            runSpacing: 15,
-            fullWidthIndices: fullWidth,
-            children: cells,
-          );
-        },
-      );
+              for (final id in _fields) {
+                switch (id) {
+                  case _ when kindFields.containsKey(id):
+                    add(kindFields[id]!.field, wide: kindFields[id]!.fullWidth);
+                  case 'location_id':
+                    add(_locationField());
+                  case 'condition':
+                    add(_conditionField());
+                  case 'purchase_date':
+                    add(_purchaseDateField());
+                    add(_fillTodayCheckbox());
+                  case 'price_paid_cents':
+                    add(fields[id]);
+                    if (_presentation.prefillPriceFromCover) {
+                      add(_coverPriceFill());
+                    }
+                  case 'quantity':
+                    add(_quantityField());
+                  case 'tags':
+                    add(
+                        LibraryMultiVocabularyField(
+                            label: _label('tags', 'Tags'),
+                            options: _tagOptions,
+                            controller: _tags),
+                        wide: true);
+                  case _
+                      when _specs[id]?.area ==
+                              PersonalLibraryFieldArea.rating ||
+                          _specs[id]?.area == PersonalLibraryFieldArea.notes:
+                    add(fields[id], wide: true);
+                  default:
+                    add(fields[id]);
+                }
+              }
+              return LibraryResponsiveFieldLayout(
+                maxColumns: 2,
+                columnBreakpoints: const {2: 600},
+                spacing: 30,
+                runSpacing: 15,
+                fullWidthIndices: fullWidth,
+                children: cells,
+              );
+            },
+          ));
 
   Widget _conditionField() => LibraryFormField(
       label: _label('condition', 'Condition'),
@@ -518,6 +538,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         _selectedLocationId = null;
         _tags.value = const [];
         _draft.reset();
+        _catalog.clear();
         _conditionController.clear();
         _fillToday = false;
         _fillPriceFromCover = false;
@@ -586,8 +607,12 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       // A pre-fill never sets the value: completeness controls may recompute
       // it, and a new entry keeps the value from its catalog item.
       ..remove('market_value_cents');
+    final catalogValues = Map.of(_catalog.values);
     for (final choice in _choices()) {
-      if (!shown.contains(choice.id)) _keysOf(choice.id).forEach(values.remove);
+      if (!shown.contains(choice.id)) {
+        _keysOf(choice.id).forEach(values.remove);
+        _keysOf(choice.id).forEach(catalogValues.remove);
+      }
     }
     final fillToday = _fillToday && shown.contains('purchase_date');
     if (fillToday) _keysOf('purchase_date').forEach(values.remove);
@@ -602,6 +627,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           shown.contains('tags') && _tags.value.isNotEmpty ? _tags.value : null,
       fields: _fields,
       personalValues: values,
+      catalogValues: catalogValues,
     );
     await defaults.save(widget.kind);
     if (mounted) Navigator.of(context).pop(defaults);

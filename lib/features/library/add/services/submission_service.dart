@@ -155,6 +155,8 @@ final class LibraryAddSubmissionService {
         onLibraryEntryCreated: (ref) async {
           await _applyPersonalDefaults(request.entryMutations, ref, defaults,
               explicitRating: request.trackingDraft.rating);
+          await request.entryMutations
+              .fillCatalogData(ref, defaults?.catalogValues ?? const {});
           await request.onLibraryEntryCreated?.call(ref);
         },
         onSubmissionCommitted: request.onSubmissionCommitted,
@@ -207,6 +209,8 @@ final class LibraryAddSubmissionService {
           await _applyPersonalDefaults(
               request.dependencies.entryMutations, ref, defaults,
               explicitRating: request.trackingDraft?.rating);
+          await request.dependencies.entryMutations
+              .fillCatalogData(ref, defaults?.catalogValues ?? const {});
           await request.onLibraryEntryCreated?.call(ref);
         },
         onSubmissionCommitted: request.onSubmissionCommitted,
