@@ -25,6 +25,7 @@
 - Select Location matches the other pick lists, lists full paths with item counts and creates nested locations; Manage Locations uses the same table.
 - The details panel can be made narrower, and dragging its divider past the smallest size hides it.
 - The library shows a loading screen while it first loads and when switching to another kind.
+- The menu offers Add from Core and Add Manually only for the open collection's kind, so Hardware and Toys are added from their own collections.
 
 ### Fixes
 - Barcode and title lookups for Games stay fast with a large catalog cache.

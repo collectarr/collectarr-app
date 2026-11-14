@@ -2,7 +2,6 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:collectarr_app/features/library/collections/family.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -202,20 +201,16 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
               (!destination.nativeOnly ||
                   appPresentationPlatform.isNativeMobile) &&
               (!destination.adminOnly || widget.isAdmin))
-            // As in the reference, every kind of a collection family, such as
-            // Games, Hardware and Toys, has its own Add from Core entry.
+            // Only the open collection's kind is offered: Hardware and Toys
+            // are added from their own collections, not from Games.
             if (destination.action == DrawerAction.addFromCore)
-              for (final type
-                  in collectionFamilyKinds(widget.type.kind.apiValue))
-                _action(context, destination,
-                    label: 'Add ${type.identity.pluralLabel} from Core',
-                    onTap: () => widget.onAddFromCore(context, type))
+              _action(context, destination,
+                  label: 'Add ${widget.type.identity.pluralLabel} from Core',
+                  onTap: () => widget.onAddFromCore(context, widget.type))
             else if (destination.action == DrawerAction.addManually)
-              for (final type
-                  in collectionFamilyKinds(widget.type.kind.apiValue))
-                _action(context, destination,
-                    label: 'Add ${type.identity.pluralLabel} Manually',
-                    onTap: () => widget.onAddManually(context, type))
+              _action(context, destination,
+                  label: 'Add ${widget.type.identity.pluralLabel} Manually',
+                  onTap: () => widget.onAddManually(context, widget.type))
             else if (destination.action == DrawerAction.missingItems) ...[
               if (libraryToolbarForKind(widget.type.kind)?.missingReport !=
                   null)

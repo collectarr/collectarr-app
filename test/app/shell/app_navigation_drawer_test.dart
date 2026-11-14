@@ -191,7 +191,7 @@ void main() {
     expect(find.text('Link Albums'), findsNothing);
   });
 
-  testWidgets('every Games family kind has an Add from Core entry',
+  testWidgets('a Hardware collection offers only Add Hardware from Core',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1200);
     tester.view.devicePixelRatio = 1.0;
@@ -216,14 +216,14 @@ void main() {
       ),
     );
 
-    expect(find.text('Add Games from Core'), findsOneWidget);
+    expect(find.text('Add Games from Core'), findsNothing);
     expect(find.text('Add Hardware from Core'), findsOneWidget);
-    expect(find.text('Add Toys from Core'), findsOneWidget);
-    await tester.tap(find.text('Add Toys from Core'));
-    expect(opened, [CatalogMediaKind.gameToy]);
+    expect(find.text('Add Toys from Core'), findsNothing);
+    await tester.tap(find.text('Add Hardware from Core'));
+    expect(opened, [CatalogMediaKind.gameHardware]);
   });
 
-  testWidgets('Games family manual shortcuts open the selected kind',
+  testWidgets('a Games collection offers only Add Games Manually',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1200);
     tester.view.devicePixelRatio = 1;
@@ -243,15 +243,11 @@ void main() {
         ),
       ),
     ));
-    for (final label in [
-      'Add Games Manually',
-      'Add Hardware Manually',
-      'Add Toys Manually',
-    ]) {
-      expect(find.text(label), findsOneWidget);
-    }
-    await tester.tap(find.text('Add Toys Manually'));
-    expect(opened, [CatalogMediaKind.gameToy]);
+    expect(find.text('Add Games Manually'), findsOneWidget);
+    expect(find.text('Add Hardware Manually'), findsNothing);
+    expect(find.text('Add Toys Manually'), findsNothing);
+    await tester.tap(find.text('Add Games Manually'));
+    expect(opened, [CatalogMediaKind.game]);
   });
 
   for (final (kind, label) in [
