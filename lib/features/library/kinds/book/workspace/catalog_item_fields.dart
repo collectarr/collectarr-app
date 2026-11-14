@@ -156,6 +156,16 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
     allowGroupInteraction: false,
     defaultWidth: 225,
   ),
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, Iterable<String>>(
+    id: BookFieldIds.subject,
+    metadata: BookWorkspaceFieldMetadata.subject,
+    getValue: (context) => context.dto.metadata.subjects,
+    cellValue: (context) => Text(context.dto.metadata.subjects.join(' | ')),
+    group: 'Categorization',
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
+    defaultWidth: 225,
+  ),
   columnFromField<BookKind, BookWorkspaceDto, String?>(
     BookCatalogItemWorkspaceFields.series,
     defaultWidth: 150,

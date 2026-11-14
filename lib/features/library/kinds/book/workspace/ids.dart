@@ -41,6 +41,8 @@ abstract final class BookFieldIds {
       LibraryFieldId<BookKind, String?>('book.cover_artist');
   static const signedBy = LibraryFieldId<BookKind, String?>('book.signed_by');
   static const genre = LibraryFieldId<BookKind, Iterable<String>>('book.genre');
+  static const subject =
+      LibraryFieldId<BookKind, Iterable<String>>('book.subject');
 }
 
 abstract final class BookSortIds {

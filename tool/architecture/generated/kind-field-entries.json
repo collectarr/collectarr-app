@@ -1233,6 +1233,17 @@
             "book.status"
           ]
         },
+        "subject": {
+          "symbols": [
+            "subject"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.subject"
+          ]
+        },
         "subtitle": {
           "symbols": [
             "subtitle"
