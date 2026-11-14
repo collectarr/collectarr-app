@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/models/common_draft.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 
 void main() {
   setUp(() {
@@ -69,7 +70,8 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: const MaterialApp(
           home: Scaffold(
-            body: PrefillSettingsDialog(accent: Colors.orange),
+            body: PrefillSettingsDialog(
+                accent: Colors.orange, kind: CatalogMediaKind.music),
           ),
         ),
       ),
@@ -127,7 +129,7 @@ void main() {
     await tester.enterText(
         find.descendant(of: condition, matching: find.byType(TextFormField)),
         'Good');
-    await tester.tap(find.text('Fill purchase date with today'));
+    await tester.tap(find.text('Fill with today'));
     await tester.tap(find.textContaining('Always show'));
     await tester.tap(find.widgetWithText(FilledButton, 'Add'));
     await pumpUntilSettled(tester);
@@ -184,6 +186,82 @@ void main() {
     expect(result!.personalValues['game_has_manual'], isTrue);
     expect(result!.personalValues['quantity'], 2);
     expect(result!.personalValues.containsKey('market_value_cents'), isFalse);
+  });
+
+  testWidgets('Fill with today shows today read-only at once', (tester) async {
+    tester.view.physicalSize = const Size(1100, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: const MaterialApp(
+          home: Scaffold(
+              body: PrefillSettingsDialog(
+                  accent: Colors.red, kind: CatalogMediaKind.game))),
+    ));
+    await pumpUntilSettled(tester);
+
+    await tester.tap(find.text('Fill with today'));
+    await tester.pump();
+
+    final year = find.descendant(
+        of: find.byType(LibraryPartialDateInput),
+        matching: find.text('${DateTime.now().year}'));
+    expect(year, findsOneWidget);
+    final field = tester.widget<TextField>(
+        find.ancestor(of: year, matching: find.byType(TextField)));
+    expect(field.enabled, isFalse);
+  });
+
+  testWidgets('Pre-fill fields hides a field and stops filling it',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({
+      'collectarr.prefill.game.personal': '{"quantity": 3}',
+    });
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    PrefillDefaults? result;
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+          home: Scaffold(
+              body: Builder(
+        builder: (context) => TextButton(
+            onPressed: () async {
+              result = await showPrefillSettingsDialog(
+                  context: context,
+                  accent: Colors.red,
+                  kind: CatalogMediaKind.game);
+            },
+            child: const Text('Open')),
+      ))),
+    ));
+    await tester.tap(find.text('Open'));
+    await pumpUntilSettled(tester);
+    expect(find.widgetWithText(TextButton, 'Cancel'), findsNothing);
+
+    await tester.tap(find.byTooltip('Pre-fill fields'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Pre-fill fields'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('prefill-field-quantity')));
+    await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+    await pumpUntilSettled(tester);
+
+    expect(find.byKey(const ValueKey('prefill-quantity')), findsNothing);
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(result!.fields, isNot(contains('quantity')));
+    expect(result!.personalValues.containsKey('quantity'), isFalse);
+    expect((await PrefillDefaults.load(CatalogMediaKind.game)).fields,
+        result!.fields);
   });
 
   testWidgets('PrefillSettingsDialog renders MobilePage on native mobile phone',

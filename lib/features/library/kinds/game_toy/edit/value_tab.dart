@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/ui/primitives/responsive_form_ro
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/edit_capability.dart';
 import 'package:flutter/material.dart';
 import '../domain/game_toy_completeness.dart';
 import '../entries/game_toy_entry_details.dart';
@@ -114,9 +115,26 @@ Widget gameToyValueLayout(Map<String, Widget> fields, Widget? history) {
 }
 
 /// Loose/New and Box of the reference Toys pre-fill.
-List<Widget> gameToyPrefillFields(LibraryEntryEditDraft draft) {
+List<LibraryPrefillField> gameToyPrefillFields(LibraryEntryEditDraft draft) {
   final fields = gameToyValueFields(_EntryBindings(draft));
-  return [fields['completeness']!, fields['box_manual']!];
+  return [
+    LibraryPrefillField(
+        id: 'game_toy_completeness',
+        label: 'Completeness',
+        keys: const ['game_toy_completeness', 'game_toy_has_box'],
+        field:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          fields['completeness']!,
+          const SizedBox(height: 12),
+          fields['box_manual']!,
+        ])),
+    LibraryPrefillField(
+        id: 'condition',
+        label: 'Condition',
+        shownByDefault: false,
+        fullWidth: false,
+        field: fields['condition']!),
+  ];
 }
 
 final class GameToyValueTab extends StatelessWidget {

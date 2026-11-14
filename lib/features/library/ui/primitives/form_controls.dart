@@ -267,6 +267,7 @@ class LibraryPartialDateField extends StatelessWidget {
     required this.onChanged,
     this.focusNode,
     this.labelStyle,
+    this.enabled = true,
   });
 
   /// Binds a full [DateTime]: only a complete date or a cleared field is
@@ -278,6 +279,7 @@ class LibraryPartialDateField extends StatelessWidget {
     required ValueChanged<DateTime?> onDateChanged,
     this.focusNode,
     this.labelStyle,
+    this.enabled = true,
   })  : value = date == null ? null : PartialDate.fromDateTime(date.toLocal()),
         onChanged = ((parts) {
           if (parts == null || parts.isEmpty) {
@@ -292,6 +294,9 @@ class LibraryPartialDateField extends StatelessWidget {
   final ValueChanged<PartialDate?> onChanged;
   final FocusNode? focusNode;
   final TextStyle? labelStyle;
+
+  /// False shows the date read-only, without its calendar.
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -317,9 +322,10 @@ class LibraryPartialDateField extends StatelessWidget {
                   value: value,
                   focusNode: focusNode,
                   onChanged: onChanged,
+                  enabled: enabled,
                 ),
               ),
-              if (showCalendar)
+              if (showCalendar && enabled)
                 IconButton(
                   tooltip: 'Choose $label',
                   icon: Icon(AppIcons.calendar,
@@ -337,30 +343,33 @@ class LibraryPartialDateField extends StatelessWidget {
     return LibraryFormField(
       label: label,
       labelStyle: labelStyle,
-      action: Builder(
-        builder: (context) => Tooltip(
-          message: 'Choose $label',
-          child: InkWell(
-            mouseCursor: SystemMouseCursors.click,
-            onTap: () => _chooseDate(context),
-            child: SizedBox(
-              width: 22,
-              height: 16,
-              child: Center(
-                child: Icon(
-                  AppIcons.calendar,
-                  size: 14,
-                  color: appPalette(context).textMuted,
+      action: !enabled
+          ? null
+          : Builder(
+              builder: (context) => Tooltip(
+                message: 'Choose $label',
+                child: InkWell(
+                  mouseCursor: SystemMouseCursors.click,
+                  onTap: () => _chooseDate(context),
+                  child: SizedBox(
+                    width: 22,
+                    height: 16,
+                    child: Center(
+                      child: Icon(
+                        AppIcons.calendar,
+                        size: 14,
+                        color: appPalette(context).textMuted,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      ),
       child: LibraryPartialDateInput(
         value: value,
         focusNode: focusNode,
         onChanged: onChanged,
+        enabled: enabled,
       ),
     );
   }
@@ -384,10 +393,12 @@ class LibraryPartialDateInput extends StatefulWidget {
     this.value,
     required this.onChanged,
     this.focusNode,
+    this.enabled = true,
   });
   final PartialDate? value;
   final ValueChanged<PartialDate?> onChanged;
   final FocusNode? focusNode;
+  final bool enabled;
 
   @override
   State<LibraryPartialDateInput> createState() =>
@@ -460,6 +471,7 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
               flex: i == 0 ? 3 : 2,
               child: LibraryTextFormControl(
                 controller: _controllers[i],
+                enabled: widget.enabled,
                 focusNode: position == 0 ? widget.focusNode : null,
                 textAlign: TextAlign.center,
                 style: nativeEditor

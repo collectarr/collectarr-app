@@ -28,8 +28,10 @@
 - The menu offers Add from Core and Add Manually only for the open collection's kind, so Hardware and Toys are added from their own collections.
 - Add/Update from Core Settings groups its fields under the edit dialog's tabs: set a whole tab at once and set single fields apart from it.
 - Link Games shows what each match is based on under your item: barcode, catalog number, series, issue, publisher and year.
+- The settings button in Pre-fill Settings opens Pre-fill fields, where you choose and order the fields it shows, such as Condition, Notes, My Rating or Storage Device; a field taken out no longer fills new items.
 
 ### Fixes
+- Pre-fill Settings matches CLZ: Fill with today shows today's date at once and locks it, the grey bar holds the settings button, Always show this screen and Clear All, and Save stands alone, with the close button to cancel.
 - The collection menu on the Add dialog's Platform tab looks like CLZ's: a borderless field, a wider list aligned to its right edge, and bold rows that highlight on hover.
 - The Add dialog's tabs light up under the pointer, its settings and camera buttons turn white on hover, and Search always shows the hand pointer.
 - The Add and Link dialogs' search fields stay on one line and cut off text that does not fit, and their caret is white, as in CLZ.

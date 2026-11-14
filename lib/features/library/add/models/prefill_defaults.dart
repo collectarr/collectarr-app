@@ -15,7 +15,8 @@ class PrefillDefaults {
       this.alwaysShow = true,
       this.fillPurchaseDateWithToday = false,
       this.fillPriceWithCoverPrice = false,
-      this.coverPriceDiscountPercent = 0});
+      this.coverPriceDiscountPercent = 0,
+      this.fields});
   final String? locationId;
   final List<String>? tags;
   final Map<String, dynamic> personalValues;
@@ -26,6 +27,10 @@ class PrefillDefaults {
   /// [coverPriceDiscountPercent], instead of one fixed price.
   final bool fillPriceWithCoverPrice;
   final int coverPriceDiscountPercent;
+
+  /// The fields Pre-fill Settings shows, in order, as chosen in its Pre-fill
+  /// fields list; null shows the kind's default fields.
+  final List<String>? fields;
 
   /// The price paid for an item with [coverPriceCents], when this pre-fill
   /// takes it from the cover price.
@@ -52,6 +57,9 @@ class PrefillDefaults {
         coverPriceDiscountPercent: prefs.getInt(
                 'collectarr.prefill.${kind?.apiValue ?? 'all'}.cover_discount') ??
             0,
+        fields: kind == null
+            ? null
+            : prefs.getStringList('collectarr.prefill.${kind.apiValue}.fields'),
         locationId: prefs.getString(_locationKey),
         tags: prefs.getStringList(_tagsKey),
         personalValues: raw == null
@@ -86,6 +94,12 @@ class PrefillDefaults {
     if (kind != null) {
       await prefs.setString('collectarr.prefill.${kind.apiValue}.personal',
           jsonEncode(personalValues));
+      if (fields case final fields?) {
+        await prefs.setStringList(
+            'collectarr.prefill.${kind.apiValue}.fields', fields);
+      } else {
+        await prefs.remove('collectarr.prefill.${kind.apiValue}.fields');
+      }
     }
   }
 

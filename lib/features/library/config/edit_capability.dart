@@ -88,9 +88,35 @@ final class LibraryTargetEditRegistry {
       target is EntryTargetRef ? libraryEntry : catalogItem;
 }
 
-/// Kind controls that lead Pre-fill Settings, such as completeness and
-/// packaging, bound to the pre-fill draft.
-typedef LibraryPrefillFieldsBuilder = List<Widget> Function(
+/// A kind control offered by Pre-fill Settings, such as completeness with
+/// its packaging, under the [id] and [label] its Pre-fill fields list shows.
+final class LibraryPrefillField {
+  const LibraryPrefillField(
+      {required this.id,
+      required this.label,
+      required this.field,
+      this.shownByDefault = true,
+      this.fullWidth = true,
+      List<String>? keys})
+      : _keys = keys;
+
+  final String id;
+  final String label;
+  final Widget field;
+
+  /// False leaves it out until chosen in Pre-fill fields.
+  final bool shownByDefault;
+
+  /// False takes one of the two columns instead of both.
+  final bool fullWidth;
+  final List<String>? _keys;
+
+  /// The draft values the control sets; by default only [id].
+  List<String> get keys => _keys ?? [id];
+}
+
+/// Kind controls that lead Pre-fill Settings, bound to the pre-fill draft.
+typedef LibraryPrefillFieldsBuilder = List<LibraryPrefillField> Function(
     LibraryEntryEditDraft draft);
 
 /// Presentation-only configuration for the shared edit host.
@@ -110,8 +136,9 @@ final class LibraryEditPresentationCapability {
     this.prefillPriceFromCover = false,
   });
 
-  /// When set, Pre-fill Settings shows these controls, Owner, Quantity and
-  /// Tags instead of Condition, as in the reference Games pre-fill.
+  /// When set, Pre-fill Settings leads with these controls and shows Owner,
+  /// Quantity and Tags instead of Condition until other fields are chosen,
+  /// as in the reference Games pre-fill.
   final LibraryPrefillFieldsBuilder? prefillFields;
 
   /// Pre-fill Settings also offers Fill with Cover Price and Discount %.

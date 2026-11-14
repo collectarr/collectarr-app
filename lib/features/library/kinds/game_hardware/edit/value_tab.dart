@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/ui/primitives/responsive_form_ro
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/edit_capability.dart';
 import 'package:flutter/material.dart';
 import '../domain/game_hardware_completeness.dart';
 import '../entries/game_hardware_entry_details.dart';
@@ -120,9 +121,31 @@ Widget gameHardwareValueLayout(Map<String, Widget> fields, Widget? history) {
 }
 
 /// Completeness and Box/Manual of the reference Hardware pre-fill.
-List<Widget> gameHardwarePrefillFields(LibraryEntryEditDraft draft) {
+List<LibraryPrefillField> gameHardwarePrefillFields(
+    LibraryEntryEditDraft draft) {
   final fields = gameHardwareValueFields(_EntryBindings(draft));
-  return [fields['completeness']!, fields['box_manual']!];
+  return [
+    LibraryPrefillField(
+        id: 'game_hardware_completeness',
+        label: 'Completeness',
+        keys: const [
+          'game_hardware_completeness',
+          'game_hardware_has_box',
+          'game_hardware_has_manual'
+        ],
+        field:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          fields['completeness']!,
+          const SizedBox(height: 12),
+          fields['box_manual']!,
+        ])),
+    LibraryPrefillField(
+        id: 'condition',
+        label: 'Condition',
+        shownByDefault: false,
+        fullWidth: false,
+        field: fields['condition']!),
+  ];
 }
 
 final class GameHardwareValueTab extends StatelessWidget {

@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/ui/primitives/money_amount_field
 import 'package:collectarr_app/features/library/ui/primitives/responsive_form_row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/edit_capability.dart';
 import 'package:flutter/material.dart';
 
 /// Value-tab state of one Game copy, from the editor or from Manual Add.
@@ -110,9 +111,26 @@ Widget gameValueLayout(Map<String, Widget> fields, Widget? _) {
 }
 
 /// Completeness and Box/Manual of the reference Games pre-fill.
-List<Widget> gamePrefillFields(LibraryEntryEditDraft draft) {
+List<LibraryPrefillField> gamePrefillFields(LibraryEntryEditDraft draft) {
   final fields = gameValueFields(_EntryDraftValueBindings(draft));
-  return [fields['completeness']!, fields['box_manual']!];
+  return [
+    LibraryPrefillField(
+        id: 'game_completeness',
+        label: 'Completeness',
+        keys: const ['game_completeness', 'game_has_box', 'game_has_manual'],
+        field:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          fields['completeness']!,
+          const SizedBox(height: 12),
+          fields['box_manual']!,
+        ])),
+    LibraryPrefillField(
+        id: 'condition',
+        label: 'Condition',
+        shownByDefault: false,
+        fullWidth: false,
+        field: fields['condition']!),
+  ];
 }
 
 /// Editor Value tab over the entry's personal draft.
