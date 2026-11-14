@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../edit/box_set_dialog.dart';
 import 'catalog_form_values.dart';
 
 List<LibraryFieldSpec<TDraft>> bookPublicationFields<TDraft>(
@@ -14,6 +19,34 @@ List<LibraryFieldSpec<TDraft>> bookPublicationFields<TDraft>(
           setValue: (draft, value) => values(draft).boxSet = value ?? '',
           options: const [],
           pickListKey: 'book.box_set'),
+      // The reference's pen beside Box Set, opening Edit Box Set.
+      LibraryCustomFieldSpec<TDraft>(
+          id: 'box_set_edit',
+          label: 'Edit box set',
+          builder: (context, draft) => Padding(
+                padding: const EdgeInsets.only(top: 21),
+                child: Tooltip(
+                  message: 'Edit box set',
+                  child: InkWell(
+                    onTap: () async {
+                      final name = values(draft).boxSet.trim();
+                      if (name.isEmpty) return;
+                      final saved = await showBookBoxSetDialog(
+                          context: context,
+                          db: ProviderScope.containerOf(context, listen: false)
+                              .read(localDatabaseProvider),
+                          name: name);
+                      if (saved != null) values(draft).boxSet = saved;
+                    },
+                    child: SizedBox(
+                      width: 34,
+                      height: 34,
+                      child: Icon(AppIcons.edit,
+                          size: 14, color: appPalette(context).textPrimary),
+                    ),
+                  ),
+                ),
+              )),
       LibraryVocabularyFieldSpec<TDraft, String>(
           id: 'publication_place',
           label: 'Publication Place',

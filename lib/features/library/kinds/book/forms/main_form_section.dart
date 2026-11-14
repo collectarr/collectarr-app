@@ -6,13 +6,15 @@ LibraryFormSectionSpec<TDraft> bookMainFormSection<TDraft>({
 }) {
   const columns = [
     LibraryFormColumnSpec(fieldFlex: {
-      BookFieldIdentities.seriesId: 2
+      BookFieldIdentities.seriesId: 2,
+      'box_set': 15,
+      'box_set_edit': 1
     }, rows: [
       ['catalog_title'],
       ['sort_title'],
       [BookFieldIdentities.subtitleId],
       [BookFieldIdentities.seriesId, 'number', 'volume_name'],
-      ['box_set'],
+      ['box_set', 'box_set_edit'],
     ]),
     LibraryFormColumnSpec(fieldFlex: {
       BookFieldIdentities.isbnId: 183,

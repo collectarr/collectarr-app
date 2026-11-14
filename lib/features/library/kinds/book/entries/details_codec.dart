@@ -21,6 +21,9 @@ final class BookEntryDetailsCodec {
         dustJacketPresent: details.dustJacketPresent,
         dustJacketCondition: details.dustJacketCondition,
         readEvents: details.readEvents,
+        boxSetPosition: details.boxSetPosition,
+        boxSetBarcode: details.boxSetBarcode,
+        boxSetReleaseDate: details.boxSetReleaseDate,
       );
 
   BookEntryDetailsDraft defaultDraft() => const BookEntryDetailsDraft();

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_read_event.dart';
 
 const Object _bookDetailsUnset = Object();
@@ -12,6 +13,9 @@ class BookEntryDetails implements JsonEncodable {
     this.dustJacketCondition,
     this.retailPriceCents,
     this.readEvents = const [],
+    this.boxSetPosition,
+    this.boxSetBarcode,
+    this.boxSetReleaseDate,
   });
 
   /// The people who signed this copy, in the order entered.
@@ -20,6 +24,12 @@ class BookEntryDetails implements JsonEncodable {
   final String? dustJacketCondition;
   final int? retailPriceCents;
   final List<BookReadEvent> readEvents;
+
+  /// This copy's place in its box set, and the set's own barcode and release
+  /// date, which every book of the set carries.
+  final int? boxSetPosition;
+  final String? boxSetBarcode;
+  final PartialDate? boxSetReleaseDate;
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -30,6 +40,10 @@ class BookEntryDetails implements JsonEncodable {
           'dust_jacket_condition': dustJacketCondition,
         if (readEvents.isNotEmpty)
           'read_events': [for (final event in readEvents) event.toJson()],
+        if (boxSetPosition != null) 'box_set_position': boxSetPosition,
+        if (boxSetBarcode != null) 'box_set_barcode': boxSetBarcode,
+        if (boxSetReleaseDate != null)
+          'box_set_release_date': boxSetReleaseDate!.toJson(),
       };
 
   factory BookEntryDetails.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +56,9 @@ class BookEntryDetails implements JsonEncodable {
         dustJacketPresent: json['dust_jacket_present'] as bool? ?? false,
         dustJacketCondition: json['dust_jacket_condition'] as String?,
         readEvents: BookReadEvent.listFromJson(json['read_events']),
+        boxSetPosition: (json['box_set_position'] as num?)?.toInt(),
+        boxSetBarcode: json['box_set_barcode'] as String?,
+        boxSetReleaseDate: PartialDate.tryParse(json['box_set_release_date']),
       );
 
   BookEntryDetails copyWith({
@@ -50,6 +67,9 @@ class BookEntryDetails implements JsonEncodable {
     Object? dustJacketCondition = _bookDetailsUnset,
     Object? retailPriceCents = _bookDetailsUnset,
     List<BookReadEvent>? readEvents,
+    Object? boxSetPosition = _bookDetailsUnset,
+    Object? boxSetBarcode = _bookDetailsUnset,
+    Object? boxSetReleaseDate = _bookDetailsUnset,
   }) {
     return BookEntryDetails(
       signedBy: signedBy ?? this.signedBy,
@@ -61,6 +81,15 @@ class BookEntryDetails implements JsonEncodable {
           ? this.dustJacketCondition
           : dustJacketCondition as String?,
       readEvents: readEvents ?? this.readEvents,
+      boxSetPosition: identical(boxSetPosition, _bookDetailsUnset)
+          ? this.boxSetPosition
+          : boxSetPosition as int?,
+      boxSetBarcode: identical(boxSetBarcode, _bookDetailsUnset)
+          ? this.boxSetBarcode
+          : boxSetBarcode as String?,
+      boxSetReleaseDate: identical(boxSetReleaseDate, _bookDetailsUnset)
+          ? this.boxSetReleaseDate
+          : boxSetReleaseDate as PartialDate?,
     );
   }
 
@@ -73,7 +102,10 @@ class BookEntryDetails implements JsonEncodable {
           retailPriceCents == other.retailPriceCents &&
           dustJacketPresent == other.dustJacketPresent &&
           dustJacketCondition == other.dustJacketCondition &&
-          listEquals(readEvents, other.readEvents);
+          listEquals(readEvents, other.readEvents) &&
+          boxSetPosition == other.boxSetPosition &&
+          boxSetBarcode == other.boxSetBarcode &&
+          boxSetReleaseDate == other.boxSetReleaseDate;
 
   @override
   int get hashCode => Object.hash(
@@ -82,5 +114,8 @@ class BookEntryDetails implements JsonEncodable {
         dustJacketPresent,
         dustJacketCondition,
         Object.hashAll(readEvents),
+        boxSetPosition,
+        boxSetBarcode,
+        boxSetReleaseDate,
       );
 }

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/book/config/field_identiti
 const bookMainFieldIds = {
   'catalog_title',
   'box_set',
+  'box_set_edit',
   'publication_place',
   'sort_title',
   BookFieldIdentities.subtitleId,

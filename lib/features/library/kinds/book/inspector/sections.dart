@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/book/data/book_library_ent
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_read_event.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/box_set_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/data.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
@@ -603,9 +604,9 @@ class _BookInspectorHeader extends StatelessWidget {
   }
 }
 
-/// The reference's box set block: its name over the set's books, each with
-/// its place in the set and its year.
-class _BookBoxSet extends ConsumerWidget {
+/// The reference's box set block: its name over the set's books in the
+/// set's order, each with its year, and the link that edits the set.
+class _BookBoxSet extends ConsumerStatefulWidget {
   const _BookBoxSet(
       {required this.name, required this.currentId, required this.onFilter});
 
@@ -614,31 +615,29 @@ class _BookBoxSet extends ConsumerWidget {
   final ValueChanged<String>? onFilter;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_BookBoxSet> createState() => _BookBoxSetState();
+}
+
+class _BookBoxSetState extends ConsumerState<_BookBoxSet> {
+  @override
+  Widget build(BuildContext context) {
     final palette = appPalette(context);
     final body = TextStyle(fontSize: 14, color: palette.textPrimary);
+    final db = ref.watch(localDatabaseProvider);
     return FutureBuilder<List<BookLibraryEntry>>(
-      future:
-          BookEntryRepository(ref.watch(localDatabaseProvider)).listActive(),
+      future: BookEntryRepository(db).listActive(),
       builder: (context, snapshot) {
         int year(BookLibraryEntry book) =>
             book.metadata.releaseDateParts?.year ??
             book.metadata.releaseDate?.year ??
             0;
-        final books = [
-          for (final book in snapshot.data ?? const <BookLibraryEntry>[])
-            if (book.metadata.boxSet == name) book,
-        ]..sort((a, b) {
-            final byYear = year(a).compareTo(year(b));
-            return byYear != 0
-                ? byYear
-                : a.metadata.title.compareTo(b.metadata.title);
-          });
+        final books = bookBoxSetMembers(
+            snapshot.data ?? const <BookLibraryEntry>[], widget.name);
         return Padding(
           padding: const EdgeInsets.only(bottom: 24),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(name,
+            Text(widget.name,
                 style: TextStyle(
                     fontSize: 24,
                     height: 1.1,
@@ -660,17 +659,32 @@ class _BookBoxSet extends ConsumerWidget {
                   Expanded(
                     child: _FilterLink(
                         value: book.metadata.title,
-                        onFilter: onFilter,
+                        onFilter: widget.onFilter,
                         style: body.copyWith(
                             color: palette.link,
-                            fontWeight: book.id.value == currentId
+                            fontWeight: book.id.value == widget.currentId
                                 ? kAppBoldFontWeight
                                 : null)),
                   ),
                   if (year(book) > 0) Text('${year(book)}', style: body),
                 ]),
               ),
-            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () async {
+                  await showBookBoxSetDialog(
+                      context: context, db: db, name: widget.name);
+                  if (mounted) setState(() {});
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text('Edit box set  ›',
+                      style: TextStyle(fontSize: 14, color: palette.textMuted)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
             Divider(height: 1, color: palette.detailRule),
           ]),
         );
