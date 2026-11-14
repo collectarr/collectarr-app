@@ -845,13 +845,15 @@ class _LibraryAddModeTextField extends StatelessWidget {
       key: fieldKey,
       controller: controller,
       onChanged: onChanged,
-      cursorColor: palette.utilityAction,
+      // White on the dark field, as in the reference; the shared blue on a
+      // light one.
+      cursorColor: palette.isDark ? Colors.white : palette.utilityAction,
       keyboardType: keyboardType ?? TextInputType.text,
       inputFormatters: [noNewlineFormatter],
       autofocus: mobile && controller.text.isEmpty,
-      expands: !mobile,
-      minLines: mobile ? 1 : null,
-      maxLines: mobile ? 1 : null,
+      // One line: text that does not fit is cut off at the field's edge
+      // rather than wrapping into a scrolling box.
+      maxLines: 1,
       textInputAction: TextInputAction.search,
       textAlignVertical: TextAlignVertical.center,
       onSubmitted: (_) => submit(),
@@ -1128,7 +1130,7 @@ class _AdvancedField extends StatelessWidget {
         child: TextField(
           key: fieldKey,
           controller: controller,
-          cursorColor: appPalette(context).utilityAction,
+          cursorColor: palette.isDark ? Colors.white : palette.utilityAction,
           keyboardType: keyboardType ?? TextInputType.text,
           inputFormatters: [noNewlineFormatter],
           textInputAction: TextInputAction.search,
