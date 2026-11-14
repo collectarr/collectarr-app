@@ -76,6 +76,22 @@ void main() {
     expect(book.skippedDownloads, isEmpty);
   });
 
+  test('a field set apart from its tab overrides it', () {
+    const settings = CoreDataSettings(
+      fieldTabs: {'label': 'main', 'genres': 'main', 'discs': 'details'},
+      skippedTabs: {'main'},
+      keptDownloads: {'genres'},
+      tabUpdateModes: {'details': CoreUpdateMode.replace},
+      updateModes: {'discs': CoreUpdateMode.skip},
+    );
+
+    expect(settings.downloads('label'), isFalse);
+    expect(settings.downloads('genres'), isTrue);
+    expect(settings.downloads('title'), isTrue);
+    expect(settings.modeFor('discs'), CoreUpdateMode.skip);
+    expect(settings.modeFor('label'), CoreUpdateMode.update);
+  });
+
   test('skipping tracks keeps discs but drops their tracks on Add', () {
     const settings = CoreDataSettings(skippedDownloads: {'discs.tracks'});
     final result = settings.withoutSkippedDownloads({
@@ -138,37 +154,35 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('dialog saves a field switched to No on the Add tab',
+  testWidgets('dialog saves a tab switched to No on the Add tab',
       (tester) async {
     await pumpDialog(tester, CatalogMediaKind.music);
 
     expect(find.text('Add/Update from Core Settings'), findsOneWidget);
-    expect(find.text('Add from Core'), findsOneWidget);
-    expect(find.text('Update from Core'), findsOneWidget);
     expect(find.text('Download'), findsOneWidget);
 
-    final noButtons = find.text('No');
-    await tester.tap(noButtons.first);
+    // The first No belongs to the Main tab's own row.
+    await tester.tap(find.text('No').first);
     await tester.pump();
     await tester.tap(find.byKey(const Key('core_data_settings.save')));
     await tester.pumpAndSettle();
 
     final saved = await CoreDataSettings.load(CatalogMediaKind.music);
-    expect(saved.skippedDownloads, hasLength(1));
+    expect(saved.skippedTabs, {'main'});
+    expect(saved.downloads('label'), isFalse);
+    expect(saved.downloads('discs'), isTrue);
   });
 
-  testWidgets('dialog lists the lists Core describes, with their nested lists',
+  testWidgets('dialog groups the fields under their edit tabs',
       (tester) async {
     await pumpDialog(tester, CatalogMediaKind.music);
 
-    expect(find.text('Discs'), findsOneWidget);
-    expect(find.text('Tracks'), findsOneWidget);
-    expect(find.text('Credits'), findsNWidgets(2));
-    expect(find.text('External links'), findsOneWidget);
-    expect(find.text('Back cover image url'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Disc Credits'), findsOneWidget);
+    expect(find.text('Back Cover'), findsOneWidget);
     expect(find.text('Title'), findsNothing);
-    expect(tester.getTopLeft(find.text('Tracks')).dx,
-        greaterThan(tester.getTopLeft(find.text('Discs')).dx));
+    expect(tester.getTopLeft(find.text('Label')).dx,
+        greaterThan(tester.getTopLeft(find.text('Main')).dx));
 
     await tester.tap(find.text('Update from Core'));
     await tester.pump();
@@ -190,7 +204,7 @@ void main() {
     expect(find.text('Variant Description'), findsOneWidget);
     expect(find.text('No. of Pages'), findsOneWidget);
     expect(find.text('Cover price cents'), findsNothing);
-    expect(tester.getTopLeft(find.text('Subtitle')).dy,
-        lessThan(tester.getTopLeft(find.text('Format')).dy));
+    expect(tester.getTopLeft(find.text('Variant Description')).dy,
+        lessThan(tester.getTopLeft(find.text('Story Arc')).dy));
   });
 }

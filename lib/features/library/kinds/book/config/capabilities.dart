@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/book/config/core_data_tabs.dart';
 import '../selection/contribution.dart';
 import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -83,6 +84,7 @@ final bookKindIdentity = const LibraryKindIdentity(
 );
 
 final bookKindMetadata = const LibraryMetadataCapability(
+  coreDataTabs: bookCoreDataTabs,
   catalogTransportCodec: BookCatalogTransportCodec(),
   searchQueryBuilder: bookMetadataSearchQuery,
 );

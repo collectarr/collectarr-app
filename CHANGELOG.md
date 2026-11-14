@@ -26,8 +26,10 @@
 - The details panel can be made narrower, and dragging its divider past the smallest size hides it.
 - The library shows a loading screen while it first loads and when switching to another kind.
 - The menu offers Add from Core and Add Manually only for the open collection's kind, so Hardware and Toys are added from their own collections.
+- Add/Update from Core Settings groups its fields under the edit dialog's tabs: set a whole tab at once and set single fields apart from it.
 
 ### Fixes
+- Add/Update from Core Settings matches the reference's look: a grey header per choice, Select all for each column, joined outlined buttons, the dark cell dividers and Save inside the panel.
 - The Add dialog's Barcode tab shows one column without the group divider and variants pane, and the dialog narrows and widens smoothly when switching tabs.
 - The divider between grouped Add results looks and drags like the library pane dividers: the same grip, the kind color while dragged, and it stays under the pointer.
 - Barcode and title lookups for Games stay fast with a large catalog cache.

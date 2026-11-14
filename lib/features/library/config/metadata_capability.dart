@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/core_data/settings.dart';
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
@@ -48,7 +49,7 @@ class LibraryMetadataCapability {
     this.catalogSearchResultsAreDetailed = false,
     this.catalogDetailCandidateBuilder,
     this.matchScorer,
-    this.coreDataFields,
+    this.coreDataTabs,
   });
 
   final CatalogKindTransportBoundary catalogTransportCodec;
@@ -59,9 +60,10 @@ class LibraryMetadataCapability {
   final bool catalogSearchResultsAreDetailed;
   final LibraryMetadataMatchScorer? matchScorer;
 
-  /// The fields Add/Update from Core Settings offers, in the kind's editor
-  /// order and labels; null offers every field of Core's contract.
-  final List<({String key, String label})>? coreDataFields;
+  /// The edit tabs and Core-filled fields Add/Update from Core Settings
+  /// offers, in the kind's editor order and labels; null when Core has no
+  /// catalog for the kind.
+  final List<CoreDataSettingsTab>? coreDataTabs;
   final LibraryMetadataCatalogDetailCandidateBuilder?
       catalogDetailCandidateBuilder;
 

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game_toy/config/core_data_tabs.dart';
 import '../selection/contribution.dart';
 import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import '../stats/game_toy_stats_capability.dart';
@@ -34,6 +35,7 @@ final gameToyKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.gameToy, gameToyKindUiPolicy,
     defaultDetailsLayout: LibraryDetailsLayout.right, defaultDetailsWidth: 350);
 final gameToyKindMetadata = const LibraryMetadataCapability(
+    coreDataTabs: gameToyCoreDataTabs,
     catalogTransportCodec: GameToyCatalogTransportCodec(),
     searchQueryBuilder: gameToyMetadataSearchQuery);
 final gameToyKindEntityVocabulary = const LibraryTargetVocabulary(

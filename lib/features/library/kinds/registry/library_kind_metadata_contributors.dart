@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/core_data/settings.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/presentation/media_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_metadata_registry.dart';
@@ -17,7 +18,7 @@ LibraryMetadataCapability libraryMetadataForKind(CatalogMediaKind kind) =>
 
 /// The kind's Add/Update from Core fields, or null for Core's contract
 /// (also for a kind not registered in this build).
-List<({String key, String label})>? libraryCoreDataFieldsForKind(
+List<CoreDataSettingsTab>? libraryCoreDataTabsForKind(
   CatalogMediaKind kind,
 ) =>
-    collectarrKindMetadata[kind]?.coreDataFields;
+    collectarrKindMetadata[kind]?.coreDataTabs;

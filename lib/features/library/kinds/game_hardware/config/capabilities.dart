@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game_hardware/config/core_data_tabs.dart';
 import '../selection/contribution.dart';
 import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import '../stats/game_hardware_stats_capability.dart';
@@ -34,6 +35,7 @@ final gameHardwareKindViewProfile = standardMediaWorkspaceViewProfile(
     CatalogMediaKind.gameHardware, gameHardwareKindUiPolicy,
     defaultDetailsLayout: LibraryDetailsLayout.right, defaultDetailsWidth: 350);
 final gameHardwareKindMetadata = const LibraryMetadataCapability(
+    coreDataTabs: gameHardwareCoreDataTabs,
     catalogTransportCodec: GameHardwareCatalogTransportCodec(),
     searchQueryBuilder: gameHardwareMetadataSearchQuery);
 final gameHardwareKindEntityVocabulary = const LibraryTargetVocabulary(

@@ -204,7 +204,7 @@ final class LibraryAddCoordinator {
     LibraryAddBatchRequest request,
     CatalogSearchCandidate item,
   ) =>
-      request.coreData.skippedDownloads.isEmpty
+      !request.coreData.skipsAnyDownload
           ? item
           : item.kindCapability.keepingKindFields(request.coreData.downloads);
 

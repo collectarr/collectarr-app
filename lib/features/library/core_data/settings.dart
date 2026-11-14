@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_metadata_contributors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,70 +27,139 @@ const Set<String> kCoreDataAlwaysDownloaded = {
   'title'
 };
 
-/// Per-kind choice of which non-personal fields are downloaded when adding
-/// from Core and how Update from Core treats each one. A key like
+/// One row of Add/Update from Core Settings: an editor field and the Core
+/// keys it is filled from, which always share one choice. A key like
 /// `discs.tracks` names a child list inside each entry of `discs`.
+typedef CoreDataSettingsField = ({String label, List<String> keys});
+
+/// One tab of a kind's edit dialog and the Core-filled fields it shows, in
+/// the editor's order; the settings dialog groups its rows by these tabs.
+typedef CoreDataSettingsTab = ({
+  String id,
+  String label,
+  List<CoreDataSettingsField> fields,
+});
+
+/// Per-kind choice of which non-personal fields are downloaded when adding
+/// from Core and how Update from Core treats each one. Each edit tab has its
+/// own choice; a field set apart from its tab overrides it.
 @immutable
 class CoreDataSettings {
   const CoreDataSettings({
+    this.fieldTabs = const {},
+    this.skippedTabs = const {},
     this.skippedDownloads = const {},
+    this.keptDownloads = const {},
+    this.tabUpdateModes = const {},
     this.updateModes = const {},
   });
 
-  /// Field keys that Add from Core leaves empty.
+  /// The edit tab of each Core key, from the kind's settings tabs.
+  final Map<String, String> fieldTabs;
+
+  /// Tabs whose fields Add from Core leaves empty unless a field overrides.
+  final Set<String> skippedTabs;
+
+  /// Field keys Add from Core leaves empty whatever their tab says.
   final Set<String> skippedDownloads;
 
-  /// Explicit per-field update choices; a missing key means [CoreUpdateMode.update].
+  /// Field keys Add from Core downloads although their tab is skipped.
+  final Set<String> keptDownloads;
+
+  /// Per-tab update choices; a missing tab means [CoreUpdateMode.update].
+  final Map<String, CoreUpdateMode> tabUpdateModes;
+
+  /// Per-field update choices that override their tab's.
   final Map<String, CoreUpdateMode> updateModes;
 
-  bool downloads(String key) =>
-      kCoreDataAlwaysDownloaded.contains(key) ||
-      !skippedDownloads.contains(key);
+  /// Whether Add from Core leaves any field empty.
+  bool get skipsAnyDownload =>
+      skippedDownloads.isNotEmpty || skippedTabs.isNotEmpty;
 
-  CoreUpdateMode modeFor(String key) =>
-      updateModes[key] ?? CoreUpdateMode.update;
+  bool tabDownloads(String tab) => !skippedTabs.contains(tab);
+
+  CoreUpdateMode tabModeFor(String tab) =>
+      tabUpdateModes[tab] ?? CoreUpdateMode.update;
+
+  bool downloads(String key) {
+    if (kCoreDataAlwaysDownloaded.contains(key)) return true;
+    if (skippedDownloads.contains(key)) return false;
+    if (keptDownloads.contains(key)) return true;
+    final tab = fieldTabs[key];
+    return tab == null || tabDownloads(tab);
+  }
+
+  CoreUpdateMode modeFor(String key) {
+    final tab = fieldTabs[key];
+    return updateModes[key] ??
+        (tab == null ? CoreUpdateMode.update : tabModeFor(tab));
+  }
 
   CoreDataSettings copyWith({
+    Set<String>? skippedTabs,
     Set<String>? skippedDownloads,
+    Set<String>? keptDownloads,
+    Map<String, CoreUpdateMode>? tabUpdateModes,
     Map<String, CoreUpdateMode>? updateModes,
   }) =>
       CoreDataSettings(
+        fieldTabs: fieldTabs,
+        skippedTabs: skippedTabs ?? this.skippedTabs,
         skippedDownloads: skippedDownloads ?? this.skippedDownloads,
+        keptDownloads: keptDownloads ?? this.keptDownloads,
+        tabUpdateModes: tabUpdateModes ?? this.tabUpdateModes,
         updateModes: updateModes ?? this.updateModes,
       );
 
-  static String _skipKey(CatalogMediaKind kind) =>
-      'collectarr.core_data.${kind.apiValue}.skipped_downloads';
-  static String _modesKey(CatalogMediaKind kind) =>
-      'collectarr.core_data.${kind.apiValue}.update_modes';
+  static String _key(CatalogMediaKind kind, String name) =>
+      'collectarr.core_data.${kind.apiValue}.$name';
 
+  /// The saved settings of [kind], resolved against its edit tabs.
   static Future<CoreDataSettings> load(CatalogMediaKind kind) async {
+    final tabs = libraryCoreDataTabsForKind(kind) ?? const [];
     final prefs = await SharedPreferences.getInstance();
-    final modes = prefs.getString(_modesKey(kind));
-    return CoreDataSettings(
-      skippedDownloads:
-          (prefs.getStringList(_skipKey(kind)) ?? const []).toSet(),
-      updateModes: modes == null
+    Set<String> list(String name) =>
+        (prefs.getStringList(_key(kind, name)) ?? const []).toSet();
+    Map<String, CoreUpdateMode> modes(String name) {
+      final json = prefs.getString(_key(kind, name));
+      return json == null
           ? const {}
           : {
               for (final entry
-                  in (jsonDecode(modes) as Map<String, dynamic>).entries)
+                  in (jsonDecode(json) as Map<String, dynamic>).entries)
                 entry.key: CoreUpdateMode.values.byName(entry.value as String),
-            },
+            };
+    }
+
+    return CoreDataSettings(
+      fieldTabs: {
+        for (final tab in tabs)
+          for (final field in tab.fields)
+            for (final key in field.keys) key: tab.id,
+      },
+      skippedTabs: list('skipped_download_tabs'),
+      skippedDownloads: list('skipped_downloads'),
+      keptDownloads: list('kept_downloads'),
+      tabUpdateModes: modes('tab_update_modes'),
+      updateModes: modes('update_modes'),
     );
   }
 
   Future<void> save(CatalogMediaKind kind) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-        _skipKey(kind), skippedDownloads.toList()..sort());
-    await prefs.setString(
-        _modesKey(kind),
-        jsonEncode({
-          for (final entry in updateModes.entries)
-            if (entry.value != CoreUpdateMode.update)
-              entry.key: entry.value.name,
-        }));
+    Future<void> list(String name, Set<String> values) =>
+        prefs.setStringList(_key(kind, name), values.toList()..sort());
+    Future<void> modes(String name, Map<String, CoreUpdateMode> values) =>
+        prefs.setString(_key(kind, name),
+            jsonEncode({for (final e in values.entries) e.key: e.value.name}));
+    await list('skipped_download_tabs', skippedTabs);
+    await list('skipped_downloads', skippedDownloads);
+    await list('kept_downloads', keptDownloads);
+    await modes('tab_update_modes', {
+      for (final entry in tabUpdateModes.entries)
+        if (entry.value != CoreUpdateMode.update) entry.key: entry.value,
+    });
+    await modes('update_modes', updateModes);
   }
 
   /// [coreData] without the fields Add from Core leaves empty.
@@ -98,7 +168,8 @@ class CoreDataSettings {
       for (final entry in coreData.entries)
         if (downloads(entry.key)) entry.key: entry.value,
     };
-    for (final key in skippedDownloads) {
+    for (final key in {...skippedDownloads, ...fieldTabs.keys}) {
+      if (downloads(key)) continue;
       final (parent, child) = _nested(key) ?? ('', '');
       final list = result[parent];
       if (list is! List) continue;
@@ -138,7 +209,11 @@ class CoreDataSettings {
           result[key] = entry.value;
       }
     }
-    for (final key in {...skippedDownloads, ...updateModes.keys}) {
+    for (final key in {
+      ...skippedDownloads,
+      ...updateModes.keys,
+      ...fieldTabs.keys
+    }) {
       final nested = _nested(key);
       if (nested == null) continue;
       _applyNestedUpdate(

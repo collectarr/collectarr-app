@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/music/config/core_data_tabs.dart';
 import '../selection/contribution.dart';
 import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -116,6 +117,7 @@ final musicKindIdentity = const LibraryKindIdentity(
 );
 
 final musicKindMetadata = const LibraryMetadataCapability(
+  coreDataTabs: musicCoreDataTabs,
   catalogTransportCodec: MusicCatalogTransportCodec(),
   catalogDetailCandidateBuilder: _musicCatalogDetailCandidateBuilder,
   searchQueryBuilder: musicMetadataSearchQuery,

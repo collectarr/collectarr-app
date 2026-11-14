@@ -83,6 +83,7 @@ Keep these when matching the reference visually.
 | Description editing | The Description field edits raw HTML | Games, Hardware, Toys and Comics, and the Plot of Books, also offer a Rich mode with format buttons, next to Raw; Rich saves the same light HTML |
 | Book valuation | A Value field filled by CLZ, with a refresh button, beside My Value | No fetched value: the Value tab starts with My Value and Retail Price |
 | Reading status | Read events are No Status, Reading, Finished or Dropped | The same four in Read History; the reading queue also keeps Plan to read, On hold and Rereading |
+| Add/Update from Core Settings | One flat list of fields | Rows grouped under the kind's edit tabs; each tab has its own choice and a field can be set apart from it |
 | CSV import formats | Comma or semicolon delimiters and quoted fields | Also accepts tab and space delimiters and unquoted fields |
 | Format | One album-level Format pick list | Format is derived from discs; each disc has a format family with format-aware fields (vinyl weight/RPM/side matrices only where they apply) |
 | Recording | Album-level Recording Date | Recording data lives on discs, with explicit disc values taking precedence |
@@ -310,6 +311,7 @@ navigation, larger system text and light appearance.
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |
 | P3 | Field chooser gaps | Games has no eBay link column and does not sort by cover filenames (personal images are stored as bytes). CLZ's sort chooser lists Storage and Storage Device separately; Collectarr currently has one storage-device value plus Storage Slot, so verify that distinction before adding another field. Toys still has no NFCID field |
 | P3 | Add manual tabs | CLZ lists Personal last; Collectarr lists it after Value |
+| P3 | Update from Core prompt | CLZ's Update from Core tab has "Always show this when running update from core." beside Save, showing the settings before each update; Collectarr has no such option |
 
 ## Not yet compared live
 
@@ -319,7 +321,7 @@ flows and Windows native rendering. Pick Lists opens the Artist list directly
 instead of an empty selector. Opening a menu does not establish its save
 behavior.
 
-- Add flows: Barcode results of Games, Hardware and Toys, ticking several Platform or Toy rows, the Add/Update from Core settings and the result of adding, since nothing was saved in CLZ.
+- Add flows: Barcode results of Games, Hardware and Toys, ticking several Platform or Toy rows and the result of adding, since nothing was saved in CLZ.
 - Games: Add Games Title results beside CLZ's in one session, every sort/group combination with populated records, every Personal
   pick-list save path, native file selection in Covers, trailer playback.
 - Comics: rows for unlinked comics in Link Comics and Submit to Core's wording.
