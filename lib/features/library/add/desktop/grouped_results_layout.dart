@@ -1,10 +1,13 @@
 import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
 import 'package:collectarr_app/features/library/add/shared.dart';
+import 'package:collectarr_app/features/library/workspace/layout/resizable_pane.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Desktop grouped results retain both panes and their divider, which can be
-/// dragged to resize the group list.
-class LibraryAddDesktopGroupedResultsLayout extends StatelessWidget {
+/// dragged to resize the group list. The divider is the library panes' own:
+/// it takes the kind accent while dragged and stays under the pointer.
+class LibraryAddDesktopGroupedResultsLayout extends StatefulWidget {
   const LibraryAddDesktopGroupedResultsLayout({
     super.key,
     required this.groupList,
@@ -19,60 +22,51 @@ class LibraryAddDesktopGroupedResultsLayout extends StatelessWidget {
   final ValueChanged<double>? onResize;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) => _row(
-            context,
-            listWidth.clamp(
-                0.0,
-                (constraints.maxWidth - LibraryAddResultGrouping.minListWidth)
-                    .clamp(0.0, double.infinity))),
-      );
-
-  Widget _row(BuildContext context, double width) => Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(width: width, child: groupList),
-          MouseRegion(
-            cursor: onResize == null
-                ? MouseCursor.defer
-                : SystemMouseCursors.resizeColumn,
-            child: GestureDetector(
-              key: const ValueKey('library-add-results-divider'),
-              behavior: HitTestBehavior.opaque,
-              onHorizontalDragUpdate: onResize == null
-                  ? null
-                  : (details) => onResize!(width + details.delta.dx),
-              child: ColoredBox(
-                color: libraryAddPaneDivider(context),
-                child: SizedBox(
-                  width: 6,
-                  child: onResize == null
-                      ? null
-                      : const Center(child: _DividerGrip()),
-                ),
-              ),
-            ),
-          ),
-          Expanded(child: variantList),
-        ],
-      );
+  State<LibraryAddDesktopGroupedResultsLayout> createState() =>
+      _LibraryAddDesktopGroupedResultsLayoutState();
 }
 
-/// The dots that mark the divider as draggable.
-class _DividerGrip extends StatelessWidget {
-  const _DividerGrip();
+class _LibraryAddDesktopGroupedResultsLayoutState
+    extends State<LibraryAddDesktopGroupedResultsLayout> {
+  /// The shown width when the drag began and the pointer's travel since, so
+  /// dragging past a limit and back does not move the divider until the
+  /// pointer returns to it.
+  double _dragStartWidth = 0;
+  double _dragTravel = 0;
 
   @override
-  Widget build(BuildContext context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < 4; i++)
-            Container(
-              width: 2,
-              height: 2,
-              margin: const EdgeInsets.symmetric(vertical: 1.5),
-              color: Colors.white,
-            ),
-        ],
-      );
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) {
+        final maxWidth = (c.maxWidth - LibraryAddResultGrouping.minListWidth)
+            .clamp(0.0, double.infinity);
+        final width = widget.listWidth.clamp(0.0, maxWidth);
+        final onResize = widget.onResize;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: width, child: widget.groupList),
+            if (onResize == null)
+              ColoredBox(
+                  color: libraryAddPaneDivider(context),
+                  child: const SizedBox(width: 6))
+            else
+              LibraryResizableDivider(
+                key: const ValueKey('library-add-results-divider'),
+                color: libraryAddPaneDivider(context),
+                accentColor: LibraryAccentScope.accentOf(context),
+                onDragStart: () {
+                  _dragStartWidth = width;
+                  _dragTravel = 0;
+                },
+                onDragDelta: (delta) {
+                  _dragTravel += delta;
+                  onResize((_dragStartWidth + _dragTravel).clamp(
+                      LibraryAddResultGrouping.minListWidth
+                          .clamp(0.0, maxWidth),
+                      maxWidth));
+                },
+              ),
+            Expanded(child: widget.variantList),
+          ],
+        );
+      });
 }

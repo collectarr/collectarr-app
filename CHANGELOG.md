@@ -28,6 +28,7 @@
 - The menu offers Add from Core and Add Manually only for the open collection's kind, so Hardware and Toys are added from their own collections.
 
 ### Fixes
+- The divider between grouped Add results looks and drags like the library pane dividers: the same grip, the kind color while dragged, and it stays under the pointer.
 - Barcode and title lookups for Games stay fast with a large catalog cache.
 - Typing in the search box filters large libraries faster after the first keystroke.
 - Changing the search, filters or sort order no longer rebuilds every item's view.
