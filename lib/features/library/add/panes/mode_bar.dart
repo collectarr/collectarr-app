@@ -691,7 +691,8 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   }
 }
 
-class _LibraryAddModeIconButton extends StatelessWidget {
+/// A dimmed glyph in the tab strip that turns white under the pointer.
+class _LibraryAddModeIconButton extends StatefulWidget {
   const _LibraryAddModeIconButton({
     required this.icon,
     required this.tooltip,
@@ -703,20 +704,30 @@ class _LibraryAddModeIconButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
+  State<_LibraryAddModeIconButton> createState() =>
+      _LibraryAddModeIconButtonState();
+}
+
+class _LibraryAddModeIconButtonState extends State<_LibraryAddModeIconButton> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
     return Opacity(
-        opacity: 0.5,
+        opacity: _hovered ? 1 : 0.5,
         child: Tooltip(
-          message: tooltip,
+          message: widget.tooltip,
           child: InkWell(
             mouseCursor: WidgetStateMouseCursor.clickable,
-            onTap: onPressed,
+            onTap: widget.onPressed,
+            onHover: (hovered) => setState(() => _hovered = hovered),
+            hoverColor: Colors.transparent,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
             child: SizedBox(
               width: 38,
               height: 30,
-              child:
-                  Icon(icon, size: 14, color: appPalette(context).textPrimary),
+              child: Icon(widget.icon,
+                  size: 14, color: appPalette(context).textPrimary),
             ),
           ),
         ));
@@ -745,6 +756,8 @@ class _LibraryAddSearchButton extends StatelessWidget {
           disabledBackgroundColor:
               palette.utilityAction.withValues(alpha: 0.55),
           disabledForegroundColor: Colors.white70,
+          enabledMouseCursor: SystemMouseCursors.click,
+          disabledMouseCursor: SystemMouseCursors.click,
           minimumSize: const Size(81, 34),
           padding: const EdgeInsets.symmetric(horizontal: 15),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,

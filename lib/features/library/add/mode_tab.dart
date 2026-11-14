@@ -1,9 +1,9 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// Folder tab above the Add dialog's search field: #666 when active, #505050
-/// otherwise, as in the reference.
-class LibraryAddModeTab extends StatelessWidget {
+/// Folder tab above the Add dialog's search field: #666 when active or under
+/// the pointer, #505050 otherwise, as in the reference.
+class LibraryAddModeTab extends StatefulWidget {
   const LibraryAddModeTab({
     super.key,
     required this.icon,
@@ -20,7 +20,16 @@ class LibraryAddModeTab extends StatelessWidget {
   final bool selected;
 
   @override
+  State<LibraryAddModeTab> createState() => _LibraryAddModeTabState();
+}
+
+class _LibraryAddModeTabState extends State<LibraryAddModeTab> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
+    final LibraryAddModeTab(:icon, :label, :tooltip, :onTap, :selected) =
+        widget;
     final palette = appPalette(context);
     final background = palette.isDark
         ? const Color(0xff666666)
@@ -31,6 +40,8 @@ class LibraryAddModeTab extends StatelessWidget {
       child: InkWell(
         mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onTap,
+        onHover: (hovered) => setState(() => _hovered = hovered),
+        hoverColor: Colors.transparent,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
         child: Container(
           height: 30,
@@ -45,7 +56,7 @@ class LibraryAddModeTab extends StatelessWidget {
               if (label != null) ...[
                 const SizedBox(width: 5),
                 Text(
-                  label!,
+                  label,
                   style: TextStyle(
                     color: palette.textPrimary,
                     fontSize: 14,
@@ -63,7 +74,7 @@ class LibraryAddModeTab extends StatelessWidget {
       padding: const EdgeInsets.only(right: 3),
       // Unselected tabs share the selected colour at half opacity.
       child: Opacity(
-        opacity: selected ? 1 : 0.5,
+        opacity: selected || _hovered ? 1 : 0.5,
         child: tooltip == null ? tab : Tooltip(message: tooltip, child: tab),
       ),
     );

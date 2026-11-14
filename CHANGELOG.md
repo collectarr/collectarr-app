@@ -30,6 +30,7 @@
 - Link Games shows what each match is based on under your item: barcode, catalog number, series, issue, publisher and year.
 
 ### Fixes
+- The Add dialog's tabs light up under the pointer, its settings and camera buttons turn white on hover, and Search always shows the hand pointer.
 - The Add and Link dialogs' search fields stay on one line and cut off text that does not fit, and their caret is white, as in CLZ.
 - Link manually opens the Add from Core search as a Link dialog: the title is searched at once, variants are picked as when adding, and Link this Game links the chosen one.
 - Add/Update from Core Settings matches the reference's look: a grey header per choice, Select all for each column, joined outlined buttons, the dark cell dividers and Save inside the panel.
