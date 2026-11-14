@@ -27,6 +27,7 @@
 - The library shows a loading screen while it first loads and when switching to another kind.
 - The menu offers Add from Core and Add Manually only for the open collection's kind, so Hardware and Toys are added from their own collections.
 - Add/Update from Core Settings groups its fields under the edit dialog's tabs: set a whole tab at once and set single fields apart from it.
+- Link Games shows what each match is based on under your item: barcode, catalog number, series, issue, publisher and year.
 
 ### Fixes
 - Link manually opens the Add from Core search as a Link dialog: the title is searched at once, variants are picked as when adding, and Link this Game links the chosen one.

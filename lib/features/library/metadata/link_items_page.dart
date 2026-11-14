@@ -169,6 +169,23 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
             }));
   }
 
+  /// The facts of [entry] that Core matching uses, beside its title.
+  List<(String, String)> _matchDetails(LibraryWorkspaceContext entry) {
+    final query = libraryMetadataForKind(widget.type.kind)
+        .searchQueryFor(source: entry, title: entry.title);
+    return [
+      for (final (label, value) in [
+        ('Barcode', query.barcode),
+        ('Catalog No.', query.catalogNumber),
+        ('Series', query.series),
+        ('Issue', query.issueNumber),
+        ('Publisher', query.publisher),
+        ('Year', query.year?.toString()),
+      ])
+        if (value != null && value.trim().isNotEmpty) (label, value.trim()),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) => Theme(
       data: libraryAccentTheme(context, libraryAccentForKind(widget.type.kind)),
@@ -389,7 +406,8 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
           title: entry.title,
           subtitle: card.seriesTitle ?? local.secondaryLabel,
           imageUrl: local.imageUrl,
-          imageSize: 92)),
+          imageSize: 92,
+          details: _matchDetails(entry))),
       _cell(candidate == null
           ? Text(_failures[key] ??
               (_matches.containsKey(key)
