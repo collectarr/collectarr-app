@@ -14,15 +14,25 @@ GameCatalogMetadata _metadata(CatalogSearchCandidate item) =>
 String _platform(CatalogSearchCandidate item) =>
     _metadata(item).platforms.firstOrNull?.trim() ?? '';
 
-/// One game on one platform.
+/// One game on one platform by its title, which also matches the games
+/// already in the collection.
 String gameAddItemGroupKey(CatalogSearchCandidate item) =>
     '${item.summary.primaryLabel.trim().toLowerCase()}|${_platform(item).toLowerCase()}';
+
+/// The game a result belongs to: its Core Game ID, which Core gives every
+/// edition of one game on one platform; a result without one falls back to
+/// its title and platform.
+String gameAddResultGroupKey(CatalogSearchCandidate item) =>
+    switch (_metadata(item).gameId) {
+      final gameId? => 'game:$gameId',
+      null => gameAddItemGroupKey(item),
+    };
 
 /// As in the reference, a game is listed once per platform and its editions
 /// are picked by cover, captioned with the edition title or barcode and the
 /// release region.
 final gameAddResultGrouping = LibraryAddResultGrouping(
-  groupKey: gameAddItemGroupKey,
+  groupKey: gameAddResultGroupKey,
   groupDetail: (context, item) {
     final platform = _platform(item);
     if (platform.isEmpty) return const SizedBox.shrink();

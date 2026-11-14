@@ -29,6 +29,7 @@
 - Add/Update from Core Settings groups its fields under the edit dialog's tabs: set a whole tab at once and set single fields apart from it.
 - Link Games shows what each match is based on under your item: barcode, catalog number, series, issue, publisher and year.
 - The settings button in Pre-fill Settings opens Pre-fill fields, where you choose and order the fields it shows, grouped as in CLZ: Main (Series, Platform, Genre, Audience Rating), Value, Edition (Edition, Format, Region), Toy (Type, Subtype) and Personal, including Completed, Completed Date, Storage Slot, Notes and My Rating. Main, Edition and Toy values fill new items that lack them, and a field taken out no longer fills new items.
+- Add Games groups the regional editions of a game by its Core Game ID, so two games with the same title on one platform, such as a remake, are listed apart.
 
 ### Fixes
 - Pre-fill Settings matches CLZ: Fill with today shows today's date at once and locks it, the grey bar holds the settings button, Always show this screen and Clear All, and Save stands alone, with the close button to cancel.

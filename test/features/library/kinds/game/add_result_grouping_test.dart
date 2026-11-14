@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 CatalogSearchCandidate _game(String id, String title, String platform,
-        {String? edition, String? barcode, String? region}) =>
+        {String? edition, String? barcode, String? region, String? gameId}) =>
     CatalogSearchCandidate.fromApiJson(json: {
       'id': '30000000-0000-4000-8000-$id',
       'kind': 'game',
@@ -24,6 +24,7 @@ CatalogSearchCandidate _game(String id, String title, String platform,
         if (edition != null) 'edition_title': edition,
         if (barcode != null) 'barcode': barcode,
         if (region != null) 'release_region': region,
+        if (gameId != null) 'game_id': gameId,
       },
     });
 
@@ -51,6 +52,23 @@ void main() {
     expect(gameAddResultGrouping.variantLabel(results[1]), '2000000000022');
     expect(gameAddResultGrouping.variantBadge(results[1]), 'EU');
     expect(gameAddResultGrouping.variantBadge(results[2]), isEmpty);
+  });
+
+  test('Add Games groups editions by their Core Game ID', () {
+    const remaster = '40000000-0000-4000-8000-000000000001';
+    const original = '40000000-0000-4000-8000-000000000002';
+    final linked = [
+      _game('000000000011', 'Brick Knight', 'PC',
+          region: 'US', gameId: remaster),
+      _game('000000000012', 'Brick Knight', 'PC',
+          region: 'EU', gameId: remaster),
+      _game('000000000013', 'Brick Knight', 'PC',
+          region: 'US', gameId: original),
+    ];
+    final groups = libraryAddResultGroups(linked, gameAddResultGrouping);
+    expect(groups.map((group) => group.variants.length), [2, 1]);
+    expect(gameAddResultGroupKey(linked[0]),
+        isNot(gameAddItemGroupKey(linked[0])));
   });
 
   testWidgets('a chosen game shows its editions beside the list',
